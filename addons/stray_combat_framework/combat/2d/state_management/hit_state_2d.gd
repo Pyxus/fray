@@ -22,6 +22,7 @@ const BoxSwitcher2D = preload("box_switcher_2d.gd")
 export(FrameState) var frame_state: int = FrameState.STARTUP
 
 var animation: String setget set_animation
+var transition_animation: String setget set_transition_animation
 var animation_player: AnimationPlayer setget set_animation_player
 
 var _box_switchers: Array
@@ -37,15 +38,16 @@ func _ready():
 
 func _process(delta: float) -> void:
 	if Engine.editor_hint:
-		var switcher_count = _get_switcher_count()
-		if _box_switchers.empty() or _prev_switcher_count != switcher_count:
-			_detect_box_switchers()
-		else:
-			for box_switcher in _box_switchers:
-				if not box_switcher is BoxSwitcher2D:
-					_detect_box_switchers()
-					break
-		_prev_switcher_count = switcher_count
+		if get_child_count() != 0:
+			var switcher_count = _get_switcher_count()
+			if _box_switchers.empty() or _prev_switcher_count != switcher_count:
+				_detect_box_switchers()
+			else:
+				for box_switcher in _box_switchers:
+					if not box_switcher is BoxSwitcher2D:
+						_detect_box_switchers()
+						break
+			_prev_switcher_count = switcher_count
 
 
 func _get_property_list() -> Array:
@@ -63,11 +65,11 @@ func _get_property_list() -> Array:
 		"hint_string": animations.join(",")
 		})
 		properties.append({
-		"name": "animations/test",
-		"type": TYPE_INT,
-		"usage": PROPERTY_USAGE_DEFAULT,
-		"hint": PROPERTY_HINT_FLAGS,
-		"hint_string": animations.join(",")
+			"name": "transision_animation",
+			"type": TYPE_STRING,
+			"usage": PROPERTY_USAGE_DEFAULT,
+			"hint": PROPERTY_HINT_ENUM,
+			"hint_string": animations.join(",")
 		})
 		
 	return properties
@@ -97,7 +99,19 @@ func set_boxes_belong_to(obj: Object) -> void:
 func set_animation(value: String) -> void:
 	animation = value.strip_edges()
 	if animation != NO_ANIMATION:
+		if transition_animation == animation:
+			transition_animation = NO_ANIMATION
 		emit_signal("animation_set")
+	property_list_changed_notify()
+
+func set_transition_animation(value: String) -> void:
+	transition_animation = value.strip_edges()
+	if transition_animation != NO_ANIMATION:
+		if transition_animation == animation:
+			push_warning("Transision animation can not be the same as animation")
+			transition_animation = NO_ANIMATION
+		else:
+			emit_signal("animation_set")
 	property_list_changed_notify()
 
 func set_animation_player(player: AnimationPlayer) -> void:

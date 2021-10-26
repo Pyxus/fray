@@ -49,16 +49,17 @@ func _process(delta: float) -> void:
 					deactivate_hit_states()
 
 	if Engine.editor_hint:
-		var state_count: int = _get_state_count()
-		if _hit_states.empty() or _prev_state_count != _get_state_count():
-			_detect_hit_states()
-		else:
-			for hit_state in _hit_states:
-				if not hit_state is HitState2D:
-					_detect_hit_states()
-					break
-		_prev_state_count = state_count
-		return
+		if get_child_count() != 0:
+			var state_count: int = _get_state_count()
+			if _hit_states.empty() or _prev_state_count != _get_state_count():
+				_detect_hit_states()
+			else:
+				for hit_state in _hit_states:
+					if not hit_state is HitState2D:
+						_detect_hit_states()
+						break
+			_prev_state_count = state_count
+			return
 
 func _get_configuration_warning() -> String:
 	if _hit_states.empty():
