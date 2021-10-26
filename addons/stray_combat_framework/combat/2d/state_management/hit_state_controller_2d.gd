@@ -39,6 +39,13 @@ func _process(delta: float) -> void:
 	if _anim_player != null:
 		if _anim_player.assigned_animation != assigned_animation:
 			assigned_animation = _anim_player.assigned_animation
+			
+			for hit_state in _hit_states:
+				if hit_state.animation == assigned_animation or hit_state.transition_animation == assigned_animation:
+					hit_state.is_active = true
+					break
+				else:
+					deactivate_hit_states()
 
 			for key in _hit_state_by_id:
 				var hit_state: HitState2D = _hit_state_by_id[key]
@@ -66,11 +73,11 @@ func _get_configuration_warning() -> String:
 		return "This node is expected to have HitState2D children."
 	return ""
 
+
 func deactivate_hit_states(exception: HitState2D = null) -> void:
 	for hit_state in _hit_states:
 		if hit_state != exception:
-			hit_state.deactivate_boxes()
-			hit_state.hide()
+			hit_state.is_active = false
 			
 func set_belongs_to(value: NodePath) -> void:
 	belongs_to = value
@@ -82,9 +89,7 @@ func set_current_hit_state(value: int) -> void:
 	if is_inside_tree():
 		if current_hit_state != EMPTY:
 			if _hit_state_by_id.has(current_hit_state):
-				var _current_hit_state: HitState2D = _hit_state_by_id[current_hit_state]
-				_current_hit_state.show()
-				deactivate_hit_states(_current_hit_state)
+				_hit_state_by_id[current_hit_state].is_active = true
 			else:
 				push_error("Current hit state value does not correspond to dictionary.")
 
@@ -138,6 +143,8 @@ func _detect_hit_states() -> void:
 				child.connect("active_box_set", self, "_on_HitState_active_box_set", [child])
 			if not child.is_connected("animation_set", self, "_on_HitState_animation_set"):
 				child.connect("animation_set", self, "_on_HitState_animation_set", [child])
+			if not child.is_connected("activated", self, "_on_HitState_activated"):
+				child.connect("activated", self, "_on_HitState_activated", [child])
 	
 	if _hit_states.empty():
 		set_current_hit_state(EMPTY)
@@ -152,15 +159,33 @@ func _get_state_count() -> int:
 			count += 1
 	return count
 
+func _on_HitState_activated(hit_state: HitState2D) -> void:
+	deactivate_hit_states(hit_state)
+	pass
+
 func _on_HitState_animation_set(hit_state: HitState2D) -> void:
-	if hit_state.animation != HitState2D.NO_ANIMATION:
-		for state in _hit_states:
-			if state != hit_state and state.animation == hit_state.animation:
-				hit_state.animation = HitState2D.NO_ANIMATION
-				push_warning("Animation '%s' is already associated with the '%s' hit state" % [state.animation, state.name])
-				return
+	for state in _hit_states:
+		if state != hit_state:
+			if hit_state.animation != HitState2D.NO_ANIMATION:
+				if hit_state.animation == state.animation:
+					hit_state.animation = HitState2D.NO_ANIMATION
+					push_warning("Animation '%s' is already associated with the animation of the '%s' hit state" % [state.animation, state.name])
+					break
+				elif hit_state.animation == state.transition_animation:
+					hit_state.animation = HitState2D.NO_ANIMATION
+					push_warning("Transition animation '%s' is already associated with the animation of the '%s' hit state" % [state.transition_animation, state.name])
+					break
+			elif hit_state.transition_animation != HitState2D.NO_ANIMATION:
+				if hit_state.transition_animation == state.animation:
+					hit_state.transition_animation = HitState2D.NO_ANIMATION
+					push_warning("Animation '%s' is already associated with the transition animation of the '%s' hit state" % [state.animation, state.name])
+					break
+				elif hit_state.transition_animation == state.transition_animation:
+					hit_state.transition_animation = HitState2D.NO_ANIMATION
+					push_warning("Transition animation '%s' is already associated with the transition animation of the '%s' hit state" % [state.transition_animation, state.name])
+					break
 
 func _on_HitState_active_box_set(hit_state: HitState2D) -> void:
-	if _anim_player != null and _anim_player.assigned_animation != hit_state.animation:
+	if _anim_player != null and _anim_player.assigned_animation != hit_state.animation and _anim_player.assigned_animation != hit_state.transition_animation:
 		hit_state.deactivate_boxes()
 		push_warning("Attempt to activate hitbox in %s outside of associated animation" % [hit_state.name])

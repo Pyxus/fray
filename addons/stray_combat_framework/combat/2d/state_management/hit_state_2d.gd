@@ -4,12 +4,13 @@ extends Node2D
 ## docstring
 
 signal animation_set()
-signal box_activated()
+signal activated()
 signal active_box_set()
 
 #signals
 
 enum FrameState {
+	NEUTRAL,
 	STARTUP,
 	ACTIVE,
 	RECOVERY,
@@ -19,6 +20,7 @@ const NO_ANIMATION = "[None]"
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
 
+export var is_active: bool setget set_is_active
 export(FrameState) var frame_state: int = FrameState.STARTUP
 
 var animation: String setget set_animation
@@ -74,6 +76,7 @@ func _get_property_list() -> Array:
 		
 	return properties
 
+"""
 func _get_configuration_warning() -> String:
 	var is_switcher_found := false
 	for child in _box_switchers:
@@ -85,6 +88,19 @@ func _get_configuration_warning() -> String:
 		return "This node is expected to have BoxSwitcher2D children."
 
 	return ""
+"""
+
+func set_is_active(value: bool) -> void:
+	if is_active != value:
+		if is_active:
+			show()
+			print("hmm?")
+			emit_signal("activated")
+		else:
+			hide()
+			deactivate_boxes()
+
+	is_active = value
 
 func deactivate_boxes() -> void:
 	for child in _box_switchers:
@@ -137,7 +153,7 @@ func _get_switcher_count() -> int:
 	return count
 
 func _on_BoxSwitcher_box_activated() -> void:
-	emit_signal("box_activated")
+	set_is_active(true)
 
 func _on_BoxSwitcher_active_box_set() -> void:
 	emit_signal("active_box_set")
