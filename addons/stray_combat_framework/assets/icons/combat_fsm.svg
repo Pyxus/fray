@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g id="combat_fsm" transform="matrix(1.60466,0,0,1.60466,-4.83729,-4.77022)">
+        <g>
+            <g id="path5237" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <path d="M249.824,310.688L252.077,310.688" style="fill:none;fill-rule:nonzero;stroke:rgb(224,224,224);stroke-width:0.89px;"/>
+            </g>
+            <g id="path5239" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <path d="M253.145,307.649L251.696,307.649L251.696,313.462L253.139,313.462" style="fill:none;fill-rule:nonzero;stroke:rgb(224,224,224);stroke-width:0.89px;"/>
+            </g>
+        </g>
+        <g>
+            <g id="rect5241" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <rect x="254.665" y="306.464" width="2.25" height="2.25" style="fill:rgb(224,224,224);"/>
+            </g>
+            <g id="path5243" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <path d="M252.926,309.193L252.926,306.011L254.517,307.602L252.926,309.193Z" style="fill:rgb(224,224,224);fill-rule:nonzero;"/>
+            </g>
+            <g id="path5245" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <path d="M252.926,315.016L252.926,311.835L254.517,313.426L252.926,315.016Z" style="fill:rgb(224,224,224);fill-rule:nonzero;"/>
+            </g>
+            <g id="rect5247" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <rect x="254.665" y="312.273" width="2.25" height="2.25" style="fill:rgb(224,224,224);"/>
+            </g>
+            <g id="circle5235" transform="matrix(1,0,0,1,-244.292,-302.556)">
+                <circle cx="249.182" cy="310.667" r="1.513" style="fill:rgb(224,224,224);"/>
+            </g>
+        </g>
+    </g>
+</svg>
