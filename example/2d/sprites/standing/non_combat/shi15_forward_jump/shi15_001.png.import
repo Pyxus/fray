@@ -1,0 +1,34 @@
+[remap]
+
+importer="texture"
+type="StreamTexture"
+path="res://.import/shi15_001.png-35486545dcc9b7e83cdc2cb37153e82e.stex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://example/2d/sprites/standing/non_combat/shi15_forward_jump/shi15_001.png"
+dest_files=[ "res://.import/shi15_001.png-35486545dcc9b7e83cdc2cb37153e82e.stex" ]
+
+[params]
+
+compress/mode=0
+compress/lossy_quality=0.7
+compress/hdr_mode=0
+compress/bptc_ldr=0
+compress/normal_map=0
+flags/repeat=0
+flags/filter=true
+flags/mipmaps=false
+flags/anisotropic=false
+flags/srgb=2
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/HDR_as_SRGB=false
+process/invert_color=false
+stream=false
+size_limit=0
+detect_3d=true
+svg/scale=1.0

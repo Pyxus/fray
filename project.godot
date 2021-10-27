@@ -24,10 +24,6 @@ config/name="Stray Combat Framework"
 run/main_scene="res://example/main.tscn"
 config/icon="res://icon.png"
 
-[editor_plugins]
-
-enabled=PoolStringArray( "res://addons/stray_combat_framework/plugin.cfg" )
-
 [physics]
 
 common/enable_pause_aware_picking=true
