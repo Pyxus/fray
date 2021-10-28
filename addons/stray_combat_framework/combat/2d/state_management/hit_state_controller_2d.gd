@@ -160,7 +160,7 @@ func _get_state_count() -> int:
 	return count
 
 func _on_HitState_activated(hit_state: HitState2D) -> void:
-	deactivate_hit_states(hit_state)
+	#deactivate_hit_states(hit_state)
 	pass
 
 func _on_HitState_animation_set(hit_state: HitState2D) -> void:
