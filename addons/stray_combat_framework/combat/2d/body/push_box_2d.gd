@@ -12,6 +12,7 @@ extends RigidBody2D
 #inner classes
 
 signal activated()
+signal deactivated()
 
 const COLLISION_BOX_COLOR = Color("fdff00")
 
@@ -21,7 +22,7 @@ const COLLISION_BOX_COLOR = Color("fdff00")
 
 export var is_active: bool setget set_is_active
 
-var belongs_to: Object
+var belongs_to: Object setget set_belongs_to
 var pin_joint: PinJoint2D = PinJoint2D.new()
 
 #private variables
@@ -48,22 +49,31 @@ func _process(_delta: float) -> void:
 		_set_collision_shapes_disabled(is_active)
 		return
 
-#remaining built-in virtual methods
+func _get_configuration_warning() -> String:
+	if belongs_to is RigidBody2D:
+		return "PushBox2Ds are expected to belong to a RigidBody2D"
+	return ""
 
 func join_with_body(body_path: NodePath) -> void:
 	if get_node_or_null(body_path) is RigidBody2D:
 		pin_joint.node_b = body_path
 
-func set_is_active(value: bool) -> void:
-	is_active = value
+func set_belongs_to(value: Object) -> void:
+	belongs_to = value
+	if belongs_to is RigidBody2D:
+		join_with_body(belongs_to.get_path())
 
-	if is_active:
-		show()
-		_set_collision_shapes_disabled(false)
-		emit_signal("activated")
-	else:
-		hide()
-		_set_collision_shapes_disabled(true)
+func set_is_active(value: bool) -> void:
+	if is_active != value:
+		if value:
+			show()
+			_set_collision_shapes_disabled(false)
+			emit_signal("activated")
+		else:
+			hide()
+			_set_collision_shapes_disabled(true)
+			emit_signal("deactivated")
+	is_active = value
 
 func _set_collision_shapes_disabled(value: bool) -> void:
 	for child in get_children():

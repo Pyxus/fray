@@ -15,6 +15,7 @@ const DetectionBox2D = preload("../hit_detection/detection_box_2d.gd")
 const PushBox2D = preload("../body/push_box_2d.gd")
 
 #exported variables
+
 var active_box: int setget set_active_box
 var boxes_belong_to: Object setget set_boxes_belong_to
 
@@ -25,17 +26,15 @@ var _box_names: PoolStringArray
 #onready variables
 
 func _ready() -> void:
-	_detect_boxes()
-	set_active_box(active_box)
 	var tree := get_tree()
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
-
+	
+	_detect_boxes()
+	set_active_box(active_box)
 
 func _get_configuration_warning() -> String:
 	if _detection_box_by_id.empty() and _push_box_by_id.empty():
 		return "This node is expected to have DetectionBox2Ds or PushBox2Ds children."
-	if not _push_box_by_id.empty() and not boxes_belong_to is RigidBody2D:
-		return "PushBox2Ds are expected to belong to a RigidBody2D"
 	return ""
 
 func _get_property_list() -> Array:
@@ -49,15 +48,6 @@ func _get_property_list() -> Array:
 	"hint_string": _box_names.join(" ,")
 	})
 	return properties
-
-func has_active_box() -> bool:
-	for detection_box in _detection_box_by_id.values():
-		if detection_box.is_active:
-			return true
-	for push_box in _push_box_by_id.values():
-		if push_box.is_active:
-			return true
-	return false
 
 func deactivate_all_boxes() -> void:
 	for detection_box in _detection_box_by_id.values():
@@ -74,22 +64,23 @@ func set_boxes_belong_to(obj: Object) -> void:
 
 func set_active_box(value: int) -> void:
 	active_box = value
-	print(active_box)
+
 	if is_inside_tree():
+		emit_signal("active_box_set")
+
 		if active_box == NONE:
 			deactivate_all_boxes()
 			return
 			
 		if _detection_box_by_id.has(active_box):
 			_detection_box_by_id[active_box].is_active = true
+			
 		elif _push_box_by_id.has(active_box):
 			_push_box_by_id[active_box].is_active = true
 		else:
 			push_warning("Active box with given id `%s` does not exist in switcher" % [active_box])
-		pass
 
 func _gen_box_id() -> int:
-	# Why am I doing this again? I could have just done an incrementing id...
 	var id := 0
 	while _detection_box_by_id.has(id) or _push_box_by_id.has(id):
 		id += 1
@@ -149,9 +140,8 @@ func _detect_boxes() -> void:
 			_push_box_by_id[_gen_box_id()] = push_box
 			_box_names.append("%s:%s" % [push_box.name, box_id])
 
-
 	property_list_changed_notify()
-	update_configuration_warning()
+	#update_configuration_warning()
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:

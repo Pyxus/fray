@@ -62,18 +62,19 @@ func set_flip_v(value: bool) -> void:
 			child.position.y *= -1
 
 func set_is_active(value: bool) -> void:
+	if is_active != value:
+		if value:
+			show()
+			monitorable = true
+			monitoring = true
+			emit_signal("activated")
+		else:
+			hide()
+			monitorable = false
+			monitoring = false
+			emit_signal("deactivated")
+		
 	is_active = value
-
-	if is_active:
-		show()
-		monitorable = true
-		monitoring = true
-		emit_signal("activated")
-	else:
-		hide()
-		monitorable = false
-		monitoring = false
-		emit_signal("deactivated")
 
 #private methods
 

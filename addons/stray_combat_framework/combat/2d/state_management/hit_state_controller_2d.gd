@@ -21,60 +21,23 @@ var assigned_animation: String
 var _anim_player: AnimationPlayer
 var _hit_states: Array = []
 var _hit_state_by_id: Dictionary
-var _prev_state_count: int = 0
 
 #onready variables
 
 
 #optional built-in virtual _init method
 
-func _init() -> void:
-	if is_inside_tree():
-		_detect_hit_states()
-
 func _ready() -> void:
+	var tree := get_tree()
+	tree.connect("tree_changed", self, "_on_SceneTree_changed")
 	_detect_hit_states()
-
-func _process(delta: float) -> void:
-	if _anim_player != null:
-		if _anim_player.assigned_animation != assigned_animation:
-			assigned_animation = _anim_player.assigned_animation
-			
-			for hit_state in _hit_states:
-				if hit_state.animation == assigned_animation or hit_state.transition_animation == assigned_animation:
-					hit_state.is_active = true
-					break
-				else:
-					deactivate_hit_states()
-
-			for key in _hit_state_by_id:
-				var hit_state: HitState2D = _hit_state_by_id[key]
-				if hit_state.animation == assigned_animation:
-					set_current_hit_state(key)
-					break
-				else:
-					deactivate_hit_states()
-
-	if Engine.editor_hint:
-		if get_child_count() != 0:
-			var state_count: int = _get_state_count()
-			if _hit_states.empty() or _prev_state_count != _get_state_count():
-				_detect_hit_states()
-			else:
-				for hit_state in _hit_states:
-					if not hit_state is HitState2D:
-						_detect_hit_states()
-						break
-			_prev_state_count = state_count
-			return
 
 func _get_configuration_warning() -> String:
 	if _hit_states.empty():
 		return "This node is expected to have HitState2D children."
 	return ""
 
-
-func deactivate_hit_states(exception: HitState2D = null) -> void:
+func deactivate_all_hit_states_except(exception: HitState2D = null) -> void:
 	for hit_state in _hit_states:
 		if hit_state != exception:
 			hit_state.is_active = false
@@ -105,30 +68,12 @@ func set_animation_player(value: NodePath) -> void:
 	if anim_player is AnimationPlayer:
 		_anim_player = anim_player
 
-"""func _get_property_list() -> Array:
-	var properties: Array = []
-
-	var state_names: PoolStringArray
-	for state in _hit_states:
-		state_names.append(state.name)
-	
-	if state_names.empty():
-		state_names.append("[Empty]")
-	
-	properties.append({
-	"name": "current_hit_state",
-	"type": TYPE_INT,
-	"usage": PROPERTY_USAGE_DEFAULT,
-	"hint": PROPERTY_HINT_ENUM,
-	"hint_string": state_names.join(",")
-	})
-		
-	return properties"""
-
 func _detect_hit_states() -> void:
 	set_animation_player(animation_player)
+	
 	_hit_states.clear()
 	_hit_state_by_id.clear()
+	
 	
 	var i: int = 0
 	for child in get_children():
@@ -139,53 +84,22 @@ func _detect_hit_states() -> void:
 			_hit_state_by_id[i] = child
 			i += 1
 
-			if not child.is_connected("active_box_set", self, "_on_HitState_active_box_set"):
-				child.connect("active_box_set", self, "_on_HitState_active_box_set", [child])
-			if not child.is_connected("animation_set", self, "_on_HitState_animation_set"):
-				child.connect("animation_set", self, "_on_HitState_animation_set", [child])
 			if not child.is_connected("activated", self, "_on_HitState_activated"):
 				child.connect("activated", self, "_on_HitState_activated", [child])
 	
 	if _hit_states.empty():
 		set_current_hit_state(EMPTY)
+	
+	#property_list_changed_notify() # I guess the act of trying to set am exported nodepath changes the tree so this will get changed and prevent the property from being updated.
+	#update_configuration_warning() # Seems to cause this error 'Timer was not added to SceneTree. Either add it or set autostart to true.'
+	return
 
-	property_list_changed_notify()
-	update_configuration_warning()
 
-func _get_state_count() -> int:
-	var count := 0
-	for child in get_children():
-		if child is HitState2D:
-			count += 1
-	return count
+func _on_SceneTree_changed() -> void:
+	if Engine.editor_hint:
+		_detect_hit_states()
+		pass
 
 func _on_HitState_activated(hit_state: HitState2D) -> void:
-	#deactivate_hit_states(hit_state)
+	deactivate_all_hit_states_except(hit_state)
 	pass
-
-func _on_HitState_animation_set(hit_state: HitState2D) -> void:
-	for state in _hit_states:
-		if state != hit_state:
-			if hit_state.animation != HitState2D.NO_ANIMATION:
-				if hit_state.animation == state.animation:
-					hit_state.animation = HitState2D.NO_ANIMATION
-					push_warning("Animation '%s' is already associated with the animation of the '%s' hit state" % [state.animation, state.name])
-					break
-				elif hit_state.animation == state.transition_animation:
-					hit_state.animation = HitState2D.NO_ANIMATION
-					push_warning("Transition animation '%s' is already associated with the animation of the '%s' hit state" % [state.transition_animation, state.name])
-					break
-			elif hit_state.transition_animation != HitState2D.NO_ANIMATION:
-				if hit_state.transition_animation == state.animation:
-					hit_state.transition_animation = HitState2D.NO_ANIMATION
-					push_warning("Animation '%s' is already associated with the transition animation of the '%s' hit state" % [state.animation, state.name])
-					break
-				elif hit_state.transition_animation == state.transition_animation:
-					hit_state.transition_animation = HitState2D.NO_ANIMATION
-					push_warning("Transition animation '%s' is already associated with the transition animation of the '%s' hit state" % [state.transition_animation, state.name])
-					break
-
-func _on_HitState_active_box_set(hit_state: HitState2D) -> void:
-	if _anim_player != null and _anim_player.assigned_animation != hit_state.animation and _anim_player.assigned_animation != hit_state.transition_animation:
-		hit_state.deactivate_boxes()
-		push_warning("Attempt to activate hitbox in %s outside of associated animation" % [hit_state.name])
