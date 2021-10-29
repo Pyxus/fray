@@ -1,4 +1,3 @@
-
 tool
 extends Node2D
 ## docstring
@@ -10,18 +9,12 @@ signal active_box_set()
 
 #enums
 
-const NONE_ACTIVE := "[None]"
-const NONE = 0
+const NONE = -1
 
 const DetectionBox2D = preload("../hit_detection/detection_box_2d.gd")
 const PushBox2D = preload("../body/push_box_2d.gd")
 
 #exported variables
-enum Test {
-	a = 1,
-	b = 1,
-}
-export(Test) var test2
 var active_box: int setget set_active_box
 var boxes_belong_to: Object setget set_boxes_belong_to
 
@@ -33,8 +26,7 @@ var _box_names: PoolStringArray
 
 func _ready() -> void:
 	_detect_boxes()
-	print(_detection_box_by_id)
-	print(_push_box_by_id)
+	set_active_box(active_box)
 	var tree := get_tree()
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
 
@@ -52,17 +44,10 @@ func _get_property_list() -> Array:
 	properties.append({
 	"name": "active_box",
 	"type": TYPE_INT,
-	"usage": PROPERTY_USAGE_DEFAULT,
+	"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE,
 	"hint": PROPERTY_HINT_ENUM,
 	"hint_string": _box_names.join(" ,")
 	})
-	properties.append({
-		"name": "test",
-		"type": TYPE_DICTIONARY,
-		"usage": PROPERTY_USAGE_DEFAULT,
-		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": _box_names.join(" ,")
-		})
 	return properties
 
 func has_active_box() -> bool:
@@ -87,29 +72,28 @@ func set_boxes_belong_to(obj: Object) -> void:
 	for push_box in _push_box_by_id.values():
 		push_box.belongs_to = obj
 
-func set_active_box(value: int, notify_set: bool = true) -> void:
+func set_active_box(value: int) -> void:
 	active_box = value
+	print(active_box)
 	if is_inside_tree():
-		if notify_set:
-			emit_signal("active_box_set")
-		if active_box != NONE:
-			if _detection_box_by_id.has(active_box - 1):
-				_detection_box_by_id[active_box - 1].is_active = true
-			elif _push_box_by_id.has(active_box - 1):
-				_push_box_by_id[active_box - 1].is_active = true
-			else:
-				print(active_box)
-				push_error("Active box value does not correspond to any dictionary")
-		else:
+		if active_box == NONE:
 			deactivate_all_boxes()
+			return
+			
+		if _detection_box_by_id.has(active_box):
+			_detection_box_by_id[active_box].is_active = true
+		elif _push_box_by_id.has(active_box):
+			_push_box_by_id[active_box].is_active = true
+		else:
+			push_warning("Active box with given id `%s` does not exist in switcher" % [active_box])
+		pass
 
 func _gen_box_id() -> int:
 	# Why am I doing this again? I could have just done an incrementing id...
-	var id := 1
+	var id := 0
 	while _detection_box_by_id.has(id) or _push_box_by_id.has(id):
 		id += 1
 	return id
-
 
 func _detect_boxes() -> void:
 	# Map object to id. Used to remap id to same object to help preserve animation keys.
@@ -126,40 +110,44 @@ func _detect_boxes() -> void:
 
 	_detection_box_by_id.clear()
 	_push_box_by_id.clear()
-	_box_names = [NONE_ACTIVE]
+	_box_names = ["[None]:%s" % NONE]
 
 	var detected_detection_boxes: Array
 	var detected_push_boxes: Array
 
 	for child in get_children():
 		if child is DetectionBox2D:
-			_box_names.append(child.name)
 			detected_detection_boxes.append(child)
 
 			if id_by_detection_box.has(child):
 				var box_id: int = id_by_detection_box[child]
 				_detection_box_by_id[box_id] = child
+				_box_names.append("%s:%s" % [child.name, box_id])
 
 			if not child.is_connected("activated", self, "_on_DetectionBox_activated"):
 				child.connect("activated", self, "_on_DetectionBox_activated", [child])
 		elif child is PushBox2D:
-			_box_names.append(child.name)
 			detected_detection_boxes.append(child)
 
 			if id_by_push_box.has(child):
 				var box_id: int = id_by_push_box[child]
 				_push_box_by_id[box_id] = child
+				_box_names.append("%s:%s" % [child.name, box_id])
 
 			if not child.is_connected("activated", self, "_on_PushBox_activated"):
 				child.connect("activated", self, "_on_PushBox_activated", [child])
 
 	for detection_box in detected_detection_boxes:
 		if not id_by_detection_box.has(detection_box):
-			_detection_box_by_id[_gen_box_id()] = detection_box
+			var box_id := _gen_box_id()
+			_detection_box_by_id[box_id] = detection_box
+			_box_names.append("%s:%s" % [detection_box.name, box_id])
 
 	for push_box in detected_push_boxes:
 		if not id_by_push_box.has(push_box):
+			var box_id := _gen_box_id()
 			_push_box_by_id[_gen_box_id()] = push_box
+			_box_names.append("%s:%s" % [push_box.name, box_id])
 
 
 	property_list_changed_notify()
