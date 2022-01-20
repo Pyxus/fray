@@ -91,27 +91,6 @@ func bind_mouse_input(id: int, button: int) -> void:
 	bind_simple_input(id, mouse_input)
 
 
-func __experiment(buffered_input,input):
-	if not _input_buffer.empty():
-		var oldest_component: BufferedInput
-		var component_count := 0
-		for i in len(input.input_ids):
-			var buffer_size := _input_buffer.size()
-			if buffer_size - i > 0:
-				var comp: BufferedInput = _input_buffer[buffer_size - i - 1]
-				if input.is_component(comp.id):
-					oldest_component = comp
-					component_count += 1
-				else:
-					break
-		
-		if oldest_component != null:
-			var is_inputted_quick_enough = buffered_input.calc_time_between(oldest_component) < 0.1
-			if is_inputted_quick_enough:
-				for i in component_count:
-					_input_buffer.pop_back()
-
-
 func _check_for_inputs() -> void:
 	for id in _input_by_id:
 		var input := _input_by_id[id] as SimpleInput
@@ -138,6 +117,7 @@ func _check_for_inputs() -> void:
 
 		input.poll()
 
+
 func _increment_held_input_time(delta: float) -> void:
 	for buffered_input in _input_buffer:
 		buffered_input = buffered_input as BufferedInput
@@ -162,30 +142,40 @@ func _handle_buffer_clearing(delta: float) -> void:
 		_time_since_first_input += delta
 
 		if _time_since_first_input >= buffer_duration:
-			# Keep most recently pressed input in buffer if they're still heled
+			# Keep most recently pressed inputs in buffer if they're still being pressed
 			var carry_over_buffer: Array
+			var buffered_combinations: Array
+
 			for i in range(_input_buffer.size() - 1, -1, -1):
 				var buffered_input: BufferedInput = _input_buffer[i]
 				if not buffered_input.was_released:
 					for input in carry_over_buffer:
 						if buffered_input.id == input.id:
 							continue	
+
+					if _input_by_id[buffered_input.id] is CombinationInput:
+						buffered_combinations.append(buffered_input)
+
 					carry_over_buffer.push_front(buffered_input)
 
-			# Remove combination's components from carry over
-			for i in range(carry_over_buffer.size() - 1, -1, -1):
-				var buffered_input: BufferedInput = carry_over_buffer[i]
-				var simple_input: SimpleInput = _input_by_id[buffered_input.id]
+			# Remove combination component inputs from carry over
+			if not carry_over_buffer.empty():
+				var temp_buffer: Array
 
-				if simple_input is CombinationInput:
-					for j in len(simple_input.input_ids) - 1:
-						var most_recent_input: BufferedInput = carry_over_buffer[carry_over_buffer.size() - 2 - j]
-						var is_inputted_quick_enough := buffered_input.calc_time_between(most_recent_input) < 0.1
-						if simple_input.is_component(most_recent_input.id):
-							carry_over_buffer.erase(most_recent_input)
-						else:
-							break
-						pass
+				for buffered_input in carry_over_buffer:
+					var is_featured_in_combination: bool = false
+					if not buffered_input in buffered_combinations:
+						for buffered_combination in buffered_combinations:
+							var combination_input: CombinationInput = _input_by_id[buffered_combination.id]
+							if buffered_input.id in combination_input.input_ids:
+								is_featured_in_combination = true
+								break
+
+					if not is_featured_in_combination:
+						temp_buffer.append(buffered_input)
+
+				carry_over_buffer = temp_buffer
+
 
 			_input_buffer.clear()
 
