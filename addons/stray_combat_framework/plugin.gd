@@ -34,9 +34,11 @@ func _enter_tree() -> void:
 	add_custom_type("BoxSwitcher2D", "Node2D", StrayCF.BoxSwitcher2D, preload("assets/icons/box_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", StrayCF.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("HitStateController2D", "Node2D", StrayCF.HitStateController2D, preload("assets/icons/hit_state_controller_2d.svg"))
+	#add_autoload_singleton("StrayInput", "res://addons/stray_combat_framework/input/stray_input.gd")
 
 
 func _exit_tree() -> void:
+	#remove_autoload_singleton("StrayInput")
 	for type in _added_types:
 		remove_custom_type(type)
 

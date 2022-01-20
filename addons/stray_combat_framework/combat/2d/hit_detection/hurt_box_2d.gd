@@ -10,7 +10,7 @@ signal hit_detected()
 
 const BOX_COLOR = Color("0088ff")
 
-var HitBox2D: GDScript = load("hit_box_2d.gd") 
+#
 
 #exported variables
 
@@ -36,5 +36,4 @@ func _process(_delta: float) -> void:
 #private methods
 
 func _on_area_entered(area: Area2D) -> void:
-	if area is HitBox2D.new():
-		emit_signal("hit_detected")
+	pass

@@ -1,10 +1,11 @@
-
 tool
 extends Node2D
-## docstring
+## Node used to contain a configuration of DetectionBox2Ds and/or PushBox2Ds.
+##
+## This node is intended to represent a single state of a fighter such as a fighting move.
 
-signal animation_set()
-signal activated()
+signal animation_set
+signal activated
 
 #signals
 
@@ -24,21 +25,28 @@ const PushBox2D = preload("../body/push_box_2d.gd")
 export var is_active: bool setget set_is_active
 export(FrameState) var frame_state: int = FrameState.NEUTRAL
 
-var animation_player: AnimationPlayer setget set_animation_player
-
 var _detection_boxes: Array
 var _push_boxes: Array
 var _box_switchers: Array
+var _animation_list: PoolStringArray
 
 #onready variables
 
-
 #optional built-in virtual _init method
+
 
 func _ready():
 	var tree := get_tree()
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
 	pass
+
+
+
+
+func set_animation_list(list: PoolStringArray) -> void:
+	_animation_list = list
+	property_list_changed_notify()
+
 
 func set_is_active(value: bool) -> void:
 	if is_active != value:
@@ -48,32 +56,23 @@ func set_is_active(value: bool) -> void:
 		else:
 			hide()
 			deactivate_boxes()
-
 	is_active = value
 
 func deactivate_boxes() -> void:
 	for detection_box in _detection_boxes:
 		detection_box.is_active = false
-	
+
 	for push_box in _push_boxes:
 		push_box.is_active = false
 
-	for switcher in _box_switchers:
-		switcher.active_box = BoxSwitcher2D.NONE
 
 func set_boxes_belong_to(obj: Object) -> void:
 	for detection_box in _detection_boxes:
 		detection_box.belongs_to = obj
-	
+
 	for push_box in _push_boxes:
 		push_box.belongs_to = obj
-
-	for switcher in _box_switchers:
-		switcher.set_boxes_belong_to(obj)
-
-func set_animation_player(player: AnimationPlayer) -> void:
-	animation_player = player
-	property_list_changed_notify()
+	
 
 func _detect_box_switchers() -> void:
 	_box_switchers.clear()
@@ -93,17 +92,20 @@ func _detect_box_switchers() -> void:
 			_push_boxes.append(child)
 			if not child.is_connected("activated", self, "_on_PushBox2D_activated"):
 				child.connect("activated", self, "_on_PushBox2D_activated")
-	property_list_changed_notify()
+
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:
 		_detect_box_switchers()
 
+
 func _on_DetectionBox2D_activated() -> void:
 	set_is_active(true)
 
+
 func _on_PushBox2D_activated() -> void:
 	set_is_active(true)
+
 
 func _on_BoxSwitcher_active_box_set() -> void:
 	set_is_active(true)

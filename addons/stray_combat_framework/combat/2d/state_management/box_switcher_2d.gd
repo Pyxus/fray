@@ -1,6 +1,9 @@
 tool
 extends Node2D
-## docstring
+## Node capable of switching between its DetectionBox2D and PushBox2D children.
+##
+## Only one DetectionBox2D or PushBox2D in a switcher can be active at a time.
+## This node is intended to be used when animating by keying the active hitbox.
 
 #inner classes
 

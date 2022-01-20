@@ -1,27 +1,19 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/hit_state_2d.gd" type="Script" id=2]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/box_switcher_2d.gd" type="Script" id=3]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_detection/hit_box_2d.gd" type="Script" id=4]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/hit_state_controller_2d.gd" type="Script" id=5]
+[ext_resource path="res://addons/stray_combat_framework/input/input_detector.gd" type="Script" id=2]
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
 
-[node name="HitStateController2D" type="Node2D" parent="."]
-script = ExtResource( 5 )
-
-[node name="HitState2D" type="Node2D" parent="HitStateController2D"]
+[node name="InputDetector" type="Node" parent="."]
 script = ExtResource( 2 )
-is_active = true
 
-[node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/HitState2D"]
-script = ExtResource( 3 )
-active_box = 0
-
-[node name="HitBox2D" type="Area2D" parent="HitStateController2D/HitState2D/BoxSwitcher2D"]
-modulate = Color( 1, 0, 0.329412, 1 )
-script = ExtResource( 4 )
-
-[node name="PinJoint2D" type="PinJoint2D" parent="."]
+[node name="Label" type="Label" parent="."]
+margin_left = 149.0
+margin_top = 95.0
+margin_right = 189.0
+margin_bottom = 109.0
+__meta__ = {
+"_edit_use_anchors_": false
+}

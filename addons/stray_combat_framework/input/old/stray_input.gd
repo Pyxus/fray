@@ -1,5 +1,5 @@
 extends Node
-## Class that deals with command inputs, where a command input is a unique
+## Class that handles command inputs. A command input is a unique
 ## sequence of buttons pressed within a certain time frame.
 
 #signals
@@ -73,7 +73,7 @@ func register_created_sequences() -> void:
 	for sequence in _created_input_sequences:
 		_register_sequence(sequence)
 
-func register_input_aggregate(actions: Array) -> void:
+func register_action_input_aggregate(actions: Array) -> void:
 	var input := CInput.new()
 	for action in actions:
 		if InputMap.has_action(action):
@@ -83,14 +83,13 @@ func register_input_aggregate(actions: Array) -> void:
 			return
 	_registered_aggregate_inputs.append(input)
 
-func register_input(action: String) -> void:
+func register_action_input(action: String) -> void:
 	if InputMap.has_action(action):
 		var input := CInput.new()
 		input.actions.append(action)
 		_registered_inputs.append(input)
 	else:
 		push_warning("Input map does not contain action [%s]" % action)
-
 
 func create_input_sequence(sequence_name: String) -> InputSequence:
 	var input_sequence := InputSequence.new()

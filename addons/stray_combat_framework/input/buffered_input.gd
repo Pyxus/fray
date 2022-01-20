@@ -1,35 +1,9 @@
 extends Reference
-## docstring
 
-#inner classes
+var id: int
+var time_stamp: int
+var time_held: float
+var was_released: bool
 
-#signals
-
-#enums
-
-#constants
-
-const CInput = preload("cinput.gd")
-
-#exported variables
-
-var input: CInput
-var time_held: float = 0.0
-var is_held: bool = false
-
-#private variables
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
-#public methods
-
-#private methods
-
-#signal methods
+func calc_time_between(buffered_input: Reference) -> float:
+    return abs(time_stamp - buffered_input.time_stamp)
