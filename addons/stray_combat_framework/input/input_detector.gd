@@ -2,12 +2,12 @@ extends Node
 
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("input_sequence.gd")
-const CombinationInput = preload("buttons/combination_input.gd")
-const SimpleInput = preload("buttons/simple_input.gd")
-const ActionInput = preload("buttons/action_input.gd")
-const JoystickInput = preload("buttons/joystick_input.gd")
-const KeyboardInput = preload("buttons/keyboard_input.gd")
-const MouseInput = preload("buttons/mouse_input.gd")
+const CombinationInput = preload("virtual_inputs/combination_input.gd")
+const VirtualInput = preload("virtual_inputs/virtual_input.gd")
+const ActionInput = preload("virtual_inputs/action_input.gd")
+const JoystickInput = preload("virtual_inputs/joystick_input.gd")
+const KeyboardInput = preload("virtual_inputs/keyboard_input.gd")
+const MouseInput = preload("virtual_inputs/mouse_input.gd")
 
 var buffer_duration: float = 2
 
@@ -15,6 +15,11 @@ var _time_since_first_input: float
 var _input_by_id: Dictionary
 var _sequence_by_name: Dictionary
 var _input_buffer: Array
+var _combination_release_queue: Array
+
+
+func _ready() -> void:
+	pass
 
 
 func _process(delta: float) -> void:
@@ -24,14 +29,54 @@ func _process(delta: float) -> void:
 	_handle_buffer_clearing(delta)
 
 
-func feed_input(id: int, time_held: float = 0.0) -> void:
-	var buffered_input := BufferedInput.new()
-	buffered_input.id = id
-	buffered_input.time_stamp = OS.get_ticks_msec()
-	buffered_input.time_held = time_held
-	buffered_input.was_released = true
-	_input_buffer.append(buffered_input)
-		
+func is_input_pressed(id: int) -> bool:
+	if not _input_by_id.has(id):
+		push_warning("Input with id %d does not exist" % id)
+		return false
+	return _input_by_id[id].is_pressed()
+
+
+func is_input_just_pressed(id: int) -> bool:
+	if not _input_by_id.has(id):
+		push_warning("Input with id %d does not exist" % id)
+		return false
+	return _input_by_id[id].is_just_pressed()
+
+
+func is_input_just_released(id: int) -> bool:
+	if not _input_by_id.has(id):
+		push_warning("Input with id %d does not exist" % id)
+		return false
+	return _input_by_id[id].is_just_released()
+
+
+func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, combination: CombinationInput = null) -> void:
+	feed_input_at(-1, id, time_held, was_released, combination)
+
+
+func feed_input_at(time_stamp: int, id: int, time_held: float = 0.0, was_released: bool = true, combination: CombinationInput = null) -> void:
+	var fed_buffered_input := BufferedInput.new()
+	fed_buffered_input.id = id
+	fed_buffered_input.time_stamp = time_stamp
+	fed_buffered_input.time_held = time_held
+	fed_buffered_input.was_released = was_released
+	fed_buffered_input.owner_combination = combination
+
+	if time_stamp <= 0:
+		fed_buffered_input.time_stamp = OS.get_ticks_msec()
+		_input_buffer.append(fed_buffered_input)
+	else:
+		var insertion_index = _input_buffer.size()
+
+		for i in len(_input_buffer):
+			var buffered_input: BufferedInput = _input_buffer[i]
+
+			if fed_buffered_input.time_stamp < buffered_input.time_stamp:
+				insertion_index = i
+				break
+		_input_buffer.insert(insertion_index, fed_buffered_input)
+
+
 
 func register_sequence(name: String, input_sequence: InputSequence) -> void:
 	if name.empty():
@@ -57,43 +102,59 @@ func register_combination(id: int, input_ids: PoolIntArray) -> void:
 	var combination_input := CombinationInput.new()
 	combination_input.input_map = _input_by_id
 	combination_input.input_ids = input_ids
+	combination_input.id = id
+	bind_virtual_input(id, combination_input)
 
-	bind_simple_input(id, combination_input)
 
-
-func bind_simple_input(id: int, simple_input: SimpleInput) -> void:
-	_input_by_id[id] = simple_input
+func bind_virtual_input(id: int, virtual_input: VirtualInput) -> void:
+	_input_by_id[id] = virtual_input
 
 
 func bind_action_input(id: int, action: String) -> void:
 	var action_input := ActionInput.new()
 	action_input.action = action
-	bind_simple_input(id, action_input)
+	action_input.id = id
+	bind_virtual_input(id, action_input)
 
 
 func bind_joystick_input(id: int, device: int, button: int) -> void:
 	var joystick_input := JoystickInput.new()
 	joystick_input.device = device
 	joystick_input.button = button
-	bind_simple_input(id, joystick_input)
+	joystick_input.id = id
+	bind_virtual_input(id, joystick_input)
 
 
 func bind_keyboard_input(id: int, key: int) -> void:
 	var keyboard_input := KeyboardInput.new()
 	keyboard_input.key = key
-	bind_simple_input(id, keyboard_input)
+	keyboard_input.id = id
+	bind_virtual_input(id, keyboard_input)
 
 
 func bind_mouse_input(id: int, button: int) -> void:
 	var mouse_input := MouseInput.new()
 	mouse_input.button = button
 	_input_by_id[id] = mouse_input
-	bind_simple_input(id, mouse_input)
+	mouse_input.id = id
+	bind_virtual_input(id, mouse_input)
 
 
 func _check_for_inputs() -> void:
+	for queued_release in _combination_release_queue:
+		if queued_release.get_elapsed_time() > 0.02:
+			#queued_release.combination_input.release_components()
+			for input_id in queued_release.combination_input.input_ids:
+				if is_input_pressed(input_id):
+					feed_input_at(queued_release.released_at, input_id, 0, false, queued_release.combination_input)
+					pass
+			_combination_release_queue.erase(queued_release)
+			
+	
+	#_combination_release_queue.clear()
+		
 	for id in _input_by_id:
-		var input := _input_by_id[id] as SimpleInput
+		var input := _input_by_id[id] as VirtualInput
 
 		if input.is_just_pressed():
 			var buffered_input := BufferedInput.new()
@@ -101,11 +162,18 @@ func _check_for_inputs() -> void:
 			buffered_input.time_stamp = OS.get_ticks_msec()
 
 			if input is CombinationInput:
+				for queued_release in _combination_release_queue:
+					if queued_release.combination_input == input:
+						#queued_release.erase(queued_release)
+						break
+
 				if not _input_buffer.empty():
 					for i in len(input.input_ids):
 						var most_recent_input: BufferedInput = _input_buffer.back()
-						var is_inputted_quick_enough := buffered_input.calc_time_between(most_recent_input) < 0.1
-						if input.is_component(most_recent_input.id):
+						var is_inputted_quick_enough: bool = buffered_input.get_time_between(most_recent_input) < 0.02
+						var is_true_component: bool = most_recent_input.owner_combination == null
+						#print(is_true_component)
+						if input.is_component(most_recent_input.id) and is_true_component:
 							if is_inputted_quick_enough:
 								_input_buffer.pop_back()
 						else:
@@ -113,7 +181,11 @@ func _check_for_inputs() -> void:
 			_input_buffer.append(buffered_input)
 		elif input.is_just_released():
 			if input is CombinationInput:
-				input.release_components()
+				var queued_combination_release := QueuedCombinationRelease.new()
+				queued_combination_release.combination_input = input
+				queued_combination_release.released_at = OS.get_ticks_msec()
+				_combination_release_queue.append(queued_combination_release)
+
 
 		input.poll()
 
@@ -122,9 +194,8 @@ func _increment_held_input_time(delta: float) -> void:
 	for buffered_input in _input_buffer:
 		buffered_input = buffered_input as BufferedInput
 		
-		if not buffered_input.was_released:
-			var input: SimpleInput = _input_by_id[buffered_input.id]
-			if input.is_pressed():
+		if not buffered_input.was_released and _input_by_id.has(buffered_input.id):
+			if is_input_pressed(buffered_input.id):
 				buffered_input.time_held += delta
 			else:
 				buffered_input.was_released = true
@@ -145,14 +216,18 @@ func _handle_buffer_clearing(delta: float) -> void:
 			# Keep most recently pressed inputs in buffer if they're still being pressed
 			var carry_over_buffer: Array
 			var buffered_combinations: Array
+			var input_buffer_reverse_loop := range(_input_buffer.size() - 1, -1, -1)
 
-			for i in range(_input_buffer.size() - 1, -1, -1):
+			for i in input_buffer_reverse_loop:
 				var buffered_input: BufferedInput = _input_buffer[i]
+				var is_already_carried_over := false
 				if not buffered_input.was_released:
 					for input in carry_over_buffer:
 						if buffered_input.id == input.id:
-							continue	
+							is_already_carried_over = true
+							break
 
+				if not buffered_input.was_released and not is_already_carried_over:
 					if _input_by_id[buffered_input.id] is CombinationInput:
 						buffered_combinations.append(buffered_input)
 
@@ -164,6 +239,7 @@ func _handle_buffer_clearing(delta: float) -> void:
 
 				for buffered_input in carry_over_buffer:
 					var is_featured_in_combination: bool = false
+					
 					if not buffered_input in buffered_combinations:
 						for buffered_combination in buffered_combinations:
 							var combination_input: CombinationInput = _input_by_id[buffered_combination.id]
@@ -183,3 +259,15 @@ func _handle_buffer_clearing(delta: float) -> void:
 				_input_buffer.append(buffered_input)
 			
 			_time_since_first_input = 0
+
+
+class QueuedCombinationRelease:
+	extends Reference
+
+	const CombinationInput = preload("virtual_inputs/combination_input.gd")
+
+	var combination_input: CombinationInput
+	var released_at: int
+
+	func get_elapsed_time() -> float:
+		return abs(OS.get_ticks_msec() - released_at) / 1000.0

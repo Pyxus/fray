@@ -1,6 +1,7 @@
 extends Reference
 
 var previously_pressed: bool
+var id: int
 
 func poll() -> void:
     if is_pressed():

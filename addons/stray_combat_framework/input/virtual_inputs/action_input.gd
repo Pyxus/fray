@@ -1,4 +1,4 @@
-extends "simple_input.gd"
+extends "virtual_input.gd"
 
 var action: String
 

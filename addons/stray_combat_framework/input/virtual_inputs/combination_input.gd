@@ -1,4 +1,4 @@
-extends "simple_input.gd"
+extends "virtual_input.gd"
 
 var input_map: Dictionary
 var input_ids: PoolIntArray setget set_input_ids
@@ -24,7 +24,8 @@ func is_component(input_id: int) -> bool:
 
 func release_components() -> void:
 	for input_id in input_ids:
-		input_map[input_id].previously_pressed = false
+		if input_map[input_id].is_pressed():
+			input_map[input_id].previously_pressed = false
 
 
 func set_input_ids(value: PoolIntArray) -> void:
