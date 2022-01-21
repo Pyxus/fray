@@ -1,14 +1,16 @@
 extends Node
 
 const BufferedInput = preload("buffered_input.gd")
-const InputSequence = preload("input_sequence.gd")
-const SequenceData = preload("sequence_data.gd")
+const InputSequence = preload("sequence/input_sequence.gd")
+const SequenceData = preload("sequence/sequence_data.gd")
 const CombinationInput = preload("virtual_inputs/combination_input.gd")
 const VirtualInput = preload("virtual_inputs/virtual_input.gd")
 const ActionInput = preload("virtual_inputs/action_input.gd")
 const JoystickInput = preload("virtual_inputs/joystick_input.gd")
 const KeyboardInput = preload("virtual_inputs/keyboard_input.gd")
 const MouseInput = preload("virtual_inputs/mouse_input.gd")
+
+signal sequence_inputed(sequence_name)
 
 var buffer_duration: float = 1
 
@@ -51,17 +53,17 @@ func is_input_just_released(id: int) -> bool:
 	return _input_by_id[id].is_just_released()
 
 
-func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, combination: CombinationInput = null) -> void:
-	feed_input_at(-1, id, time_held, was_released, combination)
+func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, owner_combination: CombinationInput = null) -> void:
+	feed_input_at(-1, id, time_held, was_released, owner_combination)
 
 
-func feed_input_at(time_stamp: int, id: int, time_held: float = 0.0, was_released: bool = true, combination: CombinationInput = null) -> void:
+func feed_input_at(time_stamp: int, id: int, time_held: float = 0.0, was_released: bool = true, owner_combination: CombinationInput = null) -> void:
 	var fed_buffered_input := BufferedInput.new()
 	fed_buffered_input.id = id
 	fed_buffered_input.time_stamp = time_stamp
 	fed_buffered_input.time_held = time_held
 	fed_buffered_input.was_released = was_released
-	fed_buffered_input.owner_combination = combination
+	fed_buffered_input.owner_combination = owner_combination
 
 	if time_stamp <= 0:
 		fed_buffered_input.time_stamp = OS.get_ticks_msec()
@@ -200,7 +202,7 @@ func _check_for_sequence_matches() -> void:
 	for sequence_name in _sequence_by_name:
 		var sequence = _sequence_by_name[sequence_name] as InputSequence
 		if sequence.is_match(_input_buffer):
-			print(sequence_name)
+			emit_signal("sequence_inputed", sequence_name)
 
 
 func _handle_buffer_clearing(delta: float) -> void:

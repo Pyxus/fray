@@ -1,6 +1,6 @@
 extends Node
 
-const SequenceData = preload("res://addons/stray_combat_framework/input/sequence_data.gd")
+const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
 
 func _ready() -> void:
 	var input_detector = $InputDetector

@@ -1,6 +1,6 @@
 extends Reference
 
-const BufferedInput = preload("buffered_input.gd")
+const BufferedInput = preload("../buffered_input.gd")
 const SequenceParseResult = preload("sequence_parse_result.gd")
 
 const DEFAULT_MAX_DELAY: float = 0.2
@@ -59,7 +59,6 @@ func _is_sequence_match(buffered_inputs: Array, start_index: int) -> bool:
 		
 		if prev_input_data != null:
 			if prev_input_data.max_delay >= 0 and buffered_input.get_time_between(prev_buffered_input) > input_data.max_delay:
-				print(is_delay_infinite, ":", input_data.id)
 				return false
 
 		if buffered_input.time_held < input_data.charge_duration:
