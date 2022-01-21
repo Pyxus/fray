@@ -7,6 +7,7 @@ const CombinationInput = preload("virtual_inputs/combination_input.gd")
 const VirtualInput = preload("virtual_inputs/virtual_input.gd")
 const ActionInput = preload("virtual_inputs/action_input.gd")
 const JoystickInput = preload("virtual_inputs/joystick_input.gd")
+const JoystickAxisInput = preload("virtual_inputs/joystick_input.gd")
 const KeyboardInput = preload("virtual_inputs/keyboard_input.gd")
 const MouseInput = preload("virtual_inputs/mouse_input.gd")
 
@@ -131,6 +132,14 @@ func bind_joystick_input(id: int, device: int, button: int) -> void:
 	joystick_input.button = button
 	joystick_input.id = id
 	bind_virtual_input(id, joystick_input)
+
+
+func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> void:
+	var joystick_axis_input := JoystickAxisInput.new()
+	joystick_axis_input.device = device
+	joystick_axis_input.axis = axis
+	joystick_axis_input.deadzone = deadzone
+	bind_virtual_input(id, joystick_axis_input)
 
 
 func bind_keyboard_input(id: int, key: int) -> void:

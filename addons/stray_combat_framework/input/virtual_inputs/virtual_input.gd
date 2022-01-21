@@ -23,6 +23,3 @@ func is_just_pressed() -> bool:
 
 func is_just_released() -> bool:
     return not is_pressed() and previously_pressed
-
-func is_combination() -> bool:
-    return false
