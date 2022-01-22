@@ -8,7 +8,7 @@ extends Node2D
 
 #enums
 
-const EMPTY = -1
+const NONE = -1
 
 const HitState2D = preload("hit_state_2d.gd")
 
@@ -16,8 +16,7 @@ export var switch_on_state_activated: bool = true
 export var belongs_to: NodePath setget set_belongs_to
 export var animation_player: NodePath setget set_animation_player
 
-var current_hit_state: int setget set_current_hit_state
-
+var _current_hit_state: int setget _set_current_hit_state
 var _anim_player: AnimationPlayer
 var _hit_states: Array = []
 var _hit_state_by_id: Dictionary
@@ -32,13 +31,20 @@ func _ready() -> void:
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
 	_detect_hit_states()
 	if not _hit_state_by_id.empty():
-		set_current_hit_state(0)
+		_set_current_hit_state(0)
 	_find_animation_associations()
 
 func _get_configuration_warning() -> String:
 	if _hit_states.empty():
 		return "This node is expected to have HitState2D children."
 	return ""
+
+
+func get_current_hit_state() -> HitState2D:
+	if _current_hit_state != NONE:
+		return _hit_state_by_id[_current_hit_state]
+	return null
+
 
 func deactivate_all_hit_states_except(exception: HitState2D = null) -> void:
 	for hit_state in _hit_states:
@@ -50,18 +56,18 @@ func set_belongs_to(value: NodePath) -> void:
 	belongs_to = value
 	_detect_hit_states()
 
-func set_current_hit_state(value: int) -> void:
-	current_hit_state = value
+func _set_current_hit_state(value: int) -> void:
+	_current_hit_state = value
 
 	if is_inside_tree():
-		if current_hit_state != EMPTY:
-			if _hit_state_by_id.has(current_hit_state):
-				_hit_state_by_id[current_hit_state].is_active = true
+		if _current_hit_state != NONE:
+			if _hit_state_by_id.has(_current_hit_state):
+				_hit_state_by_id[_current_hit_state].is_active = true
 			else:
 				push_error("Current hit state value does not correspond to dictionary.")
 
 func get_current_hit_state_obj() -> HitState2D:
-	return null if not _hit_state_by_id.has(current_hit_state) else _hit_state_by_id[current_hit_state]
+	return null if not _hit_state_by_id.has(_current_hit_state) else _hit_state_by_id[_current_hit_state]
 
 func get_animation_list() -> PoolStringArray:
 	return [] if _anim_player == null else _anim_player.get_animation_list()
@@ -109,7 +115,7 @@ func _detect_hit_states() -> void:
 				child.connect("activated", self, "_on_HitState_activated", [child])
 	
 	if _hit_states.empty():
-		set_current_hit_state(EMPTY)
+		_set_current_hit_state(NONE)
 	
 	#property_list_changed_notify() # I guess the act of trying to set am exported nodepath changes the tree so this will get changed and prevent the property from being updated.
 	#update_configuration_warning() # Seems to cause this error 'Timer was not added to SceneTree. Either add it or set autostart to true.'

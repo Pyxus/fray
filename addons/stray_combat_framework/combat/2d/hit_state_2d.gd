@@ -9,21 +9,13 @@ signal activated
 
 #signals
 
-enum FrameState {
-	NEUTRAL,
-	STARTUP,
-	ACTIVE,
-	RECOVERY,
-}
-
 const NO_ANIMATION = "[None]"
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
-const DetectionBox2D = preload("../hit_detection/detection_box_2d.gd")
-const PushBox2D = preload("../body/push_box_2d.gd")
+const DetectionBox2D = preload("hit_detection/detection_box_2d.gd")
+const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
-export(FrameState) var frame_state: int = FrameState.NEUTRAL
 
 var _detection_boxes: Array
 var _push_boxes: Array

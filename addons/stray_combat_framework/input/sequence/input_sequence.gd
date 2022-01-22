@@ -21,15 +21,17 @@ func set_sequence(clean_sequence: SequenceData, dirty_sequences: Array = []) -> 
 		push_warning("Unnecessary inclusion of main sequence in dirty sequences")
 
 
-func is_match(buffered_inputs: Array) -> bool:
-	for sequence_data in _sequences:
+func parse(buffered_inputs: Array) -> SequenceParseResult:
+	for i in len(_sequences):
+		var sequence_data: SequenceData = _sequences[i]
 		var sequence_parse_result: SequenceParseResult = sequence_data.parse(buffered_inputs, get_start_index())
+
 		if sequence_parse_result.is_match and not sequence_parse_result.discovered_at_index in _discovered_at_indexes:
+			sequence_parse_result.is_dirty_input = true
 			_discovered_at_indexes.append(sequence_parse_result.discovered_at_index)
-			return true
+			return sequence_parse_result
 
-	return false
-
+	return SequenceParseResult.new()
 
 func get_start_index() -> int:
 	if not _discovered_at_indexes.empty():

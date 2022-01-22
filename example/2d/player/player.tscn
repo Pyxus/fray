@@ -1,13 +1,13 @@
 [gd_scene load_steps=61 format=2]
 
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/body/fighter_body_2d.gd" type="Script" id=1]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/hit_state_controller_2d.gd" type="Script" id=2]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/box_switcher_2d.gd" type="Script" id=3]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/state_management/hit_state_2d.gd" type="Script" id=4]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_controller_2d.gd" type="Script" id=2]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/box_switcher_2d.gd" type="Script" id=3]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_2d.gd" type="Script" id=4]
 [ext_resource path="res://example/2d/player/sprites/ground/movement/jump_shi17.png" type="Texture" id=5]
 [ext_resource path="res://example/2d/player/sprites/ground/idle_shi00.png" type="Texture" id=6]
 [ext_resource path="res://example/2d/player/sprites/ground/movement/walk_shi26.png" type="Texture" id=7]
-[ext_resource path="res://addons/stray_combat_framework/combat/combat_fsm.gd" type="Script" id=50]
+[ext_resource path="res://addons/stray_combat_framework/combat/state_management/combat_fsm.gd" type="Script" id=50]
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=51]
 
 [sub_resource type="CapsuleShape2D" id=1]
@@ -347,8 +347,9 @@ belongs_to = NodePath("..")
 animation_player = NodePath("../AnimationPlayer")
 
 [node name="Jump" type="Node2D" parent="HitStateController2D"]
+visible = false
 script = ExtResource( 4 )
-is_active = true
+frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Jump"]
 script = ExtResource( 3 )
@@ -362,8 +363,9 @@ script = ExtResource( 51 )
 shape = SubResource( 47 )
 
 [node name="Idle" type="Node2D" parent="HitStateController2D"]
-visible = false
 script = ExtResource( 4 )
+is_active = true
+frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Idle"]
 script = ExtResource( 3 )
@@ -380,6 +382,7 @@ shape = SubResource( 47 )
 [node name="Walk" type="Node2D" parent="HitStateController2D"]
 visible = false
 script = ExtResource( 4 )
+frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Walk"]
 script = ExtResource( 3 )

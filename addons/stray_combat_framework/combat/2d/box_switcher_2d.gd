@@ -14,8 +14,8 @@ signal active_box_set()
 
 const NONE = -1
 
-const DetectionBox2D = preload("../hit_detection/detection_box_2d.gd")
-const PushBox2D = preload("../body/push_box_2d.gd")
+const DetectionBox2D = preload("hit_detection/detection_box_2d.gd")
+const PushBox2D = preload("body/push_box_2d.gd")
 
 #exported variables
 

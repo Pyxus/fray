@@ -4,6 +4,9 @@ const SequenceData = preload("res://addons/stray_combat_framework/input/sequence
 
 func _ready() -> void:
 	var input_detector = $InputDetector
+
+	input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
+
 	input_detector.bind_action_input(2, "ui_down")
 	input_detector.bind_action_input(6, "ui_right")
 	input_detector.bind_action_input(8, "ui_up")
@@ -14,8 +17,7 @@ func _ready() -> void:
 	input_detector.register_combination(7, [8, 4])
 
 	var qcf := SequenceData.new()
-	qcf.append_input(4, -1, .5)
-	qcf.append_input(6)
+	qcf.append_inputs([2,3,6])
 
 	input_detector.register_sequence_from_data("QCF", qcf)
 
@@ -27,3 +29,8 @@ func _process(delta: float) -> void:
 		buffer += "%d," % input.id
 
 	$Label.text = buffer
+
+
+func _on_InputDetector_input_detected(detected_input) -> void:
+	if "name" in detected_input:
+		print(detected_input.name)

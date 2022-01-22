@@ -3,6 +3,9 @@ extends Node
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("sequence/input_sequence.gd")
 const SequenceData = preload("sequence/sequence_data.gd")
+const SequenceParseResult = preload("sequence/sequence_parse_result.gd")
+const DetectedSequence = preload("detected_inputs/detected_sequence.gd")
+const DetectedVirtualInput = preload("detected_inputs/detected_virtual_input.gd")
 const CombinationInput = preload("virtual_inputs/combination_input.gd")
 const VirtualInput = preload("virtual_inputs/virtual_input.gd")
 const ActionInput = preload("virtual_inputs/action_input.gd")
@@ -11,9 +14,9 @@ const JoystickAxisInput = preload("virtual_inputs/joystick_input.gd")
 const KeyboardInput = preload("virtual_inputs/keyboard_input.gd")
 const MouseInput = preload("virtual_inputs/mouse_input.gd")
 
-signal sequence_inputed(sequence_name)
+signal input_detected(detected_input)
 
-var buffer_duration: float = 1
+export var buffer_duration: float = 1
 
 var _time_since_first_input: float
 var _input_by_id: Dictionary
@@ -188,7 +191,19 @@ func _check_for_inputs() -> void:
 						else:
 							break
 			_input_buffer.append(buffered_input)
+
+			var detected_virtual_input := DetectedVirtualInput.new()
+			detected_virtual_input.id = id
+			detected_virtual_input.time_stamp = buffered_input.time_stamp
+			detected_virtual_input.is_pressed = true
+			emit_signal("input_detected", detected_virtual_input)
 		elif input.is_just_released():
+			var detected_virtual_input := DetectedVirtualInput.new()
+			detected_virtual_input.id = id
+			detected_virtual_input.time_stamp = OS.get_ticks_msec()
+			detected_virtual_input.is_pressed = false
+			emit_signal("input_detected", detected_virtual_input)
+
 			if input is CombinationInput:
 				_released_combinations.append(input)
 				call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
@@ -210,8 +225,14 @@ func _increment_held_input_time(delta: float) -> void:
 func _check_for_sequence_matches() -> void:
 	for sequence_name in _sequence_by_name:
 		var sequence = _sequence_by_name[sequence_name] as InputSequence
-		if sequence.is_match(_input_buffer):
-			emit_signal("sequence_inputed", sequence_name)
+		var parse_result: SequenceParseResult = sequence.parse(_input_buffer)
+
+		if parse_result.is_match:
+			var detected_sequence := DetectedSequence.new()
+			detected_sequence.name = sequence_name
+			detected_sequence.is_dirty = parse_result.is_dirty_input
+			detected_sequence.time_stamp = OS.get_ticks_msec()
+			emit_signal("input_detected", detected_sequence)
 
 
 func _handle_buffer_clearing(delta: float) -> void:
