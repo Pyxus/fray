@@ -166,49 +166,55 @@ func _feed_released_combination_components(input: CombinationInput, time_stamp: 
 			feed_input_at(time_stamp, id, 0, false, input)
 
 
+func _broadcast_input_detected(id: int, time_stamp: int, is_pressed: bool) -> void:
+	var detected_virtual_input := DetectedVirtualInput.new()
+	detected_virtual_input.id = id
+	detected_virtual_input.time_stamp = time_stamp
+	detected_virtual_input.is_pressed = is_pressed
+	emit_signal("input_detected", detected_virtual_input)
+
+
 func _check_for_inputs() -> void:	
 	for id in _input_by_id:
-		var input := _input_by_id[id] as VirtualInput
+		var virtual_input := _input_by_id[id] as VirtualInput
+		var time_stamp :=  OS.get_ticks_msec()
 
-		if input.is_just_pressed():
+		if virtual_input.is_just_pressed():
 			var buffered_input := BufferedInput.new()
 			buffered_input.id = id
-			buffered_input.time_stamp = OS.get_ticks_msec()
+			buffered_input.time_stamp = time_stamp
 
-			if input is CombinationInput:
+			if virtual_input is CombinationInput:
 				if not _input_buffer.empty():
-					for i in len(input.input_ids):
+					for i in len(virtual_input.input_ids):
 						var most_recent_input: BufferedInput = _input_buffer.back()
 						var is_inputted_quick_enough: bool = buffered_input.get_time_between(most_recent_input) < 0.02
 						# Prevents some fed inputs from being registered as components
 						var is_intended_component: bool = \
 							most_recent_input.owner_combination == null or \
-							most_recent_input.owner_combination == input
+							most_recent_input.owner_combination == virtual_input
 		
-						if input.is_component(most_recent_input.id) and is_intended_component:
+						if virtual_input.is_component(most_recent_input.id) and is_intended_component:
 							if is_inputted_quick_enough:
 								_input_buffer.pop_back()
 						else:
 							break
 			_input_buffer.append(buffered_input)
-
+		elif virtual_input.is_just_released():
 			var detected_virtual_input := DetectedVirtualInput.new()
-			detected_virtual_input.id = id
-			detected_virtual_input.time_stamp = buffered_input.time_stamp
-			detected_virtual_input.is_pressed = true
-			emit_signal("input_detected", detected_virtual_input)
-		elif input.is_just_released():
-			var detected_virtual_input := DetectedVirtualInput.new()
-			detected_virtual_input.id = id
-			detected_virtual_input.time_stamp = OS.get_ticks_msec()
-			detected_virtual_input.is_pressed = false
-			emit_signal("input_detected", detected_virtual_input)
+			_broadcast_input_detected(id, time_stamp, false)
 
-			if input is CombinationInput:
-				_released_combinations.append(input)
-				call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
+			if virtual_input is CombinationInput:
+				_released_combinations.append(virtual_input)
+				virtual_input.release_components()
+				#call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
 
-		input.poll()
+		virtual_input.poll()
+	
+	for buffered_input in _input_buffer:
+		if not buffered_input.was_broadcasted:
+			buffered_input.was_broadcasted = true
+			_broadcast_input_detected(buffered_input.id, buffered_input.time_stamp, !buffered_input.was_released)
 
 
 func _increment_held_input_time(delta: float) -> void:

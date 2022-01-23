@@ -5,6 +5,7 @@ extends Node
 #signals
 
 enum FrameState {
+	IDLE,
 	STARTUP,
 	ACTIVE,
 	ACTIVE_GAP,
@@ -12,18 +13,21 @@ enum FrameState {
 }
 
 const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
-const FighterState = preload("fighter_state.gd")
-
-const RootIdleState = preload("root_idle_state.gd")
-const IdleState = preload("idle_state.gd")
-const ActionState = preload("action_state.gd")
+const InputData = preload("input_data/input_data.gd")
+const VirtualInputData = preload("input_data/virtual_input_data.gd")
+const SequenceInputData = preload("input_data/sequence_input_data.gd")
+const FighterState = preload("states/fighter_state.gd")
+const RootIdleState = preload("states/root_idle_state.gd")
+const IdleState = preload("states/idle_state.gd")
+const ActionState = preload("states/action_state.gd")
 
 #exported variables
 
-export(FrameState) var frame_state: int
-export var input_bufer_size: int
-export var input_buffer_duration: float = 0.5
 export var anim_player: NodePath
+export(FrameState) var frame_state: int
+export var input_bufer_size: int = 2
+export var input_buffer_duration: float = 0.5
+
 
 var _root_by_situation: Dictionary
 var _current_situation: String
@@ -45,7 +49,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if not _input_buffer.empty():
-		if frame_state == FrameState.RECOVERY:
+		if frame_state == FrameState.RECOVERY or frame_state == FrameState.IDLE:
 			advance(_input_buffer.pop_front())
 
 		if _time_since_first_input >= input_buffer_duration:
@@ -73,8 +77,7 @@ func advance(detected_input: DetectedInput) -> void:
 
 	var next_state := _current_fighter_state.get_next_action(detected_input)
 	if next_state != null:
-		if _current_fighter_state != null:
-			pass
+		switch_to_state(next_state)
 
 
 func create_situation(situation: String) -> RootIdleState:
@@ -86,9 +89,46 @@ func create_situation(situation: String) -> RootIdleState:
 	return root
 
 
+func create_action_si(animation: String, sequence: String) -> ActionState:
+	var action_state := ActionState.new()
+	var input_data := SequenceInputData.new()
+
+	input_data.name = sequence
+	action_state.animation = animation
+	action_state.input = input_data
+	return action_state
+
+
+func create_action_vi(animation: String, input_id: int, is_activated_on_release: bool = false) -> ActionState:
+	var action_state := ActionState.new()
+	var input_data := VirtualInputData.new()
+
+	input_data.id = input_id
+	action_state.animation = animation
+	action_state.input = input_data
+
+	return action_state
+
+
 func remove_situation(situation: String) -> void:
 	if _root_by_situation.has(situation):
 		_root_by_situation.erase(situation)
+
+
+func switch_to_state(fighter_state: FighterState) -> void:
+	var situation: String = get_situation_with_state(fighter_state)
+	var situation_root: RootIdleState = get_situation_root(situation)
+	
+	if situation_root == null:
+		if fighter_state is RootIdleState:
+			push_error("Failed to switch to state '%s'. No situation with RootIdleState '%s' exists in CombatFSM." % [fighter_state, fighter_state])
+		else:
+			push_error("Failed to switch to state '%s'. Fighter state does not belong to any situation in CombatFSM." % fighter_state)
+		return
+
+	_current_situation = situation
+	_set_current_fighter_state(fighter_state)
+	_play_animation(fighter_state.animation)
 
 
 func get_situation_root(situation: String) -> RootIdleState:
@@ -97,14 +137,36 @@ func get_situation_root(situation: String) -> RootIdleState:
 	return null
 
 
+func get_situation_with_state(fighter_state: FighterState) -> String:
+	for situation in _root_by_situation:
+		var fighter_root := fighter_state if fighter_state is RootIdleState else fighter_state.get_root()
+		var situation_root: RootIdleState = _root_by_situation[situation]
+
+		if situation_root == fighter_root:
+			return situation
+	return ""
+
+
 func set_current_situation(situation: String) -> void:
 	if not _root_by_situation.has(situation):
 		push_error("Failed to set situation. Situation '%s' does not exist." % situation)
 		return
 
 	_current_situation = situation
-	_set_current_fighter_state(_root_by_situation[situation])
+	switch_to_state(get_situation_root(_current_situation))
 
+
+func _play_animation(animation: String) -> void:
+	if _anim_player == null:
+		push_error("Failed to play animation. AnimationPlayer is not set.")
+		return
+
+	if not _anim_player.has_animation(animation):
+		push_error("AnimationPlayer does not have animation named '%s'" % animation)
+		return
+	
+	_anim_player.play(animation)
+	
 
 func _set_current_fighter_state(fighter_state: FighterState) -> void:
 	_previous_fighter_state = _current_fighter_state
@@ -112,31 +174,9 @@ func _set_current_fighter_state(fighter_state: FighterState) -> void:
 
 
 func _revert_to_root_state() -> void:
-	_set_current_fighter_state(get_situation_root(_current_situation))
-
-
-func _is_previous_action_state_end_anim(anim_name: String) -> bool:
-	if _previous_fighter_state != null:
-		if _previous_fighter_state is ActionState:
-			if _previous_fighter_state.animation == anim_name:
-				return true
-	return false
-
-
-func _is_current_action_state_anim_ending(anim_name: String) -> bool:
-	if _current_fighter_state is ActionState:
-		if _current_fighter_state.animation == anim_name:
-			return true
-	return false
+	switch_to_state(get_situation_root(_current_situation))
 
 
 func _on_AnimPlayer_animation_finished(anim_name: String) -> void:
-	if _current_fighter_state != null:
-		if _current_fighter_state is ActionState:
-			if _is_current_action_state_anim_ending(anim_name):
-				_anim_player.play(_current_fighter_state.end_animation)
-				_revert_to_root_state()
-		elif _current_fighter_state is IdleState:
-			if _is_previous_action_state_end_anim(anim_name):
-				_anim_player.play(_current_fighter_state.animation)
-	pass
+	if _current_fighter_state is ActionState and _current_fighter_state.animation == anim_name:
+		_revert_to_root_state()

@@ -1,7 +1,12 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
 [ext_resource path="res://addons/stray_combat_framework/input/input_detector.gd" type="Script" id=2]
+[ext_resource path="res://addons/stray_combat_framework/debug/input_history/input_history_display.tscn" type="PackedScene" id=3]
+[ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=4]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 530.287, 22.5622 )
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
@@ -9,11 +14,27 @@ script = ExtResource( 1 )
 [node name="InputDetector" type="Node" parent="."]
 script = ExtResource( 2 )
 
-[node name="Label" type="Label" parent="."]
-margin_left = 149.0
-margin_top = 95.0
-margin_right = 189.0
-margin_bottom = 109.0
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2( 150.376, 591.333 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D"]
+margin_left = -154.0
+margin_top = -22.0
+margin_right = 878.0
+margin_bottom = 18.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2( 376.809, 0 )
+shape = SubResource( 1 )
+
+[node name="Player" parent="." instance=ExtResource( 4 )]
+position = Vector2( 455.584, 371.452 )
+
+[node name="InputHistoryDisplay" parent="." instance=ExtResource( 3 )]
+margin_right = 14.0

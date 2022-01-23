@@ -16,8 +16,8 @@ extends "character_body_2d.gd"
 var gravity: float = 4000
 var speed_on_slope: float = 600
 
-var _float_timer: Timer = Timer.new()
-var _jump_reset_timer: Timer = Timer.new()
+var _float_timer: Timer
+var _jump_reset_timer: Timer
 
 #onready variables
 
@@ -25,8 +25,12 @@ var _jump_reset_timer: Timer = Timer.new()
 #optional built-in virtual _init method
 
 func _ready() -> void:
+	_float_timer =  Timer.new()
+	_jump_reset_timer = Timer.new()
+
 	add_child(_jump_reset_timer)
 	add_child(_float_timer)
+	
 	_float_timer.one_shot = true
 	_jump_reset_timer.one_shot = true
 

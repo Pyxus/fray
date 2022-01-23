@@ -1,13 +1,21 @@
-[gd_scene load_steps=61 format=2]
+[gd_scene load_steps=158 format=2]
 
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/body/fighter_body_2d.gd" type="Script" id=1]
+[ext_resource path="res://example/2d/player/player.gd" type="Script" id=1]
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_controller_2d.gd" type="Script" id=2]
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/box_switcher_2d.gd" type="Script" id=3]
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_2d.gd" type="Script" id=4]
-[ext_resource path="res://example/2d/player/sprites/ground/movement/jump_shi17.png" type="Texture" id=5]
-[ext_resource path="res://example/2d/player/sprites/ground/idle_shi00.png" type="Texture" id=6]
-[ext_resource path="res://example/2d/player/sprites/ground/movement/walk_shi26.png" type="Texture" id=7]
-[ext_resource path="res://addons/stray_combat_framework/combat/state_management/combat_fsm.gd" type="Script" id=50]
+[ext_resource path="res://example/2d/player/sprites/standing/movement/jump_shi17.png" type="Texture" id=5]
+[ext_resource path="res://example/2d/player/sprites/standing/idle_shi00.png" type="Texture" id=6]
+[ext_resource path="res://example/2d/player/sprites/standing/movement/walk_shi26.png" type="Texture" id=7]
+[ext_resource path="res://addons/stray_combat_framework/combat/state_management/combat_fsm.gd" type="Script" id=8]
+[ext_resource path="res://example/2d/player/sprites/standing/attack/shi01.png" type="Texture" id=9]
+[ext_resource path="res://example/2d/player/sprites/standing/attack/shi03.png" type="Texture" id=10]
+[ext_resource path="res://example/2d/player/sprites/standing/crouch_shi28.png" type="Texture" id=11]
+[ext_resource path="res://example/2d/player/sprites/standing/attack/shi02.png" type="Texture" id=12]
+[ext_resource path="res://example/2d/player/sprites/standing/attack/shi41.png" type="Texture" id=13]
+[ext_resource path="res://example/2d/player/sprites/crouch/shi04.png" type="Texture" id=14]
+[ext_resource path="res://addons/stray_combat_framework/input/input_detector.gd" type="Script" id=15]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_detection/hit_box_2d.gd" type="Script" id=16]
 [ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=51]
 
 [sub_resource type="CapsuleShape2D" id=1]
@@ -234,6 +242,381 @@ flags = 4
 atlas = ExtResource( 7 )
 region = Rect2( 768, 768, 256, 256 )
 
+[sub_resource type="AtlasTexture" id=110]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=111]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=112]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=113]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=52]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=53]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=54]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=55]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 768, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=56]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1024, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=57]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1280, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=58]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=59]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=60]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 512, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=61]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 768, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=62]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1024, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=63]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=64]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=65]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=66]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 768, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=67]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 1024, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=68]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=69]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=70]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 512, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=71]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 768, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=72]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 1024, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=73]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 0, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=74]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 256, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=75]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 512, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=76]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 768, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=77]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 1024, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=78]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 0, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=79]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 256, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=80]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 512, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=81]
+flags = 4
+atlas = ExtResource( 10 )
+region = Rect2( 768, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=129]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=114]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=115]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=116]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=117]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=118]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=119]
+flags = 4
+atlas = ExtResource( 9 )
+region = Rect2( 512, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=82]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1280, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=83]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 0, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=84]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 256, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=85]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 512, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=86]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 768, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=87]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1024, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=88]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 1280, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=89]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 0, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=90]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 256, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=91]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 512, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=92]
+flags = 4
+atlas = ExtResource( 12 )
+region = Rect2( 768, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=123]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=124]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=125]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=126]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=127]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=128]
+flags = 4
+atlas = ExtResource( 14 )
+region = Rect2( 512, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=93]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=94]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 256, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=95]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 512, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=96]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 768, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=97]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 1024, 0, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=98]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 0, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=99]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=100]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 512, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=101]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 768, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=102]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 1024, 256, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=103]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 0, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=104]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 256, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=105]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 512, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=106]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 768, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=107]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 1024, 512, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=108]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 0, 768, 256, 256 )
+
+[sub_resource type="AtlasTexture" id=109]
+flags = 4
+atlas = ExtResource( 13 )
+region = Rect2( 256, 768, 256, 256 )
+
 [sub_resource type="SpriteFrames" id=46]
 animations = [ {
 "frames": [ SubResource( 2 ), SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ), SubResource( 9 ), SubResource( 10 ), SubResource( 11 ), SubResource( 12 ), SubResource( 13 ), SubResource( 14 ), SubResource( 15 ), SubResource( 16 ), SubResource( 17 ) ],
@@ -250,24 +633,419 @@ animations = [ {
 "loop": true,
 "name": "walk",
 "speed": 5.0
+}, {
+"frames": [ SubResource( 110 ), SubResource( 111 ), SubResource( 112 ), SubResource( 113 ) ],
+"loop": true,
+"name": "stand_crouch_transition",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 52 ), SubResource( 53 ), SubResource( 54 ), SubResource( 55 ), SubResource( 56 ), SubResource( 57 ), SubResource( 58 ), SubResource( 59 ), SubResource( 60 ), SubResource( 61 ), SubResource( 62 ) ],
+"loop": true,
+"name": "5S",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 63 ), SubResource( 64 ), SubResource( 65 ), SubResource( 66 ), SubResource( 67 ), SubResource( 68 ), SubResource( 69 ), SubResource( 70 ), SubResource( 71 ), SubResource( 72 ), SubResource( 73 ), SubResource( 74 ), SubResource( 75 ), SubResource( 76 ), SubResource( 77 ), SubResource( 78 ), SubResource( 79 ), SubResource( 80 ), SubResource( 81 ) ],
+"loop": true,
+"name": "5H",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 129 ) ],
+"loop": true,
+"name": "crouch",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 114 ), SubResource( 115 ), SubResource( 116 ), SubResource( 117 ), SubResource( 118 ), SubResource( 119 ) ],
+"loop": true,
+"name": "5P",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 82 ), SubResource( 83 ), SubResource( 84 ), SubResource( 85 ), SubResource( 86 ), SubResource( 87 ), SubResource( 88 ), SubResource( 89 ), SubResource( 90 ), SubResource( 91 ), SubResource( 92 ) ],
+"loop": true,
+"name": "5P-5P",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 123 ), SubResource( 124 ), SubResource( 125 ), SubResource( 126 ), SubResource( 127 ), SubResource( 128 ) ],
+"loop": true,
+"name": "2P",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 93 ), SubResource( 94 ), SubResource( 95 ), SubResource( 96 ), SubResource( 97 ), SubResource( 98 ), SubResource( 99 ), SubResource( 100 ), SubResource( 101 ), SubResource( 102 ), SubResource( 103 ), SubResource( 104 ), SubResource( 105 ), SubResource( 106 ), SubResource( 107 ), SubResource( 108 ), SubResource( 109 ) ],
+"loop": true,
+"name": "236H",
+"speed": 5.0
 } ]
 
 [sub_resource type="RectangleShape2D" id=47]
 extents = Vector2( 20.1152, 50.5041 )
 
-[sub_resource type="Animation" id=50]
-resource_name = "New Anim"
+[sub_resource type="RectangleShape2D" id=134]
+extents = Vector2( 28.541, 16.6489 )
+
+[sub_resource type="RectangleShape2D" id=135]
+extents = Vector2( 18.514, 51.2362 )
+
+[sub_resource type="RectangleShape2D" id=136]
+extents = Vector2( 15.757, 25.7398 )
+
+[sub_resource type="RectangleShape2D" id=137]
+extents = Vector2( 17.2435, 35.3961 )
+
+[sub_resource type="RectangleShape2D" id=138]
+extents = Vector2( 28.8383, 44.5953 )
+
+[sub_resource type="RectangleShape2D" id=139]
+extents = Vector2( 14.8516, 52.0278 )
+
+[sub_resource type="RectangleShape2D" id=140]
+extents = Vector2( 32.4059, 39.5411 )
+
+[sub_resource type="RectangleShape2D" id=141]
+extents = Vector2( 17.8381, 13.8477 )
+
+[sub_resource type="Animation" id=130]
+resource_name = "236H"
 tracks/0/type = "value"
-tracks/0/path = NodePath("AnimatedSprite:frame")
+tracks/0/path = NodePath("HitStateController2D/236H:is_active")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ "236H" ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
 "times": PoolRealArray( 0, 1 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 0,
-"values": [ 0, 15 ]
+"values": [ 0, 16 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CombatFSM:frame_state")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.3, 0.4, 0.5, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 1, 2, 3, 2, 4 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("HitStateController2D/236H/HitBoxes:active_box")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.3, 0.4, 0.5, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ -1, 0, -1, 1, -1 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("HitStateController2D/236H/HurtBoxes:active_box")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 0 ]
+}
+
+[sub_resource type="Animation" id=131]
+resource_name = "2P"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/2P:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ "2P" ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 5 ]
+}
+
+[sub_resource type="Animation" id=120]
+resource_name = "5H"
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/5H:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 18 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:animation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "5H" ]
+}
+
+[sub_resource type="Animation" id=121]
+resource_name = "5P"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/5P:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.4 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 5 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:animation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "5P" ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CombatFSM:frame_state")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.3, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 1, 2, 4 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("HitStateController2D/5P/HitBoxes:active_box")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.3, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ -1, 0, -1 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("HitStateController2D/5P/HurtBoxes:active_box")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 0 ]
+}
+
+[sub_resource type="Animation" id=122]
+resource_name = "5P-5P"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/5P-5P:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 10 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:animation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "5P-5P" ]
+}
+
+[sub_resource type="Animation" id=132]
+resource_name = "5S"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/5S:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ "5S" ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.4 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 10 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CombatFSM:frame_state")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 1, 2, 4 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("HitStateController2D/5S/HurtBoxes:active_box")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("HitStateController2D/5S/HitBoxes:active_box")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ -1, 0, -1 ]
 }
 
 [sub_resource type="Animation" id=51]
@@ -282,15 +1060,75 @@ tracks/0/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ 0 ]
+"values": [ 10 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CombatFSM:frame_state")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 2 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("HitStateController2D/5P/HitBoxes:active_box")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -1 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("HitStateController2D/5S/HurtBoxes:active_box")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 1 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("HitStateController2D/5S/HitBoxes:active_box")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -1 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("HitStateController2D/236H/HitBoxes:active_box")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 1 ]
 }
 
-[sub_resource type="Animation" id=48]
-length = 2.658
+[sub_resource type="Animation" id=133]
+resource_name = "crouch"
+length = 0.001
 loop = true
-step = 0.0833333
 tracks/0/type = "value"
-tracks/0/path = NodePath("AnimatedSprite:animation")
+tracks/0/path = NodePath("HitStateController2D/Crouch:is_active")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -299,22 +1137,22 @@ tracks/0/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 1,
-"values": [ "idle" ]
+"values": [ true ]
 }
 tracks/1/type = "value"
-tracks/1/path = NodePath("AnimatedSprite:frame")
+tracks/1/path = NodePath("AnimatedSprite:animation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0, 0.0833333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333, 0.666667, 0.75, 0.833333, 0.916667, 1, 1.08333, 1.16667, 1.25, 1.33333, 1.41667, 1.5, 1.58333, 1.66667, 1.75, 1.83333, 1.91667, 2, 2.08333, 2.16667, 2.25, 2.33333, 2.41667, 2.5, 2.58333 ),
-"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
 "update": 1,
-"values": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ]
+"values": [ "crouch" ]
 }
 tracks/2/type = "value"
-tracks/2/path = NodePath("HitStateController2D/Idle/BoxSwitcher2D:active_box")
+tracks/2/path = NodePath("AnimatedSprite:frame")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/imported = false
@@ -326,9 +1164,100 @@ tracks/2/keys = {
 "values": [ 0 ]
 }
 
+[sub_resource type="Animation" id=48]
+length = 2.658
+loop = true
+step = 0.0833333
+tracks/0/type = "value"
+tracks/0/path = NodePath("AnimatedSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.0833333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333, 0.666667, 0.75, 0.833333, 0.916667, 1, 1.08333, 1.16667, 1.25, 1.33333, 1.41667, 1.5, 1.58333, 1.66667, 1.75, 1.83333, 1.91667, 2, 2.08333, 2.16667, 2.25, 2.33333, 2.41667, 2.5, 2.58333 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "idle" ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("HitStateController2D/Idle:is_active")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CombatFSM:frame_state")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 0 ]
+}
+
 [sub_resource type="Animation" id=49]
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("HitStateController2D/Walk:is_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("AnimatedSprite:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 17 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("AnimatedSprite:animation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "walk" ]
+}
 
 [node name="Player" type="RigidBody2D"]
+mode = 2
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -339,6 +1268,7 @@ shape = SubResource( 1 )
 position = Vector2( 0, -1 )
 frames = SubResource( 46 )
 animation = "idle"
+frame = 10
 offset = Vector2( 5, -18.197 )
 
 [node name="HitStateController2D" type="Node2D" parent="."]
@@ -349,7 +1279,6 @@ animation_player = NodePath("../AnimationPlayer")
 [node name="Jump" type="Node2D" parent="HitStateController2D"]
 visible = false
 script = ExtResource( 4 )
-frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Jump"]
 script = ExtResource( 3 )
@@ -363,9 +1292,8 @@ script = ExtResource( 51 )
 shape = SubResource( 47 )
 
 [node name="Idle" type="Node2D" parent="HitStateController2D"]
+visible = false
 script = ExtResource( 4 )
-is_active = true
-frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Idle"]
 script = ExtResource( 3 )
@@ -376,13 +1304,12 @@ modulate = Color( 0, 0.533333, 1, 1 )
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/Idle/BoxSwitcher2D/HurtBox2D"]
-position = Vector2( 0, -14 )
+position = Vector2( 0, 15 )
 shape = SubResource( 47 )
 
 [node name="Walk" type="Node2D" parent="HitStateController2D"]
 visible = false
 script = ExtResource( 4 )
-frame_state = 0
 
 [node name="BoxSwitcher2D" type="Node2D" parent="HitStateController2D/Walk"]
 script = ExtResource( 3 )
@@ -396,11 +1323,152 @@ script = ExtResource( 51 )
 position = Vector2( 0, -14 )
 shape = SubResource( 47 )
 
+[node name="Crouch" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="5P" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="HitBoxes" type="Node2D" parent="HitStateController2D/5P"]
+script = ExtResource( 3 )
+active_box = -1
+
+[node name="HitBox2D" type="Area2D" parent="HitStateController2D/5P/HitBoxes"]
+visible = false
+modulate = Color( 1, 0, 0.329412, 1 )
+monitoring = false
+monitorable = false
+script = ExtResource( 16 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5P/HitBoxes/HitBox2D"]
+position = Vector2( 61.3255, 54.8462 )
+shape = SubResource( 134 )
+
+[node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5P"]
+script = ExtResource( 3 )
+active_box = 0
+
+[node name="HurtBox2D" type="Area2D" parent="HitStateController2D/5P/HurtBoxes"]
+modulate = Color( 0, 0.533333, 1, 1 )
+script = ExtResource( 51 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5P/HurtBoxes/HurtBox2D"]
+position = Vector2( 0.594604, 17.4865 )
+shape = SubResource( 135 )
+
+[node name="5P-5P" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="5H" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="2P" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="236H" type="Node2D" parent="HitStateController2D"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitBoxes" type="Node2D" parent="HitStateController2D/236H"]
+script = ExtResource( 3 )
+active_box = 1
+
+[node name="HitBox2D" type="Area2D" parent="HitStateController2D/236H/HitBoxes"]
+visible = false
+modulate = Color( 1, 0, 0.329412, 1 )
+monitoring = false
+monitorable = false
+script = ExtResource( 16 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/236H/HitBoxes/HitBox2D"]
+position = Vector2( 18.8114, -15.7398 )
+shape = SubResource( 136 )
+
+[node name="HitBox2D2" type="Area2D" parent="HitStateController2D/236H/HitBoxes"]
+modulate = Color( 1, 0, 0.329412, 1 )
+script = ExtResource( 16 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/236H/HitBoxes/HitBox2D2"]
+position = Vector2( 69.0554, 25.3961 )
+shape = SubResource( 137 )
+
+[node name="HurtBoxes" type="Node2D" parent="HitStateController2D/236H"]
+script = ExtResource( 3 )
+active_box = 0
+
+[node name="HurtBox2D" type="Area2D" parent="HitStateController2D/236H/HurtBoxes"]
+modulate = Color( 0, 0.533333, 1, 1 )
+script = ExtResource( 51 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/236H/HurtBoxes/HurtBox2D"]
+position = Vector2( 5.13548, 25.116 )
+shape = SubResource( 138 )
+
+[node name="5S" type="Node2D" parent="HitStateController2D"]
+visible = false
+script = ExtResource( 4 )
+
+[node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5S"]
+script = ExtResource( 3 )
+active_box = 1
+
+[node name="HurtBox2D" type="Area2D" parent="HitStateController2D/5S/HurtBoxes"]
+visible = false
+modulate = Color( 0, 0.533333, 1, 1 )
+monitoring = false
+monitorable = false
+script = ExtResource( 51 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HurtBoxes/HurtBox2D"]
+position = Vector2( 4.85162, 15.3051 )
+shape = SubResource( 139 )
+
+[node name="HurtBox2D2" type="Area2D" parent="HitStateController2D/5S/HurtBoxes"]
+modulate = Color( 0, 0.533333, 1, 1 )
+script = ExtResource( 51 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HurtBoxes/HurtBox2D2"]
+position = Vector2( 26.5412, 27.7917 )
+shape = SubResource( 140 )
+
+[node name="HitBoxes" type="Node2D" parent="HitStateController2D/5S"]
+script = ExtResource( 3 )
+active_box = -1
+
+[node name="HitBox2D" type="Area2D" parent="HitStateController2D/5S/HitBoxes"]
+visible = false
+modulate = Color( 1, 0, 0.329412, 1 )
+monitoring = false
+monitorable = false
+script = ExtResource( 16 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HitBoxes/HitBox2D"]
+position = Vector2( 53.5956, -3.84772 )
+shape = SubResource( 141 )
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-"anims/New Anim" = SubResource( 50 )
+anims/236H = SubResource( 130 )
+anims/2P = SubResource( 131 )
+anims/5H = SubResource( 120 )
+anims/5P = SubResource( 121 )
+anims/5P-5P = SubResource( 122 )
+anims/5S = SubResource( 132 )
 anims/RESET = SubResource( 51 )
+anims/crouch = SubResource( 133 )
 anims/idle = SubResource( 48 )
 anims/walk = SubResource( 49 )
 
 [node name="CombatFSM" type="Node" parent="."]
-script = ExtResource( 50 )
+script = ExtResource( 8 )
+anim_player = NodePath("../AnimationPlayer")
+frame_state = 2
+
+[node name="InputDetector" type="Node" parent="."]
+script = ExtResource( 15 )
+
+[connection signal="input_detected" from="InputDetector" to="." method="_on_InputDetector_input_detected"]

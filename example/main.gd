@@ -3,33 +3,23 @@ extends Node
 const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
 
 func _ready() -> void:
-	var input_detector = $InputDetector
+	var VInput = $Player.VInput
+	var input_history_display = $InputHistoryDisplay
+	input_history_display.input_detector = $Player.input_detector
+	input_history_display.input_id_visible = false
+	input_history_display.set_input_texture(VInput.UP, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Up.png"))
+	input_history_display.set_input_texture(VInput.DOWN, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Down.png"))
+	input_history_display.set_input_texture(VInput.LEFT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Left.png"))
+	input_history_display.set_input_texture(VInput.RIGHT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Right.png"))
+	input_history_display.set_input_texture(VInput.UP_LEFT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Up_Left.png"))
+	input_history_display.set_input_texture(VInput.UP_RIGHT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Up_Right.png"))
+	input_history_display.set_input_texture(VInput.DOWN_RIGHT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Down_Right.png"))
+	input_history_display.set_input_texture(VInput.DOWN_LEFT, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Down_Left.png"))
 
-	input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
-
-	input_detector.bind_action_input(2, "ui_down")
-	input_detector.bind_action_input(6, "ui_right")
-	input_detector.bind_action_input(8, "ui_up")
-	input_detector.bind_action_input(4, "ui_left")
-	input_detector.register_combination(1, [4, 2])
-	input_detector.register_combination(3, [2, 6])
-	input_detector.register_combination(9, [8, 6])
-	input_detector.register_combination(7, [8, 4])
-
-	var qcf := SequenceData.new()
-	qcf.append_inputs([2,3,6])
-
-	input_detector.register_sequence_from_data("QCF", qcf)
-
-
-func _process(delta: float) -> void:
-	var input_detector = $InputDetector
-	var buffer := ""
-	for input in input_detector._input_buffer:
-		buffer += "%d," % input.id
-
-	$Label.text = buffer
-
+	input_history_display.set_input_texture(VInput.KICK, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Cross.png"))
+	input_history_display.set_input_texture(VInput.PUNCH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Square.png"))
+	input_history_display.set_input_texture(VInput.SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Triangle.png"))
+	input_history_display.set_input_texture(VInput.HEAVY_SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png"))
 
 func _on_InputDetector_input_detected(detected_input) -> void:
 	if "name" in detected_input:
