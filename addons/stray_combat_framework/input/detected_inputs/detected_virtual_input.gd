@@ -1,4 +1,4 @@
 extends "detected_input.gd"
 
-var id: int
+var input_id: int
 var is_pressed: bool

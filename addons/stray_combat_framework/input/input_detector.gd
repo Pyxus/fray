@@ -36,11 +36,11 @@ func _process(delta: float) -> void:
 	_handle_buffer_clearing(delta)
 
 
-func is_input_pressed(id: int) -> bool:
-	if not _input_by_id.has(id):
-		push_warning("Input with id %d does not exist" % id)
+func is_input_pressed(input_id: int) -> bool:
+	if not _input_by_id.has(input_id):
+		push_warning("Input with id %d does not exist" % input_id)
 		return false
-	return _input_by_id[id].is_pressed()
+	return _input_by_id[input_id].is_pressed()
 
 
 func is_input_just_pressed(id: int) -> bool:
@@ -166,9 +166,9 @@ func _feed_released_combination_components(input: CombinationInput, time_stamp: 
 			feed_input_at(time_stamp, id, 0, false, input)
 
 
-func _broadcast_input_detected(id: int, time_stamp: int, is_pressed: bool) -> void:
+func _broadcast_input_detected(input_id: int, time_stamp: int, is_pressed: bool) -> void:
 	var detected_virtual_input := DetectedVirtualInput.new()
-	detected_virtual_input.id = id
+	detected_virtual_input.input_id = input_id
 	detected_virtual_input.time_stamp = time_stamp
 	detected_virtual_input.is_pressed = is_pressed
 	emit_signal("input_detected", detected_virtual_input)
@@ -235,7 +235,7 @@ func _check_for_sequence_matches() -> void:
 
 		if parse_result.is_match:
 			var detected_sequence := DetectedSequence.new()
-			detected_sequence.name = sequence_name
+			detected_sequence.sequence_name = sequence_name
 			detected_sequence.is_dirty = parse_result.is_dirty_input
 			detected_sequence.time_stamp = OS.get_ticks_msec()
 			emit_signal("input_detected", detected_sequence)

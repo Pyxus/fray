@@ -48,15 +48,16 @@ func _ready() -> void:
 	var qcf_heavy_slash := combat_fsm.create_action_si("236H", "236H")
 	var standing_root := combat_fsm.create_situation("standing")
 	standing_root.animation = "idle"
+	standing_punch.chain_action(standing_slash)
 	standing_root.chain_action(standing_punch)
 	standing_root.chain_action(qcf_heavy_slash)
-	standing_punch.chain_action(standing_slash)
+	
 	combat_fsm.set_current_situation("standing")
 
 
 
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
-	if "name" in detected_input:
+	if "sequence_name" in detected_input:
 		combat_fsm.buffer_input(detected_input)
 	elif detected_input.is_pressed:
 		combat_fsm.buffer_input(detected_input)

@@ -26,7 +26,7 @@ const ActionState = preload("states/action_state.gd")
 export var anim_player: NodePath
 export(FrameState) var frame_state: int
 export var input_bufer_size: int = 2
-export var input_buffer_duration: float = 0.5
+export var input_buffer_duration: float = 0.3
 
 
 var _root_by_situation: Dictionary
@@ -50,20 +50,25 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _input_buffer.empty():
 		if frame_state == FrameState.RECOVERY or frame_state == FrameState.IDLE:
-			advance(_input_buffer.pop_front())
+			advance(_input_buffer.pop_front().detected_input)
 
-		if _time_since_first_input >= input_buffer_duration:
-			_input_buffer.clear()
-
-		_time_since_first_input += delta
+		for buffered_detected_input in _input_buffer:
+			if buffered_detected_input.time_in_buffer >= input_buffer_duration:
+				_input_buffer.erase(buffered_detected_input)
+			buffered_detected_input.time_in_buffer += delta
 
 
 func buffer_input(detected_input: DetectedInput) -> void:
 	var current_buffer_size: int = _input_buffer.size()
+	var buffered_detected_input := BufferedDetectedInput.new()
+
+	buffered_detected_input.detected_input = detected_input
+
 	if current_buffer_size + 1 > input_bufer_size:
-		_input_buffer[current_buffer_size - 1] = detected_input
+		_input_buffer[current_buffer_size - 1] = buffered_detected_input
 	else:
-		_input_buffer.append(detected_input)
+		_input_buffer.append(buffered_detected_input)
+
 
 
 func advance(detected_input: DetectedInput) -> void:
@@ -180,3 +185,12 @@ func _revert_to_root_state() -> void:
 func _on_AnimPlayer_animation_finished(anim_name: String) -> void:
 	if _current_fighter_state is ActionState and _current_fighter_state.animation == anim_name:
 		_revert_to_root_state()
+
+
+class BufferedDetectedInput:
+	extends Reference
+
+	const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
+
+	var detected_input: DetectedInput
+	var time_in_buffer: float

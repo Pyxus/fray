@@ -10,7 +10,7 @@ const DetectedVirtualInput = preload("res://addons/stray_combat_framework/input/
 var animation: String
 var extending_state: Reference setget extend
 
-var _root: Reference
+var previous_state: Reference
 var _chained_action_states: Array
 
 
@@ -33,7 +33,10 @@ func chain_action(action_state: Reference) -> void:
 			return
 
 	_chained_action_states.append(action_state)
-	action_state._root = _root
+	
+	if action_state != self:
+		action_state.previous_state = self
+
 
 func unchain_action(action_state: Reference) -> void:
 	if _chained_action_states.has(action_state):
@@ -53,7 +56,14 @@ func get_next_action(detected_input: DetectedInput) -> Reference:
 
 
 func get_root() -> Reference:
-	return _root
+	var state := previous_state
+
+	while state != null:
+		if state.previous_state == null:
+			return state
+		state = state.previous_state
+	
+	return null
 
 
 func get_chain_count() -> int:
@@ -74,10 +84,10 @@ func _is_same_input_data(input_data1: InputData, input_data2: InputData) -> bool
 func _is_same_input_detected(detected_input: DetectedInput, input_data: InputData) -> bool:
 	if detected_input is DetectedSequence:
 		if input_data is SequenceInputData:
-			if detected_input.name == input_data.name:
+			if detected_input.sequence_name == input_data.name:
 				return true
 	elif detected_input is DetectedVirtualInput:
 		if input_data is VirtualInputData:
-			if detected_input.id == input_data.id and detected_input.is_pressed != input_data.is_activated_on_release:
+			if detected_input.input_id == input_data.id and detected_input.is_pressed != input_data.is_activated_on_release:
 				return true
 	return false
