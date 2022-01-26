@@ -49,6 +49,15 @@ func _process(delta: float) -> void:
 				buffered_input.time_in_buffer += delta
 
 
+func set_current_situation(situation_name: String) -> void:
+	if not _situation_by_name.has(situation_name):
+		push_warning("Failed to set situation. Situation '%s' does not exist." % situation_name)
+		return
+
+	_current_situation = _situation_by_name[situation_name]
+	_play_animation(_current_situation.get_root().animation)
+
+
 func add_situation(situation_name: String, situation: Situation) -> void:
 	if situation_name.empty():
 		push_error("Situation name can not be empty")
@@ -80,10 +89,10 @@ func remove_situation(situation_name: String) -> void:
 		_situation_by_name.erase(situation_name)
 
 
-func buffer_detected_input(detected_input: DetectedInput) -> void:
+func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_detected_input := BufferedDetectedInput.new()
 	buffered_detected_input.detected_input = detected_input
-	_input_buffer.append(detected_input)
+	_input_buffer.append(buffered_detected_input)
 
 
 func _buffer_input(buffered_input: BufferedDetectedInput) -> void:
@@ -112,13 +121,17 @@ func _play_animation(animation: String, is_backwards: bool = false) -> void:
 func _on_Situation_state_advanced(new_state: FighterState, transition_animation: String) -> void:
 	_current_transition_animation = transition_animation
 	if transition_animation.empty():
-		_anim_player.play(new_state.animation)
+		_play_animation(new_state.animation)
 	else:
-		_anim_player.play(transition_animation)
+		_play_animation(transition_animation)
 
 
 func _on_Situation_state_reverted(new_state: FighterState, transition_animation: String) -> void:
 	_current_transition_animation = transition_animation
+	if transition_animation.empty():
+		_play_animation(new_state.animation)
+	else:
+		_play_animation(transition_animation, true)
 
 
 func _on_AnimPlayer_animation_finished(animation: String) -> void:
@@ -128,8 +141,9 @@ func _on_AnimPlayer_animation_finished(animation: String) -> void:
 	if animation == _current_transition_animation:
 		_play_animation(current_state.animation)
 		_current_transition_animation = ""
-	elif animation == current_state.animation and not situation_root.is_condition_true(current_state.active_condition):
-		_current_situation.revert_to_active_state()
+	elif animation == current_state.animation:
+		if current_state.active_condition.empty() or not situation_root.is_condition_true(current_state.active_condition):
+			_current_situation.revert_to_active_state()
 
 
 

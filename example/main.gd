@@ -3,9 +3,6 @@ extends Node
 const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
 
 func _ready() -> void:
-	var a = [1, 2,3]
-	var b = [4, 5, 6]
-	print(a+b)
 	var VInput = $Player.VInput
 	var input_history_display = $InputHistoryDisplay
 	input_history_display.input_detector = $Player.input_detector

@@ -33,14 +33,14 @@ func get_connection(to_state: Reference) -> StateConnection:
 	return null
 
 
-func add_extender_state(fighter_state: Reference, transition_animation: String) -> void:
+func connect_extender(fighter_state: Reference, transition_animation: String) -> bool:
 	if fighter_state == self:
 		push_error("FighterState can not extend it self.")
-		return
+		return false
 
 	if fighter_state._extender_connections.has(self):
 		push_error("Failed to extend state. FighterState '%s' is already an extender of state '%s'. Cylical extensions are not allowed." % [self, fighter_state])
-		return
+		return false
 
 	if fighter_state.active_condition.empty():
 		push_warning("Active condition not set for extender state '%s'. This state can ever be reached." % fighter_state)
@@ -50,25 +50,35 @@ func add_extender_state(fighter_state: Reference, transition_animation: String) 
 
 	fighter_state._extending_state = self
 	_extender_connections.append(state_connection)
+	return true
 
 
-func chain(fighter_state: Reference, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> void:
+func disconnect_extender(fighter_state: Reference) -> void:
+	for connection in _extender_connections:
+		if connection.to == fighter_state:
+			fighter_state._extending_state = null
+			_extender_connections.erase(connection)
+			break
+
+
+func chain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> bool:
 	if has_state_chained(fighter_state):
 		push_warning("FighterState '%s' has already been chained" % fighter_state)
-		return
+		return false
 	
 	var state_connection := StateConnection.new()
-	state_connection.input = input
+	state_connection.input_data = input_data
 	state_connection.transition_animation = transition_animation
 	state_connection.chain_conditions = chain_conditions
 	state_connection.to = fighter_state
 
 	for connection in _chain_connections:
-		if connection.is_identical_to():
+		if connection.is_identical_to(state_connection):
 			push_warning("FighterState with identical chain_conditions and input data on connection is already chained")
-			return
+			return false
 
-	_chain_connections.append(fighter_state)
+	_chain_connections.append(state_connection)
+	return true
 	
 
 func unchain(fighter_state: Reference) -> void:
@@ -117,7 +127,9 @@ func _is_all_conditions_met(state_connection: StateConnection) -> bool:
 		push_error("Failed to check conditions, state root is not set. State connections may not trace up to any root.")
 		return false
 	
-	if not root.is_condition_true(state_connection.to.active_condition):
+	var active_condition: String = state_connection.to.active_condition
+
+	if not active_condition.empty() and not root.is_condition_true(state_connection.to.active_condition):
 		return false
 
 	for condition in state_connection.chain_conditions:

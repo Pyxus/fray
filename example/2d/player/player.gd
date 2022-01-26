@@ -1,10 +1,14 @@
 extends "res://addons/stray_combat_framework/combat/2d/body/fighter_body_2d.gd"
 
-const CombatFSM = preload("res://addons/stray_combat_framework/combat/old/state_management/combat_fsm.gd")
+const CombatFSM = preload("res://addons/stray_combat_framework/combat/state_management/combat_fsm.gd")
+const Situation = preload("res://addons/stray_combat_framework/combat/state_management/situation.gd")
+const FighterState = preload("res://addons/stray_combat_framework/combat/state_management/states/fighter_state.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
 const RootIdleState = preload("res://addons/stray_combat_framework/combat/old/state_management/states/root_idle_state.gd")
 const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
+const SequenceInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/sequence_input_data.gd")
+const VirtualInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/virtual_input_data.gd")
 
 enum VInput {
 	UP,
@@ -26,6 +30,7 @@ onready var input_detector: InputDetector = get_node("InputDetector")
 
 
 func _ready() -> void:
+	# Configuring Detector
 	input_detector.bind_action_input(VInput.UP, "up")
 	input_detector.bind_action_input(VInput.DOWN, "down")
 	input_detector.bind_action_input(VInput.LEFT, "left")
@@ -43,16 +48,22 @@ func _ready() -> void:
 	qcf_hs.append_inputs([VInput.DOWN, VInput.DOWN_RIGHT, VInput.RIGHT, VInput.HEAVY_SLASH])
 	input_detector.register_sequence_from_data("236H", qcf_hs)
 
-	var standing_punch = combat_fsm.create_action_vi("5P", VInput.PUNCH)
-	var standing_slash = combat_fsm.create_action_vi("5S", VInput.SLASH)
-	var qcf_heavy_slash = combat_fsm.create_action_si("236H", "236H")
-	var standing_root = combat_fsm.create_situation("standing")
-	standing_root.animation = "idle"
-	standing_punch.chain_action(standing_slash)
-	standing_root.chain_action(standing_punch)
-	standing_root.chain_action(qcf_heavy_slash)
-	
-	combat_fsm.set_current_situation("standing")
+	# Configuring States
+	var neutral_slash := FighterState.new()
+	neutral_slash.animation = "5S"
+
+	var neutral_punch := FighterState.new()
+	neutral_punch.animation = "5P"
+
+	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
+
+	var situation_on_ground := Situation.new()
+	situation_on_ground.chain_from_root(neutral_punch, VirtualInputData.new(VInput.PUNCH))
+	situation_on_ground.chain_from_root(neutral_slash, VirtualInputData.new(VInput.SLASH))
+	situation_on_ground.get_root().animation = "idle"
+
+	combat_fsm.add_situation("on_ground", situation_on_ground)
+	combat_fsm.set_current_situation("on_ground")
 
 
 

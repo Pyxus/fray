@@ -9,10 +9,27 @@ const DetectedVirtualInput = preload("res://addons/stray_combat_framework/input/
 
 const FighterState = preload("states/fighter_state.gd")
 const RootFighterState = preload("states/root_fighter_state.gd")
+const InputData = preload("states/input_data/input_data.gd")
 
 var _root := RootFighterState.new()
 var _current_state: FighterState = _root
 var _advancement_route: Array
+
+
+func chain_from_root(fighter_state: FighterState, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> void:
+    _root.chain(fighter_state, input, chain_conditions, active_condition, transition_animation)
+
+
+func unchain_from_root(fighter_state: FighterState)  -> void:
+    _root.unchain(fighter_state)
+
+
+func add_extender_to_root(fighter_state: FighterState, transition_animation: String) -> void:
+    _root.add_extender_state(fighter_state, transition_animation)
+
+
+func remove_extender_state_from_root(fighter_state: FighterState) -> void:
+    _root.remove_extender_state(fighter_state)
 
 
 func update(detected_input: DetectedInput = null) -> void:
@@ -21,6 +38,7 @@ func update(detected_input: DetectedInput = null) -> void:
     if next_state != null:
         advance_to(next_state)
 
+    #TODO: Revert if an extending state's active condition is false
     if _current_state.animation.empty() and not _root.is_condition_true(_current_state.active_condition):
         revert_to_active_state()
 
