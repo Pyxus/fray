@@ -1,6 +1,6 @@
 extends Node
 
-const Situation = preload("situation.gd")
+const Situation = preload("res://addons/stray_combat_framework/combat/old_2/state_management/situation.gd")
 
 enum FrameState {
 	IDLE,

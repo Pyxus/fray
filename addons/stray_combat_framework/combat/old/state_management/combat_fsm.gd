@@ -28,7 +28,6 @@ export(FrameState) var frame_state: int
 export var input_bufer_size: int = 2
 export var input_buffer_duration: float = 0.3
 
-
 var _root_by_situation: Dictionary
 var _current_situation: String
 var _current_fighter_state: FighterState
@@ -68,7 +67,6 @@ func buffer_input(detected_input: DetectedInput) -> void:
 		_input_buffer[current_buffer_size - 1] = buffered_detected_input
 	else:
 		_input_buffer.append(buffered_detected_input)
-
 
 
 func advance(detected_input: DetectedInput) -> void:
