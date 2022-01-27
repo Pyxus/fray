@@ -158,7 +158,7 @@ func _is_all_conditions_met(state_connection: StateConnection) -> bool:
 
 func _is_matching_input(detected_input: DetectedInput, input_data: InputData) -> bool:
 	if detected_input is DetectedVirtualInput and input_data is VirtualInputData:
-		return detected_input.input_id == input_data.input_id
+		return detected_input.input_id == input_data.input_id and detected_input.is_pressed != input_data.is_activated_on_release
 	elif detected_input is DetectedSequence and input_data is SequenceInputData:
 		return detected_input.sequence_name == input_data.sequence_name
 	
