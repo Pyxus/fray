@@ -20,8 +20,7 @@ export var input_buffer_max_size: int = 2
 export var input_max_time_in_buffer: float = 0.3
 export var anim_player: NodePath
 
-var condition_dict: Dictionary
-
+var _condition_dict: Dictionary
 var _situation_by_name: Dictionary
 var _current_situation: Situation
 var _input_buffer: Array
@@ -49,6 +48,22 @@ func _process(delta: float) -> void:
 				buffered_input.time_in_buffer += delta
 
 
+func set_condition(condition: String, is_true: bool) -> void:
+	_condition_dict[condition] = is_true
+
+
+func is_condition_true(condition: String) -> bool:
+	if not _condition_dict.has(condition):
+		push_warning("Condition '%s' has never been set.")
+		return false
+	return _condition_dict[condition]
+
+
+func remove_condition(condition: String) -> void:
+	if _condition_dict.has(condition):
+		_condition_dict.erase(condition)
+
+
 func set_current_situation(situation_name: String) -> void:
 	if not _situation_by_name.has(situation_name):
 		push_warning("Failed to set situation. Situation '%s' does not exist." % situation_name)
@@ -72,7 +87,8 @@ func add_situation(situation_name: String, situation: Situation) -> void:
 		if _situation_by_name[sit_name] == situation:
 			push_warning("Situation '%s' already exists under name '%s'" % [situation, sit_name])
 			return
-		
+	
+	situation.get_root().condition_dict = _condition_dict
 	_situation_by_name[situation_name] = situation
 	situation.connect("state_advanced", self, "_on_Situation_state_advanced")
 	situation.connect("state_reverted", self, "_on_Situation_state_reverted")

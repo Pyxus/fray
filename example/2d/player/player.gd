@@ -5,7 +5,6 @@ const Situation = preload("res://addons/stray_combat_framework/combat/state_mana
 const FighterState = preload("res://addons/stray_combat_framework/combat/state_management/states/fighter_state.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
-const RootIdleState = preload("res://addons/stray_combat_framework/combat/old/state_management/states/root_idle_state.gd")
 const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
 const SequenceInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/sequence_input_data.gd")
 const VirtualInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/virtual_input_data.gd")
@@ -55,9 +54,19 @@ func _ready() -> void:
 	var neutral_punch := FighterState.new()
 	neutral_punch.animation = "5P"
 
+	var walk_forward := FighterState.new()
+	walk_forward.animation = "walk"
+	walk_forward.active_condition = "is_walking_forward"
+
+	var walk_backward := FighterState.new()
+	walk_backward.animation = "walk_back"
+	walk_backward.active_condition = "is_walking_back"
+
 	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
 
 	var situation_on_ground := Situation.new()
+	situation_on_ground.connect_extender_to_root(walk_forward)
+	situation_on_ground.connect_extender_to_root(walk_backward)
 	situation_on_ground.chain_from_root(neutral_punch, VirtualInputData.new(VInput.PUNCH))
 	situation_on_ground.chain_from_root(neutral_slash, VirtualInputData.new(VInput.SLASH))
 	situation_on_ground.get_root().animation = "idle"
@@ -66,9 +75,16 @@ func _ready() -> void:
 	combat_fsm.set_current_situation("on_ground")
 
 
+func _process(delta: float) -> void:
+	if input_detector.is_input_pressed(VInput.LEFT):
+		combat_fsm.set_condition("is_walking_back", true)
+		combat_fsm.set_condition("is_walking_forward", false)
+	elif input_detector.is_input_pressed(VInput.RIGHT):
+		combat_fsm.set_condition("is_walking_forward", true)
+		combat_fsm.set_condition("is_walking_back", false)
+	else:
+		combat_fsm.set_condition("is_walking_forward", false)
+		combat_fsm.set_condition("is_walking_back", false)
 
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
-	if "sequence_name" in detected_input:
-		combat_fsm.buffer_input(detected_input)
-	elif detected_input.is_pressed:
-		combat_fsm.buffer_input(detected_input)
+	combat_fsm.buffer_input(detected_input)

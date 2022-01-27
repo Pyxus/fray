@@ -17,68 +17,74 @@ var _advancement_route: Array
 
 
 func chain_from_root(fighter_state: FighterState, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> void:
-    _root.chain(fighter_state, input, chain_conditions, active_condition, transition_animation)
+	_root.chain(fighter_state, input, chain_conditions, active_condition, transition_animation)
 
 
 func unchain_from_root(fighter_state: FighterState)  -> void:
-    _root.unchain(fighter_state)
+	_root.unchain(fighter_state)
 
 
-func add_extender_to_root(fighter_state: FighterState, transition_animation: String) -> void:
-    _root.add_extender_state(fighter_state, transition_animation)
+func connect_extender_to_root(fighter_state: FighterState, transition_animation: String = "") -> void:
+	_root.connect_extender(fighter_state, transition_animation)
 
 
-func remove_extender_state_from_root(fighter_state: FighterState) -> void:
-    _root.remove_extender_state(fighter_state)
+func disconnect_extender_state_from_root(fighter_state: FighterState) -> void:
+	_root.disconnect_extender(fighter_state)
 
 
 func update(detected_input: DetectedInput = null) -> void:
-    var next_state := _current_state.get_next_state(detected_input)
+	var next_state := _current_state.get_next_state(detected_input)
 
-    if next_state != null:
-        advance_to(next_state)
+	if next_state != null:
+		advance_to(next_state)
 
-    #TODO: Revert if an extending state's active condition is false
-    if _current_state.animation.empty() and not _root.is_condition_true(_current_state.active_condition):
-        revert_to_active_state()
+	#TODO: Revert if an extending state's active condition is false
+	var extending_state: FighterState = _current_state.get_extending_state()
+
+	if extending_state != null:
+		if not _root.is_condition_true(extending_state.active_condition):
+			revert_to_active_state()
+
+	if _current_state.animation.empty() and not _root.is_condition_true(_current_state.active_condition):
+		revert_to_active_state()
 
 
 func get_root() -> RootFighterState:
-    return _root
+	return _root
 
 
 func get_current_state() -> FighterState:
-    return _current_state
+	return _current_state
 
-    
+	
 func advance_to(fighter_state: FighterState) -> void:
-    if not _current_state.has_connection_to(fighter_state):
-        push_warning("Failed to advance to state '%s'. State has no connection to the current state.")
-        return
+	if not _current_state.has_connection_to(fighter_state):
+		push_warning("Failed to advance to state '%s'. State has no connection to the current state.")
+		return
 
-    var connection := _current_state.get_connection(fighter_state)
-    _current_state = fighter_state
-    
-    if _advancement_route.empty():
-        _advancement_route.append(_root)
+	var connection := _current_state.get_connection(fighter_state)
+	_current_state = fighter_state
+	
+	if _advancement_route.empty():
+		_advancement_route.append(_root)
 
-    _advancement_route.append(fighter_state)
-    emit_signal("state_advanced", fighter_state, connection.transition_animation)
+	_advancement_route.append(fighter_state)
+	emit_signal("state_advanced", fighter_state, connection.transition_animation)
 
 
 func revert_to_active_state() -> void:
-    if not _advancement_route.empty():
-        var most_recent_state: FighterState = _advancement_route.back()
-        var transition_animation := ""
+	if not _advancement_route.empty():
+		var most_recent_state: FighterState = _advancement_route.back()
+		var transition_animation := ""
 
-        while not _advancement_route.empty() and not _root.is_condition_true(most_recent_state.active_condition):
-            most_recent_state = _advancement_route.pop_back()
+		while not _advancement_route.empty() and not _root.is_condition_true(most_recent_state.active_condition):
+			most_recent_state = _advancement_route.pop_back()
 
-            if not _advancement_route.empty():
-                var state_before_most_recent: FighterState = _advancement_route.back()
-                var connection := state_before_most_recent.get_connection(most_recent_state)
-                transition_animation = connection.transition_animation
-        _current_state = most_recent_state
+			if not _advancement_route.empty():
+				var state_before_most_recent: FighterState = _advancement_route.back()
+				var connection := state_before_most_recent.get_connection(most_recent_state)
+				transition_animation = connection.transition_animation
+		_current_state = most_recent_state
 
-        emit_signal("state_reverted", _current_state, transition_animation)
+		emit_signal("state_reverted", _current_state, transition_animation)
 

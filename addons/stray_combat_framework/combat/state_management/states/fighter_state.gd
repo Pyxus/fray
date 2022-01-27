@@ -27,6 +27,9 @@ func set_root(new_root: Reference) -> void:
 
 
 func get_connection(to_state: Reference) -> StateConnection:
+	if _extending_state != null:
+		return _extending_state.get_connection(to_state)
+
 	for connection in (_chain_connections + _extender_connections):
 		if connection.to == to_state:
 			return connection
@@ -47,6 +50,7 @@ func connect_extender(fighter_state: Reference, transition_animation: String) ->
 
 	var state_connection := StateConnection.new()
 	state_connection.transition_animation = transition_animation
+	state_connection.to = fighter_state
 
 	fighter_state._extending_state = self
 	_extender_connections.append(state_connection)
@@ -104,11 +108,17 @@ func is_extended_by(fighter_state: Reference) -> bool:
 
 
 func has_connection_to(fighter_state: Reference) -> bool:
+	if _extending_state != null:
+		return _extending_state.is_extended_by(fighter_state) or _extending_state.has_state_chained(fighter_state)
 	return is_extended_by(fighter_state) or has_state_chained(fighter_state)
 
 	
 func is_extending(fighter_state: Reference) -> bool:
 	return fighter_state == _extending_state
+
+
+func get_extending_state() -> Reference:
+	return _extending_state
 
 	
 func get_next_state(detected_input: DetectedInput) -> Reference:
@@ -116,8 +126,15 @@ func get_next_state(detected_input: DetectedInput) -> Reference:
 		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
 			return connection.to
 
+	for connection in _extender_connections:
+		if _is_all_conditions_met(connection):
+			return connection.to
+
 	if _extending_state != null:
-		return _extending_state.get_next_state(detected_input)
+		var next_state = _extending_state.get_next_state(detected_input)
+		
+		if next_state != self:
+			return next_state
 	
 	return null
 

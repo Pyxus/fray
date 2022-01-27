@@ -1,4 +1,4 @@
-extends Node
+extends Reference
 
 const InputData = preload("input_data/input_data.gd")
 const SequenceInputData = preload("input_data/sequence_input_data.gd")
@@ -10,8 +10,7 @@ var chain_conditions: PoolStringArray
 var to: Reference
 
 
-func is_identical_to(state_connection) -> bool:
-	print(state_connection)
+func is_identical_to(state_connection: Reference) -> bool:
 	if not _is_same_input(state_connection.input_data, input_data):
 		return false
 	

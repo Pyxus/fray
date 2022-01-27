@@ -1,6 +1,6 @@
 extends "fighter_state.gd"
 
-var _condition_dict: Dictionary
+var condition_dict: Dictionary
 
 func chain(fighter_state: Reference, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> bool:
 	if .chain(fighter_state, input, chain_conditions, active_condition, transition_animation):
@@ -9,7 +9,7 @@ func chain(fighter_state: Reference, input: InputData, chain_conditions: PoolStr
 	return false
 
 
-func connect_extender(fighter_state: Reference, transition_animation: String) -> bool:
+func connect_extender(fighter_state: Reference, transition_animation: String = "") -> bool:
 	if .connect_extender(fighter_state, transition_animation):
 		fighter_state.root = self
 		return true
@@ -17,8 +17,8 @@ func connect_extender(fighter_state: Reference, transition_animation: String) ->
 	
 	
 func is_condition_true(condition: String) -> bool:
-	if _condition_dict.has(condition):
-		return _condition_dict[condition]
+	if condition_dict.has(condition):
+		return condition_dict[condition]
 	
 	return false
 
