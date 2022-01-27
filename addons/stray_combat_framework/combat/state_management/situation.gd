@@ -36,7 +36,13 @@ func update(detected_input: DetectedInput = null) -> void:
 	var next_state := _current_state.get_next_chained_state(detected_input)
 
 	if next_state == null:
-		#next_state = _current_state.get_next_global_state(detected_input)
+		next_state = _current_state.get_next_global_state(detected_input)
+		if next_state != null:
+			_advancement_route.clear()
+			_advancement_route.append(_root)
+			_advancement_route.append(next_state)
+			_current_state = next_state
+			emit_signal("state_advanced", next_state, "")
 		pass
 
 	if next_state == null:
@@ -92,7 +98,9 @@ func revert_to_active_state() -> void:
 			if not _advancement_route.empty():
 				var state_before_most_recent: FighterState = _advancement_route.back()
 				var connection := state_before_most_recent.get_connection(most_recent_state)
-				transition_animation = connection.transition_animation
+
+				if connection != null:
+					transition_animation = connection.transition_animation
 		_current_state = most_recent_state
 
 		emit_signal("state_reverted", _current_state, transition_animation)

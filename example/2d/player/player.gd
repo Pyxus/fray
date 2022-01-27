@@ -50,13 +50,19 @@ func _ready() -> void:
 	# Configuring States
 	var neutral_slash := FighterState.new()
 	neutral_slash.animation = "5S"
+	neutral_slash.add_connected_global_tag("special")
 
 	var neutral_punch := FighterState.new()
 	neutral_punch.animation = "5P"
+	neutral_punch.add_connected_global_tag("special")
 
 	var walk_forward := FighterState.new()
 	walk_forward.animation = "walk"
 	walk_forward.active_condition = "is_walking_forward"
+
+	var qcf_heavy_slash := FighterState.new()
+	qcf_heavy_slash.animation = "236H"
+	qcf_heavy_slash.global_tag = "special"
 
 	var walk_backward := FighterState.new()
 	walk_backward.animation = "walk_back"
@@ -65,6 +71,8 @@ func _ready() -> void:
 	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
 
 	var situation_on_ground := Situation.new()
+	situation_on_ground._root.add_connected_global_tag("special")
+	situation_on_ground._root.add_global_chain(qcf_heavy_slash, SequenceInputData.new("236H"))
 	situation_on_ground.connect_extender_to_root(walk_forward)
 	situation_on_ground.connect_extender_to_root(walk_backward)
 	situation_on_ground.chain_from_root(neutral_punch, VirtualInputData.new(VInput.PUNCH))

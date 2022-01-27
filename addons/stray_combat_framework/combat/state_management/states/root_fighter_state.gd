@@ -12,6 +12,7 @@ func add_global_chain(fighter_state: Reference, input_data: InputData, chain_con
 	state_connection.transition_animation = transition_animation
 	state_connection.chain_conditions = chain_conditions
 	state_connection.to = fighter_state
+	fighter_state.root = self
 
 	for connection in _global_connections:
 		if connection.is_identical_to(state_connection):
