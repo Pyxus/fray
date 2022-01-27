@@ -11,17 +11,11 @@ const FighterState = preload("states/fighter_state.gd")
 const RootFighterState = preload("states/root_fighter_state.gd")
 const InputData = preload("states/input_data/input_data.gd")
 
-var condition_dict: Dictionary
-
-var _root: RootFighterState
-var _current_state: FighterState
+var _root := RootFighterState.new()
+var _current_state: FighterState = _root
 var _advancement_route: Array
 
-func _init() -> void:
-	_root = RootFighterState.new(self)
-	_current_state = _root
 
-	
 func chain_from_root(fighter_state: FighterState, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> void:
 	_root.chain(fighter_state, input, chain_conditions, active_condition, transition_animation)
 
@@ -66,15 +60,8 @@ func update(detected_input: DetectedInput = null) -> void:
 		if not _root.is_condition_true(extending_state.active_condition):
 			revert_to_active_state()
 
-	if _current_state.animation.empty() and not is_condition_true(_current_state.active_condition):
+	if _current_state.animation.empty() and not _root.is_condition_true(_current_state.active_condition):
 		revert_to_active_state()
-
-
-func is_condition_true(condition: String) -> bool:
-	if condition_dict.has(condition):
-		return condition_dict[condition]
-	
-	return false
 
 
 func get_root() -> RootFighterState:
@@ -105,7 +92,7 @@ func revert_to_active_state() -> void:
 		var most_recent_state: FighterState = _advancement_route.back()
 		var transition_animation := ""
 
-		while not _advancement_route.empty() and not is_condition_true(most_recent_state.active_condition):
+		while not _advancement_route.empty() and not _root.is_condition_true(most_recent_state.active_condition):
 			most_recent_state = _advancement_route.pop_back()
 
 			if not _advancement_route.empty():

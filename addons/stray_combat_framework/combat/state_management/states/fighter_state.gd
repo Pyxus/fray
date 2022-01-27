@@ -14,11 +14,10 @@ var active_condition: String
 var global_tag: String
 var root: Reference setget set_root
 
-var _situation: Reference setget _set_situation
-var _extending_state: Reference
 var _connected_global_tags: Array
 var _chain_connections: Array 
 var _extender_connections: Array
+var _extending_state: Reference
 
 
 func add_connected_global_tag(tag: String) -> void:
@@ -199,11 +198,11 @@ func _is_all_conditions_met(state_connection: StateConnection) -> bool:
 	
 	var active_condition: String = state_connection.to.active_condition
 
-	if not active_condition.empty() and not _situation.is_condition_true(state_connection.to.active_condition):
+	if not active_condition.empty() and not root.is_condition_true(state_connection.to.active_condition):
 		return false
 
 	for condition in state_connection.chain_conditions:
-		if not _situation.is_condition_true(condition):
+		if not root.is_condition_true(condition):
 			return false
 
 	return true
@@ -224,11 +223,3 @@ func _is_match_vir(input_id: int, is_pressed: bool, input_data: InputData) -> bo
 
 func _is_match_seq(sequence_name: String, input_data: InputData) -> bool:
 	return input_data is SequenceInputData and sequence_name == input_data.sequence_name
-
-
-func _set_situation(situation: Reference) -> void:
-	_situation = situation
-
-	for connection in (_chain_connections + _extender_connections):
-		if connection.to._situation != situation:
-			connection.to._situation = situation
