@@ -33,12 +33,21 @@ func disconnect_extender_state_from_root(fighter_state: FighterState) -> void:
 
 
 func update(detected_input: DetectedInput = null) -> void:
-	var next_state := _current_state.get_next_state(detected_input)
+	var next_state := _current_state.get_next_chained_state(detected_input)
 
+	if next_state == null:
+		#next_state = _current_state.get_next_global_state(detected_input)
+		pass
+
+	if next_state == null:
+		next_state = _current_state.get_next_extender_state(detected_input)
+
+	if next_state == null:
+		next_state = _current_state.get_extended_state_next_state(detected_input)
+	
 	if next_state != null:
 		advance_to(next_state)
 
-	#TODO: Revert if an extending state's active condition is false
 	var extending_state: FighterState = _current_state.get_extending_state()
 
 	if extending_state != null:
@@ -87,4 +96,3 @@ func revert_to_active_state() -> void:
 		_current_state = most_recent_state
 
 		emit_signal("state_reverted", _current_state, transition_animation)
-

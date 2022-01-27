@@ -11,12 +11,23 @@ const VirtualInputData = preload("input_data/virtual_input_data.gd")
 
 var animation: String
 var active_condition: String
+var global_tag: String
 var root: Reference setget set_root
 
+var _connected_global_tags: Array
 var _chain_connections: Array 
 var _extender_connections: Array
 var _extending_state: Reference
 
+
+func add_connected_global_tag(tag: String) -> void:
+	_connected_global_tags.append(tag)
+
+
+func remove_connected_global_tag(tag: String) -> void:
+	if _connected_global_tags.has(tag):
+		_connected_global_tags.erase(tag)
+	
 
 func set_root(new_root: Reference) -> void:
 	root = new_root
@@ -78,7 +89,7 @@ func chain(fighter_state: Reference, input_data: InputData, chain_conditions: Po
 
 	for connection in _chain_connections:
 		if connection.is_identical_to(state_connection):
-			push_warning("FighterState with identical chain_conditions and input data on connection is already chained")
+			push_warning("Chain with identical chain conditions, and input data already exists.")
 			return false
 
 	_chain_connections.append(state_connection)
@@ -86,6 +97,8 @@ func chain(fighter_state: Reference, input_data: InputData, chain_conditions: Po
 	
 
 func unchain(fighter_state: Reference) -> void:
+	#TODO:
+	# Chain with specific fighter_state, input_data, and chain_conditions
 	for connection in _chain_connections:
 		if connection.to == fighter_state:
 			_chain_connections.erase(connection)
@@ -120,7 +133,46 @@ func is_extending(fighter_state: Reference) -> bool:
 func get_extending_state() -> Reference:
 	return _extending_state
 
+
+func get_next_chained_state(detected_input: DetectedInput) -> Reference:
+	for connection in _chain_connections:
+		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
+			return connection.to
+	return null
+
+
+func get_next_extender_state(detected_input: DetectedInput) -> Reference:
+	for connection in _extender_connections:
+		if  _is_all_conditions_met(connection):
+			return connection.to
+	return null
+
+
+func get_next_global_state(detected_input: DetectedInput) -> Reference:
+	for connection in root.get_global_connections():
+		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
+			if _connected_global_tags.has(connection.to.global_tag):
+				return connection.to
+	return null
 	
+
+func get_extended_state_next_state(detected_input: DetectedInput) -> Reference:
+	if _extending_state != null:
+		var next_state = _extending_state.get_next_chained_state(detected_input)
+		if next_state != null and next_state != self:
+			return next_state
+				
+		next_state = _extending_state.get_next_global_state(detected_input)
+		if next_state != null and next_state != self:
+			return next_state
+
+		next_state = _extending_state.get_next_extender_state(detected_input)
+		if next_state != null and next_state != self:
+			return next_state
+
+	return null
+
+
 func get_next_state(detected_input: DetectedInput) -> Reference:
 	for connection in _chain_connections:
 		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
