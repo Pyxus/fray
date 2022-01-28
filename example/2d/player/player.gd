@@ -1,13 +1,13 @@
-extends "res://addons/stray_combat_framework/combat/2d/body/fighter_body_2d.gd"
+extends "res://addons/stray_combat_framework/src/combat/2d/body/fighter_body_2d.gd"
 
-const CombatFSM = preload("res://addons/stray_combat_framework/combat/state_management/combat_fsm.gd")
-const Situation = preload("res://addons/stray_combat_framework/combat/state_management/situation.gd")
-const FighterState = preload("res://addons/stray_combat_framework/combat/state_management/states/fighter_state.gd")
-const InputDetector = preload("res://addons/stray_combat_framework/input/input_detector.gd")
-const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
-const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
-const SequenceInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/sequence_input_data.gd")
-const VirtualInputData = preload("res://addons/stray_combat_framework/combat/state_management/states/input_data/virtual_input_data.gd")
+const CombatFSM = preload("res://addons/stray_combat_framework/src/combat/combat_fsm.gd")
+const Situation = preload("res://addons/stray_combat_framework/src/combat/situation.gd")
+const FighterState = preload("res://addons/stray_combat_framework/src/combat/states/fighter_state.gd")
+const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
+const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const SequenceData = preload("res://addons/stray_combat_framework/src/input/sequence/sequence_data.gd")
+const SequenceInputData = preload("res://addons/stray_combat_framework/src/combat/states/input_data/sequence_input_data.gd")
+const VirtualInputData = preload("res://addons/stray_combat_framework/src/combat/states/input_data/virtual_input_data.gd")
 
 enum VInput {
 	UP,

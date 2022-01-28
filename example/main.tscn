@@ -38,5 +38,8 @@ script = ExtResource( 2 )
 active_box = -1
 
 [node name="HurtBox" type="Area2D" parent="BoxSwitcher2D"]
+visible = false
 modulate = Color( 0, 0.533333, 1, 1 )
+monitoring = false
+monitorable = false
 script = ExtResource( 4 )

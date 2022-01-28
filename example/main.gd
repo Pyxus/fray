@@ -5,9 +5,8 @@ const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/r
 
 var test_dict: Dictionary
 
+
 func _ready() -> void:
-	var dict := ReverseableDictionary.new()
-	dict["hi"] = 2
 	"""
 	var VInput = $Player.VInput
 	var input_history_display = $InputHistoryDisplay

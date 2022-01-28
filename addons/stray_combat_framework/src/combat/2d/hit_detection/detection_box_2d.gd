@@ -13,8 +13,6 @@ signal deactivated()
 
 #constants
 
-var DetectionBox2D = load("res://addons/stray_combat_framework/combat/2d/hit_detection/detection_box_2d.gd")
-
 export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 

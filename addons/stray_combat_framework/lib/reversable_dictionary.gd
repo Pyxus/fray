@@ -15,10 +15,10 @@ func clear() -> void:
 
 
 func empty() -> bool:
-    return _main_dict.empty() and _reverse_dict.empty()
+    return _main_dict.empty()
 
 
-func erase(key) -> bool:
+func erase_key(key) -> bool:
     if _main_dict.has(key):
         var dict_item = _main_dict[key]
         _main_dict.erase(key)
@@ -27,6 +27,15 @@ func erase(key) -> bool:
     return false
 
 
+func erase_value(value) -> bool:
+    if _reverse_dict.has(value):
+        var dict_item = _reverse_dict[value]
+        _reverse_dict.erase(value)
+        _main_dict.erase(dict_item)
+        return true
+    return false
+
+    
 func get_value(key, default = null):
     if _main_dict.has(key):
         return _main_dict[key]
