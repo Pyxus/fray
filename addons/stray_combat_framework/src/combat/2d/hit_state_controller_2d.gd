@@ -15,7 +15,6 @@ const HitState2D = preload("hit_state_2d.gd")
 export var switch_on_state_activated: bool = true
 export var belongs_to: NodePath setget set_belongs_to
 
-var _thread: Thread
 var _current_hit_state: int setget _set_current_hit_state
 var _hit_states: Array = []
 var _hit_state_by_id: Dictionary
@@ -34,15 +33,11 @@ func _ready() -> void:
 	if not _hit_state_by_id.empty():
 		_set_current_hit_state(0)
 
+
 func _get_configuration_warning() -> String:
 	if _hit_states.empty():
 		return "This node is expected to have HitState2D children."
 	return ""
-
-
-func _exit_tree() -> void:
-	if _thread != null and _thread.is_alive():
-		_thread.wait_to_finish()
 
 
 func get_current_hit_state() -> HitState2D:
@@ -61,6 +56,7 @@ func set_belongs_to(value: NodePath) -> void:
 	belongs_to = value
 	_detect_hit_states()
 
+
 func _set_current_hit_state(value: int) -> void:
 	_current_hit_state = value
 
@@ -70,6 +66,7 @@ func _set_current_hit_state(value: int) -> void:
 				_hit_state_by_id[_current_hit_state].is_active = true
 			else:
 				push_error("Current hit state value does not correspond to dictionary.")
+
 
 func get_current_hit_state_obj() -> HitState2D:
 	return null if not _hit_state_by_id.has(_current_hit_state) else _hit_state_by_id[_current_hit_state]

@@ -3,7 +3,7 @@
 [ext_resource path="res://example/main.gd" type="Script" id=1]
 [ext_resource path="res://addons/stray_combat_framework/src/combat/2d/box_switcher_2d.gd" type="Script" id=2]
 [ext_resource path="res://addons/stray_combat_framework/src/ui/input_history/input_history_display.tscn" type="PackedScene" id=3]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=4]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/hit_box_2d.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 530.287, 22.5622 )
@@ -37,9 +37,9 @@ margin_right = 14.0
 script = ExtResource( 2 )
 active_box = -1
 
-[node name="HurtBox" type="Area2D" parent="BoxSwitcher2D"]
+[node name="HurtBox2" type="Area2D" parent="BoxSwitcher2D"]
 visible = false
-modulate = Color( 0, 0.533333, 1, 1 )
+modulate = Color( 1, 0, 0.329412, 1 )
 monitoring = false
 monitorable = false
 script = ExtResource( 4 )

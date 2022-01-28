@@ -4,8 +4,8 @@ extends Node2D
 ##
 ## This node is intended to represent a single state of a fighter such as a fighting move.
 
-signal animation_set
-signal activated
+signal animation_set()
+signal activated()
 
 #signals
 
@@ -18,7 +18,6 @@ export var is_active: bool setget set_is_active
 var _detection_boxes: Array
 var _push_boxes: Array
 var _box_switchers: Array
-var _animation_list: PoolStringArray
 
 #onready variables
 
@@ -28,11 +27,7 @@ var _animation_list: PoolStringArray
 func _ready():
 	if Engine.editor_hint:
 		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-
-
-func set_animation_list(list: PoolStringArray) -> void:
-	_animation_list = list
-	property_list_changed_notify()
+	_detect_box_switchers()
 
 
 func set_is_active(value: bool) -> void:
@@ -44,6 +39,7 @@ func set_is_active(value: bool) -> void:
 			hide()
 			deactivate_boxes()
 	is_active = value
+
 
 func deactivate_boxes() -> void:
 	for detection_box in _detection_boxes:
@@ -62,21 +58,15 @@ func set_boxes_belong_to(obj: Object) -> void:
 	
 
 func _detect_box_switchers() -> void:
-	_box_switchers.clear()
-	_detection_boxes.clear()
-	_push_boxes.clear()
-
 	for child in get_children():
 		if child is BoxSwitcher2D:
-			_box_switchers.append(child)
 			if not child.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
 				child.connect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
 		elif child is DetectionBox2D:
-			_detection_boxes.append(child)
 			if not child.is_connected("activated", self, "_on_DetectionBox2D_activated"):
 				child.connect("activated", self, "_on_DetectionBox2D_activated")
 		elif child is PushBox2D:
-			_push_boxes.append(child)
+
 			if not child.is_connected("activated", self, "_on_PushBox2D_activated"):
 				child.connect("activated", self, "_on_PushBox2D_activated")
 

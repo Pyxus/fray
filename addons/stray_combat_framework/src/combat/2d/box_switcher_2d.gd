@@ -38,15 +38,7 @@ func _ready() -> void:
 
 func _enter_tree() -> void:
 	_cc_detector = ChildChangeDetector.new(self)
-	var tree := get_tree()
-	if not tree.is_connected("node_added", self, "_on_SceneTree_node_added"):
-		tree.connect("node_added", self, "_on_SceneTree_node_added")
-
-	if not tree.is_connected("node_removed", self, "_on_SceneTree_node_removed"):
-		tree.connect("node_removed", self, "_on_SceneTree_node_removed")
-
-	if not tree.is_connected("node_renamed", self, "_on_SceneTree_node_renamed"):
-		tree.connect("node_renamed", self, "_on_SceneTree_node_renamed")
+	_cc_detector.connect("child_changed", self, "_on_ChildChangeDetector_child_changed")
 
 
 func _get_configuration_warning() -> String:
@@ -94,12 +86,11 @@ func set_active_box(value: int) -> void:
 			return
 			
 		if _detection_box_by_id.has_key(active_box):
-			_detection_box_by_id.get_value(active_box).is_active = true
-			
+			_detection_box_by_id.get_value(active_box).is_active = true			
 		elif _push_box_by_id.has_key(active_box):
 			_push_box_by_id.get_value(active_box).is_active = true
 		else:
-			push_warning("Active box with given id `%s` does not exist in switcher" % [active_box])
+			push_warning("Failed to set active box. Active box with given id `%s` does not exist in switcher" % [active_box])
 
 
 func  get_detection_box_id(detection_box: DetectionBox2D) -> int:
@@ -130,72 +121,48 @@ func _gen_box_id() -> int:
 	return id
 
 
-func _add_detection_box(detection_box: DetectionBox2D) -> void:
-	if not _detection_box_by_id.has_value(detection_box):
-		var box_id := _gen_box_id()
-		_detection_box_by_id.add(box_id, detection_box)
-		detection_box.connect("activated", self, "_on_DetectionBox2D_activated", [detection_box])
-		detection_box.connect("renamed", self, "_on_BoxNode_renamed", [detection_box])
-		property_list_changed_notify()
+func _add_box(box: Node) -> void:
+	if box is DetectionBox2D:
+		if not _detection_box_by_id.has_value(box):
+			var box_id := _gen_box_id()
+			_detection_box_by_id.add(box_id, box)
+			box.connect("activated", self, "_on_DetectionBox2D_activated", [box])
+			property_list_changed_notify()
+	elif box is PushBox2D:
+		if not _push_box_by_id.has_value(box):
+			var box_id := _gen_box_id()
+			_detection_box_by_id.add(box_id, box)
+			box.connect("activated", self, "_on_PushBox2D_actiavted", [box])
+			property_list_changed_notify()
 
 
-func _add_push_box(push_box: PushBox2D) -> void:
-	if not _push_box_by_id.has_value(push_box):
-		var box_id := _gen_box_id()
-		_detection_box_by_id.add(box_id, push_box)
-		push_box.connect("activated", self, "_on_PushBox2D_actiavted", [push_box])
-		push_box.connect("renamed", self, "_on_BoxNode_renamed", [push_box])
-		property_list_changed_notify()
+func _remove_box(box: Node) -> void:
+	if box is DetectionBox2D:
+		if _detection_box_by_id.erase_value(box):
+			if box.is_connected("activated", self, "_on_DetectionBox2D_activated"):
+				box.disconnect("activated", self, "_on_DetectionBox2D_activated")
+			property_list_changed_notify()
+	elif box is PushBox2D:
+		if _push_box_by_id.erase_value(box):
+			if box.is_connected("activated", self, "_on_PushBox2D_activated"):
+				box.disconnect("activated", self, "_on_PushnBox2D_activated")
+			property_list_changed_notify()
 
 
-func _remove_detection_box(detection_box: Node) -> void:
-	if _detection_box_by_id.erase_value(detection_box):
-		if detection_box.is_connected("activated", self, "_on_DetectionBox2D_activated"):
-			detection_box.disconnect("activated", self, "_on_DetectionBox2D_activated")
-		if detection_box.is_connect("renamed", self, "_on_BoxNode_renamed"):
-			detection_box.disconnect("renamed", self, "_on_BoxNode_renamed")
-		property_list_changed_notify()
+func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+	match change:
+		ChildChangeDetector.Change.ADDED:
+			_add_box(node)
 
+		ChildChangeDetector.Change.REMOVED:
+			_remove_box(node)
 
-func _remove_push_box(push_box: Node) -> void:
-	if _push_box_by_id.erase_value(push_box):
-		if push_box.is_connected("activated", self, "_on_PushBox2D_activated"):
-			push_box.disconnect("activated", self, "_on_PushnBox2D_activated")
-		if push_box.is_connect("renamed", self, "_on_BoxNode_renamed"):
-			push_box.disconnect("renamed", self, "_on_BoxNode_renamed")
-		property_list_changed_notify()
+		ChildChangeDetector.Change.RENAMED:
+			property_list_changed_notify()
 
-	
-func _on_SceneTree_node_added(node: Node) -> void:
-	if node.get_parent() == self:
-		if node is DetectionBox2D:
-			_add_detection_box(node)
-		elif node is PushBox2D:
-			_add_push_box(node)
-		node.connect("script_changed", self, "_on_ChildNode_script_changed", [node])
-
-
-func _on_SceneTree_node_removed(node: Node) -> void:
-	if node.get_parent() == self:
-		if node is DetectionBox2D:
-			_remove_detection_box(node)
-		elif node is PushBox2D:
-			_remove_push_box(node)
-		node.disconnect("script_changed", self, "_on_ChildNode_script_changed")
-
-
-func _on_BoxNode_renamed(node: Node) -> void:
-	property_list_changed_notify()
-
-
-func _on_ChildNode_script_changed(node: Node) -> void:
-	_remove_detection_box(node)
-	_remove_push_box(node)
-
-	if node is DetectionBox2D:
-		_add_detection_box(node)
-	elif node is PushBox2D:
-		_add_push_box(node)
+		ChildChangeDetector.Change.SCRIPT_CHANGED:
+			_remove_box(node)
+			_add_box(node)
 
 
 func _on_DetectionBox2D_activated(activated_detection_box: DetectionBox2D) -> void:
