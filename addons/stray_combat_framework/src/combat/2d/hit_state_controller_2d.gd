@@ -10,95 +10,89 @@ extends Node2D
 
 const NONE = -1
 
+const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
+
 const HitState2D = preload("hit_state_2d.gd")
 
 export var switch_on_state_activated: bool = true
 export var belongs_to: NodePath setget set_belongs_to
 
-var _current_hit_state: int setget _set_current_hit_state
-var _hit_states: Array = []
-var _hit_state_by_id: Dictionary
+var _cc_detector: ChildChangeDetector
+var _current_hit_state: HitState2D
 
 #onready variables
 
 
 #optional built-in virtual _init method
 
-func _ready() -> void:
-	if Engine.editor_hint:
-		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-	
-	_detect_hit_states()
 
-	if not _hit_state_by_id.empty():
-		_set_current_hit_state(0)
+func _enter_tree() -> void:
+	_cc_detector = ChildChangeDetector.new(self)
+	_cc_detector.connect("child_changed", self, "_on_ChildChangeDetector_child_changed")
 
 
 func _get_configuration_warning() -> String:
-	if _hit_states.empty():
+	if not has_hit_states():
 		return "This node is expected to have HitState2D children."
 	return ""
 
 
 func get_current_hit_state() -> HitState2D:
-	if _current_hit_state != NONE:
-		return _hit_state_by_id[_current_hit_state]
-	return null
+	return _current_hit_state
 
 
-func deactivate_all_hit_states_except(exception: HitState2D = null) -> void:
-	for hit_state in _hit_states:
-		if hit_state != exception:
-			hit_state.is_active = false
+func _set_current_hitstate(hit_state: HitState2D) -> void:
+	for h_state in get_hit_states():
+		if h_state != hit_state:
+			h_state.is_active = false
+
+	_current_hit_state = hit_state
+	hit_state.is_active = true
 
 
 func set_belongs_to(value: NodePath) -> void:
 	belongs_to = value
-	_detect_hit_states()
+
+	for hit_state in get_hit_states():
+		hit_state.set_boxes_belong_to(get_node_or_null(belongs_to))
 
 
-func _set_current_hit_state(value: int) -> void:
-	_current_hit_state = value
-
-	if is_inside_tree():
-		if _current_hit_state != NONE:
-			if _hit_state_by_id.has(_current_hit_state):
-				_hit_state_by_id[_current_hit_state].is_active = true
-			else:
-				push_error("Current hit state value does not correspond to dictionary.")
-
-
-func get_current_hit_state_obj() -> HitState2D:
-	return null if not _hit_state_by_id.has(_current_hit_state) else _hit_state_by_id[_current_hit_state]
-
-
-func _detect_hit_states() -> void:
-	_hit_states.clear()
-	_hit_state_by_id.clear()
-	
-	var i: int = 0
+func has_hit_states() -> bool:
 	for child in get_children():
 		if child is HitState2D:
-			_hit_states.append(child)
-			child.set_boxes_belong_to(get_node_or_null(belongs_to))
-			_hit_state_by_id[i] = child
-			i += 1
-
-			if not child.is_connected("activated", self, "_on_HitState_activated"):
-				child.connect("activated", self, "_on_HitState_activated", [child])
-		
-	if _hit_states.empty():
-		_set_current_hit_state(NONE)
+			return true
+	return false
 
 
-func _on_SceneTree_changed() -> void:
-	if Engine.editor_hint:
-		_detect_hit_states()
+func get_hit_states() -> Array:
+	var hit_states := []
+	
+	for child in get_children():
+		if child is HitState2D:
+			hit_states.append(child)
 
+	return hit_states
+
+
+func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+	match change:
+		ChildChangeDetector.Change.ADDED:
+			if node is HitState2D:
+				if not node.is_connected("activated", self, "_on_HitState_activated"):
+					node.connect("activated", self, "_on_HitState_activated", [node])
+					node.set_boxes_belong_to(get_node_or_null(belongs_to))
+
+		ChildChangeDetector.Change.REMOVED:
+			if node is HitState2D:
+				if node.is_connected("activated", self, "_on_HitState_activated"):
+					node.disconnect("activated", self, "_on_HitState_activated")
+					node.set_boxes_belong_to(null)
+	
+	
 
 func _on_HitState_activated(hit_state: HitState2D) -> void:
 	if switch_on_state_activated:
-		deactivate_all_hit_states_except(hit_state)
-	elif hit_state != get_current_hit_state_obj():
+		_set_current_hitstate(hit_state)
+	elif hit_state != _current_hit_state:
 		hit_state.is_active = false
 	pass

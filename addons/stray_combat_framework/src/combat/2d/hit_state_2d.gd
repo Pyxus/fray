@@ -24,11 +24,6 @@ var _cc_detector: ChildChangeDetector
 #optional built-in virtual _init method
 
 
-func _ready():
-	if Engine.editor_hint:
-		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-
-
 func _enter_tree() -> void:
 	_cc_detector = ChildChangeDetector.new(self)
 	_cc_detector.connect("child_changed", self, "_on_ChildChangeDetector_child_changed")
@@ -80,7 +75,7 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 			elif node is PushBox2D:
 				if node.is_connected("activated", self, "_on_PushBox2D_activated"):
 					node.disconnect("activated", self, "_on_PushBox2D_activated")
-					
+
 
 func _on_DetectionBox2D_activated() -> void:
 	set_is_active(true)
