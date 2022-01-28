@@ -42,6 +42,9 @@ func get_current_hit_state() -> HitState2D:
 
 
 func _set_current_hitstate(hit_state: HitState2D) -> void:
+	if _current_hit_state == hit_state:
+		return
+
 	for h_state in get_hit_states():
 		if h_state != hit_state:
 			h_state.is_active = false
