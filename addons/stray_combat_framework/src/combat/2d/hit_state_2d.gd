@@ -9,15 +9,15 @@ signal activated()
 
 #signals
 
+const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
+
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
 const DetectionBox2D = preload("hit_detection/detection_box_2d.gd")
 const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
 
-var _detection_boxes: Array
-var _push_boxes: Array
-var _box_switchers: Array
+var _cc_detector: ChildChangeDetector
 
 #onready variables
 
@@ -27,7 +27,11 @@ var _box_switchers: Array
 func _ready():
 	if Engine.editor_hint:
 		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-	_detect_box_switchers()
+
+
+func _enter_tree() -> void:
+	_cc_detector = ChildChangeDetector.new(self)
+	_cc_detector.connect("child_changed", self, "_on_ChildChangeDetector_child_changed")
 
 
 func set_is_active(value: bool) -> void:
@@ -42,39 +46,41 @@ func set_is_active(value: bool) -> void:
 
 
 func deactivate_boxes() -> void:
-	for detection_box in _detection_boxes:
-		detection_box.is_active = false
-
-	for push_box in _push_boxes:
-		push_box.is_active = false
+	for child in get_children():
+		if child is DetectionBox2D or child is PushBox2D:
+			child.is_active = false
 
 
 func set_boxes_belong_to(obj: Object) -> void:
-	for detection_box in _detection_boxes:
-		detection_box.belongs_to = obj
-
-	for push_box in _push_boxes:
-		push_box.belongs_to = obj
-	
-
-func _detect_box_switchers() -> void:
 	for child in get_children():
-		if child is BoxSwitcher2D:
-			if not child.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
-				child.connect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
-		elif child is DetectionBox2D:
-			if not child.is_connected("activated", self, "_on_DetectionBox2D_activated"):
-				child.connect("activated", self, "_on_DetectionBox2D_activated")
-		elif child is PushBox2D:
-
-			if not child.is_connected("activated", self, "_on_PushBox2D_activated"):
-				child.connect("activated", self, "_on_PushBox2D_activated")
+		if child is DetectionBox2D or child is PushBox2D:
+			child.belongs_to = obj
 
 
-func _on_SceneTree_changed() -> void:
-	if Engine.editor_hint:
-		_detect_box_switchers()
+func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+	match change:
+		ChildChangeDetector.Change.ADDED:
+			if node is BoxSwitcher2D:
+				if not node.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
+					node.connect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
+			elif node is DetectionBox2D:
+				if not node.is_connected("activated", self, "_on_DetectionBox2D_activated"):
+					node.connect("activated", self, "_on_DetectionBox2D_activated")
+			elif node is PushBox2D:
+				if not node.is_connected("activated", self, "_on_PushBox2D_activated"):
+					node.connect("activated", self, "_on_PushBox2D_activated")
 
+		ChildChangeDetector.Change.REMOVED:
+			if node is BoxSwitcher2D:
+				if node.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
+					node.disconnect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
+			elif node is DetectionBox2D:
+				if node.is_connected("activated", self, "_on_DetectionBox2D_activated"):
+					node.disconnect("activated", self, "_on_DetectionBox2D_activated")
+			elif node is PushBox2D:
+				if node.is_connected("activated", self, "_on_PushBox2D_activated"):
+					node.disconnect("activated", self, "_on_PushBox2D_activated")
+					
 
 func _on_DetectionBox2D_activated() -> void:
 	set_is_active(true)
