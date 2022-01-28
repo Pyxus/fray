@@ -9,14 +9,13 @@ signal activated
 
 #signals
 
-const NO_ANIMATION = "[None]"
-
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
 const DetectionBox2D = preload("hit_detection/detection_box_2d.gd")
 const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
 
+var _thread: Thread
 var _detection_boxes: Array
 var _push_boxes: Array
 var _box_switchers: Array
@@ -28,13 +27,14 @@ var _animation_list: PoolStringArray
 
 
 func _ready():
+	_thread = Thread.new()
 	var tree := get_tree()
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
-	pass
 
+func _exit_tree() -> void:
+	_thread.wait_to_finish()
 
-
-
+	
 func set_animation_list(list: PoolStringArray) -> void:
 	_animation_list = list
 	property_list_changed_notify()
@@ -88,7 +88,8 @@ func _detect_box_switchers() -> void:
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:
-		_detect_box_switchers()
+		if not _thread.is_active():
+			_thread.start(self, "_detect_box_switchers")
 
 
 func _on_DetectionBox2D_activated() -> void:

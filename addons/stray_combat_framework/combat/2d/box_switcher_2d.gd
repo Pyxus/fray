@@ -22,6 +22,7 @@ const PushBox2D = preload("body/push_box_2d.gd")
 var active_box: int setget set_active_box
 var boxes_belong_to: Object setget set_boxes_belong_to
 
+var _thread: Thread
 var _detection_box_by_id: Dictionary
 var _push_box_by_id: Dictionary
 var _box_names: PoolStringArray
@@ -29,12 +30,18 @@ var _box_names: PoolStringArray
 #onready variables
 
 func _ready() -> void:
+	_thread = Thread.new()
 	var tree := get_tree()
 	tree.connect("tree_changed", self, "_on_SceneTree_changed")
 	
 	_detect_boxes()
 	set_active_box(active_box)
 
+
+func _exit_tree() -> void:
+	_thread.wait_to_finish()
+
+	
 func _get_configuration_warning() -> String:
 	if _detection_box_by_id.empty() and _push_box_by_id.empty():
 		return "This node is expected to have DetectionBox2Ds or PushBox2Ds children."
@@ -148,7 +155,9 @@ func _detect_boxes() -> void:
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:
-		_detect_boxes()
+		if not _thread.is_active():
+			_thread.start(self, "_detect_boxes")
+
 
 func _on_DetectionBox_activated(activated_detection_box: DetectionBox2D) -> void:
 	emit_signal("box_activated")

@@ -11,25 +11,14 @@ const FighterState = preload("states/fighter_state.gd")
 const RootFighterState = preload("states/root_fighter_state.gd")
 const InputData = preload("states/input_data/input_data.gd")
 
-var _root := RootFighterState.new()
-var _current_state: FighterState = _root
+var _root: RootFighterState
+var _current_state: FighterState
 var _advancement_route: Array
 
 
-func chain_from_root(fighter_state: FighterState, input: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> void:
-	_root.chain(fighter_state, input, chain_conditions, active_condition, transition_animation)
-
-
-func unchain_from_root(fighter_state: FighterState)  -> void:
-	_root.unchain(fighter_state)
-
-
-func connect_extender_to_root(fighter_state: FighterState, transition_animation: String = "") -> void:
-	_root.connect_extender(fighter_state, transition_animation)
-
-
-func disconnect_extender_state_from_root(fighter_state: FighterState) -> void:
-	_root.disconnect_extender(fighter_state)
+func _init() -> void:
+	_root = RootFighterState.new(self)
+	_current_state = _root
 
 
 func update(detected_input: DetectedInput = null) -> void:
@@ -43,7 +32,6 @@ func update(detected_input: DetectedInput = null) -> void:
 			_advancement_route.append(next_state)
 			_current_state = next_state
 			emit_signal("state_advanced", next_state, "")
-		pass
 
 	if next_state == null:
 		next_state = _current_state.get_next_extender_state(detected_input)

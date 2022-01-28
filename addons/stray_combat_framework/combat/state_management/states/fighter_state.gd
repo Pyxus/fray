@@ -12,49 +12,67 @@ const VirtualInputData = preload("input_data/virtual_input_data.gd")
 var animation: String
 var active_condition: String
 var global_tag: String
-var root: Reference setget set_root
 
-var _connected_global_tags: Array
+var _global_chain_tags: Array
 var _chain_connections: Array 
 var _extender_connections: Array
 var _extending_state: Reference
+var _situation: Reference setget _set_situation
 
 
-func add_connected_global_tag(tag: String) -> void:
-	_connected_global_tags.append(tag)
+func chain_global(tag: String) -> void:
+	if not _global_chain_tags.has(tag):
+		_global_chain_tags.append(tag)
 
 
-func remove_connected_global_tag(tag: String) -> void:
-	if _connected_global_tags.has(tag):
-		_connected_global_tags.erase(tag)
+func unchain_global(tag: String) -> void:
+	if _global_chain_tags.has(tag):
+		_global_chain_tags.erase(tag)
 	
 
-func set_root(new_root: Reference) -> void:
-	root = new_root
+func chain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = [], transition_animation: String = "") -> void:
+	if has_state_chained(fighter_state):
+		push_warning("FighterState '%s' has already been chained" % fighter_state)
+		return
 	
-	for connection in (_chain_connections + _extender_connections):
-		if connection.to.root != root:
-			connection.to.root = root
+	var state_connection := StateConnection.new()
+	state_connection.input_data = input_data
+	state_connection.transition_animation = transition_animation
+	state_connection.chain_conditions = chain_conditions
+	state_connection.to = fighter_state
+	fighter_state._situation = _situation
+
+	for connection in _chain_connections:
+		if connection.is_identical_to(state_connection):
+			push_warning("Chain with identical chain conditions, and input data already exists.")
+			return
+
+	_chain_connections.append(state_connection)
+	
+
+func unchain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = []) -> void:
+	for connection in _chain_connections:
+		if connection.has_identical_details(fighter_state, input_data, chain_conditions):
+			_chain_connections.erase(connection)
+			connection.to._situation = null
+			break
 
 
-func get_connection(to_state: Reference) -> StateConnection:
-	if _extending_state != null:
-		return _extending_state.get_connection(to_state)
-
-	for connection in (_chain_connections + _extender_connections):
-		if connection.to == to_state:
-			return connection
-	return null
+func unchain_all(fighter_state: Reference) -> void:
+	for connection in _chain_connections:
+		if connection.to == fighter_state:
+			_chain_connections.erase(connection)
+			connection.to._situation = null
 
 
-func connect_extender(fighter_state: Reference, transition_animation: String) -> bool:
+func connect_extender(fighter_state: Reference, transition_animation: String = "") -> void:
 	if fighter_state == self:
 		push_error("FighterState can not extend it self.")
-		return false
+		return
 
 	if fighter_state._extender_connections.has(self):
 		push_error("Failed to extend state. FighterState '%s' is already an extender of state '%s'. Cylical extensions are not allowed." % [self, fighter_state])
-		return false
+		return
 
 	if fighter_state.active_condition.empty():
 		push_warning("Active condition not set for extender state '%s'. This state can ever be reached." % fighter_state)
@@ -64,8 +82,8 @@ func connect_extender(fighter_state: Reference, transition_animation: String) ->
 	state_connection.to = fighter_state
 
 	fighter_state._extending_state = self
+	fighter_state._situation = _situation
 	_extender_connections.append(state_connection)
-	return true
 
 
 func disconnect_extender(fighter_state: Reference) -> void:
@@ -74,64 +92,6 @@ func disconnect_extender(fighter_state: Reference) -> void:
 			fighter_state._extending_state = null
 			_extender_connections.erase(connection)
 			break
-
-
-func chain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = [], active_condition: String = "", transition_animation: String = "") -> bool:
-	if has_state_chained(fighter_state):
-		push_warning("FighterState '%s' has already been chained" % fighter_state)
-		return false
-	
-	var state_connection := StateConnection.new()
-	state_connection.input_data = input_data
-	state_connection.transition_animation = transition_animation
-	state_connection.chain_conditions = chain_conditions
-	state_connection.to = fighter_state
-
-	for connection in _chain_connections:
-		if connection.is_identical_to(state_connection):
-			push_warning("Chain with identical chain conditions, and input data already exists.")
-			return false
-
-	_chain_connections.append(state_connection)
-	return true
-	
-
-func unchain(fighter_state: Reference) -> void:
-	#TODO:
-	# Chain with specific fighter_state, input_data, and chain_conditions
-	for connection in _chain_connections:
-		if connection.to == fighter_state:
-			_chain_connections.erase(connection)
-			connection.to.root = null
-			break
-
-
-func has_state_chained(fighter_state: Reference) -> bool:
-	for connection in _chain_connections:
-		if connection.to == fighter_state:
-			return true
-	return false
-
-
-func is_extended_by(fighter_state: Reference) -> bool:
-	for connection in _extender_connections:
-		if connection.to == fighter_state:
-			return true
-	return false
-
-
-func has_connection_to(fighter_state: Reference) -> bool:
-	if _extending_state != null:
-		return _extending_state.is_extended_by(fighter_state) or _extending_state.has_state_chained(fighter_state)
-	return is_extended_by(fighter_state) or has_state_chained(fighter_state)
-
-	
-func is_extending(fighter_state: Reference) -> bool:
-	return fighter_state == _extending_state
-
-
-func get_extending_state() -> Reference:
-	return _extending_state
 
 
 func get_next_chained_state(detected_input: DetectedInput) -> Reference:
@@ -149,12 +109,13 @@ func get_next_extender_state(detected_input: DetectedInput) -> Reference:
 
 
 func get_next_global_state(detected_input: DetectedInput) -> Reference:
-	for connection in root.get_global_connections():
+	var root = _situation.get_root()
+	for connection in root.get_global_chains():
 		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
-			if _connected_global_tags.has(connection.to.global_tag):
+			if _global_chain_tags.has(connection.to.global_tag):
 				return connection.to
 	return null
-	
+
 
 func get_extended_state_next_state(detected_input: DetectedInput) -> Reference:
 	if _extending_state != null:
@@ -173,27 +134,66 @@ func get_extended_state_next_state(detected_input: DetectedInput) -> Reference:
 	return null
 
 
-func get_next_state(detected_input: DetectedInput) -> Reference:
-	for connection in _chain_connections:
-		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
-			return connection.to
-
-	for connection in _extender_connections:
-		if _is_all_conditions_met(connection):
-			return connection.to
-
+func get_connection(to_state: Reference) -> StateConnection:
 	if _extending_state != null:
-		var next_state = _extending_state.get_next_state(detected_input)
-		
-		if next_state != self:
-			return next_state
-	
+		return _extending_state.get_connection(to_state)
+
+	var root = _situation.get_root()
+	for connection in (_chain_connections + _extender_connections + root.get_global_chains()):
+		if connection.to == to_state:
+			return connection
 	return null
 
 
+func has_state_chained(fighter_state: Reference) -> bool:
+	for connection in _chain_connections:
+		if connection.to == fighter_state:
+			return true
+	return false
+
+
+func is_extended_by(fighter_state: Reference) -> bool:
+	for connection in _extender_connections:
+		if connection.to == fighter_state:
+			return true
+	return false
+
+
+func has_connection_to(fighter_state: Reference) -> bool:
+	if _extending_state != null:
+		return _extending_state.has_connection_to(fighter_state)
+
+	var root = _situation.get_root()
+	var has_global_connection := false
+	if root != null:
+		has_global_connection = root.has_global_chain_to(fighter_state)
+
+	return is_extended_by(fighter_state) or has_state_chained(fighter_state) or has_global_connection
+
+	
+func is_extending(fighter_state: Reference) -> bool:
+	return fighter_state == _extending_state
+
+
+func get_extending_state() -> Reference:
+	return _extending_state
+
+
+func get_situation() -> Reference:
+	return _situation
+
+
+func _set_situation(value: Reference) -> void:
+	_situation = value
+	for connection in (_chain_connections + _extender_connections):
+		if connection.to._situation != value:
+			connection.to._situation = value
+
+
 func _is_all_conditions_met(state_connection: StateConnection) -> bool:
+	var root = _situation.get_root()
 	if root == null:
-		push_error("Failed to check conditions, state root is not set. State connections may not trace up to any root.")
+		push_error("Failed to check conditions, root is not set for this state. State connections may not trace up to any root.")
 		return false
 	
 	var active_condition: String = state_connection.to.active_condition
@@ -215,11 +215,3 @@ func _is_matching_input(detected_input: DetectedInput, input_data: InputData) ->
 		return detected_input.sequence_name == input_data.sequence_name
 	
 	return false
-
-
-func _is_match_vir(input_id: int, is_pressed: bool, input_data: InputData) -> bool:
-	return input_data is VirtualInputData and input_id == input_data.input_id and is_pressed != input_data.is_activated_on_release
-
-
-func _is_match_seq(sequence_name: String, input_data: InputData) -> bool:
-	return input_data is SequenceInputData and sequence_name == input_data.sequence_name

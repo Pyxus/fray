@@ -11,26 +11,30 @@ var to: Reference
 
 
 func is_identical_to(state_connection: Reference) -> bool:
-	if not _is_same_input(state_connection.input_data, input_data):
+	return has_identical_details(state_connection.input_data, state_connection.chain_conditions)
+
+
+func has_identical_details(input_data: InputData, chain_conditions: PoolStringArray) -> bool:
+	if not has_input(input_data):
 		return false
-	
-	if chain_conditions.size() != state_connection.chain_conditions.size():
+
+	if self.chain_conditions.size() != chain_conditions.size():
 		return false
-	
-	for condition in chain_conditions:
-		if not condition in state_connection.chain_conditions:
+
+	for condition in self.chain_conditions:
+		if not condition in chain_conditions:
 			return false
 	
 	return true
+	
 
-
-func _is_same_input(input_data1: InputData, input_data2: InputData) -> bool:
-	if input_data1 is SequenceInputData:
-		if input_data2 is SequenceInputData:
-			if input_data1.sequence_name == input_data2.sequence_name:
+func has_input(input_data: InputData) -> bool:
+	if self.input_data is SequenceInputData:
+		if input_data is SequenceInputData:
+			if self.input_data.sequence_name == input_data.sequence_name:
 				return true
-	elif input_data1 is VirtualInputData:
-		if input_data2 is VirtualInputData:
-			if input_data1.input_id == input_data2.input_id:
+	elif self.input_data is VirtualInputData:
+		if input_data is VirtualInputData:
+			if self.input_data.input_id == input_data.input_id:
 				return true
 	return false
