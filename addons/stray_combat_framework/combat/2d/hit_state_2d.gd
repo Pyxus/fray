@@ -15,7 +15,6 @@ const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
 
-var _thread: Thread
 var _detection_boxes: Array
 var _push_boxes: Array
 var _box_switchers: Array
@@ -28,12 +27,7 @@ var _animation_list: PoolStringArray
 
 func _ready():
 	if Engine.editor_hint:
-		_thread = Thread.new()
 		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-
-func _exit_tree() -> void:
-	if _thread != null and _thread.is_alive():
-		_thread.wait_to_finish()
 
 
 func set_animation_list(list: PoolStringArray) -> void:
@@ -86,14 +80,10 @@ func _detect_box_switchers() -> void:
 			if not child.is_connected("activated", self, "_on_PushBox2D_activated"):
 				child.connect("activated", self, "_on_PushBox2D_activated")
 
-	if _thread != null and _thread.is_alive():
-		_thread.call_deferred("wait_to_finish")
-
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:
-		if not _thread.is_active():
-			_thread.start(self, "_detect_box_switchers")
+		_detect_box_switchers()
 
 
 func _on_DetectionBox2D_activated() -> void:

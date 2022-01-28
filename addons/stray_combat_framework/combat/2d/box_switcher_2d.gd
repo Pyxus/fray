@@ -22,7 +22,6 @@ const PushBox2D = preload("body/push_box_2d.gd")
 var active_box: int setget set_active_box
 var boxes_belong_to: Object setget set_boxes_belong_to
 
-var _thread: Thread
 var _detection_box_by_id: Dictionary
 var _push_box_by_id: Dictionary
 var _box_names: PoolStringArray
@@ -30,17 +29,19 @@ var _box_names: PoolStringArray
 #onready variables
 
 func _ready() -> void:
-	if Engine.editor_hint:
-		_thread = Thread.new()
-		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
-	
-	_detect_boxes()
 	set_active_box(active_box)
 
 
-func _exit_tree() -> void:
-	if _thread != null and _thread.is_alive():
-		_thread.wait_to_finish()
+func _enter_tree() -> void:
+	var tree := get_tree()
+	if tree.is_connected("node_added", self, "_on_SceneTree_node_added"):
+		tree.disconnect("node_added", self, "_on_SceneTree_node_added")
+
+	if tree.is_connected("node_removed", self, "_on_SceneTree_node_removed"):
+		tree.disconnect("node_removed", self, "_on_SceneTree_node_removed")
+
+	if tree.is_connected("node_renamed", self, "_on_SceneTree_node_renamed"):
+		tree.disconnect("node_renamed", self, "_on_SceneTree_node_renamed")
 
 
 func _get_configuration_warning() -> String:
@@ -56,7 +57,7 @@ func _get_property_list() -> Array:
 	"type": TYPE_INT,
 	"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE,
 	"hint": PROPERTY_HINT_ENUM,
-	"hint_string": _box_names.join(" ,")
+	"hint_string": get_box_names().join(" ,")
 	})
 	return properties
 
@@ -67,11 +68,13 @@ func deactivate_all_boxes() -> void:
 		push_box.is_active = false
 	active_box = NONE
 
+
 func set_boxes_belong_to(obj: Object) -> void:
 	for detection_box in _detection_box_by_id.values():
 		detection_box.belongs_to = obj
 	for push_box in _push_box_by_id.values():
 		push_box.belongs_to = obj
+
 
 func set_active_box(value: int) -> void:
 	active_box = value
@@ -91,87 +94,120 @@ func set_active_box(value: int) -> void:
 		else:
 			push_warning("Active box with given id `%s` does not exist in switcher" % [active_box])
 
+func  get_detection_box_id(detection_box: DetectionBox2D) -> int:
+	for id in _detection_box_by_id:
+		if _detection_box_by_id[id] == detection_box:
+			return id
+	return NONE
+
+
+func  get_push_box_id(push_box: PushBox2D) -> int:
+	for id in _push_box_by_id:
+		if _push_box_by_id[id] == push_box:
+			return id
+	return NONE
+
+
+func get_box_names() -> PoolStringArray:
+	var array := PoolStringArray()
+	array.append("[NONE]:%d" % NONE)
+
+	for child in get_children():
+		if child is DetectionBox2D:
+			array.append("%s:%s" % [child.name, get_detection_box_id(child)])
+		elif child is PushBox2D:
+			array.append("%s:%s" % [child.name, get_push_box_id(child)])
+
+	return array
 func _gen_box_id() -> int:
 	var id := 0
 	while _detection_box_by_id.has(id) or _push_box_by_id.has(id):
 		id += 1
 	return id
 
-func _detect_boxes() -> void:
-	# Map object to id. Used to remap id to same object to help preserve animation keys.
-	var id_by_detection_box: Dictionary
-	var id_by_push_box: Dictionary
 
-	for key in _detection_box_by_id:
-		var d_box: DetectionBox2D = _detection_box_by_id[key]
-		id_by_detection_box[d_box] = key
+func _add_detection_box(detection_box: DetectionBox2D) -> void:
+	if not _detection_box_by_id.values().has(detection_box):
+		var box_id := _gen_box_id()
+		_detection_box_by_id[box_id] = detection_box
+		_box_names.append("%s:%s" % [detection_box.name, box_id])
+		detection_box.connect("activated", self, "_on_DetectionBox2D_activated", [detection_box])
+		property_list_changed_notify()
+
+
+func _add_push_box(push_box: PushBox2D) -> void:
+	if not _push_box_by_id.values().has(push_box):
+		var box_id := _gen_box_id()
+		_detection_box_by_id[box_id] = push_box
+		_box_names.append("%s:%s" % [push_box.name, box_id])
+		push_box.connect("activated", self, "_on_PushBox2D_actiavted", [push_box])
+		property_list_changed_notify()
+
+
+func _remove_detection_box(detection_box: Node) -> void:
+	for id in _detection_box_by_id:
+		if _detection_box_by_id[id] == detection_box:
+			if detection_box.is_connected("activated", self, "_on_DetectionBox2D_activated"):
+				detection_box.disconnect("activated", self, "_on_DetectionBox2D_activated")
+			_detection_box_by_id.erase(id)
+			property_list_changed_notify()
+
+
+func _remove_push_box(push_box: Node) -> void:
+	for id in _detection_box_by_id:
+		if _detection_box_by_id[id] == push_box:
+			if push_box.is_connected("activated", self, "_on_PushBox2D_activated"):
+				push_box.disconnect("activated", self, "_on_PushnBox2D_activated")
+			_push_box_by_id.erase(id)
+			property_list_changed_notify()
+
 	
-	for key in _push_box_by_id:
-		var p_box: DetectionBox2D = _push_box_by_id[key]
-		id_by_detection_box[p_box] = key
-
-	_detection_box_by_id.clear()
-	_push_box_by_id.clear()
-	_box_names = ["[None]:%s" % NONE]
-
-	var detected_detection_boxes: Array
-	var detected_push_boxes: Array
-
-	for child in get_children():
-		if child is DetectionBox2D:
-			detected_detection_boxes.append(child)
-
-			if id_by_detection_box.has(child):
-				var box_id: int = id_by_detection_box[child]
-				_detection_box_by_id[box_id] = child
-				_box_names.append("%s:%s" % [child.name, box_id])
-
-			if not child.is_connected("activated", self, "_on_DetectionBox_activated"):
-				child.connect("activated", self, "_on_DetectionBox_activated", [child])
-		elif child is PushBox2D:
-			detected_detection_boxes.append(child)
-
-			if id_by_push_box.has(child):
-				var box_id: int = id_by_push_box[child]
-				_push_box_by_id[box_id] = child
-				_box_names.append("%s:%s" % [child.name, box_id])
-
-			if not child.is_connected("activated", self, "_on_PushBox_activated"):
-				child.connect("activated", self, "_on_PushBox_activated", [child])
-
-	for detection_box in detected_detection_boxes:
-		if not id_by_detection_box.has(detection_box):
-			var box_id := _gen_box_id()
-			_detection_box_by_id[box_id] = detection_box
-			_box_names.append("%s:%s" % [detection_box.name, box_id])
-
-	for push_box in detected_push_boxes:
-		if not id_by_push_box.has(push_box):
-			var box_id := _gen_box_id()
-			_push_box_by_id[_gen_box_id()] = push_box
-			_box_names.append("%s:%s" % [push_box.name, box_id])
-
-	property_list_changed_notify()
-	#update_configuration_warning()
-	if _thread != null and _thread.is_alive():
-		_thread.call_deferred("wait_to_finish")
-
-func _on_SceneTree_changed() -> void:
-	if Engine.editor_hint:
-		if not _thread.is_active():
-			_thread.start(self, "_detect_boxes")
+func _on_SceneTree_node_added(node: Node) -> void:
+	if node.get_parent() == self:
+		if node is DetectionBox2D:
+			_add_detection_box(node)
+		elif node is PushBox2D:
+			_add_push_box(node)
+		node.connect("script_changed", self, "_on_ChildNode_script_changed", [node])
 
 
-func _on_DetectionBox_activated(activated_detection_box: DetectionBox2D) -> void:
+func _on_SceneTree_node_removed(node: Node) -> void:
+	if node.get_parent() == self:
+		print("hmm")
+		if node is DetectionBox2D:
+			_remove_detection_box(node)
+		elif node is PushBox2D:
+			_remove_push_box(node)
+		node.disconnect("script_changed", self, "_on_ChildNode_script_changed")
+
+
+func _on_SceneTree_node_renamed(node: Node) -> void:
+	if node.get_parent() == self:
+		pass
+
+
+func _on_ChildNode_script_changed(node: Node) -> void:
+	_remove_detection_box(node)
+	_remove_push_box(node)
+
+	if node is DetectionBox2D:
+		_add_detection_box(node)
+	elif node is PushBox2D:
+		_add_push_box(node)
+
+
+func _on_DetectionBox2D_activated(activated_detection_box: DetectionBox2D) -> void:
 	emit_signal("box_activated")
 	for node in _detection_box_by_id.values():
 		var detection_box := node as DetectionBox2D
 		if detection_box != activated_detection_box:
 			detection_box.is_active = false
 
-func _on_PushBox_activated(activated_push_box: PushBox2D) -> void:
+func _on_PushBox2D_activated(activated_push_box: PushBox2D) -> void:
 	emit_signal("box_activated")
 	for node in _push_box_by_id.values():
 		var push_box := node as PushBox2D
 		if push_box != activated_push_box:
 			push_box.is_active = false
+
+
