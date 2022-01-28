@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
-[ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_controller_2d.gd" type="Script" id=2]
 [ext_resource path="res://addons/stray_combat_framework/debug/input_history/input_history_display.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_state_2d.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 530.287, 22.5622 )
@@ -32,5 +33,41 @@ shape = SubResource( 1 )
 [node name="InputHistoryDisplay" parent="." instance=ExtResource( 3 )]
 margin_right = 14.0
 
-[node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 256.593, 366.86 )
+[node name="HitStateController" type="Node2D" parent="."]
+script = ExtResource( 2 )
+
+[node name="HitState" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState2" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState3" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState4" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState5" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState6" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState7" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState8" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true
+
+[node name="HitState9" type="Node2D" parent="HitStateController"]
+script = ExtResource( 4 )
+is_active = true

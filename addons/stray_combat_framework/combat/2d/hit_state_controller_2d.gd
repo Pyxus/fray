@@ -26,9 +26,10 @@ var _hit_state_by_id: Dictionary
 #optional built-in virtual _init method
 
 func _ready() -> void:
-	_thread = Thread.new()
-
-	get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
+	if Engine.editor_hint:
+		_thread = Thread.new()
+		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
+	
 	_detect_hit_states()
 
 	if not _hit_state_by_id.empty():
@@ -41,7 +42,8 @@ func _get_configuration_warning() -> String:
 
 
 func _exit_tree() -> void:
-	_thread.wait_to_finish()
+	if _thread != null and _thread.is_alive():
+		_thread.wait_to_finish()
 
 
 func get_current_hit_state() -> HitState2D:
@@ -88,9 +90,12 @@ func _detect_hit_states() -> void:
 
 			if not child.is_connected("activated", self, "_on_HitState_activated"):
 				child.connect("activated", self, "_on_HitState_activated", [child])
-	
+		
 	if _hit_states.empty():
 		_set_current_hit_state(NONE)
+		
+	if _thread != null and _thread.is_alive():
+		_thread.call_deferred("wait_to_finish")
 
 
 func _on_SceneTree_changed() -> void:

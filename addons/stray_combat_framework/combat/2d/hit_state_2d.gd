@@ -27,14 +27,15 @@ var _animation_list: PoolStringArray
 
 
 func _ready():
-	_thread = Thread.new()
-	var tree := get_tree()
-	tree.connect("tree_changed", self, "_on_SceneTree_changed")
+	if Engine.editor_hint:
+		_thread = Thread.new()
+		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
 
 func _exit_tree() -> void:
-	_thread.wait_to_finish()
+	if _thread != null and _thread.is_alive():
+		_thread.wait_to_finish()
 
-	
+
 func set_animation_list(list: PoolStringArray) -> void:
 	_animation_list = list
 	property_list_changed_notify()
@@ -84,6 +85,9 @@ func _detect_box_switchers() -> void:
 			_push_boxes.append(child)
 			if not child.is_connected("activated", self, "_on_PushBox2D_activated"):
 				child.connect("activated", self, "_on_PushBox2D_activated")
+
+	if _thread != null and _thread.is_alive():
+		_thread.call_deferred("wait_to_finish")
 
 
 func _on_SceneTree_changed() -> void:

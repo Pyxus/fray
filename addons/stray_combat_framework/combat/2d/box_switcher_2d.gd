@@ -30,18 +30,19 @@ var _box_names: PoolStringArray
 #onready variables
 
 func _ready() -> void:
-	_thread = Thread.new()
-	var tree := get_tree()
-	tree.connect("tree_changed", self, "_on_SceneTree_changed")
+	if Engine.editor_hint:
+		_thread = Thread.new()
+		get_tree().connect("tree_changed", self, "_on_SceneTree_changed")
 	
 	_detect_boxes()
 	set_active_box(active_box)
 
 
 func _exit_tree() -> void:
-	_thread.wait_to_finish()
+	if _thread != null and _thread.is_alive():
+		_thread.wait_to_finish()
 
-	
+
 func _get_configuration_warning() -> String:
 	if _detection_box_by_id.empty() and _push_box_by_id.empty():
 		return "This node is expected to have DetectionBox2Ds or PushBox2Ds children."
@@ -152,6 +153,8 @@ func _detect_boxes() -> void:
 
 	property_list_changed_notify()
 	#update_configuration_warning()
+	if _thread != null and _thread.is_alive():
+		_thread.call_deferred("wait_to_finish")
 
 func _on_SceneTree_changed() -> void:
 	if Engine.editor_hint:

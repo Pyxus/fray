@@ -3,6 +3,7 @@ extends Node
 const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
 
 func _ready() -> void:
+	"""
 	var VInput = $Player.VInput
 	var input_history_display = $InputHistoryDisplay
 	input_history_display.input_detector = $Player.input_detector
@@ -20,3 +21,5 @@ func _ready() -> void:
 	input_history_display.set_input_texture(VInput.PUNCH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Square.png"))
 	input_history_display.set_input_texture(VInput.SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Triangle.png"))
 	input_history_display.set_input_texture(VInput.HEAVY_SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png"))
+	"""
+	pass
