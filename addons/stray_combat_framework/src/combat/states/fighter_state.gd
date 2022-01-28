@@ -1,8 +1,8 @@
 extends Reference
 
-const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
-const DetectedSequence = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_sequence.gd")
-const DetectedVirtualInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_virtual_input.gd")
+const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const DetectedSequence = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_sequence.gd")
+const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
 
 const StateConnection = preload("state_connection.gd")
 const InputData = preload("input_data/input_data.gd")

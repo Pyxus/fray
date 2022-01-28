@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/box_switcher_2d.gd" type="Script" id=2]
-[ext_resource path="res://addons/stray_combat_framework/debug/input_history/input_history_display.tscn" type="PackedScene" id=3]
-[ext_resource path="res://addons/stray_combat_framework/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=4]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/box_switcher_2d.gd" type="Script" id=2]
+[ext_resource path="res://addons/stray_combat_framework/src/ui/input_history/input_history_display.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 530.287, 22.5622 )

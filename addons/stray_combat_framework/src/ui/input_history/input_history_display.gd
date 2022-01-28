@@ -1,8 +1,8 @@
 extends PanelContainer
 
-const DetectedInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_input.gd")
-const DetectedVirtualInput = preload("res://addons/stray_combat_framework/input/detected_inputs/detected_virtual_input.gd")
-const InputDetector = preload("res://addons/stray_combat_framework/input/input_detector.gd")
+const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
+const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const InputView = preload ("input_view.gd")
 const InputViewScn = preload("input_view.tscn")
 

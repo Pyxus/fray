@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/stray_combat_framework/assets/sprites/input_buttons/Down.png" type="Texture" id=1]
-[ext_resource path="res://addons/stray_combat_framework/debug/input_history/input_view.gd" type="Script" id=2]
+[ext_resource path="res://addons/stray_combat_framework/src/ui/input_history/input_view.gd" type="Script" id=2]
 
 [sub_resource type="StyleBoxFlat" id=3]
 content_margin_left = 5.0

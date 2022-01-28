@@ -1,8 +1,13 @@
 extends Node
 
-const SequenceData = preload("res://addons/stray_combat_framework/input/sequence/sequence_data.gd")
+const SequenceData = preload("res://addons/stray_combat_framework/src/input/sequence/sequence_data.gd")
+const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/reversable_dictionary.gd")
+
+var test_dict: Dictionary
 
 func _ready() -> void:
+	var dict := ReverseableDictionary.new()
+	dict["hi"] = 2
 	"""
 	var VInput = $Player.VInput
 	var input_history_display = $InputHistoryDisplay

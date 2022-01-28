@@ -1,9 +1,7 @@
 class_name StrayCF
 
-# Combat
-#const CombatFSM = preload("combat/state_management/combat_fsm.gd")
+#
 
-# Combat2D
 """
 const CharacterBody2D = preload("combat/2d/body/character_body_2d.gd")
 const FighterBody2D = preload("combat/2d/body/fighter_body_2d.gd")
