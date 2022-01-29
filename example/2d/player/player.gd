@@ -1,13 +1,13 @@
-extends "res://addons/stray_combat_framework/src/combat/2d/body/fighter_body_2d.gd"
+extends StrayCF.FighterBody2D
 
-const CombatFSM = preload("res://addons/stray_combat_framework/src/combat/combat_fsm.gd")
-const Situation = preload("res://addons/stray_combat_framework/src/combat/situation.gd")
-const FighterState = preload("res://addons/stray_combat_framework/src/combat/fsm_states/fighter_state.gd")
-const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
-const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
-const SequenceData = preload("res://addons/stray_combat_framework/src/input/sequence/sequence_data.gd")
-const SequenceInputData = preload("res://addons/stray_combat_framework/src/combat/fsm_states/input_data/sequence_input_data.gd")
-const VirtualInputData = preload("res://addons/stray_combat_framework/src/combat/fsm_states/input_data/virtual_input_data.gd")
+const CombatFSM = StrayCF.CombatFSM 
+const Situation = StrayCF.Situation
+const FighterState = StrayCF.FighterState
+const InputDetector = StrayCF.InputDetector
+const DetectedInput = StrayCF.DetectedInput
+const SequenceData = StrayCF.SequenceData
+const SequenceInputData = StrayCF.SequenceInputData
+const VirtualInputData = StrayCF.VirtualInputData
 
 enum VInput {
 	UP,

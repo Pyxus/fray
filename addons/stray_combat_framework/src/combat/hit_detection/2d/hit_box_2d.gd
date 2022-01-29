@@ -12,12 +12,15 @@ signal deactivated()
 
 #enums
 
-#constants
+const HitAttributes = preload("../hit_attributes/hit_attributes.gd")
+const AttackAttributes = preload("../hit_attributes/attack_attributes.gd")
+const HurtAttributes = preload("../hit_attributes/hurt_attributes.gd")
 
+export var hit_attributes: Resource setget set_hit_attributes # Custom resource exports would be pretty nice godot ¬¬
 export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 
-var box_color: Color = Color("ff0054")
+var box_color: Color = Color.black
 var is_active: bool setget set_is_active
 var belongs_to: Object
 
@@ -39,6 +42,17 @@ func _process(_delta: float) -> void:
 		return
 
 
+func set_hit_attributes(value: Resource) -> void:
+	if value is HitAttributes:
+		hit_attributes = value
+		box_color = hit_attributes.color
+	elif value == null:
+		hit_attributes = null
+		box_color = Color.black
+	else:
+		push_warning("You tried to pass a resource that isn't a hit attribute. If we had custom exports I wouldn't need to do this.")
+	
+	
 func add_detection_exception_with(hitbox: Area2D) -> void:
 	if not _detection_exceptions.has(hitbox):
 		_detection_exceptions.append(hitbox)
