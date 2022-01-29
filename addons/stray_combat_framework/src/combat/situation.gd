@@ -7,9 +7,9 @@ const DetectedInput = preload("res://addons/stray_combat_framework/src/input/det
 const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 
-const FighterState = preload("states/fighter_state.gd")
-const RootFighterState = preload("states/root_fighter_state.gd")
-const InputData = preload("states/input_data/input_data.gd")
+const FighterState = preload("fsm_states/fighter_state.gd")
+const RootFighterState = preload("fsm_states/root_fighter_state.gd")
+const InputData = preload("fsm_states/input_data/input_data.gd")
 
 var _root: RootFighterState
 var _current_state: FighterState

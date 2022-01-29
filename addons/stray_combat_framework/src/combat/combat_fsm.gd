@@ -5,7 +5,7 @@ const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/in
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 
 const Situation = preload("situation.gd")
-const FighterState = preload("states/fighter_state.gd")
+const FighterState = preload("fsm_states/fighter_state.gd")
 
 enum FrameState {
 	IDLE,

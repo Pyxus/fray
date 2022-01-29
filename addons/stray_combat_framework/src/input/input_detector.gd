@@ -244,7 +244,7 @@ func _check_for_sequence_matches() -> void:
 		if parse_result.is_match:
 			var detected_sequence := DetectedSequence.new()
 			detected_sequence.sequence_name = sequence_name
-			detected_sequence.is_dirty = parse_result.is_dirty_input
+			detected_sequence.is_alternative_input = parse_result.is_alternative_input
 			detected_sequence.time_stamp = OS.get_ticks_msec()
 			emit_signal("input_detected", detected_sequence)
 

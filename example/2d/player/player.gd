@@ -2,12 +2,12 @@ extends "res://addons/stray_combat_framework/src/combat/2d/body/fighter_body_2d.
 
 const CombatFSM = preload("res://addons/stray_combat_framework/src/combat/combat_fsm.gd")
 const Situation = preload("res://addons/stray_combat_framework/src/combat/situation.gd")
-const FighterState = preload("res://addons/stray_combat_framework/src/combat/states/fighter_state.gd")
+const FighterState = preload("res://addons/stray_combat_framework/src/combat/fsm_states/fighter_state.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const SequenceData = preload("res://addons/stray_combat_framework/src/input/sequence/sequence_data.gd")
-const SequenceInputData = preload("res://addons/stray_combat_framework/src/combat/states/input_data/sequence_input_data.gd")
-const VirtualInputData = preload("res://addons/stray_combat_framework/src/combat/states/input_data/virtual_input_data.gd")
+const SequenceInputData = preload("res://addons/stray_combat_framework/src/combat/fsm_states/input_data/sequence_input_data.gd")
+const VirtualInputData = preload("res://addons/stray_combat_framework/src/combat/fsm_states/input_data/virtual_input_data.gd")
 
 enum VInput {
 	UP,
@@ -91,8 +91,16 @@ func _ready() -> void:
 	pass
 
 
-func _process(delta: float) -> void:
-	pass
+func _process(_delta: float) -> void:
+	if input_detector.is_input_pressed(VInput.LEFT):
+		combat_fsm.set_condition("is_walking_back", true)
+		combat_fsm.set_condition("is_walking_forward", false)
+	elif input_detector.is_input_pressed(VInput.RIGHT):
+		combat_fsm.set_condition("is_walking_forward", true)
+		combat_fsm.set_condition("is_walking_back", false)
+	else:
+		combat_fsm.set_condition("is_walking_forward", false)
+		combat_fsm.set_condition("is_walking_back", false)
 
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	combat_fsm.buffer_input(detected_input)

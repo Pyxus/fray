@@ -8,17 +8,17 @@ var _sequences: Array
 var _discovered_at_indexes: PoolIntArray
 
 
-func set_sequence(clean_sequence: SequenceData, dirty_sequences: Array = []) -> void:
+func set_sequence(main_sequence: SequenceData, alternative_sequence: Array = []) -> void:
 	_sequences.clear()
 
-	_sequences.append(clean_sequence)
+	_sequences.append(main_sequence)
 
-	for dirty_sequence in dirty_sequences:
-		assert(dirty_sequence is SequenceData, "dirty_sequence array must include only objects of type SequenceData.")
-		_sequences.append(dirty_sequences)
+	for alt_sequence in alternative_sequence:
+		assert(alt_sequence is SequenceData, "dirty_sequence array must include only objects of type SequenceData.")
+		_sequences.append(alt_sequence)
 
-	if clean_sequence in dirty_sequences:
-		push_warning("Unnecessary inclusion of main sequence in dirty sequences")
+	if main_sequence in alternative_sequence:
+		push_warning("Unnecessary inclusion of main sequence '%s' in alternative sequences" % main_sequence)
 
 
 func parse(buffered_inputs: Array) -> SequenceParseResult:
@@ -27,7 +27,7 @@ func parse(buffered_inputs: Array) -> SequenceParseResult:
 		var sequence_parse_result: SequenceParseResult = sequence_data.parse(buffered_inputs, get_start_index())
 
 		if sequence_parse_result.is_match and not sequence_parse_result.discovered_at_index in _discovered_at_indexes:
-			sequence_parse_result.is_dirty_input = true
+			sequence_parse_result.is_alternative_input = true
 			_discovered_at_indexes.append(sequence_parse_result.discovered_at_index)
 			return sequence_parse_result
 

@@ -26,7 +26,6 @@ config/icon="res://icon.png"
 
 [debug]
 
-settings/stdout/verbose_stdout=true
 shapes/collision/shape_color=Color( 1, 1, 1, 0.419608 )
 
 [editor_plugins]
