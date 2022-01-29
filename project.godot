@@ -30,7 +30,7 @@ shapes/collision/shape_color=Color( 1, 1, 1, 0.419608 )
 
 [editor_plugins]
 
-enabled=PoolStringArray(  )
+enabled=PoolStringArray( "res://addons/stray_combat_framework/plugin.cfg" )
 
 [input]
 

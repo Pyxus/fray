@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
 [ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
@@ -6,6 +6,9 @@
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 530.287, 22.5622 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 28.2527, 23.2704 )
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
@@ -34,3 +37,8 @@ shape = SubResource( 1 )
 
 [node name="InputHistoryDisplay" parent="." instance=ExtResource( 3 )]
 margin_right = 14.0
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource( 2 )

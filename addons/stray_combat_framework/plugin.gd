@@ -36,9 +36,11 @@ func _enter_tree() -> void:
 	add_custom_type("HitAttributes", "Resource", StrayCF.HitAttributes, null)
 	add_custom_type("AttackAttributes", "Resource", StrayCF.AttackAttributes, null)
 	add_custom_type("HurtAttributes", "Resource", StrayCF.HurtAttributes, null)
+	ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color("6bffffff"))
 
 
 func _exit_tree() -> void:
+	ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color( 0, 0.6, 0.7, 0.42 ))
 	for type in _added_types:
 		remove_custom_type(type)
 
