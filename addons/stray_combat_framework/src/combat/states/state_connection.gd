@@ -7,8 +7,17 @@ const VirtualInputData = preload("input_data/virtual_input_data.gd")
 var input_data: InputData
 var transition_animation: String = ""
 var chain_conditions: PoolStringArray
-var to: Reference
+var to: Reference setget connect_to, to_state
 
+var _to_ref: WeakRef
+
+
+func connect_to(state: Reference) -> void:
+	_to_ref = weakref(state)
+	
+
+func to_state() -> Reference:
+	return _to_ref.get_ref()
 
 func is_identical_to(state_connection: Reference) -> bool:
 	return has_identical_details(state_connection.input_data, state_connection.chain_conditions)

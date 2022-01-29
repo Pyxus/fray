@@ -29,8 +29,10 @@ onready var input_detector: InputDetector = get_node("InputDetector")
 
 
 func _ready() -> void:
+	
 	# Configuring Detector
 	input_detector.bind_action_input(VInput.UP, "up")
+	
 	input_detector.bind_action_input(VInput.DOWN, "down")
 	input_detector.bind_action_input(VInput.LEFT, "left")
 	input_detector.bind_action_input(VInput.RIGHT, "right")
@@ -38,7 +40,9 @@ func _ready() -> void:
 	input_detector.bind_action_input(VInput.PUNCH, "punch")
 	input_detector.bind_action_input(VInput.SLASH, "slash")
 	input_detector.bind_action_input(VInput.HEAVY_SLASH, "heavy_slash")
+	
 	input_detector.register_combination(VInput.UP_LEFT, [VInput.UP, VInput.LEFT])
+	
 	input_detector.register_combination(VInput.UP_RIGHT, [VInput.UP, VInput.RIGHT])
 	input_detector.register_combination(VInput.DOWN_LEFT, [VInput.DOWN, VInput.LEFT])
 	input_detector.register_combination(VInput.DOWN_RIGHT, [VInput.DOWN, VInput.RIGHT])
@@ -46,16 +50,18 @@ func _ready() -> void:
 	var qcf_hs := SequenceData.new()
 	qcf_hs.append_inputs([VInput.DOWN, VInput.DOWN_RIGHT, VInput.RIGHT, VInput.HEAVY_SLASH])
 	input_detector.register_sequence_from_data("236H", qcf_hs)
-
+	
 	# Configuring States
 	var neutral_slash := FighterState.new()
 	neutral_slash.animation = "5S"
 	neutral_slash.chain_global("special")
-
+	
+	
 	var neutral_punch := FighterState.new()
 	neutral_punch.animation = "5P"
 	neutral_punch.chain_global("special")
 
+	
 	var walk_forward := FighterState.new()
 	walk_forward.animation = "walk"
 	walk_forward.active_condition = "is_walking_forward"
@@ -67,9 +73,9 @@ func _ready() -> void:
 	var walk_backward := FighterState.new()
 	walk_backward.animation = "walk_back"
 	walk_backward.active_condition = "is_walking_back"
-
+	
 	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
-
+	
 	var situation_on_ground := Situation.new()
 	var ground_root := situation_on_ground.get_root()
 	ground_root.chain_global("special")
@@ -82,18 +88,12 @@ func _ready() -> void:
 
 	combat_fsm.add_situation("on_ground", situation_on_ground)
 	combat_fsm.set_current_situation("on_ground")
+	pass
 
 
 func _process(delta: float) -> void:
-	if input_detector.is_input_pressed(VInput.LEFT):
-		combat_fsm.set_condition("is_walking_back", true)
-		combat_fsm.set_condition("is_walking_forward", false)
-	elif input_detector.is_input_pressed(VInput.RIGHT):
-		combat_fsm.set_condition("is_walking_forward", true)
-		combat_fsm.set_condition("is_walking_back", false)
-	else:
-		combat_fsm.set_condition("is_walking_forward", false)
-		combat_fsm.set_condition("is_walking_back", false)
+	pass
 
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	combat_fsm.buffer_input(detected_input)
+	pass

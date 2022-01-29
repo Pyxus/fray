@@ -4,10 +4,15 @@ extends "fighter_state.gd"
 var condition_dict: Dictionary
 
 var _global_chains: Array
+var _associated_states: Array
 
 
 func _init(situation: Reference) -> void:
-	_situation = situation
+	_situation_ref = weakref(situation)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_associated_states.clear()
 
 
 func add_global_chain(global_tag: String, fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = [], transition_animation: String = "") -> void:
@@ -17,7 +22,7 @@ func add_global_chain(global_tag: String, fighter_state: Reference, input_data: 
 	state_connection.chain_conditions = chain_conditions
 	state_connection.to = fighter_state
 	fighter_state.global_tag = global_tag
-	fighter_state._situation = _situation
+	fighter_state._situation_ref = _situation_ref
 
 	for connection in _global_chains:
 		if connection.is_identical_to(state_connection):
@@ -25,12 +30,14 @@ func add_global_chain(global_tag: String, fighter_state: Reference, input_data: 
 			return
 
 	_global_chains.append(state_connection)
+	_associate_state_with_root(fighter_state)
 
 
 func remove_global_chain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = []) -> void:
 	for connection in _global_chains:
 		if connection.has_identical_details(fighter_state, input_data, chain_conditions):
 			_chain_connections.erase(connection)
+			_unassociate_state_with_root(connection.to)
 			connection.to._situation = null
 			break
 	pass
@@ -62,8 +69,21 @@ func get_next_global_state(detected_input: DetectedInput) -> Reference:
 				return connection.to
 	return null
 
-	
+
+func _associate_state_with_root(state: Reference) -> void:
+	if not _associated_states.has(state):
+		_associated_states.append(state)
+
+
+func _unassociate_state_with_root(state: Reference) -> void:
+	if _associated_states.has(state):
+		_associated_states.erase(state)
+			
+			
 func _is_all_conditions_met(state_connection: StateConnection) -> bool:
+	if state_connection.to == null:
+		return false
+		
 	var active_condition: String = state_connection.to.active_condition
 	if not active_condition.empty() and not is_condition_true(state_connection.to.active_condition):
 		return false

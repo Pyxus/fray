@@ -19,7 +19,7 @@ func is_pressed() -> bool:
 
 
 func is_component(input_id: int) -> bool:
-    return input_id in input_ids
+	return input_id in input_ids
 
 
 func release_components() -> void:

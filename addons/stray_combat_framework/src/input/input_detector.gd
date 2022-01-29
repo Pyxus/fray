@@ -36,6 +36,14 @@ func _process(delta: float) -> void:
 	_handle_buffer_clearing(delta)
 
 
+func _notification(what: int) -> void:
+	# Combinations are passed a reference to this dictionary.
+	# I think that keeps the references alive so we're clearing it when this object gets deleted.
+	# Perhaps a better setup is needed... but for now this seems to work
+	if what == NOTIFICATION_PREDELETE:
+		_input_by_id.clear()
+		
+		
 func is_input_pressed(input_id: int) -> bool:
 	if not _input_by_id.has(input_id):
 		push_warning("Input with id %d does not exist" % input_id)

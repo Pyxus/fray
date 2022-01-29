@@ -21,6 +21,11 @@ func _init() -> void:
 	_current_state = _root
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_root._associated_states.clear()
+
+
 func update(detected_input: DetectedInput = null) -> void:
 	var next_state := _current_state.get_next_chained_state(detected_input)
 

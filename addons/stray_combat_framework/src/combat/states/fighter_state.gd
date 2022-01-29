@@ -17,7 +17,7 @@ var _global_chain_tags: Array
 var _chain_connections: Array 
 var _extender_connections: Array
 var _extending_state: Reference
-var _situation: Reference setget _set_situation
+var _situation_ref: WeakRef setget _set_situation_ref
 
 
 func chain_global(tag: String) -> void:
@@ -40,7 +40,7 @@ func chain(fighter_state: Reference, input_data: InputData, chain_conditions: Po
 	state_connection.transition_animation = transition_animation
 	state_connection.chain_conditions = chain_conditions
 	state_connection.to = fighter_state
-	fighter_state._situation = _situation
+	fighter_state._situation_ref = _situation_ref
 
 	for connection in _chain_connections:
 		if connection.is_identical_to(state_connection):
@@ -48,13 +48,15 @@ func chain(fighter_state: Reference, input_data: InputData, chain_conditions: Po
 			return
 
 	_chain_connections.append(state_connection)
+	_associate_state_with_root(fighter_state)
 	
 
 func unchain(fighter_state: Reference, input_data: InputData, chain_conditions: PoolStringArray = []) -> void:
 	for connection in _chain_connections:
 		if connection.has_identical_details(fighter_state, input_data, chain_conditions):
 			_chain_connections.erase(connection)
-			connection.to._situation = null
+			connection.to._situation_ref = null
+			_unassociate_state_with_root(fighter_state)
 			break
 
 
@@ -62,6 +64,7 @@ func unchain_all(fighter_state: Reference) -> void:
 	for connection in _chain_connections:
 		if connection.to == fighter_state:
 			_chain_connections.erase(connection)
+			_unassociate_state_with_root(fighter_state)
 			connection.to._situation = null
 
 
@@ -82,8 +85,9 @@ func connect_extender(fighter_state: Reference, transition_animation: String = "
 	state_connection.to = fighter_state
 
 	fighter_state._extending_state = self
-	fighter_state._situation = _situation
+	fighter_state._situation_ref = _situation_ref
 	_extender_connections.append(state_connection)
+	_associate_state_with_root(fighter_state)
 
 
 func disconnect_extender(fighter_state: Reference) -> void:
@@ -91,6 +95,7 @@ func disconnect_extender(fighter_state: Reference) -> void:
 		if connection.to == fighter_state:
 			fighter_state._extending_state = null
 			_extender_connections.erase(connection)
+			_unassociate_state_with_root(fighter_state)
 			break
 
 
@@ -109,7 +114,12 @@ func get_next_extender_state(detected_input: DetectedInput) -> Reference:
 
 
 func get_next_global_state(detected_input: DetectedInput) -> Reference:
-	var root = _situation.get_root()
+	var situation: Reference = get_situation()
+	if situation == null:
+		push_error("Failed to check global chains. State may not exist within a situation")
+		return null
+		
+	var root = situation.get_root()
 	for connection in root.get_global_chains():
 		if _is_matching_input(detected_input, connection.input_data) and _is_all_conditions_met(connection):
 			if _global_chain_tags.has(connection.to.global_tag):
@@ -137,8 +147,13 @@ func get_extended_state_next_state(detected_input: DetectedInput) -> Reference:
 func get_connection(to_state: Reference) -> StateConnection:
 	if _extending_state != null:
 		return _extending_state.get_connection(to_state)
-
-	var root = _situation.get_root()
+		
+	var situation: Reference = get_situation()
+	if situation == null:
+		push_error("Failed to check global chains. State may not exist within a situation")
+		return null
+		
+	var root = situation.get_root()
 	for connection in (_chain_connections + _extender_connections + root.get_global_chains()):
 		if connection.to == to_state:
 			return connection
@@ -162,8 +177,13 @@ func is_extended_by(fighter_state: Reference) -> bool:
 func has_connection_to(fighter_state: Reference) -> bool:
 	if _extending_state != null:
 		return _extending_state.has_connection_to(fighter_state)
-
-	var root = _situation.get_root()
+	var situation: Reference = get_situation()
+	
+	if situation == null:
+		push_error("Failed to check global chains. State may not exist within a situation")
+		return false
+		
+	var root = situation.get_root()
 	var has_global_connection := false
 	if root != null:
 		has_global_connection = root.has_global_chain_to(fighter_state)
@@ -180,18 +200,44 @@ func get_extending_state() -> Reference:
 
 
 func get_situation() -> Reference:
-	return _situation
+	return  _situation_ref.get_ref() if _situation_ref != null else null
 
 
-func _set_situation(value: Reference) -> void:
-	_situation = value
+func _associate_state_with_root(state: Reference) -> void:
+	var situation := get_situation()
+	if situation != null:
+		var root: Reference = situation.get_root()
+		root._associate_state_with_root(state)
+		
+		for connection in (_chain_connections + _extender_connections):
+			root._associate_state_with_root(connection.to)
+	
+
+func _unassociate_state_with_root(state: Reference) -> void:
+	var situation := get_situation()
+	if situation != null:
+		var root: Reference = situation.get_root()
+		root._unassociate_state_with_root(state)
+		
+		for connection in (_chain_connections + _extender_connections):
+			root._unassociate_state_with_root(connection.to)
+		
+	
+	
+func _set_situation_ref(value: WeakRef) -> void:
+	_situation_ref = value
 	for connection in (_chain_connections + _extender_connections):
-		if connection.to._situation != value:
-			connection.to._situation = value
+		if connection.to != null and connection.to._situation_ref != value:
+			connection.to._situation_ref = value
 
 
 func _is_all_conditions_met(state_connection: StateConnection) -> bool:
-	var root = _situation.get_root()
+	var situation: Reference = get_situation()
+	if situation == null:
+		push_error("Failed to check global chains. State may not exist within a situation")
+		return false
+		
+	var root = situation.get_root()
 	if root == null:
 		push_error("Failed to check conditions, root is not set for this state. State connections may not trace up to any root.")
 		return false
