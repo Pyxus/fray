@@ -1,9 +1,9 @@
 [gd_scene load_steps=158 format=2]
 
 [ext_resource path="res://example/2d/player/player.gd" type="Script" id=1]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/hit_detection/2d/hit_state_controller_2d.gd" type="Script" id=2]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/hit_detection/2d/box_switcher_2d.gd" type="Script" id=3]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/hit_detection/2d/hit_state_2d.gd" type="Script" id=4]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/collision_detection/2d/hit_state_controller_2d.gd" type="Script" id=2]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/collision_detection/2d/box_switcher_2d.gd" type="Script" id=3]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/collision_detection/2d/hit_state_2d.gd" type="Script" id=4]
 [ext_resource path="res://example/2d/player/sprites/standing/movement/jump_shi17.png" type="Texture" id=5]
 [ext_resource path="res://example/2d/player/sprites/standing/idle_shi00.png" type="Texture" id=6]
 [ext_resource path="res://example/2d/player/sprites/standing/movement/walk_shi26.png" type="Texture" id=7]
@@ -15,7 +15,7 @@
 [ext_resource path="res://example/2d/player/sprites/standing/attack/shi41.png" type="Texture" id=13]
 [ext_resource path="res://example/2d/player/sprites/crouch/shi04.png" type="Texture" id=14]
 [ext_resource path="res://addons/stray_combat_framework/src/input/input_detector.gd" type="Script" id=15]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/hit_detection/2d/hit_box_2d.gd" type="Script" id=17]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/collision_detection/2d/hit_box_2d.gd" type="Script" id=17]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 17.8555
