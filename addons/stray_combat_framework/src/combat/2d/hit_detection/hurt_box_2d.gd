@@ -4,8 +4,6 @@ extends "detection_box_2d.gd"
 
 #inner classes
 
-signal hit_detected()
-
 #enums
 
 const BOX_COLOR = Color("0088ff")

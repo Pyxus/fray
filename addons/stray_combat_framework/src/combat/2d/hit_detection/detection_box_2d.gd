@@ -6,6 +6,7 @@ extends Area2D
 
 #inner classes
 
+signal box_detected()
 signal activated()
 signal deactivated()
 
@@ -34,16 +35,14 @@ func _ready() -> void:
 #remaining built-in virtual methods
 
 func add_detection_exception_with(hitbox: Area2D) -> void:
-	assert(hitbox.get_script() == get_script(), "Argument is not of type Hitbox")
-	
 	if not _detection_exceptions.has(hitbox):
 		_detection_exceptions.append(hitbox)
 	
-func remove_detection_exception_with(hitbox: Area2D) -> void:
-	assert(hitbox.get_script() == get_script(), "Argument is not of type Hitbox")
 	
+func remove_detection_exception_with(hitbox: Area2D) -> void:
 	if _detection_exceptions.has(hitbox):
 		_detection_exceptions.erase(hitbox)
+
 
 func set_flip_h(value: bool) -> void:
 	flip_h = value
@@ -52,12 +51,14 @@ func set_flip_h(value: bool) -> void:
 		if child is CollisionShape2D or child is CollisionPolygon2D:
 			child.position.x *= -1
 	
+	
 func set_flip_v(value: bool) -> void:
 	flip_v = value
 	
 	for child in get_children():
 		if child is CollisionShape2D or child is CollisionPolygon2D:
 			child.position.y *= -1
+
 
 func set_is_active(value: bool) -> void:
 	if is_active != value:
@@ -77,7 +78,9 @@ func set_is_active(value: bool) -> void:
 #private methods
 
 func _on_area_entered(area: Area2D) -> void:
-	pass
+	if not _detection_exceptions.has(area):
+		pass
 
 func _on_area_exited(area: Area2D) -> void:
-	pass
+	if not _detection_exceptions.has(area):
+		pass
