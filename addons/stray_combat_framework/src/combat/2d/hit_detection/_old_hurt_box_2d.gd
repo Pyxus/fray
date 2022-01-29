@@ -1,14 +1,10 @@
 tool
-extends "detection_box_2d.gd"
+extends "hit_box_2d.gd"
 ## docstring
 
 #inner classes
 
 #enums
-
-const BOX_COLOR = Color("0088ff")
-
-#
 
 #exported variables
 
@@ -22,12 +18,8 @@ const BOX_COLOR = Color("0088ff")
 #optional built-in virtual _init method
 
 func _ready() -> void:
-	modulate = BOX_COLOR
+	box_color = Color("0088ff")
 
-func _process(_delta: float) -> void:
-	if Engine.editor_hint:
-		modulate = BOX_COLOR
-		return
 
 #public methods
 

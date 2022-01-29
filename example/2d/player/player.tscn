@@ -15,8 +15,8 @@
 [ext_resource path="res://example/2d/player/sprites/standing/attack/shi41.png" type="Texture" id=13]
 [ext_resource path="res://example/2d/player/sprites/crouch/shi04.png" type="Texture" id=14]
 [ext_resource path="res://addons/stray_combat_framework/src/input/input_detector.gd" type="Script" id=15]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/hit_box_2d.gd" type="Script" id=16]
-[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/hurt_box_2d.gd" type="Script" id=51]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/_old_hit_box_2d.gd" type="Script" id=16]
+[ext_resource path="res://addons/stray_combat_framework/src/combat/2d/hit_detection/_old_hurt_box_2d.gd" type="Script" id=51]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 17.8555
@@ -1358,7 +1358,7 @@ monitorable = false
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/Idle/BoxSwitcher2D/HurtBox2D"]
-position = Vector2( 0, -15 )
+position = Vector2( 0, 15 )
 shape = SubResource( 47 )
 
 [node name="Walk" type="Node2D" parent="HitStateController2D"]
@@ -1374,7 +1374,7 @@ modulate = Color( 0, 0.533333, 1, 1 )
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/Walk/BoxSwitcher2D/HurtBox2D"]
-position = Vector2( -8, -16 )
+position = Vector2( 8, 16 )
 shape = SubResource( 47 )
 
 [node name="Crouch" type="Node2D" parent="HitStateController2D"]
@@ -1397,7 +1397,7 @@ monitorable = false
 script = ExtResource( 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5P/HitBoxes/HitBox2D"]
-position = Vector2( 61.3255, 54.8462 )
+position = Vector2( -61.3255, -54.8462 )
 shape = SubResource( 134 )
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5P"]
@@ -1409,7 +1409,7 @@ modulate = Color( 0, 0.533333, 1, 1 )
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5P/HurtBoxes/HurtBox2D"]
-position = Vector2( -0.594604, -17.4865 )
+position = Vector2( 0.594604, 17.4865 )
 shape = SubResource( 135 )
 
 [node name="5P-5P" type="Node2D" parent="HitStateController2D"]
@@ -1440,7 +1440,7 @@ monitorable = false
 script = ExtResource( 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/236H/HitBoxes/HitBox2D"]
-position = Vector2( 18.8114, -15.7398 )
+position = Vector2( -18.8114, 15.7398 )
 shape = SubResource( 136 )
 
 [node name="HitBox2D2" type="Area2D" parent="HitStateController2D/236H/HitBoxes"]
@@ -1448,7 +1448,7 @@ modulate = Color( 1, 0, 0.329412, 1 )
 script = ExtResource( 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/236H/HitBoxes/HitBox2D2"]
-position = Vector2( 69.0554, 25.3961 )
+position = Vector2( -69.0554, -25.3961 )
 shape = SubResource( 137 )
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/236H"]
@@ -1478,7 +1478,7 @@ monitorable = false
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HurtBoxes/HurtBox2D"]
-position = Vector2( -4.85162, -15.3051 )
+position = Vector2( 4.85162, 15.3051 )
 shape = SubResource( 139 )
 
 [node name="HurtBox2D2" type="Area2D" parent="HitStateController2D/5S/HurtBoxes"]
@@ -1486,7 +1486,7 @@ modulate = Color( 0, 0.533333, 1, 1 )
 script = ExtResource( 51 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HurtBoxes/HurtBox2D2"]
-position = Vector2( -26.5412, -27.7917 )
+position = Vector2( 26.5412, 27.7917 )
 shape = SubResource( 140 )
 
 [node name="HitBoxes" type="Node2D" parent="HitStateController2D/5S"]
@@ -1501,7 +1501,7 @@ monitorable = false
 script = ExtResource( 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/HitBoxes/HitBox2D"]
-position = Vector2( 53.5956, -3.84772 )
+position = Vector2( -53.5956, 3.84772 )
 shape = SubResource( 141 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

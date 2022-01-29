@@ -1,6 +1,6 @@
 tool
 extends Node2D
-## Node used to contain a configuration of DetectionBox2Ds and/or PushBox2Ds.
+## Node used to contain a configuration of HitBox2Ds and/or PushBox2Ds.
 ##
 ## This node is intended to represent a single state of a fighter such as a fighting move.
 
@@ -12,7 +12,7 @@ signal activated()
 const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
-const DetectionBox2D = preload("hit_detection/detection_box_2d.gd")
+const HitBox2D = preload("hit_box_2d.gd")
 const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
@@ -42,13 +42,13 @@ func set_is_active(value: bool) -> void:
 
 func deactivate_boxes() -> void:
 	for child in get_children():
-		if child is DetectionBox2D or child is PushBox2D:
+		if child is HitBox2D or child is PushBox2D:
 			child.is_active = false
 
 
 func set_boxes_belong_to(obj: Object) -> void:
 	for child in get_children():
-		if child is DetectionBox2D or child is PushBox2D:
+		if child is HitBox2D or child is PushBox2D:
 			child.belongs_to = obj
 
 
@@ -58,9 +58,9 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 			if node is BoxSwitcher2D:
 				if not node.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
 					node.connect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
-			elif node is DetectionBox2D:
-				if not node.is_connected("activated", self, "_on_DetectionBox2D_activated"):
-					node.connect("activated", self, "_on_DetectionBox2D_activated")
+			elif node is HitBox2D:
+				if not node.is_connected("activated", self, "_on_HitBox2D_activated"):
+					node.connect("activated", self, "_on_HitBox2D_activated")
 			elif node is PushBox2D:
 				if not node.is_connected("activated", self, "_on_PushBox2D_activated"):
 					node.connect("activated", self, "_on_PushBox2D_activated")
@@ -69,15 +69,15 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 			if node is BoxSwitcher2D:
 				if node.is_connected("active_box_set", self, "_on_BoxSwitcher_active_box_set"):
 					node.disconnect("active_box_set", self, "_on_BoxSwitcher_active_box_set")
-			elif node is DetectionBox2D:
-				if node.is_connected("activated", self, "_on_DetectionBox2D_activated"):
-					node.disconnect("activated", self, "_on_DetectionBox2D_activated")
+			elif node is HitBox2D:
+				if node.is_connected("activated", self, "_on_HitBox2D_activated"):
+					node.disconnect("activated", self, "_on_HitBox2D_activated")
 			elif node is PushBox2D:
 				if node.is_connected("activated", self, "_on_PushBox2D_activated"):
 					node.disconnect("activated", self, "_on_PushBox2D_activated")
 
 
-func _on_DetectionBox2D_activated() -> void:
+func _on_HitBox2D_activated() -> void:
 	set_is_active(true)
 
 

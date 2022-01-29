@@ -4,10 +4,7 @@ class_name StrayCF
 const CharacterBody2D = preload("src/combat/2d/body/character_body_2d.gd")
 const FighterBody2D = preload("src/combat/2d/body/fighter_body_2d.gd")
 const PushBox2D = preload("src/combat/2d/body/push_box_2d.gd")
-
-const DetectionBox2D = preload("src/combat/2d/hit_detection/detection_box_2d.gd")
-const HitBox2D = preload("src/combat/2d/hit_detection/hit_box_2d.gd")
-const HurtBox2D = preload("src/combat/2d/hit_detection/hurt_box_2d.gd")
+const HitBox2D = preload("src/combat/2d/hit_box_2d.gd")
 
 const BoxSwitcher2D = preload("src/combat/2d/box_switcher_2d.gd")
 const HitState2D = preload("src/combat/2d/hit_state_2d.gd")

@@ -1,5 +1,5 @@
 tool
-extends "detection_box_2d.gd"
+extends Area2D
 ## docstring
 
 #inner classes

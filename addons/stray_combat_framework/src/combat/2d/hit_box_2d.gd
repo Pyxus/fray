@@ -17,6 +17,7 @@ signal deactivated()
 export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 
+var box_color: Color = Color("ff0054")
 var is_active: bool setget set_is_active
 var belongs_to: Object
 
@@ -32,7 +33,11 @@ func _ready() -> void:
 	connect("area_entered", self, "_on_area_entered")
 	connect("area_exited", self, "_on_area_exited")
 
-#remaining built-in virtual methods
+func _process(_delta: float) -> void:
+	if Engine.editor_hint:
+		modulate = box_color
+		return
+
 
 func add_detection_exception_with(hitbox: Area2D) -> void:
 	if not _detection_exceptions.has(hitbox):
