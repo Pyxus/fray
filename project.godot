@@ -30,7 +30,7 @@ shapes/collision/shape_color=Color( 1, 1, 1, 0.419608 )
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/stray_combat_framework/plugin.cfg" )
+enabled=PoolStringArray( "res://addons/project-statistics/plugin.cfg", "res://addons/stray_combat_framework/plugin.cfg" )
 
 [input]
 
@@ -96,3 +96,7 @@ common/enable_pause_aware_picking=true
 [rendering]
 
 environment/default_environment="res://default_env.tres"
+
+[statistics]
+
+force_include=PoolStringArray(  )

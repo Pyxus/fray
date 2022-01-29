@@ -1,4 +1,4 @@
 extends Reference
 
-func _gdscript_interfaces_when(): #?
-    pass
+func __the_things_i_do_for_design():
+	pass
