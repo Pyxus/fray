@@ -1,8 +1,8 @@
 extends "virtual_input.gd"
 
-var input_map: Dictionary
-var input_ids: PoolIntArray setget set_input_ids
+export var input_ids: PoolIntArray setget set_input_ids
 
+var input_map: Dictionary
 
 func is_pressed() -> bool:
 	if input_map.empty():

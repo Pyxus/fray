@@ -128,6 +128,7 @@ func register_combination(id: int, input_ids: PoolIntArray) -> void:
 
 func bind_virtual_input(id: int, virtual_input: VirtualInput) -> void:
 	_input_by_id[id] = virtual_input
+	virtual_input.id = id
 
 
 func bind_action_input(id: int, action: String) -> void:

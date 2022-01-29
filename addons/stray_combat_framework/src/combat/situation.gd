@@ -4,8 +4,6 @@ signal state_advanced(new_state, transition_animation)
 signal state_reverted(new_state, transition_animation)
 
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
-const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
-const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 
 const FighterState = preload("fsm_states/fighter_state.gd")
 const RootFighterState = preload("fsm_states/root_fighter_state.gd")
