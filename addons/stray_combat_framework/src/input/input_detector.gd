@@ -22,7 +22,6 @@ var _time_since_first_input: float
 var _input_by_id: Dictionary
 var _sequence_by_name: Dictionary
 var _input_buffer: Array
-var _released_combinations: Array
 
 
 func _ready() -> void:
@@ -37,8 +36,9 @@ func _process(delta: float) -> void:
 
 
 func _notification(what: int) -> void:
-	# Combinations are passed a reference to this dictionary.
-	# I think that keeps the references alive so we're clearing it when this object gets deleted.
+	# Combinations are passed a reference to input_by_id dictionary.
+	# I think that keeps the references alive since the combination exists within this dictionary.
+	# So i'm clearing it when this object gets deleted to free the memory.
 	# Perhaps a better setup is needed... but for now this seems to work
 	if what == NOTIFICATION_PREDELETE:
 		_input_by_id.clear()
@@ -92,9 +92,9 @@ func feed_input_at(time_stamp: int, id: int, time_held: float = 0.0, was_release
 		_input_buffer.insert(insertion_index, fed_buffered_input)
 
 
-func register_sequence_from_data(name: String, main_sequence: SequenceData, dirty_sequences: Array = []) -> void:
+func register_sequence_from_data(name: String, main_sequence: SequenceData, alternative_sequences: Array = []) -> void:
 	var input_sequence := InputSequence.new()
-	input_sequence.set_sequence(main_sequence, dirty_sequences)
+	input_sequence.set_sequence(main_sequence, alternative_sequences)
 	register_sequence(name, input_sequence)
 
 
@@ -110,7 +110,8 @@ func register_sequence(name: String, input_sequence: InputSequence) -> void:
 	_sequence_by_name[name] = input_sequence
 
 
-func register_combination(id: int, input_ids: PoolIntArray) -> void:
+func register_combination(id: int, input_ids: PoolIntArray, is_components_pressed_on_release: bool = true) -> void:
+	#TODO: Right now released combination
 	if id in input_ids:
 		push_warning("Combination id can not be included in input ids")
 		return
@@ -120,6 +121,7 @@ func register_combination(id: int, input_ids: PoolIntArray) -> void:
 		return
 
 	var combination_input := CombinationInput.new()
+	combination_input.is_components_pressed_on_release = is_components_pressed_on_release
 	combination_input.input_map = _input_by_id
 	combination_input.input_ids = input_ids
 	combination_input.id = id
@@ -213,8 +215,7 @@ func _check_for_inputs() -> void:
 			var detected_virtual_input := DetectedVirtualInput.new()
 			_broadcast_input_detected(id, time_stamp, false)
 
-			if virtual_input is CombinationInput:
-				_released_combinations.append(virtual_input)
+			if virtual_input is CombinationInput and virtual_input.is_components_pressed_on_release:
 				virtual_input.release_components()
 				#call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
 

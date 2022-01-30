@@ -1,6 +1,6 @@
 class_name StrayCF
 
-# Combat - Hit Detection
+# Combat - Collision Detection
 const CharacterBody2D = preload("src/combat/collision_detection/2d/body/character_body_2d.gd")
 const FighterBody2D = preload("src/combat/collision_detection/2d/body/fighter_body_2d.gd")
 const PushBox2D = preload("src/combat/collision_detection/2d/body/push_box_2d.gd")

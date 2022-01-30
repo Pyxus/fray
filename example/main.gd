@@ -1,8 +1,23 @@
 extends Node
 
+enum VInput {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	UP_LEFT,
+	UP_RIGHT,
+	DOWN_LEFT,
+	DOWN_RIGHT,
+	KICK,
+	PUNCH,
+	SLASH,
+	HEAVY_SLASH,
+}
+
 func _ready() -> void:
-	var VInput = $Player.VInput
-	var input_history_display = $InputHistoryDisplay
+	"""
+	var input_history_display = $UI/InputHistoryDisplay
 	input_history_display.input_detector = $Player.input_detector
 	input_history_display.input_id_visible = false
 	input_history_display.set_input_texture(VInput.UP, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Up.png"))
@@ -18,4 +33,6 @@ func _ready() -> void:
 	input_history_display.set_input_texture(VInput.PUNCH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Square.png"))
 	input_history_display.set_input_texture(VInput.SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Triangle.png"))
 	input_history_display.set_input_texture(VInput.HEAVY_SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png"))
+	"""
+	pass
 

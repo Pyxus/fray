@@ -3,6 +3,7 @@ extends "virtual_input.gd"
 export var input_ids: PoolIntArray setget set_input_ids
 
 var input_map: Dictionary
+var is_components_pressed_on_release: bool
 
 func is_pressed() -> bool:
 	if input_map.empty():

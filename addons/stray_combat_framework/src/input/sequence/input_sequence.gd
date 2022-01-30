@@ -8,16 +8,16 @@ var _sequences: Array
 var _discovered_at_indexes: PoolIntArray
 
 
-func set_sequence(main_sequence: SequenceData, alternative_sequence: Array = []) -> void:
+func set_sequence(main_sequence: SequenceData, alternative_sequences: Array = []) -> void:
 	_sequences.clear()
 
 	_sequences.append(main_sequence)
 
-	for alt_sequence in alternative_sequence:
-		assert(alt_sequence is SequenceData, "dirty_sequence array must include only objects of type SequenceData.")
+	for alt_sequence in alternative_sequences:
+		assert(alt_sequence is SequenceData, "alternative sequences array must include only objects of type SequenceData.")
 		_sequences.append(alt_sequence)
 
-	if main_sequence in alternative_sequence:
+	if main_sequence in alternative_sequences:
 		push_warning("Unnecessary inclusion of main sequence '%s' in alternative sequences" % main_sequence)
 
 

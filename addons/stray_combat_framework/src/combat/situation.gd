@@ -14,8 +14,8 @@ var _current_state: FighterState
 var _advancement_route: Array
 
 
-func _init() -> void:
-	_root = RootFighterState.new(self)
+func _init(root_animation: String) -> void:
+	_root = RootFighterState.new(self, root_animation)
 	_current_state = _root
 
 

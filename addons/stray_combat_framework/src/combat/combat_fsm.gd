@@ -1,5 +1,7 @@
 extends Node
 
+signal state_changed(new_state)
+
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
@@ -105,6 +107,16 @@ func remove_situation(situation_name: String) -> void:
 		_situation_by_name.erase(situation_name)
 
 
+func get_current_state() -> FighterState:
+	if _situation_by_name.empty():
+		push_warning("Failed to retreive current state. No situations have been defined.")
+		return null
+	
+	if _current_situation == null:
+		push_warning("Failed to retreive current state. Current situation is not set")
+	
+	return _current_situation.get_current_state()
+	
 func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_detected_input := BufferedDetectedInput.new()
 	buffered_detected_input.detected_input = detected_input
@@ -140,6 +152,7 @@ func _on_Situation_state_advanced(new_state: FighterState, transition_animation:
 		_play_animation(new_state.animation)
 	else:
 		_play_animation(transition_animation)
+	emit_signal("state_changed", new_state)
 
 
 func _on_Situation_state_reverted(new_state: FighterState, transition_animation: String) -> void:
@@ -148,6 +161,7 @@ func _on_Situation_state_reverted(new_state: FighterState, transition_animation:
 		_play_animation(new_state.animation)
 	else:
 		_play_animation(transition_animation, true)
+	emit_signal("state_changed", new_state)
 
 
 func _on_AnimPlayer_animation_finished(animation: String) -> void:

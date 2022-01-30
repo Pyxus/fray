@@ -20,6 +20,11 @@ var _extending_state: Reference
 var _situation_ref: WeakRef setget _set_situation_ref
 
 
+func _init(animation: String, active_condition: String = "") -> void:
+	self.animation = animation
+	self.active_condition = active_condition
+
+
 func chain_global(tag: String) -> void:
 	if not _global_chain_tags.has(tag):
 		_global_chain_tags.append(tag)

@@ -6,7 +6,7 @@ extends Area2D
 
 #inner classes
 
-signal box_detected()
+signal hit_box_detected()
 signal activated()
 signal deactivated()
 
@@ -17,11 +17,11 @@ const AttackAttributes = preload("../hit_attributes/attack_attributes.gd")
 const HurtAttributes = preload("../hit_attributes/hurt_attributes.gd")
 
 export var hit_attributes: Resource setget set_hit_attributes # Custom resource exports would be pretty nice godot ¬¬
+export var is_active: bool setget set_is_active
 export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 
 var box_color: Color = Color.black
-var is_active: bool setget set_is_active
 var belongs_to: Object
 
 var _detection_exceptions: Array

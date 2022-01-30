@@ -7,8 +7,9 @@ var _global_chains: Array
 var _associated_states: Array
 
 
-func _init(situation: Reference) -> void:
+func _init(situation: Reference, animation: String, active_condition: String = "").(animation, active_condition) -> void:
 	_situation_ref = weakref(situation)
+
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
