@@ -1981,7 +1981,7 @@ script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 18 )
-animation = "5h"
+animation = "j5s"
 offset = Vector2( -2, -40 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -2180,13 +2180,15 @@ shape = SubResource( 131 )
 
 [node name="AttackBoxes" type="Node2D" parent="HitStateController2D/5S"]
 script = ExtResource( 12 )
-active_box = 0
+active_box = -1
 
 [node name="HitBox2D" type="Area2D" parent="HitStateController2D/5S/AttackBoxes"]
+visible = false
 modulate = Color( 1, 0, 0.329412, 1 )
+monitoring = false
+monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 23 )
-is_active = true
 flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/AttackBoxes/HitBox2D"]
@@ -2194,8 +2196,8 @@ position = Vector2( 50.764, -6.62369 )
 shape = SubResource( 132 )
 
 [node name="5H" type="Node2D" parent="HitStateController2D"]
+visible = false
 script = ExtResource( 4 )
-is_active = true
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5H"]
 script = ExtResource( 12 )
@@ -2298,8 +2300,8 @@ position = Vector2( 53.3067, 2.36232 )
 shape = SubResource( 184 )
 
 [node name="J5S" type="Node2D" parent="HitStateController2D"]
-visible = false
 script = ExtResource( 4 )
+is_active = true
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/J5S"]
 script = ExtResource( 12 )
@@ -2317,13 +2319,15 @@ shape = SubResource( 199 )
 
 [node name="AttackBoxes" type="Node2D" parent="HitStateController2D/J5S"]
 script = ExtResource( 12 )
-active_box = 0
+active_box = -1
 
 [node name="HitBox2D" type="Area2D" parent="HitStateController2D/J5S/AttackBoxes"]
+visible = false
 modulate = Color( 1, 0, 0.329412, 1 )
+monitoring = false
+monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 23 )
-is_active = true
 flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/J5S/AttackBoxes/HitBox2D"]

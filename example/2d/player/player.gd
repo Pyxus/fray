@@ -71,9 +71,13 @@ func _ready() -> void:
 	var qcb_punch := FighterState.new("214p")
 
 	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
+	neutral_punch.chain_global("special")
 	neutral_slash.chain(neutral_heavy, VirtualInputData.new(VInput.HEAVY_SLASH))
+	neutral_slash.chain_global("special")
 	neutral_slash.chain(neutral_slash_neutral_slash, VirtualInputData.new(VInput.SLASH))
+	neutral_heavy.chain_global("special")
 	neutral_heavy.chain(neutral_kick, VirtualInputData.new(VInput.KICK))
+	neutral_kick.chain_global("special")
 	
 	on_ground_root.add_global_chain("special", qcb_punch, SequenceInputData.new("214P"))
 	
