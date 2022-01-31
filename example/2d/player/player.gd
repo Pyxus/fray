@@ -55,10 +55,13 @@ func _ready() -> void:
 	input_detector.register_combination(VInput.DOWN_LEFT, [VInput.DOWN, VInput.LEFT])
 	input_detector.register_combination(VInput.DOWN_RIGHT, [VInput.DOWN, VInput.RIGHT])
 	
+	# Register a sequence of inputs
 	var qcb_p_sequence := SequenceData.new()
 	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
 	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
 	
+	# This is all basically boilerplate for the combatfsm
+	# A fighter's states exist within situations such as "on ground", "in air", "being hit"
 	var sitch_on_ground := Situation.new("idle")
 	var on_ground_root := sitch_on_ground.get_root()
 	var walk_forward_state := FighterState.new("walk_forward", "is_walking_forward")
@@ -70,22 +73,35 @@ func _ready() -> void:
 	var neutral_kick := FighterState.new("5k")
 	var qcb_punch := FighterState.new("214p")
 
+	# A chain is a connection from one state to another where change between states occur if the correct input is provided
+	# Chains can be used to make combos
 	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
-	neutral_punch.chain_global("special")
 	neutral_slash.chain(neutral_heavy, VirtualInputData.new(VInput.HEAVY_SLASH))
-	neutral_slash.chain_global("special")
 	neutral_slash.chain(neutral_slash_neutral_slash, VirtualInputData.new(VInput.SLASH))
-	neutral_heavy.chain_global("special")
 	neutral_heavy.chain(neutral_kick, VirtualInputData.new(VInput.KICK))
+	
+	# Global chains are chains to global states which can be accessed from any state in the situation.
+	# Global states are identified by tags. A state opts in to visiting a global state by chaining its tags.
+	# Global states can be used to make 'specials' and 'supers'
+	neutral_punch.chain_global("special")
+	neutral_slash.chain_global("special")
+	neutral_heavy.chain_global("special")
 	neutral_kick.chain_global("special")
 	
-	on_ground_root.add_global_chain("special", qcb_punch, SequenceInputData.new("214P"))
-	
 	#on_ground_root.chain(neutral_punch, VirtualInputData.new(VInput.PUNCH)) TODO: Add input priority system. P keeps being processed during 214P
+	
+	# Global states exist within the root but in order to be accessed from the root the root must also opt in with chain global
+	on_ground_root.add_global_chain("special", qcb_punch, SequenceInputData.new("214P"))
 	on_ground_root.chain_global("special")
 	on_ground_root.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
 	on_ground_root.chain(neutral_heavy, VirtualInputData.new(VInput.HEAVY_SLASH))
 	on_ground_root.chain(neutral_kick, VirtualInputData.new(VInput.KICK))
+	
+	# Extension allows 1 state to act as a sub state of another.
+	# An extender will be able to visit the connections of the extendee.
+	# And an extender node is visited so longs as its active condition is true.
+	# This is to allow for things such as being able to punch both in the standing state and walking state
+	# Without having to connect the punch state to both.
 	on_ground_root.connect_extender(walk_forward_state)
 	on_ground_root.connect_extender(walk_backward_state)
 	
@@ -172,6 +188,7 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 				elif state.linear_velocity.x > 0:
 					combat_fsm.set_condition("is_jumping_forwards", true)
 
+# Buffers inputs to the CombatFSM allowing chains to advance.
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	combat_fsm.buffer_input(detected_input)
 

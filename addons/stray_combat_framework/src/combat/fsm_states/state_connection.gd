@@ -1,5 +1,9 @@
 extends Reference
 
+# TODO: Add to and from transitions
+# Seriously why did you think playing the transition in reverse was good enough 0_0
+# ... Keep that as an optional feature
+
 const InputData = preload("input_data/input_data.gd")
 const SequenceInputData = preload("input_data/sequence_input_data.gd")
 const VirtualInputData = preload("input_data/virtual_input_data.gd")
