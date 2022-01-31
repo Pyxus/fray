@@ -86,7 +86,7 @@ func set_active_box(value: int) -> void:
 			return
 			
 		if _hit_box_by_id.has_key(active_box):
-			_hit_box_by_id.get_value(active_box).is_active = true			
+			_hit_box_by_id.get_value(active_box).is_active = true
 		elif _push_box_by_id.has_key(active_box):
 			_push_box_by_id.get_value(active_box).is_active = true
 		else:
@@ -168,8 +168,9 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 func _on_HitBox2D_activated(activated_hit_box: HitBox2D) -> void:
 	emit_signal("box_activated")
 	for node in _hit_box_by_id.values():
-		if node != activated_hit_box:
-			node.is_active = false
+		var hit_box := node as HitBox2D
+		if hit_box != activated_hit_box:
+			hit_box.is_active = false
 
 
 func _on_PushBox2D_activated(activated_push_box: PushBox2D) -> void:

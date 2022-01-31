@@ -40,7 +40,7 @@ func _ready() -> void:
 	
 	# Fighting games often use special terms for their buttons to avoid
 	# input association with a specific device.
-	# These are the inputs to guilty gear and on a ps4 controller they mean Cross, Square, Triangle, Circle
+	# These are the input names to guilty gear and on a ps4 controller they mean Cross, Square, Triangle, Circle
 	input_detector.bind_action_input(VInput.KICK, "kick")
 	input_detector.bind_action_input(VInput.PUNCH, "punch")
 	input_detector.bind_action_input(VInput.SLASH, "slash")
@@ -60,8 +60,8 @@ func _ready() -> void:
 	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
 	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
 	
-	# This is all basically boilerplate for the combatfsm
-	# A fighter's states exist within situations such as "on ground", "in air", "being hit"
+	# This is all basically boilerplate for the combatFSM
+	# A fighter's state needs to exist within situations such as "on ground", "in air", "being hit"
 	var sitch_on_ground := Situation.new("idle")
 	var on_ground_root := sitch_on_ground.get_root()
 	var walk_forward_state := FighterState.new("walk_forward", "is_walking_forward")
@@ -193,5 +193,5 @@ func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	combat_fsm.buffer_input(detected_input)
 
 
-func _on_CombatFSM_state_changed(new_state: FighterState) -> void:
+func _on_CombatFSM_state_changed(_new_state: FighterState) -> void:
 	pass # Replace with function body.
