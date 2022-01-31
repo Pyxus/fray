@@ -885,7 +885,7 @@ tracks/1/keys = {
 "values": [ 0, 21 ]
 }
 tracks/2/type = "value"
-tracks/2/path = NodePath("HitStateController2D/214P/HurtBoxes:active_box")
+tracks/2/path = NodePath("HitStateController2D/214P/HurtBoxSwitcher:active_box")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/imported = false
@@ -897,7 +897,7 @@ tracks/2/keys = {
 "values": [ 0 ]
 }
 tracks/3/type = "value"
-tracks/3/path = NodePath("HitStateController2D/214P/AttackBoxes:active_box")
+tracks/3/path = NodePath("HitStateController2D/214P/AttackBoxSwitcher:active_box")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/imported = false
@@ -1993,8 +1993,8 @@ script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 18 )
-animation = "5s-5s"
-frame = 6
+animation = "5s"
+frame = 2
 offset = Vector2( -2, -40 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -2020,7 +2020,7 @@ anims/walk_forward = SubResource( 40 )
 
 [node name="CombatFSM" type="Node" parent="."]
 script = ExtResource( 8 )
-frame_data = 4
+frame_data = 2
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="InputDetector" type="Node" parent="."]
@@ -2098,15 +2098,13 @@ is_active = true
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5S-5S"]
 script = ExtResource( 12 )
-active_box = 1
+active_box = 0
 
 [node name="HitBox2D" type="Area2D" parent="HitStateController2D/5S-5S/HurtBoxes"]
-visible = false
 modulate = Color( 0, 0.533333, 1, 1 )
-monitoring = false
-monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 22 )
+is_active = true
 flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S-5S/HurtBoxes/HitBox2D"]
@@ -2114,10 +2112,12 @@ position = Vector2( 14.9981, 13.3014 )
 shape = SubResource( 172 )
 
 [node name="HitBox2D2" type="Area2D" parent="HitStateController2D/5S-5S/HurtBoxes"]
+visible = false
 modulate = Color( 0, 0.533333, 1, 1 )
+monitoring = false
+monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 22 )
-is_active = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S-5S/HurtBoxes/HitBox2D2"]
 position = Vector2( 7.07043, 8.80338 )
@@ -2194,14 +2194,13 @@ shape = SubResource( 131 )
 
 [node name="AttackBoxes" type="Node2D" parent="HitStateController2D/5S"]
 script = ExtResource( 12 )
-active_box = -1
+active_box = 0
 
 [node name="HitBox2D" type="Area2D" parent="HitStateController2D/5S/AttackBoxes"]
 modulate = Color( 1, 0, 0.329412, 1 )
-monitoring = false
-monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 23 )
+is_active = true
 flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/5S/AttackBoxes/HitBox2D"]
@@ -2383,34 +2382,32 @@ shape = SubResource( 201 )
 visible = false
 script = ExtResource( 4 )
 
-[node name="HurtBoxes" type="Node2D" parent="HitStateController2D/214P"]
+[node name="HurtBoxSwitcher" type="Node2D" parent="HitStateController2D/214P"]
 script = ExtResource( 12 )
 active_box = 0
 
-[node name="HitBox2D" type="Area2D" parent="HitStateController2D/214P/HurtBoxes"]
+[node name="HitBox2D" type="Area2D" parent="HitStateController2D/214P/HurtBoxSwitcher"]
 modulate = Color( 0, 0.533333, 1, 1 )
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 22 )
 is_active = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/214P/HurtBoxes/HitBox2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/214P/HurtBoxSwitcher/HitBox2D"]
 position = Vector2( -1.49982, 2.99675 )
 shape = SubResource( 225 )
 
-[node name="AttackBoxes" type="Node2D" parent="HitStateController2D/214P"]
+[node name="AttackBoxSwitcher" type="Node2D" parent="HitStateController2D/214P"]
 script = ExtResource( 12 )
-active_box = -1
+active_box = 0
 
-[node name="HitBox2D" type="Area2D" parent="HitStateController2D/214P/AttackBoxes"]
-visible = false
+[node name="HitBox2D" type="Area2D" parent="HitStateController2D/214P/AttackBoxSwitcher"]
 modulate = Color( 1, 0, 0.329412, 1 )
-monitoring = false
-monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 23 )
+is_active = true
 flip_h = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/214P/AttackBoxes/HitBox2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/214P/AttackBoxSwitcher/HitBox2D"]
 position = Vector2( 53.3067, 2.36232 )
 shape = SubResource( 226 )
 
