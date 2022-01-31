@@ -33,10 +33,11 @@ func _enter_tree() -> void:
 	add_custom_type("BoxSwitcher2D", "Node2D", StrayCF.BoxSwitcher2D, preload("assets/icons/box_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", StrayCF.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("HitStateController2D", "Node2D", StrayCF.HitStateController2D, preload("assets/icons/hit_state_controller_2d.svg"))
-	add_custom_type("HitAttributes", "Resource", StrayCF.HitAttributes, null)
-	add_custom_type("AttackAttributes", "Resource", StrayCF.AttackAttributes, null)
-	add_custom_type("HurtAttributes", "Resource", StrayCF.HurtAttributes, null)
+	#add_custom_type("HitAttributes", "Resource", StrayCF.HitAttributes, null)
+	#add_custom_type("AttackAttributes", "Resource", StrayCF.AttackAttributes, null)
+	#add_custom_type("HurtAttributes", "Resource", StrayCF.HurtAttributes, null)
 	ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color("6bffffff"))
+	push_warning("Just a heads up. This plugin sets your collision shape color to white for cosmetic reasons. You'll notice the change on reset. Eventually i'll add a pop up but for now you'll have to manually disable the code that causes this change if you don't like it")
 
 
 func _exit_tree() -> void:

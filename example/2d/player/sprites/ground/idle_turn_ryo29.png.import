@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/heat_ryo80.png-f9cff727ef799be6ffe4f1813f3f7f49.stex"
+path="res://.import/idle_turn_ryo29.png-879b4a4f8cf26427925e38c1ab6ec3ce.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/heat_ryo80.png"
-dest_files=[ "res://.import/heat_ryo80.png-f9cff727ef799be6ffe4f1813f3f7f49.stex" ]
+source_file="res://example/2d/player/sprites/ground/idle_turn_ryo29.png"
+dest_files=[ "res://.import/idle_turn_ryo29.png-879b4a4f8cf26427925e38c1ab6ec3ce.stex" ]
 
 [params]
 

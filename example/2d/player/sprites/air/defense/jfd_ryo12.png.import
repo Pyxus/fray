@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/turn_ryo29.png-17e15a3a7e48b8a3ac1c6bb4937eb327.stex"
+path="res://.import/jfd_ryo12.png-589b3f8280f4e8caaef9c641908b8648.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/turn_ryo29.png"
-dest_files=[ "res://.import/turn_ryo29.png-17e15a3a7e48b8a3ac1c6bb4937eb327.stex" ]
+source_file="res://example/2d/player/sprites/air/defense/jfd_ryo12.png"
+dest_files=[ "res://.import/jfd_ryo12.png-589b3f8280f4e8caaef9c641908b8648.stex" ]
 
 [params]
 

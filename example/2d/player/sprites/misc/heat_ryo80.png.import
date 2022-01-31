@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/5fd_ryo10.png-e27c450e7eb3b4ace28b6f45b0cb203b.stex"
+path="res://.import/heat_ryo80.png-de56f1d16466418887f68ee47cec9fd1.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/normals/5fd_ryo10.png"
-dest_files=[ "res://.import/5fd_ryo10.png-e27c450e7eb3b4ace28b6f45b0cb203b.stex" ]
+source_file="res://example/2d/player/sprites/misc/heat_ryo80.png"
+dest_files=[ "res://.import/heat_ryo80.png-de56f1d16466418887f68ee47cec9fd1.stex" ]
 
 [params]
 

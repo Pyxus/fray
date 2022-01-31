@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/22s_ryo56.png-d7571d221a50ebf4aee5fb2d9f8f87df.stex"
+path="res://.import/ryo23.png-a1087e9e7a4e8ca4adbd5b11456ec980.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/specials/22s_ryo56.png"
-dest_files=[ "res://.import/22s_ryo56.png-d7571d221a50ebf4aee5fb2d9f8f87df.stex" ]
+source_file="res://example/2d/player/sprites/misc/hurt_and_recovering/ryo23.png"
+dest_files=[ "res://.import/ryo23.png-a1087e9e7a4e8ca4adbd5b11456ec980.stex" ]
 
 [params]
 

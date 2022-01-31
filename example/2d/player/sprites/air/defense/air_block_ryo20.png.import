@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/air_block_ryo20.png-e43f63c6327a92b8c3eaf34c19b8b964.stex"
+path="res://.import/air_block_ryo20.png-db02661a8c526c8262b1fa339469243b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/air/air_block_ryo20.png"
-dest_files=[ "res://.import/air_block_ryo20.png-e43f63c6327a92b8c3eaf34c19b8b964.stex" ]
+source_file="res://example/2d/player/sprites/air/defense/air_block_ryo20.png"
+dest_files=[ "res://.import/air_block_ryo20.png-db02661a8c526c8262b1fa339469243b.stex" ]
 
 [params]
 

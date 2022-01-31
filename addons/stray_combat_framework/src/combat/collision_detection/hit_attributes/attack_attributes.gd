@@ -1,5 +1,6 @@
 tool
 extends "hit_attributes.gd"
 
-func _init() -> void:
-	color = Color("ff0054")
+
+func get_color() -> Color:
+	return Color("ff0054")

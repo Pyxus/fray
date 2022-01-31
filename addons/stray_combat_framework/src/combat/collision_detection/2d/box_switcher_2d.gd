@@ -22,7 +22,7 @@ const PushBox2D = preload("body/push_box_2d.gd")
 
 #exported variables
 
-var active_box: int setget set_active_box
+var active_box: int = NONE setget set_active_box
 var boxes_belong_to: Object setget set_boxes_belong_to
 
 var _cc_detector: ChildChangeDetector

@@ -62,6 +62,11 @@ func get_root() -> RootFighterState:
 func get_current_state() -> FighterState:
 	return _current_state
 
+
+func reset() -> void:
+	_current_state = _root
+	_advancement_route.clear()
+	
 	
 func advance_to(fighter_state: FighterState) -> void:
 	if not _current_state.has_connection_to(fighter_state):

@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/crouching_block_ryo19.png-20d9c43dc4e0b776be48016d77c04785.stex"
+path="res://.import/ryo21.png-d96a398eb9f27762b177f89422ab80af.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/crouching_block_ryo19.png"
-dest_files=[ "res://.import/crouching_block_ryo19.png-20d9c43dc4e0b776be48016d77c04785.stex" ]
+source_file="res://example/2d/player/sprites/misc/hurt_and_recovering/ryo21.png"
+dest_files=[ "res://.import/ryo21.png-d96a398eb9f27762b177f89422ab80af.stex" ]
 
 [params]
 

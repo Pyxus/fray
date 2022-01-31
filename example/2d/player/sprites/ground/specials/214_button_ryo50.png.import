@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/2fd_ryo11.png-26846aaa310339591c8ef9951be920cd.stex"
+path="res://.import/214_button_ryo50.png-759a69bb704e9a23f89950091dac82fc.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://example/2d/player/sprites/ground/normals/2fd_ryo11.png"
-dest_files=[ "res://.import/2fd_ryo11.png-26846aaa310339591c8ef9951be920cd.stex" ]
+source_file="res://example/2d/player/sprites/ground/specials/214_button_ryo50.png"
+dest_files=[ "res://.import/214_button_ryo50.png-759a69bb704e9a23f89950091dac82fc.stex" ]
 
 [params]
 

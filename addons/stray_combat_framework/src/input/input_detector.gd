@@ -18,6 +18,8 @@ signal input_detected(detected_input)
 
 export var buffer_duration: float = 1
 
+var press_checks_enabled: bool
+
 var _time_since_first_input: float
 var _input_by_id: Dictionary
 var _sequence_by_name: Dictionary
@@ -29,9 +31,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_check_for_sequence_matches()
 	_check_for_inputs()
 	_increment_held_input_time(delta)
-	_check_for_sequence_matches()
 	_handle_buffer_clearing(delta)
 
 
@@ -48,21 +50,21 @@ func is_input_pressed(input_id: int) -> bool:
 	if not _input_by_id.has(input_id):
 		push_warning("Input with id %d does not exist" % input_id)
 		return false
-	return _input_by_id[input_id].is_pressed()
+	return _input_by_id[input_id].is_pressed() and press_checks_enabled
 
 
 func is_input_just_pressed(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_pressed()
+	return _input_by_id[id].is_just_pressed() and press_checks_enabled
 
 
 func is_input_just_released(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_released()
+	return _input_by_id[id].is_just_released() and press_checks_enabled
 
 
 func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, owner_combination: CombinationInput = null) -> void:
@@ -196,20 +198,22 @@ func _check_for_inputs() -> void:
 			buffered_input.time_stamp = time_stamp
 
 			if virtual_input is CombinationInput:
-				if not _input_buffer.empty():
-					for i in len(virtual_input.input_ids):
-						var most_recent_input: BufferedInput = _input_buffer.back()
-						var is_inputted_quick_enough: bool = buffered_input.get_time_between(most_recent_input) < 0.02
-						# Prevents some fed inputs from being registered as components
-						var is_intended_component: bool = \
-							most_recent_input.owner_combination == null or \
-							most_recent_input.owner_combination == virtual_input
-		
-						if virtual_input.is_component(most_recent_input.id) and is_intended_component:
-							if is_inputted_quick_enough:
-								_input_buffer.pop_back()
-						else:
-							break
+				for i in len(virtual_input.input_ids):
+					if _input_buffer.empty():
+						break
+						
+					var most_recent_input: BufferedInput = _input_buffer.back()
+					var is_inputted_quick_enough: bool = buffered_input.get_time_between(most_recent_input) < 0.02
+					# Prevents some fed inputs from being registered as components
+					var is_intended_component: bool = \
+						most_recent_input.owner_combination == null or \
+						most_recent_input.owner_combination == virtual_input
+	
+					if virtual_input.is_component(most_recent_input.id) and is_intended_component:
+						if is_inputted_quick_enough:
+							_input_buffer.pop_back()
+					else:
+						break
 			_input_buffer.append(buffered_input)
 		elif virtual_input.is_just_released():
 			var detected_virtual_input := DetectedVirtualInput.new()

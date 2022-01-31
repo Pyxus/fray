@@ -45,7 +45,7 @@ func _process(_delta: float) -> void:
 func set_hit_attributes(value: Resource) -> void:
 	if value is HitAttributes:
 		hit_attributes = value
-		box_color = hit_attributes.color
+		box_color = hit_attributes.get_color()
 	elif value == null:
 		hit_attributes = null
 		box_color = Color.black

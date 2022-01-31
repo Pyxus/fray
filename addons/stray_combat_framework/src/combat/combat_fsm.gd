@@ -9,15 +9,15 @@ const InputDetector = preload("res://addons/stray_combat_framework/src/input/inp
 const Situation = preload("situation.gd")
 const FighterState = preload("fsm_states/fighter_state.gd")
 
-enum FrameState {
-	IDLE,
+enum FrameData {
+	NEUTRAL,
 	START_UP,
 	ACTIVE,
 	ACTIVE_GAP,
 	RECOVERY,
 }
 
-export(FrameState) var frame_state: int
+export(FrameData) var frame_data: int
 export var input_buffer_max_size: int = 2
 export var input_max_time_in_buffer: float = 0.3
 export var anim_player: NodePath
@@ -40,7 +40,7 @@ func _process(delta: float) -> void:
 		_current_situation.update()
 
 		if not _input_buffer.empty():
-			if frame_state == FrameState.RECOVERY or frame_state == FrameState.IDLE:
+			if frame_data == FrameData.RECOVERY or frame_data == FrameData.NEUTRAL:
 				var buffered_detected_input: BufferedDetectedInput = _input_buffer.pop_front()
 				_current_situation.update(buffered_detected_input.detected_input)
 
@@ -54,6 +54,19 @@ func set_condition(condition: String, is_true: bool) -> void:
 	_condition_dict[condition] = is_true
 
 
+func is_current_state_root_or_extension() -> bool:
+	if _current_situation == null:
+		push_warning("Current state is not set.")
+		return false
+	
+	var current_state := _current_situation.get_current_state()
+	return current_state == _current_situation.get_root() or current_state.is_extending(_current_situation.get_root())
+
+func set_all_conditions_false() -> void:
+	for condition in _condition_dict:
+		_condition_dict[condition] = false
+	
+	
 func is_condition_true(condition: String) -> bool:
 	if not _condition_dict.has(condition):
 		push_warning("Condition '%s' has never been set.")
@@ -71,6 +84,12 @@ func set_current_situation(situation_name: String) -> void:
 		push_warning("Failed to set situation. Situation '%s' does not exist." % situation_name)
 		return
 
+	if _current_situation != null:
+		if _current_situation != _situation_by_name[situation_name]:
+			_current_situation.reset()
+		else:
+			return
+		
 	_current_situation = _situation_by_name[situation_name]
 	_play_animation(_current_situation.get_root().animation)
 
@@ -107,6 +126,12 @@ func remove_situation(situation_name: String) -> void:
 		_situation_by_name.erase(situation_name)
 
 
+func is_current_situation(situation_name: String) -> bool:
+	if _situation_by_name.has(situation_name) and _current_situation != null:
+		return _situation_by_name[situation_name] == _current_situation
+	return false
+	
+	
 func get_current_state() -> FighterState:
 	if _situation_by_name.empty():
 		push_warning("Failed to retreive current state. No situations have been defined.")

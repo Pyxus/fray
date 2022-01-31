@@ -72,8 +72,11 @@ func get_next_global_state(detected_input: DetectedInput) -> Reference:
 
 
 func _associate_state_with_root(state: Reference) -> void:
-	if not _associated_states.has(state):
+	if not _associated_states.has(state) and state != self:
 		_associated_states.append(state)
+		for connection in (state._chain_connections + state._extender_connections):
+			state._associate_state_with_root(connection.to)
+		
 
 
 func _unassociate_state_with_root(state: Reference) -> void:

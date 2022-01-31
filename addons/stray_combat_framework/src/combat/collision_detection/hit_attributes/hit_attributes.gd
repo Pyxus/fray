@@ -1,7 +1,6 @@
 tool
 extends Resource
 
-var color: Color
 
-func _init() -> void:
-	color = Color.black
+func get_color() -> Color:
+	return Color.black
