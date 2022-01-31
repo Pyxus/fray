@@ -1981,7 +1981,7 @@ script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 18 )
-animation = "j5s"
+animation = "idle"
 offset = Vector2( -2, -40 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -2007,14 +2007,12 @@ anims/walk_forward = SubResource( 40 )
 
 [node name="CombatFSM" type="Node" parent="."]
 script = ExtResource( 8 )
-frame_data = 1
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="InputDetector" type="Node" parent="."]
 script = ExtResource( 15 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 shape = SubResource( 41 )
 __meta__ = {
 "_editor_description_": "This collision shape is meant to collide with the world (floor, walls, etc.) PushBox2D exists to allow collision with other FighterBody2Ds"
@@ -2025,16 +2023,14 @@ script = ExtResource( 3 )
 belongs_to = NodePath("..")
 
 [node name="Idle" type="Node2D" parent="HitStateController2D"]
-visible = false
 script = ExtResource( 4 )
+is_active = true
 
 [node name="HurtBox" type="Area2D" parent="HitStateController2D/Idle"]
-visible = false
 modulate = Color( 0, 0.533333, 1, 1 )
-monitoring = false
-monitorable = false
 script = ExtResource( 17 )
 hit_attributes = ExtResource( 22 )
+is_active = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitStateController2D/Idle/HurtBox"]
 shape = SubResource( 19 )
@@ -2300,8 +2296,8 @@ position = Vector2( 53.3067, 2.36232 )
 shape = SubResource( 184 )
 
 [node name="J5S" type="Node2D" parent="HitStateController2D"]
+visible = false
 script = ExtResource( 4 )
-is_active = true
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/J5S"]
 script = ExtResource( 12 )
