@@ -17,9 +17,9 @@ enum VInput {
 	HEAVY_SLASH,
 }
 
-func _ready() -> void:
+func _ready() -> void:	
 	var input_history_display = $UI/InputHistoryDisplay
-	input_history_display.input_detector = $Player.input_detector
+	#input_history_display.input_detector = $Player.input_detector
 	input_history_display.input_id_visible = false
 	input_history_display.set_input_texture(VInput.UP, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Up.png"))
 	input_history_display.set_input_texture(VInput.DOWN, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/Down.png"))

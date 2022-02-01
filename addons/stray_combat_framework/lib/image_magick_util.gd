@@ -1,8 +1,8 @@
 extends Reference
-# This only exists because I wanted an easy way to sort and pack some files for my example
+# This only exists because I wanted an easy way to sort and pack some sprites for my example
 # If you'd like to make use of this for some reason you'll need to install ImageMagick
-# and set the executable path in this script.
-# https://imagemagick.org/index.php
+# and manusally set the IMAGE_MAGIC_EXE_PATH constant in this script.
+# Download: https://imagemagick.org/index.php
 
 # Example Usage:
 # var dir := "C:\\sprite_directory"
@@ -28,7 +28,8 @@ static func pack_extracted_sprites(extract_dir: String, extension: String = "png
 				file = dir.get_next()
 	else:
 		push_error("Failed to open dir '%s'. Error: %d" % [extract_dir, error])
-				
+
+
 static func image_magick_montage(sprite_dir: String, output_path: String, extension: String = "png") -> Array:
 	var output := []
 	var commands := [

@@ -1,7 +1,6 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
-[ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/stray_combat_framework/src/ui/input_history/input_history_display.tscn" type="PackedScene" id=3]
 [ext_resource path="res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Cross.png" type="Texture" id=4]
 [ext_resource path="res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png" type="Texture" id=5]
@@ -90,9 +89,6 @@ texture = ExtResource( 6 )
 position = Vector2( 444.328, 96.6659 )
 scale = Vector2( 0.583778, 0.583778 )
 texture = ExtResource( 7 )
-
-[node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 436.331, 498.48 )
 
 [node name="Floor" type="StaticBody2D" parent="."]
 position = Vector2( 150.376, 591.333 )
