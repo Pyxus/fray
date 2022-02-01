@@ -32,6 +32,7 @@ var max_jump_count: int = 1
 var jump_count: int = 0
 
 func _ready() -> void:
+	"""
 	# Associate a virtual input, represented by an integer, with godot detectable input
 	input_detector.bind_action_input(VInput.UP, "up")
 	input_detector.bind_action_input(VInput.DOWN, "down")
@@ -128,6 +129,7 @@ func _ready() -> void:
 	combat_fsm.add_situation("in_air", sitch_in_air)
 	combat_fsm.add_situation("on_ground", sitch_on_ground)
 	combat_fsm.set_current_situation("on_ground")
+	"""
 
 func is_on_floor(find_immediate: bool = false):
 	if ground_cast.is_colliding():
@@ -137,6 +139,7 @@ func is_on_floor(find_immediate: bool = false):
 # Virtual method from FighterBody2D. If you choose to use this node for your fighters this is
 # Where you should move them.
 func _handle_movement(state: Physics2DDirectBodyState) -> void:
+	"""
 	combat_fsm.set_all_conditions_false()
 
 	if combat_fsm.is_current_state_root_or_extension():
@@ -187,6 +190,7 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 					combat_fsm.set_condition("is_jumping_backwards", true)
 				elif state.linear_velocity.x > 0:
 					combat_fsm.set_condition("is_jumping_forwards", true)
+	"""
 
 # Buffers inputs to the CombatFSM allowing chains to advance.
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
