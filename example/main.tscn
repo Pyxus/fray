@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
 [ext_resource path="res://addons/stray_combat_framework/src/ui/input_history/input_history_display.tscn" type="PackedScene" id=3]
@@ -18,6 +18,27 @@ extents = Vector2( 515.913, 21.2967 )
 
 [sub_resource type="RectangleShape2D" id=3]
 extents = Vector2( 15.7144, 301.775 )
+
+[sub_resource type="AnimationNodeAnimation" id=4]
+animation = "New Anim"
+
+[sub_resource type="AnimationNodeStateMachine" id=5]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id=6]
+
+[sub_resource type="AnimationNodeStateMachine" id=7]
+"states/New Anim/node" = SubResource( 4 )
+"states/New Anim/position" = Vector2( 307.667, 86.5556 )
+states/StateMachine/node = SubResource( 5 )
+states/StateMachine/position = Vector2( 575.445, 86.5007 )
+transitions = [ "New Anim", "StateMachine", SubResource( 6 ) ]
+
+[sub_resource type="AnimationNodeStateMachinePlayback" id=8]
+
+[sub_resource type="AnimationNodeStateMachinePlayback" id=9]
+
+[sub_resource type="Animation" id=10]
+resource_name = "New Anim"
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
@@ -122,3 +143,12 @@ shape = SubResource( 3 )
 position = Vector2( 491.547, 379.923 )
 current = true
 zoom = Vector2( 0.7, 0.7 )
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource( 7 )
+anim_player = NodePath("../AnimationPlayer")
+parameters/playback = SubResource( 8 )
+parameters/StateMachine/playback = SubResource( 9 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+"anims/New Anim" = SubResource( 10 )

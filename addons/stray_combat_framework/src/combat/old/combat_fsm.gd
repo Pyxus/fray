@@ -62,6 +62,7 @@ func is_current_state_root_or_extension() -> bool:
 	var current_state := _current_situation.get_current_state()
 	return current_state == _current_situation.get_root() or current_state.is_extending(_current_situation.get_root())
 
+
 func set_all_conditions_false() -> void:
 	for condition in _condition_dict:
 		_condition_dict[condition] = false
@@ -141,11 +142,19 @@ func get_current_state() -> FighterState:
 		push_warning("Failed to retreive current state. Current situation is not set")
 	
 	return _current_situation.get_current_state()
-	
+
+
 func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_detected_input := BufferedDetectedInput.new()
+	var current_buffer_size: int = _input_buffer.size()
+	
 	buffered_detected_input.detected_input = detected_input
-	_input_buffer.append(buffered_detected_input)
+	
+	if current_buffer_size + 1 > input_buffer_max_size:
+		_input_buffer[current_buffer_size - 1] = buffered_detected_input
+	else:
+		_input_buffer.append(buffered_detected_input)
+	
 
 
 func _buffer_input(buffered_input: BufferedDetectedInput) -> void:
