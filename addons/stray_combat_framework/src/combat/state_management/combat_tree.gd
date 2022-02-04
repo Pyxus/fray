@@ -3,6 +3,8 @@ extends Node
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 
+const Situation = preload("situation.gd")
+
 enum FrameData {
 	NEUTRAL,
 	START_UP,
@@ -20,6 +22,7 @@ export var input_detector: NodePath
 var _anim_player: AnimationPlayer
 var _input_detector: InputDetector
 var _input_buffer: Array
+var _current_situation: Situation
 
 
 func _ready() -> void:
