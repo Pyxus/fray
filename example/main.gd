@@ -17,7 +17,8 @@ enum VInput {
 	HEAVY_SLASH,
 }
 
-func _ready() -> void:	
+func _ready() -> void:
+	"""
 	var input_history_display = $UI/InputHistoryDisplay
 	#input_history_display.input_detector = $Player.input_detector
 	input_history_display.input_id_visible = false
@@ -34,5 +35,5 @@ func _ready() -> void:
 	input_history_display.set_input_texture(VInput.PUNCH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Square.png"))
 	input_history_display.set_input_texture(VInput.SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Triangle.png"))
 	input_history_display.set_input_texture(VInput.HEAVY_SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png"))
+	"""
 	pass
-
