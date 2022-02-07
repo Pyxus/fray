@@ -5,6 +5,10 @@ var SequenceInputData = load("res://addons/stray_combat_framework/src/combat/sta
 export var sequence_name: String
 
 
+func _init(sequence_name: String) -> void:
+	self.sequence_name = sequence_name
+
+
 func equals(input_data: Reference) -> bool:
 	.equals(input_data)
 	if input_data is SequenceInputData:

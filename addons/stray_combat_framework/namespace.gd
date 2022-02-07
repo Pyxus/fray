@@ -15,13 +15,13 @@ const AttackAttributes = preload("src/combat/collision_detection/hit_attributes/
 const HurtAttributes = preload("src/combat/collision_detection/hit_attributes/hurt_attributes.gd")
 
 # Combat - State Management
-const FighterState = preload("src/combat/fsm_states/fighter_state.gd")
-const CombatFSM = preload("src/combat/combat_fsm.gd")
-const Situation = preload("src/combat/situation.gd")
+const CombatState = preload("src/combat/state_management/combat_state.gd")
+const CombatFSM = preload("src/combat/state_management/combat_fsm.gd")
+const Situation = preload("src/combat/state_management/situation.gd")
 
-const InputData = preload("src/combat/fsm_states/input_data/sequence_input_data.gd")
-const SequenceInputData = preload("src/combat/fsm_states/input_data/sequence_input_data.gd")
-const VirtualInputData = preload("src/combat/fsm_states/input_data/virtual_input_data.gd")
+const InputData = preload("src/combat/state_management/transitions/input_data/input_data.gd")
+const SequenceInputData = preload("src/combat/state_management/transitions/input_data/sequence_input_data.gd")
+const VirtualInputData = preload("src/combat/state_management/transitions/input_data/virtual_input_data.gd")
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")

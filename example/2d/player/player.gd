@@ -15,52 +15,47 @@ enum VInput {
 	HEAVY_SLASH,
 }
 
-const CombatFSM = StrayCF.CombatFSM 
-const Situation = StrayCF.Situation
-const FighterState = StrayCF.FighterState
-const InputDetector = StrayCF.InputDetector
-const DetectedInput = StrayCF.DetectedInput
-const SequenceData = StrayCF.SequenceData
-const SequenceInputData = StrayCF.SequenceInputData
-const VirtualInputData = StrayCF.VirtualInputData
 
-onready var input_detector: InputDetector = get_node("InputDetector")
-onready var combat_fsm: CombatFSM = get_node("CombatFSM")
+
+onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
+onready var combat_fsm: StrayCF.CombatFSM = get_node("CombatFSM")
 onready var ground_cast: RayCast2D = get_node("GroundCast")
 
 var max_jump_count: int = 1
 var jump_count: int = 0
 
 func _ready() -> void:
-	"""
-	# Associate a virtual input, represented by an integer, with godot detectable input
+
 	input_detector.bind_action_input(VInput.UP, "up")
 	input_detector.bind_action_input(VInput.DOWN, "down")
 	input_detector.bind_action_input(VInput.LEFT, "left")
 	input_detector.bind_action_input(VInput.RIGHT, "right")
-	
-	# Fighting games often use special terms for their buttons to avoid
-	# input association with a specific device.
-	# These are the input names to guilty gear and on a ps4 controller they mean Cross, Square, Triangle, Circle
 	input_detector.bind_action_input(VInput.KICK, "kick")
 	input_detector.bind_action_input(VInput.PUNCH, "punch")
 	input_detector.bind_action_input(VInput.SLASH, "slash")
 	input_detector.bind_action_input(VInput.HEAVY_SLASH, "heavy_slash")
-	
-	# Associate button presses with a combination input.
-	# A combination is in effect an 'imaginary' input resulting from the press of 2 or more inputs.
-	# Imaginary in that it is treated like an individual button on the device is being pressed.
-	# Combinations are triggered when all buttons are pressed regardless of order.
 	input_detector.register_combination(VInput.UP_LEFT, [VInput.UP, VInput.LEFT])
 	input_detector.register_combination(VInput.UP_RIGHT, [VInput.UP, VInput.RIGHT])
 	input_detector.register_combination(VInput.DOWN_LEFT, [VInput.DOWN, VInput.LEFT])
 	input_detector.register_combination(VInput.DOWN_RIGHT, [VInput.DOWN, VInput.RIGHT])
 	
-	# Register a sequence of inputs
-	var qcb_p_sequence := SequenceData.new()
+	var qcb_p_sequence := StrayCF.SequenceData.new()
 	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
 	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
-	
+
+	var sitch_on_ground := StrayCF.Situation.new()
+	var on_ground_root := sitch_on_ground.get_root()
+	var neutral_punch := StrayCF.CombatState.new()
+	var neutral_slash := StrayCF.CombatState.new()
+
+	var punch_input_data := StrayCF.VirtualInputData.new(VInput.PUNCH)
+
+	neutral_punch.chain_to(neutral_punch, punch_input_data)
+	on_ground_root.chain_to(neutral_punch, punch_input_data)
+	combat_fsm.add_situation(sitch_on_ground)
+	combat_fsm.set_situation(sitch_on_ground)
+
+	"""
 	# This is all basically boilerplate for the combatFSM
 	# A fighter's state needs to exist within situations such as "on ground", "in air", "being hit"
 	var sitch_on_ground := Situation.new("idle")
@@ -193,9 +188,9 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 	"""
 
 # Buffers inputs to the CombatFSM allowing chains to advance.
-func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
+func _on_InputDetector_input_detected(detected_input: StrayCF.DetectedInput) -> void:
 	combat_fsm.buffer_input(detected_input)
 
 
-func _on_CombatFSM_state_changed(_new_state: FighterState) -> void:
-	pass # Replace with function body.
+func _on_CombatFSM_state_changed(from: StrayCF.CombatState, to:StrayCF.CombatState) -> void:
+	print(from, to)
