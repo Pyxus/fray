@@ -21,8 +21,10 @@ enum Contact{
 #exported variables
 
 var contact_update_interval: float = .06
+var force_resolution_duration: float = .1
 
 var _contact_timer: Timer = Timer.new()
+
 var _last_contact_count: int = 0
 var _floor_normal: Vector2 = Vector2.ZERO
 var _contacts: Dictionary = {
@@ -66,8 +68,6 @@ func _integrate_forces(state: Physics2DDirectBodyState) -> void:
 		
 	_last_contact_count = contact_count
 	
-
-	
 	if state.linear_velocity.y < 0 and is_on_ceiling():
 		state.linear_velocity.y = 0
 	if state.linear_velocity.y > 0 and is_on_floor():
@@ -79,6 +79,7 @@ func update_contacts() -> void:
 		if contact_count == 0 and contact_count != _last_contact_count:
 			_contact_timer.start(contact_update_interval)
 		else:
+			print("hi")
 			_contacts[Contact.CEILING] = is_on_ceiling(true)
 			_contacts[Contact.FLOOR] = is_on_floor(true)
 			_contacts[Contact.WALL_L] = is_on_wall_left(true)
@@ -139,7 +140,8 @@ func is_on_slope(find_immediate: bool = false) -> bool:
 			var contact_position := _body_state.get_contact_local_position(i)
 			var slope_angle = rad2deg(acos(contact_normal.dot(Vector2.UP)))
 			
-			if slope_angle <= 45.1 and slope_angle > 0:
+			print(slope_angle)
+			if slope_angle <= 45.1 and slope_angle > 0.1:
 				return true
 		return false
 
