@@ -1,5 +1,5 @@
 extends Node
-#Test
+
 const ImageMagickUtil = preload("res://addons/stray_combat_framework/lib/image_magick_util.gd")
 
 enum VInput {
