@@ -170,3 +170,4 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 				combat_fsm.set_condition("is_jumping_backward", true)
 			elif state.linear_velocity.x > 0:
 				combat_fsm.set_condition("is_jumping_forward", true)
+
