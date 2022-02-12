@@ -23,6 +23,8 @@ enum Contact{
 var contact_update_interval: float = .06
 
 var _contact_timer: Timer = Timer.new()
+var _force_resolution_timer: Timer = Timer.new()
+
 var _last_contact_count: int = 0
 var _floor_normal: Vector2 = Vector2.ZERO
 var _contacts: Dictionary = {
@@ -36,11 +38,14 @@ var _contacts: Dictionary = {
 onready var _body_state: Physics2DDirectBodyState = Physics2DServer.body_get_direct_state(get_rid())
 
 
-# built-in virtual _init method
+func _init() -> void:
+	mode = MODE_CHARACTER
 
 func _ready() -> void:
 	add_child(_contact_timer)
-	
+	add_child(_force_resolution_timer)
+	_force_resolution_timer.autostart = false
+	_force_resolution_timer.one_shot = true
 	_contact_timer.autostart = false
 	_contact_timer.one_shot = true
 
@@ -59,20 +64,31 @@ func _integrate_forces(state: Physics2DDirectBodyState) -> void:
 	_body_state = state
 	var contact_count := state.get_contact_count()
 	
-	if contact_count != 0:
+	if contact_count > 0:
 		_contact_timer.stop()
 	
 	update_contacts()
 		
 	_last_contact_count = contact_count
+
+
+func allow_force_resolution(force_resolution_duration: float = 0.1) -> void:
+	_force_resolution_timer.start(force_resolution_duration)
+
+
+func halt_force_resolution() -> void:
+	_force_resolution_timer.stop()
+	
+	
+func is_force_resolution_allowed() -> bool:
+	return not _force_resolution_timer.is_stopped()
 	
 
+func apply_impulse(offset: Vector2, impulse: Vector2) -> void:
+	.apply_impulse(offset, impulse)
+	allow_force_resolution()
 	
-	if state.linear_velocity.y < 0 and is_on_ceiling():
-		state.linear_velocity.y = 0
-	if state.linear_velocity.y > 0 and is_on_floor():
-		state.linear_velocity.y = 0
-
+	
 func update_contacts() -> void:
 	if _contact_timer.is_stopped():
 		var contact_count := _body_state.get_contact_count()
@@ -132,6 +148,7 @@ func get_floor_normal(find_immediate: bool = false) -> Vector2:
 				return _body_state.get_contact_local_normal(right_most_normal_index)
 	return _floor_normal
 
+
 func is_on_slope(find_immediate: bool = false) -> bool:
 	if find_immediate:
 		for i in _body_state.get_contact_count():
@@ -139,7 +156,7 @@ func is_on_slope(find_immediate: bool = false) -> bool:
 			var contact_position := _body_state.get_contact_local_position(i)
 			var slope_angle = rad2deg(acos(contact_normal.dot(Vector2.UP)))
 			
-			if slope_angle <= 45.1 and slope_angle > 0:
+			if slope_angle < 45.1 and slope_angle > 0.1:
 				return true
 		return false
 
