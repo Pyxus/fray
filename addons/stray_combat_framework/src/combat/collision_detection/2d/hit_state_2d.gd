@@ -13,7 +13,7 @@ const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/chi
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
 const HitBox2D = preload("hit_box_2d.gd")
-const RigidPushBox2D = preload("body/rigid_push_box_2d.gd")
+const PushBox2D = preload("body/push_box_2d.gd")
 
 export var is_active: bool setget set_is_active
 
@@ -42,13 +42,13 @@ func set_is_active(value: bool) -> void:
 
 func deactivate_boxes() -> void:
 	for child in get_children():
-		if child is HitBox2D or child is RigidPushBox2D:
+		if child is HitBox2D or child is PushBox2D:
 			child.is_active = false
 
 
 func set_boxes_belong_to(obj: Object) -> void:
 	for child in get_children():
-		if child is HitBox2D or child is RigidPushBox2D:
+		if child is HitBox2D or child is PushBox2D:
 			child.belongs_to = obj
 
 
@@ -61,7 +61,7 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 			elif node is HitBox2D:
 				if not node.is_connected("activated", self, "_on_HitBox2D_activated"):
 					node.connect("activated", self, "_on_HitBox2D_activated")
-			elif node is RigidPushBox2D:
+			elif node is PushBox2D:
 				if not node.is_connected("activated", self, "_on_PushBox2D_activated"):
 					node.connect("activated", self, "_on_PushBox2D_activated")
 
@@ -72,7 +72,7 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 			elif node is HitBox2D:
 				if node.is_connected("activated", self, "_on_HitBox2D_activated"):
 					node.disconnect("activated", self, "_on_HitBox2D_activated")
-			elif node is RigidPushBox2D:
+			elif node is PushBox2D:
 				if node.is_connected("activated", self, "_on_PushBox2D_activated"):
 					node.disconnect("activated", self, "_on_PushBox2D_activated")
 

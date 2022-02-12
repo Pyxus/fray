@@ -10,40 +10,11 @@ extents = Vector2( 518.726, 10 )
 script = ExtResource( 1 )
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 262.34, 339.083 )
+position = Vector2( 302.658, 176.8 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2( 0, 599 )
 
-[node name="ColorRect" type="ColorRect" parent="StaticBody2D"]
-margin_left = -12.0
-margin_top = -10.0
-margin_right = 1027.0
-margin_bottom = 11.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2( 508.726, 0 )
-shape = SubResource( 1 )
-
-[node name="StaticBody2D2" type="StaticBody2D" parent="."]
-position = Vector2( 340.384, 731.149 )
-rotation = -0.375246
-__meta__ = {
-"_edit_group_": true
-}
-
-[node name="ColorRect" type="ColorRect" parent="StaticBody2D2"]
-margin_left = -12.0
-margin_top = -10.0
-margin_right = 1027.0
-margin_bottom = 11.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
 position = Vector2( 508.726, 0 )
 shape = SubResource( 1 )

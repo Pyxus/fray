@@ -1,5 +1,4 @@
 extends "character_body_2d.gd"
-
 ## docstring
 
 #inner classes
@@ -16,6 +15,7 @@ extends "character_body_2d.gd"
 
 var gravity: float = 4000
 var speed_on_slope: float = 600
+var push
 
 var _float_timer: Timer
 var _jump_reset_timer: Timer
@@ -56,8 +56,7 @@ func _integrate_forces(state: Physics2DDirectBodyState) -> void:
 			state.linear_velocity = slide_vec
 		else:
 			state.linear_velocity.y = 0
-
-
+	
 func jump(state: Physics2DDirectBodyState, jump_speed: float):
 	if _jump_reset_timer.is_stopped():
 		state.linear_velocity.y = -abs(jump_speed)

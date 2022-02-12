@@ -14,12 +14,9 @@ var name: String
 var _root := CombatState.new()
 var _states: Array
 var _next_situation_transitions: Array
-var _associated_states: Array 
-# TODO: Consider moving global chains to a new RootCombatState class.
-# It's weird to have all the chaning done from the states except global chaining.
-var _global_chains: Array 
+var _global_chains: Array
 var _global_chain_rules: Dictionary
-
+var _associated_states: Array 
 
 func _init() -> void:
 	_root.situation = self
@@ -68,15 +65,13 @@ func get_next_transition(condition_dict: Dictionary) -> Transition:
 	return null
 
 
-func add_global_chain_to(to_state: CombatState, input_data: InputData, chain_conditions: Array = [], min_input_delay: float = 0) -> void:
+func add_global_chain_to(to_state: CombatState, input_data: InputData, chain_conditions: Array, min_input_delay: float = 0) -> void:
 	var chain := Chain.new()
-	chain.to = to_state
 	chain.input_data = input_data
 	chain.chain_conditions = chain_conditions
 	chain.min_input_delay = min_input_delay
 
-	associate_state(to_state)
-	_global_chains.append(chain)
+	_global_chains.append(input_data)
 	_global_chains.sort_custom(Transition.PrioritySorter, "sort_ascending")
 
 

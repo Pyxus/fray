@@ -3,10 +3,6 @@ extends Node
 signal situation_changed(from, to)
 signal state_changed(from, to) 
 
-#TODO: Consider just going with UNCHAINABLE and CHAINABLE or something similar for frame data
-# Neutral/Recovery just means chaining is allowed
-# START_UP/ACTIVE/ACTIVE_GAP just means chaining is not allowed
-# At the moment they're redundant.
 enum FrameData {
 	NEUTRAL,
 	START_UP,
@@ -29,8 +25,8 @@ const Situation = preload("situation.gd")
 const CombatState = preload("combat_state.gd")
 
 export(FrameData) var frame_data: int
-export var input_buffer_max_size: int = 3
-export var input_max_time_in_buffer: float = 0.1
+export var input_buffer_max_size: int = 2
+export var input_max_time_in_buffer: float = 0.3
 export(ProcessMode) var process_mode: int 
 
 var condition_by_name: Dictionary
@@ -119,20 +115,6 @@ func set_situation(situation: Situation) -> void:
 
 func set_condition(condition_name: String, value: bool) -> void:
 	_condition_by_name[condition_name] = value
-
-
-func set_all_conditions(value: bool) -> void:
-	for condition_name in _condition_by_name:
-		_condition_by_name[condition_name] = value
-
-
-func is_current_state_root() -> bool:
-	if _current_situation == null:
-		push_error("Failed to check current state. Current situation not set.")
-		return false
-	
-	return _current_state == _current_situation.get_root()
-	pass
 
 
 func is_condition_true(condition: Condition) -> bool:

@@ -1,4 +1,4 @@
-extends StrayCF.RigidFighterBody2D
+extends StrayCF.FighterBody2D
 
 enum VInput {
 	UP,
@@ -14,6 +14,8 @@ enum VInput {
 	SLASH,
 	HEAVY_SLASH,
 }
+
+
 
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
 onready var combat_fsm: StrayCF.CombatFSM = get_node("CombatFSM")
@@ -41,65 +43,88 @@ func _ready() -> void:
 	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
 	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
 
-	# Input Data
+	var sitch_on_ground := StrayCF.Situation.new()
+	var on_ground_root := sitch_on_ground.get_root()
+	var neutral_punch := StrayCF.CombatState.new()
+	var neutral_slash := StrayCF.CombatState.new()
+
 	var punch_input_data := StrayCF.VirtualInputData.new(VInput.PUNCH)
-	var slash_input_data := StrayCF.VirtualInputData.new(VInput.SLASH)
-	var heavy_input_data := StrayCF.VirtualInputData.new(VInput.HEAVY_SLASH)
-	var kick_input_data := StrayCF.VirtualInputData.new(VInput.KICK)
-	var up_input_data := StrayCF.VirtualInputData.new(VInput.UP)
-	
-	# Standing States
-	var sitch_standing := StrayCF.Situation.new()
-	combat_fsm.add_situation(sitch_standing)
 
-	var standing_root := sitch_standing.get_root()
-	var standing_animation := StrayCF.CombatAnimation.new("idle")
-	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_forward", StrayCF.StringCondition.new("is_walking_forward")))
-	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_backward", StrayCF.StringCondition.new("is_walking_backward")))
-	combat_fsm.associate_state_with_animation(standing_root, standing_animation)
+	neutral_punch.chain_to(neutral_punch, punch_input_data)
+	on_ground_root.chain_to(neutral_punch, punch_input_data)
+	combat_fsm.add_situation(sitch_on_ground)
+	combat_fsm.set_situation(sitch_on_ground)
+
+	"""
+	# This is all basically boilerplate for the combatFSM
+	# A fighter's state needs to exist within situations such as "on ground", "in air", "being hit"
+	var sitch_on_ground := Situation.new("idle")
+	var on_ground_root := sitch_on_ground.get_root()
+	var walk_forward_state := FighterState.new("walk_forward", "is_walking_forward")
+	var walk_backward_state := FighterState.new("walk_backward", "is_walking_backward")
+	var neutral_punch := FighterState.new("5p")
+	var neutral_slash := FighterState.new("5s")
+	var neutral_slash_neutral_slash := FighterState.new("5s-5s")
+	var neutral_heavy := FighterState.new("5h")
+	var neutral_kick := FighterState.new("5k")
+	var qcb_punch := FighterState.new("214p")
+
+	# A chain is a connection from one state to another where change between states occur if the correct input is provided
+	# Chains can be used to make combos
+	neutral_punch.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
+	neutral_slash.chain(neutral_heavy, VirtualInputData.new(VInput.HEAVY_SLASH))
+	neutral_slash.chain(neutral_slash_neutral_slash, VirtualInputData.new(VInput.SLASH))
+	neutral_heavy.chain(neutral_kick, VirtualInputData.new(VInput.KICK))
 	
-	var standing_punch := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new("5p"))
+	# Global chains are chains to global states which can be accessed from any state in the situation.
+	# Global states are identified by tags. A state opts in to visiting a global state by chaining its tags.
+	# Global states can be used to make 'specials' and 'supers'
+	neutral_punch.chain_global("special")
+	neutral_slash.chain_global("special")
+	neutral_heavy.chain_global("special")
+	neutral_kick.chain_global("special")
 	
-	var standing_slash := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new("5s"))
+	#on_ground_root.chain(neutral_punch, VirtualInputData.new(VInput.PUNCH)) TODO: Add input priority system. P keeps being processed during 214P
 	
-	var standing_heavy := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new("5h"))
+	# Global states exist within the root but in order to be accessed from the root the root must also opt in with chain global
+	on_ground_root.add_global_chain("special", qcb_punch, SequenceInputData.new("214P"))
+	on_ground_root.chain_global("special")
+	on_ground_root.chain(neutral_slash, VirtualInputData.new(VInput.SLASH))
+	on_ground_root.chain(neutral_heavy, VirtualInputData.new(VInput.HEAVY_SLASH))
+	on_ground_root.chain(neutral_kick, VirtualInputData.new(VInput.KICK))
 	
-	var standing_kick := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new("5k"))
+	# Extension allows 1 state to act as a sub state of another.
+	# An extender will be able to visit the connections of the extendee.
+	# And an extender node is visited so longs as its active condition is true.
+	# This is to allow for things such as being able to punch both in the standing state and walking state
+	# Without having to connect the punch state to both.
+	on_ground_root.connect_extender(walk_forward_state)
+	on_ground_root.connect_extender(walk_backward_state)
 	
-	var jump_neutral_start := StrayCF.CombatState.new("jump")
-	combat_fsm.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new("jump_neutral_start"))
-	
-	# Air States
-	var sitch_in_air := StrayCF.Situation.new()
-	combat_fsm.add_situation(sitch_in_air)
-	
+	var sitch_in_air := Situation.new("jump_neutral")
 	var in_air_root := sitch_in_air.get_root()
-	var in_air_animation := StrayCF.CombatAnimation.new("fall_neutral")
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("fall_forward", StrayCF.StringCondition.new("is_falling_forward")))
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("fall_backward", StrayCF.StringCondition.new("is_falling_backward")))
-	combat_fsm.associate_state_with_animation(in_air_root, in_air_animation)
+	var jump_backward_state := FighterState.new("jump_backward", "is_jumping_backwards")
+	var jump_forward_state := FighterState.new("jump_forward", "is_jumping_forwards")
+	var fall_neutral_state := FighterState.new("fall_neutral", "is_falling")
+	var fall_backward_state := FighterState.new("fall_backward", "is_falling_backwards")
+	var fall_forward_state := FighterState.new("fall_forward", "is_falling_forwards")
+	var j5p_state := FighterState.new("j5p")
+	var j5s_state := FighterState.new("j5s")
+	var j5h_state := FighterState.new("j5h")
 	
-	# Chaining
-	sitch_standing.add_global_chain_to(jump_neutral_start, up_input_data)
-	#standing_root.chain_to_global("jump")
-	standing_root.chain_to(standing_punch, punch_input_data)
-	standing_root.chain_to(standing_slash, slash_input_data)
-	standing_root.chain_to(standing_heavy, heavy_input_data)
-	standing_root.chain_to(standing_kick, kick_input_data)
+	in_air_root.chain(j5p_state, VirtualInputData.new(VInput.PUNCH))
+	in_air_root.chain(j5s_state, VirtualInputData.new(VInput.SLASH))
+	in_air_root.chain(j5h_state, VirtualInputData.new(VInput.HEAVY_SLASH))
+	in_air_root.connect_extender(fall_backward_state)
+	in_air_root.connect_extender(fall_forward_state)
+	in_air_root.connect_extender(fall_neutral_state)
+	in_air_root.connect_extender(jump_forward_state)
+	in_air_root.connect_extender(jump_backward_state)
 	
-	# Situation Transitions
-	sitch_standing.add_transition_to(sitch_in_air, StrayCF.StringCondition.new("is_in_air"))
-	sitch_in_air.add_transition_to(sitch_standing, StrayCF.StringCondition.new("is_on_ground"))
-	
-	combat_fsm.set_situation(sitch_standing)
-	combat_fsm.revert_to_root()
-	
-	input_detector.press_checks_enabled = true
-
+	combat_fsm.add_situation("in_air", sitch_in_air)
+	combat_fsm.add_situation("on_ground", sitch_on_ground)
+	combat_fsm.set_current_situation("on_ground")
+	"""
 
 func is_on_floor(find_immediate: bool = false):
 	if ground_cast.is_colliding():
@@ -109,27 +134,63 @@ func is_on_floor(find_immediate: bool = false):
 # Virtual method from FighterBody2D. If you choose to use this node for your fighters this is
 # Where you should move them.
 func _handle_movement(state: Physics2DDirectBodyState) -> void:
-	combat_fsm.set_all_conditions(false)
-	speed_on_slope = 300
-	
-	if is_on_floor(true):
-		if _jump_reset_timer.is_stopped():
-			state.linear_velocity.y = 0
-		
-		if input_detector.is_input_just_pressed(VInput.UP):
-			jump(state, 1400)
-			#apply_impulse(Vector2.ZERO, Vector2(0, -1200))
-		#combat_fsm.set_condition("is_on_ground", true)
+	"""
+	combat_fsm.set_all_conditions_false()
+
+	if combat_fsm.is_current_state_root_or_extension():
+		input_detector.press_checks_enabled = true
 	else:
-		#combat_fsm.set_condition("is_in_air", true)
-		pass
-	
-	if input_detector.is_input_pressed(VInput.RIGHT):
-		state.linear_velocity.x = 300
-		combat_fsm.set_condition("is_walking_forward", true)
-	elif input_detector.is_input_pressed(VInput.LEFT):
-		state.linear_velocity.x = -300
-		combat_fsm.set_condition("is_walking_backward", true)
-	else:
-		state.linear_velocity.x = 0
-		pass
+		input_detector.press_checks_enabled = false
+
+	if jump_count < max_jump_count:
+		if input_detector.is_input_just_pressed(VInput.UP_RIGHT):
+			state.linear_velocity.y = -1200
+			state.linear_velocity.x = 300
+			jump_count += 1
+		elif input_detector.is_input_just_pressed(VInput.UP_LEFT):
+			state.linear_velocity.y = -1200
+			state.linear_velocity.x = -300
+			jump_count += 1
+		elif input_detector.is_input_just_pressed(VInput.UP):
+			state.linear_velocity.y = -1000
+			state.linear_velocity.x = 0
+			jump_count += 1
+			
+	if combat_fsm.get_current_state().animation != "214p": 
+		if is_on_floor():
+			jump_count = 0
+			combat_fsm.set_current_situation("on_ground")
+			
+			if input_detector.is_input_pressed(VInput.RIGHT):
+				state.linear_velocity.x = 300
+				combat_fsm.set_condition("is_walking_forward", true)
+			elif input_detector.is_input_pressed(VInput.LEFT):
+				state.linear_velocity.x = -300
+				combat_fsm.set_condition("is_walking_backward", true)
+			else:
+				state.linear_velocity.x = 0
+				#state.linear_velocity.y = 0
+		else:
+			combat_fsm.set_current_situation("in_air")
+			
+			if state.linear_velocity.y >= 0:
+				combat_fsm.set_condition("is_falling", true)
+				
+				if state.linear_velocity.x < 0:
+					combat_fsm.set_condition("is_falling_backwards", true)
+				elif state.linear_velocity.x > 0:
+					combat_fsm.set_condition("is_falling_forwards", true)
+			else:
+				if state.linear_velocity.x < 0:
+					combat_fsm.set_condition("is_jumping_backwards", true)
+				elif state.linear_velocity.x > 0:
+					combat_fsm.set_condition("is_jumping_forwards", true)
+	"""
+
+# Buffers inputs to the CombatFSM allowing chains to advance.
+func _on_InputDetector_input_detected(detected_input: StrayCF.DetectedInput) -> void:
+	combat_fsm.buffer_input(detected_input)
+
+
+func _on_CombatFSM_state_changed(from: StrayCF.CombatState, to:StrayCF.CombatState) -> void:
+	print(from, to)

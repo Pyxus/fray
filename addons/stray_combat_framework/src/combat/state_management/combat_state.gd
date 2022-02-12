@@ -21,9 +21,6 @@ var _chains: Array
 var _global_chain_tags: Array
 var _situation := WeakRef.new()
 
-func _init(tag: String = "") -> void:
-	self.tag = tag
-
 
 func chain_to(to_state: Resource, input_data: InputData, chain_conditions: Array = [], min_input_delay: float = 0) -> void:
 	assert(to_state is CombatState, "The passed argument is not of type CombatState")
@@ -39,10 +36,6 @@ func chain_to(to_state: Resource, input_data: InputData, chain_conditions: Array
 		self.situation.associate_state(to_state)
 
 
-func chain_to_global(tag: String) -> void:
-	_global_chain_tags.append(tag)
-	
-	
 func get_next_chain(condition_dict: Dictionary, detected_input: DetectedInput, time_since_last_input: float) -> Resource:
 	for chain in _chains:
 		if chain.is_reachable(condition_dict, detected_input, time_since_last_input):

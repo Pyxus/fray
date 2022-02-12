@@ -18,7 +18,7 @@ const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/r
 const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
 
 const HitBox2D = preload("hit_box_2d.gd")
-const RigidPushBox2D = preload("body/rigid_push_box_2d.gd")
+const PushBox2D = preload("body/push_box_2d.gd")
 
 #exported variables
 
@@ -97,7 +97,7 @@ func  get_hit_box_id(hit_box: HitBox2D) -> int:
 	return _hit_box_by_id.get_key(hit_box, NONE)
 
 
-func  get_push_box_id(push_box: RigidPushBox2D) -> int:
+func  get_push_box_id(push_box: PushBox2D) -> int:
 	return _push_box_by_id.get_key(push_box, NONE)
 
 
@@ -108,7 +108,7 @@ func get_box_names() -> PoolStringArray:
 	for child in get_children():
 		if child is HitBox2D:
 			array.append("%s:%s" % [child.name, get_hit_box_id(child)])
-		elif child is RigidPushBox2D:
+		elif child is PushBox2D:
 			array.append("%s:%s" % [child.name, get_push_box_id(child)])
 
 	return array
@@ -128,7 +128,7 @@ func _add_box(box: Node) -> void:
 			_hit_box_by_id.add(box_id, box)
 			box.connect("activated", self, "_on_HitBox2D_activated", [box])
 			property_list_changed_notify()
-	elif box is RigidPushBox2D:
+	elif box is PushBox2D:
 		if not _push_box_by_id.has_value(box):
 			var box_id := _gen_box_id()
 			_hit_box_by_id.add(box_id, box)
@@ -142,7 +142,7 @@ func _remove_box(box: Node) -> void:
 			if box.is_connected("activated", self, "_on_HitBox2D_activated"):
 				box.disconnect("activated", self, "_on_HitBox2D_activated")
 			property_list_changed_notify()
-	elif box is RigidPushBox2D:
+	elif box is PushBox2D:
 		if _push_box_by_id.erase_value(box):
 			if box.is_connected("activated", self, "_on_PushBox2D_activated"):
 				box.disconnect("activated", self, "_on_PushnBox2D_activated")
@@ -173,10 +173,10 @@ func _on_HitBox2D_activated(activated_hit_box: HitBox2D) -> void:
 			hit_box.is_active = false
 
 
-func _on_PushBox2D_activated(activated_push_box: RigidPushBox2D) -> void:
+func _on_PushBox2D_activated(activated_push_box: PushBox2D) -> void:
 	emit_signal("box_activated")
 	for node in _push_box_by_id.values():
-		var push_box := node as RigidPushBox2D
+		var push_box := node as PushBox2D
 		if push_box != activated_push_box:
 			push_box.is_active = false
 

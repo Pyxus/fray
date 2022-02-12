@@ -17,8 +17,6 @@ enum VInput {
 	HEAVY_SLASH,
 }
 
-var dict: Dictionary
-
 func _ready() -> void:
 	"""
 	var input_history_display = $UI/InputHistoryDisplay
