@@ -7,6 +7,7 @@ signal state_changed(from, to)
 # Neutral/Recovery just means chaining is allowed
 # START_UP/ACTIVE/ACTIVE_GAP just means chaining is not allowed
 # At the moment they're redundant.
+# Better yet since its boolean just use a can_chain property
 enum FrameData {
 	NEUTRAL,
 	START_UP,

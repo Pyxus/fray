@@ -1,13 +1,14 @@
 extends "transition.gd"
 
-const InputData = preload("input_data/input_data.gd")
-const CombatState = preload("../combat_state.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
 const DetectedSequence = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_sequence.gd")
+const CombatState = preload("../combat_state.gd")
 const SequenceInputData = preload("../transitions/input_data/input_data.gd")
 const VirtualInputData = preload("../transitions/input_data/virtual_input_data.gd")
 const StringCondition = preload("../conditions/string_condition.gd")
+
+const InputData = preload("input_data/input_data.gd")
 
 var to: CombatState setget set_to_state, get_to_state
 var input_data: InputData
