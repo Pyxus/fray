@@ -97,7 +97,9 @@ func _ready() -> void:
 	#sitch_standing.add_global_chain_to(jump_forward_start, up_right_data)
 	#sitch_standing.add_global_chain_to(jump_backward_start, up_left_data)
 	
-	standing_punch.chain_to(standing_punch, punch_input_data)
+	#standing_punch.chain_to(standing_punch, punch_input_data)
+
+	#standing_punch.chain_to(standing_kick, kick_input_data)
 
 	standing_root.chain_to_global("jump")
 	standing_root.chain_to(standing_punch, punch_input_data)

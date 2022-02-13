@@ -15,7 +15,7 @@ absorbent = true
 script = ExtResource( 1 )
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 712, 379 )
+position = Vector2( 476.803, 514.417 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2( 0, 599 )
