@@ -31,17 +31,18 @@ func _ready() -> void:
 func advance(delta: float) -> void:
 	.advance(delta)
 	
-	if is_current_state_root():
-		var combat_anim := get_state_animation(_current_situation.get_root())
-		var combat_anim_name := _get_animation_name(combat_anim)
-		
-		if combat_anim_name != _anim_player.assigned_animation:
-			_anim_player.play(combat_anim_name)
+	if active:
+		if is_current_state_root():
+			var combat_anim := get_state_animation(_current_situation.get_root())
+			var combat_anim_name := _get_animation_name(combat_anim)
+			
+			if combat_anim_name != _anim_player.assigned_animation:
+				_anim_player.play(combat_anim_name)
 
-	if _anim_player.is_playing():
-		var is_anim_ending_next_frame := _anim_player.current_animation_position + delta >= _anim_player.current_animation_length
-		if is_anim_ending_next_frame:
-			call_deferred("_animation_reached_end", _anim_player.current_animation)
+		if _anim_player.is_playing():
+			var is_anim_ending_next_frame := _anim_player.current_animation_position + delta >= _anim_player.current_animation_length
+			if is_anim_ending_next_frame:
+				call_deferred("_animation_reached_end", _anim_player.current_animation)
 	
 
 func associate_state_with_animation(state: CombatState, combat_animation: CombatAnimation) -> void:

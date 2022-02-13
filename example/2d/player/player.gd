@@ -97,6 +97,8 @@ func _ready() -> void:
 	#sitch_standing.add_global_chain_to(jump_forward_start, up_right_data)
 	#sitch_standing.add_global_chain_to(jump_backward_start, up_left_data)
 	
+	standing_punch.chain_to(standing_punch, punch_input_data)
+
 	standing_root.chain_to_global("jump")
 	standing_root.chain_to(standing_punch, punch_input_data)
 	standing_root.chain_to(standing_slash, slash_input_data)
@@ -106,11 +108,12 @@ func _ready() -> void:
 	# Situation Transitions
 	sitch_standing.add_transition_to(sitch_in_air, StrayCF.StringCondition.new("is_in_air"))
 	sitch_in_air.add_transition_to(sitch_standing, StrayCF.StringCondition.new("is_on_ground"))
-	
+
 	combat_fsm.set_situation(sitch_standing)
 	combat_fsm.revert_to_root()
 	
 	input_detector.press_checks_enabled = true
+
 
 
 func is_on_floor(find_immediate: bool = false):
@@ -170,4 +173,3 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 				combat_fsm.set_condition("is_jumping_backward", true)
 			elif state.linear_velocity.x > 0:
 				combat_fsm.set_condition("is_jumping_forward", true)
-

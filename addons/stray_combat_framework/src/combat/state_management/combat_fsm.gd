@@ -32,6 +32,7 @@ const CombatState = preload("combat_state.gd")
 export(FrameData) var frame_data: int
 export var input_buffer_max_size: int = 3
 export var input_max_time_in_buffer: float = 0.1
+export var active: bool
 export(ProcessMode) var process_mode: int 
 
 var condition_by_name: Dictionary
@@ -56,7 +57,7 @@ func _physics_process(delta: float) -> void:
 
 		
 func advance(delta: float) -> void:
-	if _current_situation != null:
+	if active and _current_situation != null:
 		var next_transition := _current_situation.get_next_transition(_condition_by_name)
 		if next_transition != null:
 			var prev_situation: Situation = _current_situation
