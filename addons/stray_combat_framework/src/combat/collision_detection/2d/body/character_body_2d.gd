@@ -88,7 +88,8 @@ func apply_impulse(offset: Vector2, impulse: Vector2) -> void:
 	.apply_impulse(offset, impulse)
 	allow_force_resolution()
 	
-	
+# TODO: So I think the original idea of this was some kind of performancing saving measure... Maybe?
+# Can't remmeber and im not sure if this is useful. Consider removing.
 func update_contacts() -> void:
 	if _contact_timer.is_stopped():
 		var contact_count := _body_state.get_contact_count()

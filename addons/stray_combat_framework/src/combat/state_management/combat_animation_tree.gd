@@ -12,7 +12,7 @@ var _anim_player: AnimationPlayer
 var _input_detector: InputDetector
 var _anim_by_state: Dictionary
 var _anim_by_state_transition: Dictionary
-var _anim_by_situation_transition: Dictionary
+var _anim_by_combat_tree_transition: Dictionary
 var _anim_queue: Array
 var _next_animation: String
 var _is_playing_transition_anim: bool
@@ -24,7 +24,7 @@ func _ready() -> void:
 	_anim_player.connect("animation_finished", self, "_on_AnimPlayer_animation_finished")
 	_input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
 
-	connect("situation_changed", self, "_on_situation_changed")
+	connect("tree_changed", self, "_on_tree_changed")
 	connect("state_changed", self, "_on_state_changed")
 
 
@@ -33,7 +33,7 @@ func advance(delta: float) -> void:
 	
 	if active:
 		if is_current_state_root():
-			var combat_anim := get_state_animation(_current_situation.get_root())
+			var combat_anim := get_state_animation(_current_tree.get_root())
 			var combat_anim_name := _get_animation_name(combat_anim)
 			
 			if combat_anim_name != _anim_player.assigned_animation:
@@ -60,9 +60,9 @@ func associate_state_transition_with_animation(from: CombatState, to: CombatStat
 	_anim_by_state_transition[transition_tuple] = combat_animation
 
 
-func associate_situation_transition_with_animation(from: Situation, to: Situation, combat_animation: CombatAnimation) -> void:
+func associate_tree_transition_with_animation(from: CombatTree, to: CombatTree, combat_animation: CombatAnimation) -> void:
 	var transition_tuple := [from, to]
-	_anim_by_situation_transition[transition_tuple] = combat_animation
+	_anim_by_combat_tree_transition[transition_tuple] = combat_animation
 
 
 func _get_animation_name(combat_animation: CombatAnimation) -> String:
@@ -77,7 +77,7 @@ func _animation_reached_end(animation: String) -> void:
 	pass
 	
 	
-func _on_situation_changed(from: Situation, to: Situation) -> void:
+func _on_tree_changed(from: CombatTree, to: CombatTree) -> void:
 	_is_playing_transition_anim = false
 	_next_animation = ""
 	
@@ -86,19 +86,19 @@ func _on_situation_changed(from: Situation, to: Situation) -> void:
 	
 	var transition_tuple := [from, to]
 
-	if _anim_by_situation_transition.has(transition_tuple):
-		var transition_anim: CombatAnimation = _anim_by_situation_transition[transition_tuple]
+	if _anim_by_combat_tree_transition.has(transition_tuple):
+		var transition_anim: CombatAnimation = _anim_by_combat_tree_transition[transition_tuple]
 		var transition_anim_name := _get_animation_name(transition_anim)
 
 		if not _anim_player.has_animation(transition_anim_name):
-			push_error("Failed to play transition animation from situation '%s' to  situation '%s'. No animation in player named '%s'." % [from, to, transition_anim_name])
+			push_error("Failed to play transition animation from tree '%s' to  tree '%s'. No animation in player named '%s'." % [from, to, transition_anim_name])
 		else:
 			_anim_player.play(transition_anim_name)
 			_is_playing_transition_anim = true
 	
 	var root_state_anim := get_state_animation(to.get_root())
 	if root_state_anim == null:
-		push_error("Situation changed but no animation associated with situation root state '%s'." % to.get_root())
+		push_error("Tree changed but no animation associated with tree root state '%s'." % to.get_root())
 		revert_to_root()
 		return
 		

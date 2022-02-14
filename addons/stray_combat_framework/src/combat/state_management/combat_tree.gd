@@ -1,28 +1,27 @@
 extends Resource
 
 const Transition = preload("transitions/transition.gd")
-const SituationTransition = preload("transitions/situation_transition.gd")
+const CombatTreeTransition = preload("transitions/combat_tree_transition.gd")
 const Chain = preload("transitions/chain.gd")
 const CombatState = preload("combat_state.gd")
 const InputData = preload("transitions/input_data/input_data.gd")
 const Condition = preload("conditions/condition.gd")
 const StringCondition = preload("conditions/string_condition.gd")
-var Situation = load("res://addons/stray_combat_framework/src/combat/state_management/situation.gd")
+var CombatTree = load("res://addons/stray_combat_framework/src/combat/state_management/combat_tree.gd")
 
 var name: String
 
 var _root := CombatState.new()
 var _states: Array
-var _next_situation_transitions: Array
+var _next_tree_transitions: Array
 var _associated_states: Array 
-# TODO: Consider moving global chains to a new RootCombatState class.
-# It's weird to have all the chaning done from the states except global chaining.
+
 var _global_chains: Array 
 var _global_chain_rules: Dictionary
 
 
 func _init() -> void:
-	_root.situation = self
+	_root.tree = self
 
 	
 func _notification(what: int) -> void:
@@ -30,41 +29,41 @@ func _notification(what: int) -> void:
 		_associated_states.clear()
 
 	   
-func add_transition_to(situation: Resource, advance_condition: Condition) -> void:
-	assert(situation is Situation, "The passed argument is not of type Situation.")
+func add_transition_to(combat_tree: Resource, advance_condition: Condition) -> void:
+	assert(combat_tree is CombatTree, "The passed argument is not of type CombatTree.")
 	
-	if situation == self:
-		push_warning("Failed to add transition to situation. A situation can not transition to it self.")
+	if combat_tree == self:
+		push_warning("Failed to add transition to combat tree. A combat tree can not transition to it self.")
 		return
 
-	if has_transition_to(situation):
-		push_error("Failed to add transition to situation. A transition to situation '%s' already exists" % situation)
+	if has_transition_to(combat_tree):
+		push_error("Failed to add transition to combat tree. A transition to combat tree '%s' already exists" % combat_tree)
 		return
 
-	var situation_transition := SituationTransition.new()
-	situation_transition.advance_condition = advance_condition
-	situation_transition.to = situation
+	var transition := CombatTreeTransition.new()
+	transition.advance_condition = advance_condition
+	transition.to = combat_tree
 
-	_next_situation_transitions.append(situation_transition)
-	_next_situation_transitions.sort_custom(Transition.PrioritySorter, "sort_ascending")
+	_next_tree_transitions.append(transition)
+	_next_tree_transitions.sort_custom(Transition.PrioritySorter, "sort_ascending")
 
 
-func has_transition_to(situation: Resource) -> bool:
-	assert(situation is Situation, "The passed argument is not of type Situation.")
+func has_transition_to(combat_tree: Resource) -> bool:
+	assert(combat_tree is CombatTree, "The passed argument is not of type CombatTree.")
 
-	for situation_transition in _next_situation_transitions:
-		if situation_transition.to == situation:
+	for tree_transition in _next_tree_transitions:
+		if tree_transition.to == combat_tree:
 			return true
 
 	return false
 
 
 func get_next_transition(condition_dict: Dictionary) -> Transition:
-	for situation_tranisiton in _next_situation_transitions:
-		var condition: Condition = situation_tranisiton.advance_condition
+	for tree_transition in _next_tree_transitions:
+		var condition: Condition = tree_transition.advance_condition
 		if condition is StringCondition:
 			if condition_dict.has(condition.condition_name) and condition_dict[condition.condition_name]:
-				return situation_tranisiton
+				return tree_transition
 	return null
 
 
@@ -88,7 +87,7 @@ func add_global_transition_rule(from_tag: String, to_tags: PoolStringArray) -> v
 func associate_state(state: CombatState) -> void:
 	if not _associated_states.has(state):
 		_associated_states.append(state)
-		state.situation = self
+		state.tree = self
 
 
 func get_global_chains() -> Array:

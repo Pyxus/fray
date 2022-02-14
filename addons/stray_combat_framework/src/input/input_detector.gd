@@ -113,7 +113,6 @@ func register_sequence(name: String, input_sequence: InputSequence) -> void:
 
 
 func register_combination(id: int, input_ids: PoolIntArray, is_components_pressed_on_release: bool = true) -> void:
-	#TODO: Right now released combination
 	if id in input_ids:
 		push_warning("Combination id can not be included in input ids")
 		return

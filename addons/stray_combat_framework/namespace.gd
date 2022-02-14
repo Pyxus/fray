@@ -15,7 +15,7 @@ const HurtAttributes = preload("src/combat/collision_detection/hit_attributes/hu
 # Combat - State Management
 const CombatState = preload("src/combat/state_management/combat_state.gd")
 const CombatFSM = preload("src/combat/state_management/combat_fsm.gd")
-const Situation = preload("src/combat/state_management/situation.gd")
+const CombatTree = preload("src/combat/state_management/combat_tree.gd")
 const InputData = preload("src/combat/state_management/transitions/input_data/input_data.gd")
 const SequenceInputData = preload("src/combat/state_management/transitions/input_data/sequence_input_data.gd")
 const VirtualInputData = preload("src/combat/state_management/transitions/input_data/virtual_input_data.gd")

@@ -11,15 +11,15 @@ const VirtualInputData = preload("transitions/input_data/virtual_input_data.gd")
 const StringCondition = preload("conditions/string_condition.gd")
 
 var Chain = load("res://addons/stray_combat_framework/src/combat/state_management/transitions/chain.gd")
-var Situation = load("res://addons/stray_combat_framework/src/combat/state_management/situation.gd")
+var CombatTree = load("res://addons/stray_combat_framework/src/combat/state_management/combat_tree.gd")
 var CombatState = load("res://addons/stray_combat_framework/src/combat/state_management/combat_state.gd")
 
 var tag: String
-var situation: Resource setget set_situation, get_situation
+var tree: Resource setget set_tree, get_tree
 
 var _chains: Array
 var _global_chain_tags: Array
-var _situation := WeakRef.new()
+var _tree := WeakRef.new()
 
 func _init(tag: String = "") -> void:
 	self.tag = tag
@@ -35,8 +35,8 @@ func chain_to(to_state: Resource, input_data: InputData, chain_conditions: Array
 
 	_chains.append(chain)
 
-	if self.situation != null:
-		self.situation.associate_state(to_state)
+	if get_tree() != null:
+		get_tree().associate_state(to_state)
 
 
 func chain_to_global(tag: String) -> void:
@@ -48,27 +48,27 @@ func get_next_chain(condition_dict: Dictionary, detected_input: DetectedInput, t
 		if chain.is_reachable(condition_dict, detected_input, time_since_last_input):
 			return chain
 	
-	for chain in self.situation.get_global_chains():
+	for chain in get_tree().get_global_chains():
 		if chain.is_reachable(condition_dict, detected_input, time_since_last_input):
 			if chain.to.tag in _global_chain_tags:
 				return chain
-			elif self.situation.is_global_chain_rule(tag, chain.to.tag):
+			elif get_tree().is_global_chain_rule(tag, chain.to.tag):
 				return chain
 			
 	return null
 
 
-func set_situation(value: Resource) -> void:
-	assert(value is Situation, "The passed argument is not of type Situation.")
-	_situation = weakref(value)
+func set_tree(value: Resource) -> void:
+	assert(value is CombatTree, "The passed argument is not of type CombatTree.")
+	_tree = weakref(value)
 
 	for chain in _chains:
-		if chain.to.situation != value:
-			chain.to.situation = value
+		if chain.to.get_tree() != value:
+			chain.to.set_tree(value)
 
 
-func get_situation() -> Resource:
-	return _situation.get_ref()
+func get_tree() -> Resource:
+	return _tree.get_ref()
 
 
 func get_chained_states(states: Array = []) -> Array:

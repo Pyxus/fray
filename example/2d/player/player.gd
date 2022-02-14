@@ -23,6 +23,7 @@ var max_jump_count: int = 1
 var jump_count: int = 0
 
 func _ready() -> void:
+	Engine.time_scale = .2
 	input_detector.bind_action_input(VInput.UP, "up")
 	input_detector.bind_action_input(VInput.DOWN, "down")
 	input_detector.bind_action_input(VInput.LEFT, "left")
@@ -50,8 +51,8 @@ func _ready() -> void:
 	var up_left_data := StrayCF.VirtualInputData.new(VInput.UP_LEFT)
 	
 	# Standing States
-	var sitch_standing := StrayCF.Situation.new()
-	combat_fsm.add_situation(sitch_standing)
+	var sitch_standing := StrayCF.CombatTree.new()
+	combat_fsm.add_tree(sitch_standing)
 
 	var standing_root := sitch_standing.get_root()
 	var standing_animation := StrayCF.CombatAnimation.new("idle")
@@ -81,8 +82,8 @@ func _ready() -> void:
 	combat_fsm.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new("jump_backward_start"))
 	
 	# Air States
-	var sitch_in_air := StrayCF.Situation.new()
-	combat_fsm.add_situation(sitch_in_air)
+	var sitch_in_air := StrayCF.CombatTree.new()
+	combat_fsm.add_tree(sitch_in_air)
 	
 	var in_air_root := sitch_in_air.get_root()
 	var in_air_animation := StrayCF.CombatAnimation.new("fall_neutral")
@@ -111,7 +112,7 @@ func _ready() -> void:
 	sitch_standing.add_transition_to(sitch_in_air, StrayCF.StringCondition.new("is_in_air"))
 	sitch_in_air.add_transition_to(sitch_standing, StrayCF.StringCondition.new("is_on_ground"))
 
-	combat_fsm.set_situation(sitch_standing)
+	combat_fsm.set_current_tree(sitch_standing)
 	combat_fsm.revert_to_root()
 	
 	input_detector.press_checks_enabled = true
@@ -145,7 +146,8 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 			apply_impulse(Vector2.ZERO, Vector2(0, -1200))
 			jump_count += 1
 
-	if is_on_floor():
+	if is_on_floor(true):
+		print("On Floor: ", OS.get_ticks_msec())
 		combat_fsm.set_condition("is_on_ground", true)
 		jump_count = 0
 		
@@ -155,14 +157,17 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 		if not is_force_resolution_allowed():
 			if input_detector.is_input_pressed(VInput.RIGHT):
 				state.linear_velocity.x = 300
+				$AnimationTree["parameters/playback"].travel("walk_forward")
 				combat_fsm.set_condition("is_walking_forward", true)
 			elif input_detector.is_input_pressed(VInput.LEFT):
 				state.linear_velocity.x = -300
+				$AnimationTree["parameters/playback"].travel("walk_backward")
 				combat_fsm.set_condition("is_walking_backward", true)
 			else:
 				state.linear_velocity.x = 0
 				pass
 	else:
+		print("In Air: ", OS.get_ticks_msec())
 		combat_fsm.set_condition("is_in_air", true)
 		
 		if state.linear_velocity.y > 0:

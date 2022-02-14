@@ -1,6 +1,6 @@
 extends Node
 
-signal situation_changed(from, to)
+signal tree_changed(from, to)
 signal state_changed(from, to) 
 
 #TODO: Consider just going with UNCHAINABLE and CHAINABLE or something similar for frame data
@@ -26,7 +26,7 @@ const DetectedInput = preload("res://addons/stray_combat_framework/src/input/det
 
 const Condition = preload("conditions/condition.gd")
 const StringCondition = preload("conditions/string_condition.gd")
-const Situation = preload("situation.gd")
+const CombatTree = preload("combat_tree.gd")
 const CombatState = preload("combat_state.gd")
 
 export(FrameData) var frame_data: int
@@ -38,8 +38,8 @@ export(ProcessMode) var process_mode: int
 var condition_by_name: Dictionary
 
 var _input_buffer: Array
-var _situations: Array
-var _current_situation: Situation
+var _combat_trees: Array
+var _current_tree: CombatTree
 var _current_state: CombatState
 var _condition_by_name: Dictionary
 var _my_states: Array
@@ -57,12 +57,12 @@ func _physics_process(delta: float) -> void:
 
 		
 func advance(delta: float) -> void:
-	if active and _current_situation != null:
-		var next_transition := _current_situation.get_next_transition(_condition_by_name)
+	if active and _current_tree != null:
+		var next_transition := _current_tree.get_next_transition(_condition_by_name)
 		if next_transition != null:
-			var prev_situation: Situation = _current_situation
-			set_situation(next_transition.to)
-			emit_signal("situation_changed", prev_situation, _current_situation)
+			var prev_tree: CombatTree = _current_tree
+			set_current_tree(next_transition.to)
+			emit_signal("tree_changed", prev_tree, _current_tree)
 
 		if not _input_buffer.empty():
 			if frame_data == FrameData.RECOVERY or frame_data == FrameData.NEUTRAL:
@@ -74,7 +74,7 @@ func advance(delta: float) -> void:
 					_current_state = next_chain.to
 					_time_since_last_input = OS.get_ticks_msec() / 1000.0
 					_input_buffer.pop_front()
-					emit_signal("state_changed", prev_state, _current_state)
+					emit_signal("tree_changed", prev_state, _current_state)
 
 			for buffered_input in _input_buffer:
 				if buffered_input.time_in_buffer >= input_max_time_in_buffer:
@@ -95,28 +95,28 @@ func buffer_input(detected_input: DetectedInput) -> void:
 
 
 func revert_to_root() -> void:
-	if _current_situation == null:
-		push_warning("Failed to revert to root. Current situation is not set")
+	if _current_tree == null:
+		push_warning("Failed to revert to root. Current combat tree is not set")
 		return
 
-	_current_state = _current_situation.get_root()
+	_current_state = _current_tree.get_root()
 
 
-func add_situation(situation: Situation) -> void:
-	if _situations.has(situation):
-		push_warning("Situation has already been added.")
-		return
-	
-	_situations.append(situation)
-
-
-func set_situation(situation: Situation) -> void:
-	if not _situations.has(situation):
-		push_warning("The given situation does not exist within tree.")
+func add_tree(combat_tree: CombatTree) -> void:
+	if _combat_trees.has(combat_tree):
+		push_warning("Combat tree has already been added.")
 		return
 	
-	_current_situation = situation
-	_current_state = situation.get_root()
+	_combat_trees.append(combat_tree)
+
+
+func set_current_tree(combat_tree: CombatTree) -> void:
+	if not _combat_trees.has(combat_tree):
+		push_warning("The given combat tree does not exist within this CombatFSM.")
+		return
+	
+	_current_tree = combat_tree
+	_current_state = combat_tree.get_root()
 	
 
 func set_condition(condition_name: String, value: bool) -> void:
@@ -129,11 +129,11 @@ func set_all_conditions(value: bool) -> void:
 
 
 func is_current_state_root() -> bool:
-	if _current_situation == null:
-		push_error("Failed to check current state. Current situation not set.")
+	if _current_tree == null:
+		push_error("Failed to check current state. Current combat tree is not set.")
 		return false
 	
-	return _current_state == _current_situation.get_root()
+	return _current_state == _current_tree.get_root()
 	pass
 
 
