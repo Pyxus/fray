@@ -19,9 +19,12 @@ const CombatTree = preload("src/combat/state_management/combat_tree.gd")
 const InputData = preload("src/combat/state_management/transitions/input_data/input_data.gd")
 const SequenceInputData = preload("src/combat/state_management/transitions/input_data/sequence_input_data.gd")
 const VirtualInputData = preload("src/combat/state_management/transitions/input_data/virtual_input_data.gd")
-const CombatAnimation = preload("res://addons/stray_combat_framework/src/combat/state_management/animation/combat_animation.gd")
-const ConditionalAnimation = preload("res://addons/stray_combat_framework/src/combat/state_management/animation/conditional_animation.gd")
 const StringCondition = preload("res://addons/stray_combat_framework/src/combat/state_management/conditions/string_condition.gd")
+
+# Combat - Animation
+const CombatAnimationPlayer = preload("res://addons/stray_combat_framework/src/combat/animation/combat_animation_player.gd")
+const CombatAnimation = preload("res://addons/stray_combat_framework/src/combat/animation/combat_animation.gd")
+const ConditionalAnimation = preload("res://addons/stray_combat_framework/src/combat/animation/conditional_animation.gd")
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")

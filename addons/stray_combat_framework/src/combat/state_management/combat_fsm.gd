@@ -74,7 +74,7 @@ func advance(delta: float) -> void:
 					_current_state = next_chain.to
 					_time_since_last_input = OS.get_ticks_msec() / 1000.0
 					_input_buffer.pop_front()
-					emit_signal("tree_changed", prev_state, _current_state)
+					emit_signal("state_changed", prev_state, _current_state)
 
 			for buffered_input in _input_buffer:
 				if buffered_input.time_in_buffer >= input_max_time_in_buffer:
@@ -117,7 +117,7 @@ func set_current_tree(combat_tree: CombatTree) -> void:
 	
 	_current_tree = combat_tree
 	_current_state = combat_tree.get_root()
-	
+
 
 func set_condition(condition_name: String, value: bool) -> void:
 	_condition_by_name[condition_name] = value
@@ -128,6 +128,14 @@ func set_all_conditions(value: bool) -> void:
 		_condition_by_name[condition_name] = value
 
 
+func get_current_tree() -> CombatTree:
+	return _current_tree
+
+
+func get_current_state() -> CombatState:
+	return _current_state
+
+	
 func is_current_state_root() -> bool:
 	if _current_tree == null:
 		push_error("Failed to check current state. Current combat tree is not set.")

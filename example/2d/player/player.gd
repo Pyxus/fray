@@ -18,6 +18,7 @@ enum VInput {
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
 onready var combat_fsm: StrayCF.CombatFSM = get_node("CombatFSM")
 onready var ground_cast: RayCast2D = get_node("GroundCast")
+onready var combat_animation_player: StrayCF.CombatAnimationPlayer = get_node("AnimationPlayer")
 
 var max_jump_count: int = 1
 var jump_count: int = 0
@@ -58,28 +59,28 @@ func _ready() -> void:
 	var standing_animation := StrayCF.CombatAnimation.new("idle")
 	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_forward", StrayCF.StringCondition.new("is_walking_forward")))
 	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_backward", StrayCF.StringCondition.new("is_walking_backward")))
-	combat_fsm.associate_state_with_animation(standing_root, standing_animation)
+	combat_animation_player.associate_state_with_animation(standing_root, standing_animation)
 	
 	var standing_punch := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new("5p"))
+	combat_animation_player.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new("5p"))
 	
 	var standing_slash := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new("5s"))
+	combat_animation_player.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new("5s"))
 	
 	var standing_heavy := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new("5h"))
+	combat_animation_player.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new("5h"))
 	
 	var standing_kick := StrayCF.CombatState.new("normal")
-	combat_fsm.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new("5k"))
+	combat_animation_player.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new("5k"))
 	
 	var jump_neutral_start := StrayCF.CombatState.new("jump")
-	combat_fsm.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new("jump_neutral_start"))
+	combat_animation_player.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new("jump_neutral_start"))
 	
 	var jump_forward_start := StrayCF.CombatState.new("jump")
-	combat_fsm.associate_state_with_animation(jump_forward_start, StrayCF.CombatAnimation.new("jump_forward_start"))
+	combat_animation_player.associate_state_with_animation(jump_forward_start, StrayCF.CombatAnimation.new("jump_forward_start"))
 	
 	var jump_backward_start := StrayCF.CombatState.new("jump")
-	combat_fsm.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new("jump_backward_start"))
+	combat_animation_player.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new("jump_backward_start"))
 	
 	# Air States
 	var sitch_in_air := StrayCF.CombatTree.new()
@@ -91,7 +92,7 @@ func _ready() -> void:
 	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("fall_backward", StrayCF.StringCondition.new("is_falling_backward")))
 	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_forward", StrayCF.StringCondition.new("is_jumping_forward")))
 	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_backward", StrayCF.StringCondition.new("is_jumping_backward")))
-	combat_fsm.associate_state_with_animation(in_air_root, in_air_animation)
+	combat_animation_player.associate_state_with_animation(in_air_root, in_air_animation)
 	
 	# Chaining
 	#sitch_standing.add_global_chain_to(jump_neutral_start, up_input_data)
@@ -147,7 +148,6 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 			jump_count += 1
 
 	if is_on_floor(true):
-		print("On Floor: ", OS.get_ticks_msec())
 		combat_fsm.set_condition("is_on_ground", true)
 		jump_count = 0
 		
@@ -157,17 +157,14 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 		if not is_force_resolution_allowed():
 			if input_detector.is_input_pressed(VInput.RIGHT):
 				state.linear_velocity.x = 300
-				$AnimationTree["parameters/playback"].travel("walk_forward")
 				combat_fsm.set_condition("is_walking_forward", true)
 			elif input_detector.is_input_pressed(VInput.LEFT):
 				state.linear_velocity.x = -300
-				$AnimationTree["parameters/playback"].travel("walk_backward")
 				combat_fsm.set_condition("is_walking_backward", true)
 			else:
 				state.linear_velocity.x = 0
 				pass
 	else:
-		print("In Air: ", OS.get_ticks_msec())
 		combat_fsm.set_condition("is_in_air", true)
 		
 		if state.linear_velocity.y > 0:
