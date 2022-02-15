@@ -56,42 +56,42 @@ func _ready() -> void:
 	combat_fsm.add_tree(sitch_standing)
 
 	var standing_root := sitch_standing.get_root()
-	var standing_animation := StrayCF.CombatAnimation.new("idle")
-	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_forward", StrayCF.StringCondition.new("is_walking_forward")))
-	standing_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("walk_backward", StrayCF.StringCondition.new("is_walking_backward")))
+	var standing_animation := StrayCF.CombatAnimation.new(["idle"])
+	standing_animation.add_conditional_animation(StrayCF.StringCondition.new("is_walking_forward"), ["walk_forward"])
+	standing_animation.add_conditional_animation(StrayCF.StringCondition.new("is_walking_backward"), ["walk_backward"])
 	combat_animation_player.associate_state_with_animation(standing_root, standing_animation)
 	
 	var standing_punch := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new("5p"))
+	combat_animation_player.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new(["5p"]))
 	
 	var standing_slash := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new("5s"))
+	combat_animation_player.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new(["5s"]))
 	
 	var standing_heavy := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new("5h"))
+	combat_animation_player.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new(["5h"]))
 	
 	var standing_kick := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new("5k"))
+	combat_animation_player.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new(["5k"]))
 	
 	var jump_neutral_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new("jump_neutral_start"))
+	combat_animation_player.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new(["jump_neutral_start"]))
 	
 	var jump_forward_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_forward_start, StrayCF.CombatAnimation.new("jump_forward_start"))
+	combat_animation_player.associate_state_with_animation(jump_forward_start, StrayCF.CombatAnimation.new(["jump_forward_start"]))
 	
 	var jump_backward_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new("jump_backward_start"))
+	combat_animation_player.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new(["jump_backward_start"]))
 	
 	# Air States
 	var sitch_in_air := StrayCF.CombatTree.new()
 	combat_fsm.add_tree(sitch_in_air)
 	
 	var in_air_root := sitch_in_air.get_root()
-	var in_air_animation := StrayCF.CombatAnimation.new("fall_neutral")
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("fall_forward", StrayCF.StringCondition.new("is_falling_forward")))
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("fall_backward", StrayCF.StringCondition.new("is_falling_backward")))
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_forward", StrayCF.StringCondition.new("is_jumping_forward")))
-	in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_backward", StrayCF.StringCondition.new("is_jumping_backward")))
+	var in_air_animation := StrayCF.CombatAnimation.new(["fall_neutral"])
+	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_falling_forward"), ["fall_forward"])
+	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_falling_backward"), ["fall_backward"])
+	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_jumping_forward"), ["jump_forward"])
+	#in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_backward", StrayCF.StringCondition.new("is_jumping_backward")))
 	combat_animation_player.associate_state_with_animation(in_air_root, in_air_animation)
 	
 	# Chaining
