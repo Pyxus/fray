@@ -90,8 +90,7 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 				if node.is_connected("activated", self, "_on_HitState_activated"):
 					node.disconnect("activated", self, "_on_HitState_activated")
 					node.set_boxes_belong_to(null)
-	
-	
+
 
 func _on_HitState_activated(hit_state: HitState2D) -> void:
 	if switch_on_state_activated:
