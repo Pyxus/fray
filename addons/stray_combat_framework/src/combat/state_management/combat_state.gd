@@ -10,9 +10,9 @@ const SequenceInputData = preload("transitions/input_data/input_data.gd")
 const VirtualInputData = preload("transitions/input_data/virtual_input_data.gd")
 const StringCondition = preload("conditions/string_condition.gd")
 
-var Chain = load("res://addons/stray_combat_framework/src/combat/state_management/transitions/chain.gd")
-var CombatTree = load("res://addons/stray_combat_framework/src/combat/state_management/combat_tree.gd")
-var CombatState = load("res://addons/stray_combat_framework/src/combat/state_management/combat_state.gd")
+var Chain: GDScript = load("res://addons/stray_combat_framework/src/combat/state_management/transitions/chain.gd")
+var CombatTree: GDScript = load("res://addons/stray_combat_framework/src/combat/state_management/combat_tree.gd")
+var CombatState: GDScript = load("res://addons/stray_combat_framework/src/combat/state_management/combat_state.gd")
 
 var tag: String
 var tree: Resource setget set_tree, get_tree

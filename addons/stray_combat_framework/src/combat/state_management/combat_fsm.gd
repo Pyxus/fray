@@ -3,11 +3,14 @@ extends Node
 signal tree_changed(from, to)
 signal state_changed(from, to) 
 
-#TODO: Consider just going with UNCHAINABLE and CHAINABLE or something similar for frame data
+# TODO: Consider just going with UNCHAINABLE and CHAINABLE or something similar for frame data
 # Neutral/Recovery just means chaining is allowed
 # START_UP/ACTIVE/ACTIVE_GAP just means chaining is not allowed
 # At the moment they're redundant.
 # Better yet since its boolean just use a can_chain property
+
+# TODO: Add support for unique state names
+# Would allow for refering to states by string names.
 enum FrameData {
 	NEUTRAL,
 	START_UP,
@@ -35,7 +38,6 @@ export var input_max_time_in_buffer: float = 0.1
 export var active: bool
 export(ProcessMode) var process_mode: int 
 
-var condition_by_name: Dictionary
 
 var _input_buffer: Array
 var _combat_trees: Array
@@ -99,6 +101,7 @@ func revert_to_root() -> void:
 		push_warning("Failed to revert to root. Current combat tree is not set")
 		return
 
+	emit_signal("state_changed", _current_state, _current_tree.get_root())
 	_current_state = _current_tree.get_root()
 
 

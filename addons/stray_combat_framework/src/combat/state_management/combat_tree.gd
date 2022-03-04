@@ -1,6 +1,5 @@
 extends Resource
 
-const Transition = preload("transitions/transition.gd")
 const CombatTreeTransition = preload("transitions/combat_tree_transition.gd")
 const Chain = preload("transitions/chain.gd")
 const CombatState = preload("combat_state.gd")
@@ -12,7 +11,6 @@ var CombatTree = load("res://addons/stray_combat_framework/src/combat/state_mana
 var name: String
 
 var _root := CombatState.new()
-var _states: Array
 var _next_tree_transitions: Array
 var _associated_states: Array 
 
@@ -45,7 +43,7 @@ func add_transition_to(combat_tree: Resource, advance_condition: Condition) -> v
 	transition.to = combat_tree
 
 	_next_tree_transitions.append(transition)
-	_next_tree_transitions.sort_custom(Transition.PrioritySorter, "sort_ascending")
+	_next_tree_transitions.sort_custom(CombatTreeTransition.PrioritySorter, "sort_ascending")
 
 
 func has_transition_to(combat_tree: Resource) -> bool:
@@ -58,7 +56,7 @@ func has_transition_to(combat_tree: Resource) -> bool:
 	return false
 
 
-func get_next_transition(condition_dict: Dictionary) -> Transition:
+func get_next_transition(condition_dict: Dictionary) -> CombatTreeTransition:
 	for tree_transition in _next_tree_transitions:
 		var condition: Condition = tree_transition.advance_condition
 		if condition is StringCondition:
@@ -76,7 +74,7 @@ func add_global_chain_to(to_state: CombatState, input_data: InputData, chain_con
 
 	associate_state(to_state)
 	_global_chains.append(chain)
-	_global_chains.sort_custom(Transition.PrioritySorter, "sort_ascending")
+	_global_chains.sort_custom(Chain.PrioritySorter, "sort_ascending")
 
 
 func add_global_transition_rule(from_tag: String, to_tags: PoolStringArray) -> void:

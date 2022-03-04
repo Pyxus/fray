@@ -1,6 +1,6 @@
 extends AnimationPlayer
 
-const Util = preload("res://addons/stray_combat_framework/lib/util.gd")
+const Util = preload("res://addons/stray_combat_framework/lib/utils/util.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const CombatFSM = preload("../state_management/combat_fsm.gd")
@@ -10,6 +10,8 @@ const CombatTree = preload("../state_management/combat_tree.gd")
 const CombatState = preload("../state_management/combat_state.gd")
 
 const CombatAnimation = preload("combat_animation.gd")
+const AnimationTransition = preload("animation_transition.gd")
+const AnimationState = preload("animation_state.gd")
 
 export var combat_fsm: NodePath setget set_combat_fsm
 export var input_detector: NodePath setget set_input_detector
@@ -19,11 +21,10 @@ var _input_detector: InputDetector
 var _anim_by_state: Dictionary
 var _anim_by_state_transition: Dictionary
 var _anim_by_combat_tree_transition: Dictionary
-var _state_anim_queue: Array
-var _transition_anim_queue: Array
-var _next_animation: String
-var _is_playing_transition_anim: bool
-var _prev_root_anim_queue_hash: int
+var _current_combat_animation: CombatAnimation
+var _next_combat_animation: CombatAnimation
+var _current_animation_state: AnimationState
+var _next_animation_state: AnimationState
 
 
 func _ready() -> void:
@@ -36,16 +37,33 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if _combat_fsm.active and _combat_fsm.is_current_state_root():
-		var current_state = _combat_fsm.get_current_state()
-		var combat_anim := get_state_animation(current_state)
-		var anim_queue := _get_animation_queue(combat_anim)
-		var queue_hash := anim_queue.hash()
+	if _current_combat_animation != null:
+		var next_anim_transition: AnimationTransition = _current_animation_state.get_next_transition(_combat_fsm._condition_by_name)
+		if next_anim_transition != null:
+			match next_anim_transition.switch_mode:
+				AnimationTransition.SwitchMode.IMMEDIATE:
+					_current_animation_state = next_anim_transition.to
+					play(_current_animation_state.animation)
+				AnimationTransition.SwitchMode.SYNCHRONIZED:
+					#TODO: Sychronized is identical to immediate at the moment
+					_current_animation_state = next_anim_transition.to
+					play(_current_animation_state.animation)
+				AnimationTransition.SwitchMode.END:
+					_next_animation_state = next_anim_transition.to
+		else:
+			var condition: Condition = _current_animation_state.active_condition
+			if condition is StringCondition and _current_animation_state != _current_combat_animation.root:
+				if _combat_fsm._condition_by_name.has(condition.condition_name) and !_combat_fsm._condition_by_name[condition.condition_name]:
+					if _next_combat_animation != null and _current_combat_animation != _next_combat_animation:
+						_current_combat_animation = _next_combat_animation
+						_current_animation_state = _current_animation_state.root
+						_next_combat_animation = null
+						play(_current_animation_state.animation)
+					elif _current_animation_state != _current_combat_animation.root: 
+						_current_animation_state = _current_combat_animation.root
+						play(_current_animation_state.animation)
 		
-		if anim_queue.hash() != _prev_root_anim_queue_hash:
-			_prev_root_anim_queue_hash = queue_hash
-			_state_anim_queue += anim_queue
-			_play_next_state_animation()
+
 		
 		
 func associate_state_with_animation(state: CombatState, combat_animation: CombatAnimation) -> void:
@@ -82,14 +100,6 @@ func associate_tree_transition_with_animation(from: CombatTree, to: CombatTree, 
 	_anim_by_combat_tree_transition[transition_tuple] = combat_animation
 
 
-func _get_animation_queue(combat_animation: CombatAnimation) -> Array:
-	for conditional_anim in combat_animation.conditional_animations:
-		if _combat_fsm.is_condition_true(conditional_anim.condition):
-			return conditional_anim.animation_queue
-			
-	return combat_animation.default_animation_queue
-
-
 func set_combat_fsm(value: NodePath) -> void:
 	combat_fsm = value
 
@@ -116,82 +126,44 @@ func set_input_detector(value: NodePath) -> void:
 		Util.safe_connect(_input_detector, "input_detected", self, "_on_InputDetector_input_detected")
 
 
-func _play_next_transition_animation() -> void:
-	var next_anim: String = _transition_anim_queue.pop_front()
-	if not has_animation(next_anim):
-		push_error("Failed to play transition animation. No animation in CombatAnimationPlayer named '%s'." % next_anim)
-		_combat_fsm.revert_to_root()
-		return
-	
-	var animation := get_animation(next_anim)
-	if animation.loop:
-		push_warning("Animatnion '%s' is set to loop. Transition will never end." % next_anim)
-
-	play(next_anim)
-
-
-func _play_next_state_animation() -> void:
-	var next_anim: String = _state_anim_queue.pop_front()
-	if not has_animation(next_anim):
-		push_error("Failed to play state animation. No animation in CombatAnimationPlayer named '%s'." % next_anim)
-
-	var animation := get_animation(next_anim)
-	if animation.loop:
-		if not _state_anim_queue.empty():
-			push_warning("Animation '%s' is set to loop but another animation exist witin the state animation queue. The next animation will not play." % next_anim)
-	
-		if not _combat_fsm.is_current_state_root():
-			push_warning("Animation '%s' is set to loop in a non-root state. This state can not automatically revert to root." % next_anim)
-
-	play(next_anim)
-
-
-func _determine_next_animation_play(to: CombatState, transition_anim: CombatAnimation) -> void:
-	_transition_anim_queue.clear()
-	_state_anim_queue.clear()
-
-	if transition_anim != null:
-		_transition_anim_queue += _get_animation_queue(transition_anim)
-
-	if not _transition_anim_queue.empty():
-		_play_next_transition_animation()
-	else:
-		var to_state_anim := get_state_animation(to)
-		if to_state_anim == null:
-			push_error("State changed but no animation associated with new state '%s'. Reverting to root" % to)
-			_combat_fsm.revert_to_root()
-			return
-		
-		_state_anim_queue += _get_animation_queue(to_state_anim)
-		_play_next_state_animation()
-
 
 func _on_animation_finished(animation: String) -> void:
-	if not _transition_anim_queue.empty():
-		_play_next_transition_animation()
-	elif not _state_anim_queue.empty():
-		_play_next_state_animation()
+	if _next_animation_state != null:
+		_current_animation_state = _next_animation_state
+		_next_animation_state = null
+		play(_current_animation_state.animation)
+	elif _next_combat_animation != null:
+		_current_combat_animation = _next_combat_animation
+		_current_animation_state = _current_combat_animation.root
+		_next_combat_animation = null
+		play(_current_animation_state.animation)
 	elif not _combat_fsm.is_current_state_root():
-		var current_state := _combat_fsm.get_current_state()
-		var current_animation = get_state_animation(current_state)
-		if not current_animation.has_animation(animation):
-			push_warning("Recently finished animation '%s' is not associated with the current combat state '%s'. Animation may have been played externally." % [animation, current_state])
-
 		_combat_fsm.revert_to_root()
-		_prev_root_anim_queue_hash = -1
 
 
 func _on_CombatFSM_state_changed(from: CombatState, to: CombatState) -> void:
 	var transition_anim: CombatAnimation = get_state_transition_animation(from, to)
-	_determine_next_animation_play(to, transition_anim)
+	_play_combat_animation(to, transition_anim)
 		
 
 func _on_CombatFSM_tree_changed(from: CombatTree, to: CombatTree) -> void:
 	var transition_anim: CombatAnimation = get_tree_transition_animation(from, to)
-	_determine_next_animation_play(to.get_root(), transition_anim)
+	_play_combat_animation(to.get_root(), transition_anim)
 
 
-# TODO: The AnimationPlayer should not be responsible for buffering inputs for the state machine
+func _play_combat_animation(combat_state: CombatState, transition_anim: CombatAnimation = null) -> void:
+	if transition_anim != null:
+		_current_combat_animation = transition_anim
+		_current_animation_state = transition_anim.root
+		_next_combat_animation = get_state_animation(combat_state)
+		play(_current_animation_state.animation)
+	else:
+		_current_combat_animation = get_state_animation(combat_state)
+		_current_animation_state = _current_combat_animation.root
+		play(_current_animation_state.animation)
+		
+# TODO: Move autobuffering to CombatFSM 
+# The AnimationPlayer should not be responsible for buffering inputs for the state machine
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	_combat_fsm.buffer_input(detected_input)
 

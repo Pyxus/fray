@@ -22,9 +22,9 @@ const VirtualInputData = preload("src/combat/state_management/transitions/input_
 const StringCondition = preload("res://addons/stray_combat_framework/src/combat/state_management/conditions/string_condition.gd")
 
 # Combat - Animation
-const CombatAnimationPlayer = preload("res://addons/stray_combat_framework/src/combat/animation/combat_animation_player.gd")
-const CombatAnimation = preload("res://addons/stray_combat_framework/src/combat/animation/combat_animation.gd")
-const ConditionalAnimation = preload("res://addons/stray_combat_framework/src/combat/animation/conditional_animation.gd")
+const CombatAnimationPlayer = preload("res://addons/stray_combat_framework/src/combat/state_management/combat_animation_player.gd")
+const CombatAnimation = preload("res://addons/stray_combat_framework/src/combat/state_management/combat_animation.gd")
+const AnimationState = preload("res://addons/stray_combat_framework/src/combat/state_management/animation_state.gd")
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")

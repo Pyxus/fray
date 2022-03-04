@@ -44,7 +44,7 @@ func _notification(what: int) -> void:
 	# Perhaps a better setup is needed... but for now this seems to work
 	if what == NOTIFICATION_PREDELETE:
 		_input_by_id.clear()
-		
+
 		
 func is_input_pressed(input_id: int) -> bool:
 	if not _input_by_id.has(input_id):

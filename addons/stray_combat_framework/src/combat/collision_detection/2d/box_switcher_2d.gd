@@ -14,8 +14,8 @@ signal active_box_set()
 
 const NONE = -1
 
-const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/reversable_dictionary.gd")
-const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
+const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/data_structures/reversable_dictionary.gd")
+const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/misc/child_change_detector.gd")
 
 const HitBox2D = preload("hit_box_2d.gd")
 const RigidPushBox2D = preload("body/rigid_push_box_2d.gd")

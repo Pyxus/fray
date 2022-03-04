@@ -10,7 +10,7 @@ extends Node2D
 
 const NONE = -1
 
-const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/child_change_detector.gd")
+const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/misc/child_change_detector.gd")
 
 const HitState2D = preload("hit_state_2d.gd")
 

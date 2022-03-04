@@ -9,7 +9,7 @@ enum Change{
 	SCRIPT_CHANGED,
 }
 
-const Util = preload("util.gd")
+const Util = preload("res://addons/stray_combat_framework/lib/utils/util.gd")
 
 var _parent: Node
 
