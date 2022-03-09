@@ -25,6 +25,7 @@ enum ProcessMode {
 	MANUAL
 }
 
+const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
 const Condition = preload("conditions/condition.gd")
@@ -32,12 +33,14 @@ const StringCondition = preload("conditions/string_condition.gd")
 const CombatTree = preload("combat_tree.gd")
 const CombatState = preload("combat_state.gd")
 
+export var input_detector: NodePath
 export(FrameData) var frame_data: int
 export var input_buffer_max_size: int = 3
 export var input_max_time_in_buffer: float = 0.1
 export var active: bool
 export(ProcessMode) var process_mode: int 
 
+onready var _input_detector: InputDetector
 
 var _input_buffer: Array
 var _combat_trees: Array
@@ -48,6 +51,12 @@ var _my_states: Array
 var _time_since_last_input: float
 
 
+func _ready() -> void:
+	_input_detector = get_node_or_null(input_detector)
+	
+	if _input_detector != null:
+		_input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
+		
 func _process(delta: float) -> void:
 	if process_mode == ProcessMode.IDLE:
 		advance(delta)
@@ -158,6 +167,10 @@ func is_condition_true(condition: Condition) -> bool:
 		
 		return _condition_by_name[condition.condition_name]
 	return true
+
+
+func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
+	buffer_input(detected_input)
 
 
 class BufferedDetectedInput:

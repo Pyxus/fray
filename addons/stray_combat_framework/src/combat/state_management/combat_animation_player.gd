@@ -1,6 +1,5 @@
 extends AnimationPlayer
 
-const Util = preload("res://addons/stray_combat_framework/lib/utils/util.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const CombatFSM = preload("../state_management/combat_fsm.gd")
@@ -13,11 +12,9 @@ const CombatAnimation = preload("combat_animation.gd")
 const AnimationTransition = preload("animation_transition.gd")
 const AnimationState = preload("animation_state.gd")
 
-export var combat_fsm: NodePath setget set_combat_fsm
-export var input_detector: NodePath setget set_input_detector
+export var combat_fsm: NodePath
 
 var _combat_fsm: CombatFSM
-var _input_detector: InputDetector
 var _anim_by_state: Dictionary
 var _anim_by_state_transition: Dictionary
 var _anim_by_combat_tree_transition: Dictionary
@@ -29,9 +26,9 @@ var _next_animation_state: AnimationState
 
 func _ready() -> void:
 	_combat_fsm = get_node_or_null(combat_fsm)
-	_input_detector = get_node_or_null(input_detector)
-	set_combat_fsm(combat_fsm)
-	set_input_detector(input_detector)
+	if _combat_fsm != null:
+		_combat_fsm.connect("state_changed", self, "_on_CombatFSM_state_changed")
+		_combat_fsm.connect("tree_changed", self, "_on_CombatFSM_tree_changed")
 
 	connect("animation_finished", self, "_on_animation_finished")
 
@@ -63,9 +60,14 @@ func _process(delta: float) -> void:
 						_current_animation_state = _current_combat_animation.root
 						play(_current_animation_state.animation)
 		
+func reset() -> void:
+	if current_animation.empty():
+		push_warning("Failed to reset. An animation was never played.")
+		return
 
-		
-		
+	stop()
+	play()
+	
 func associate_state_with_animation(state: CombatState, combat_animation: CombatAnimation) -> void:
 	_anim_by_state[state] = combat_animation
 
@@ -98,34 +100,7 @@ func associate_state_transition_with_animation(from: CombatState, to: CombatStat
 func associate_tree_transition_with_animation(from: CombatTree, to: CombatTree, combat_animation: CombatAnimation) -> void:
 	var transition_tuple := [from, to]
 	_anim_by_combat_tree_transition[transition_tuple] = combat_animation
-
-
-func set_combat_fsm(value: NodePath) -> void:
-	combat_fsm = value
-
-	if _combat_fsm != null:
-		Util.safe_disconnect(_combat_fsm, "state_changed", self, "_on_CombatFSM_state_changed")
-		Util.safe_disconnect(_combat_fsm, "tree_changed", self, "_on_CombatFSM_tree_changed")
-
-		_combat_fsm = get_node_or_null(combat_fsm)
-
-	if _combat_fsm != null:
-		Util.safe_connect(_combat_fsm, "state_changed", self, "_on_CombatFSM_state_changed")
-		Util.safe_connect(_combat_fsm, "tree_changed", self, "_on_CombatFSM_tree_changed")
-
-
-func set_input_detector(value: NodePath) -> void:
-	input_detector = value
-
-	if _input_detector != null:
-		Util.safe_disconnect(_input_detector, "input_detected", self, "_on_InputDetector_input_detected")
-
-	_input_detector = get_node_or_null(input_detector)
-
-	if _input_detector != null:
-		Util.safe_connect(_input_detector, "input_detected", self, "_on_InputDetector_input_detected")
-
-
+	
 
 func _on_animation_finished(animation: String) -> void:
 	if _next_animation_state != null:
@@ -161,12 +136,3 @@ func _play_combat_animation(combat_state: CombatState, transition_anim: CombatAn
 		_current_combat_animation = get_state_animation(combat_state)
 		_current_animation_state = _current_combat_animation.root
 		play(_current_animation_state.animation)
-		
-# TODO: Move autobuffering to CombatFSM 
-# The AnimationPlayer should not be responsible for buffering inputs for the state machine
-func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
-	_combat_fsm.buffer_input(detected_input)
-
-
-class QueuedAnimation:
-	extends Reference

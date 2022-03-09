@@ -14,6 +14,7 @@ var Chain: GDScript = load("res://addons/stray_combat_framework/src/combat/state
 var CombatTree: GDScript = load("res://addons/stray_combat_framework/src/combat/state_management/combat_tree.gd")
 var CombatState: GDScript = load("res://addons/stray_combat_framework/src/combat/state_management/combat_state.gd")
 
+var name: String
 var tag: String
 var tree: Resource setget set_tree, get_tree
 
