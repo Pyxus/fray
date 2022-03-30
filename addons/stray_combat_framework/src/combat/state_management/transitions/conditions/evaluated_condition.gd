@@ -20,7 +20,10 @@ export var expression_node: NodePath
 #onready variables
 
 
-#optional built-in virtual _init method
+func _init(ev_condition: String = "", ev_expression: String = "", ev_expression_node: NodePath = "") -> void:
+    condition = ev_condition
+    expression = ev_expression
+    expression_node = ev_expression_node
 
 #built-in virtual _ready method
 

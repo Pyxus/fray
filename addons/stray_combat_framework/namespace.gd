@@ -13,22 +13,20 @@ const AttackAttributes = preload("src/combat/collision_detection/hit_attributes/
 const HurtAttributes = preload("src/combat/collision_detection/hit_attributes/hurt_attributes.gd")
 
 # Combat - State Management
-const CombatState = preload("src/combat/state_management/combat_state.gd")
+const CombatTree = preload("src/combat/combat_tree.gd")
 const CombatFSM = preload("src/combat/state_management/combat_fsm.gd")
-const CombatTree = preload("src/combat/state_management/combat_tree.gd")
-const InputData = preload("src/combat/state_management/transitions/input_data/input_data.gd")
-const SequenceInputData = preload("src/combat/state_management/transitions/input_data/sequence_input_data.gd")
-const VirtualInputData = preload("src/combat/state_management/transitions/input_data/virtual_input_data.gd")
-const StringCondition = preload("res://addons/stray_combat_framework/src/combat/state_management/conditions/string_condition.gd")
-
-# Combat - Animation
-const CombatAnimationPlayer = preload("res://addons/stray_combat_framework/src/combat/state_management/combat_animation_player.gd")
-const CombatAnimation = preload("res://addons/stray_combat_framework/src/combat/state_management/combat_animation.gd")
-const AnimationState = preload("res://addons/stray_combat_framework/src/combat/state_management/animation_state.gd")
+const CombatState = preload("src/combat/state_management/combat_state.gd")
+const CombatSituationFSM = preload("src/combat/state_management/combat_situation_fsm.gd")
+const CombatSituationState = preload("src/combat/state_management/combat_situation_state.gd")
+const EvaluatedCondition = preload("src/combat/state_management/transitions/conditions/evaluated_condition.gd")
+const InputCondition = preload("src/combat/state_management/transitions/conditions/input_condition.gd")
+const SequenceInputCondition = preload("src/combat/state_management/transitions/conditions/sequence_input_condition.gd")
+const VirtualInputCondition = preload("src/combat/state_management/transitions/conditions/virtual_input_condition.gd")
+const CombatTransition = preload("src/combat/state_management/transitions/combat_transition.gd")
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")
 const DetectedInput = preload("src/input/detected_inputs/detected_input.gd")
 const DetectedSequence = preload("src/input/detected_inputs/detected_sequence.gd")
 const DetectedVirtualInput = preload("src/input/detected_inputs/detected_virtual_input.gd")
-const SequenceData = preload("res://addons/stray_combat_framework/src/input/sequence/sequence_data.gd")
+const SequenceData = preload("src/input/sequence/sequence_data.gd")

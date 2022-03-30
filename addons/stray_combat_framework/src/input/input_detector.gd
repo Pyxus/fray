@@ -18,8 +18,6 @@ signal input_detected(detected_input)
 
 export var buffer_duration: float = 1
 
-var press_checks_enabled: bool
-
 var _time_since_first_input: float
 var _input_by_id: Dictionary
 var _sequence_by_name: Dictionary
@@ -50,21 +48,21 @@ func is_input_pressed(input_id: int) -> bool:
 	if not _input_by_id.has(input_id):
 		push_warning("Input with id %d does not exist" % input_id)
 		return false
-	return _input_by_id[input_id].is_pressed() and press_checks_enabled
+	return _input_by_id[input_id].is_pressed()
 
 
 func is_input_just_pressed(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_pressed() and press_checks_enabled
+	return _input_by_id[id].is_just_pressed()
 
 
 func is_input_just_released(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_released() and press_checks_enabled
+	return _input_by_id[id].is_just_released()
 
 
 func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, owner_combination: CombinationInput = null) -> void:
@@ -172,12 +170,6 @@ func bind_mouse_input(id: int, button: int) -> void:
 	bind_virtual_input(id, mouse_input)
 
 
-func _feed_released_combination_components(input: CombinationInput, time_stamp: int) -> void:
-	for id in input.input_ids:
-		if is_input_pressed(id):
-			feed_input_at(time_stamp, id, 0, false, input)
-
-
 func _broadcast_input_detected(input_id: int, time_stamp: int, is_pressed: bool) -> void:
 	var detected_virtual_input := DetectedVirtualInput.new()
 	detected_virtual_input.input_id = input_id
@@ -220,7 +212,6 @@ func _check_for_inputs() -> void:
 
 			if virtual_input is CombinationInput and virtual_input.is_components_pressed_on_release:
 				virtual_input.release_components()
-				#call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
 
 		virtual_input.poll()
 	

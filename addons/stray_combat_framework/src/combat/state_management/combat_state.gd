@@ -22,8 +22,8 @@ var tags: PoolStringArray
 
 #built-in virtual _ready method
 
-#remaining built-in virtual methods
-
+func _init(state_tags: PoolStringArray = []) -> void:
+    tags = state_tags
 #public methods
 
 #private methods

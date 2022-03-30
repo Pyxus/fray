@@ -20,7 +20,7 @@ const TransitionData = preload("transition_data.gd")
 var initial_state: String setget set_initial_state
 var current_state: String setget set_current_state
 
-var _states: ReverseableDictionary # Dictionary<String, State>
+var _states := ReverseableDictionary.new() # Dictionary<String, State>
 var _transitions: Array # TransitionData[]
 var _condition_evaluator_func: FuncRef # func(string) -> bool
 
@@ -60,11 +60,11 @@ func add_state(name: String, state: State) -> void:
 		push_warning("failed to add state. State name can not be empty.")
 		return
 
-	if not _states.has_key(name):
+	if _states.has_key(name):
 		push_warning("Failed to add state. State with name %s already exists" % name)
 		return
 	
-	if not _states.has_value(state):
+	if _states.has_value(state):
 		push_warning("Failed to add state. State already added with name %s" % _states.get_key(state))
 		return
 		
@@ -129,6 +129,14 @@ func replace_state(name: String, state: State) -> void:
 	_states.add(name, state)
 
 
+func get_all_states() -> Array: # String[]
+	return _states.keys()
+
+
+func get_all_states_obj() -> Array: # State[]
+	return _states.values()
+
+	
 func get_state(name: String) -> State:
 	if not _states.has_key(name):
 		push_warning("Failed to get state. State %s does not exist" % name)

@@ -1,4 +1,4 @@
-extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
+extends "combat_tree_fsm.gd"
 ## docstring
 
 #signals
@@ -8,7 +8,6 @@ extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
 const CombatTransition = preload("transitions/combat_transition.gd")
-const CombatState = preload("combat_state.gd")
 
 #exported variables
 
@@ -87,6 +86,10 @@ func rename_state(name: String, new_name: String) -> bool:
 		add_global_transition(new_name, transition)
 
 	return true
+
+
+func get_combat_fsm() -> Resource: # CombatFSM
+    return self
 
 
 func _get_next_state(input: Object = null) -> String:

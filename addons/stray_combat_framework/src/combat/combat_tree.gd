@@ -16,15 +16,15 @@ const InputDetector = preload("res://addons/stray_combat_framework/src/input/inp
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
 const CombatFSM = preload("state_management/combat_fsm.gd")
+const CombatSituationFSM = preload("state_management/combat_situation_fsm.gd")
 
-export var situation_fsm: Resource # SituationFSM
+export var state_machine: Resource # CombatTreeFSM
 export var input_detector: NodePath
 export var active: bool
 export var allow_combat_transitions: bool
 export var input_buffer_max_size: int = 3
 export var input_max_time_in_buffer: float = 0.1
 export(ProcessMode) var process_mode: int setget set_process_mode
-export var use_external_condition_evaluator: bool
 
 #public variables
 
@@ -40,10 +40,11 @@ func _ready() -> void:
 	if _input_detector != null:
 		_input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
 
-	if situation_fsm != null:
-		situation_fsm.initialize()
+	if state_machine != null:
+		state_machine.initialize()
 
 	set_process_mode(process_mode)
+	_update_evaluator_functions()
 
 
 func _process(delta: float) -> void:
@@ -57,19 +58,21 @@ func _physics_process(delta: float) -> void:
 
 
 func advance(delta: float) -> void:
-	if situation_fsm == null:
+	if state_machine == null:
 		return
 
-	var combat_fsm := situation_fsm.get_current_state_obj() as CombatFSM
-	var previous_situation_state: String = situation_fsm.current_state
+	var combat_fsm: CombatFSM = state_machine.get_combat_fsm() as CombatFSM
 
-	if situation_fsm.advance():
-		combat_fsm = situation_fsm.get_current_state_obj() as CombatFSM
+	if state_machine is CombatSituationFSM:
+		var previous_situation_state: String = state_machine.current_state
 
-		if combat_fsm != null:
-			combat_fsm.initialize()
+		if state_machine.advance():
+			combat_fsm = state_machine.get_current_state_obj() as CombatFSM
 
-		emit_signal("situation_state_changed", previous_situation_state, situation_fsm.current_state)
+			if combat_fsm != null:
+				combat_fsm.initialize()
+
+			emit_signal("situation_state_changed", previous_situation_state, state_machine.current_state)
 
 	if combat_fsm == null:
 		return
@@ -120,12 +123,17 @@ func set_process_mode(value: int) -> void:
 
 func set_external_condition_evaluator(evaluation_func: FuncRef) -> void:
 	_external_condition_evaluator = evaluation_func
+	_update_evaluator_functions()
 
 
 func set_condition(condition: String, value: bool) -> void:
 	_conditions[condition] = value
 
 
+func clear_conditions() -> void:
+	_conditions.clear()
+
+	
 func is_condition_true(condition: String) -> bool:
 	if _conditions.has(condition):
 		return _conditions[condition]
@@ -133,7 +141,15 @@ func is_condition_true(condition: String) -> bool:
 	push_warning("Combat condition '%s' was never set" % condition)
 	return false
 
-#private methods
+
+func _update_evaluator_functions() -> void:
+	if _external_condition_evaluator != null and not _conditions.empty():
+		push_warning("Combat tree has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
+
+	if state_machine != null:
+		var evaluation_func: FuncRef = _external_condition_evaluator if _external_condition_evaluator != null else funcref(self, "is_condition_true")
+		state_machine.set_condition_evaluator(evaluation_func)
+
 
 func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	buffer_input(detected_input)

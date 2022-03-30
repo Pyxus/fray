@@ -18,7 +18,8 @@ var combat_fsm: CombatFSM
 #onready variables
 
 
-#optional built-in virtual _init method
+func _init(state_combat_fsm: CombatFSM = null) -> void:
+    self.combat_fsm = state_combat_fsm
 
 #built-in virtual _ready method
 

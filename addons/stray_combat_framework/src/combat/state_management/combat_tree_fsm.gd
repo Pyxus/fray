@@ -24,7 +24,8 @@ extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
 
 #remaining built-in virtual methods
 
-#public methods
+func get_combat_fsm() -> Resource: # CombatFSM
+    return null
 
 #private methods
 
