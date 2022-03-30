@@ -1,4 +1,4 @@
-extends Resource
+extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
 ## docstring
 
 #signals
