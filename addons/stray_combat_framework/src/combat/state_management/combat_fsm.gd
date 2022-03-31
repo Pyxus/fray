@@ -124,7 +124,7 @@ func _get_next_state(input: Object = null) -> String:
 	if input is DetectedInput:
 		var next_global_transitions := get_next_global_transitions(current_state)
 		var next_transitions := get_next_transitions(current_state)
-
+		
 		for transition_data in next_global_transitions + next_transitions:
 			var transition := transition_data.transition as CombatTransition
 			if transition == null:

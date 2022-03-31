@@ -1,5 +1,7 @@
 extends Node
 
+#TODO: Buffer works inconsistently
+
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("sequence/input_sequence.gd")
 const SequenceData = preload("sequence/sequence_data.gd")

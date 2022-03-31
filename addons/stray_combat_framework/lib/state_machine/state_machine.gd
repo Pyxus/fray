@@ -223,6 +223,9 @@ func has_transition(from: String, to: String) -> bool:
 	return false
 
 
+func has_next_transition(input: Object = null) -> bool:
+	return not _get_next_state(input).empty()
+
 func get_transition(from: String, to: String) -> Transition:
 	for transition_data in _transitions:
 		if transition_data.from == from and transition_data.to == to:
@@ -256,6 +259,21 @@ func advance(input: Object = null) -> bool:
 		return true
 	return false
 
+
+func advance_to(to_state: String) -> void:
+	if not has_state(to_state):
+		push_warning("Failed advance to state. Given state '%s' does not exist")
+		return
+
+	var prev_state = current_state
+	current_state = to_state
+	emit_signal("state_changed", prev_state, current_state)
+
+
+func get_next_state(input: Object = null) -> String:
+	return _get_next_state(input)
+	
+	
 func _get_next_state(input: Object = null) -> String:
 	return "";
 

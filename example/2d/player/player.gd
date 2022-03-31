@@ -60,12 +60,12 @@ func _ready() -> void:
 	
 	# On Ground State Machine
 	var on_ground_fsm := CombatFSM.new()
-	on_ground_fsm.add_state("Idle", CombatState.new())
+	on_ground_fsm.add_state("Idle", CombatState.new(["neutral"]))
 	on_ground_fsm.add_state("5P", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("5S", CombatState.new())
-	on_ground_fsm.add_state("5K", CombatState.new())
-	on_ground_fsm.add_state("5H", CombatState.new())
-	on_ground_fsm.add_state("5S-5S", CombatState.new())
+	on_ground_fsm.add_state("5S", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5K", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5H", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5S-5S", CombatState.new(["normal"]))
 	on_ground_fsm.add_state("214P", CombatState.new(["special"]))
 	on_ground_fsm.add_transition("Idle", "5P", CombatTransition.new(punch_input_condition))
 	on_ground_fsm.add_transition("Idle", "5S", CombatTransition.new(slash_input_condition))
@@ -73,6 +73,7 @@ func _ready() -> void:
 	on_ground_fsm.add_transition("Idle", "5H", CombatTransition.new(heavy_input_condition))
 	on_ground_fsm.add_transition("5S", "5S-5S", CombatTransition.new(slash_input_condition))
 	on_ground_fsm.add_global_transition_rule("normal", "special")
+	on_ground_fsm.add_global_transition_rule("neutral", "special")
 	on_ground_fsm.add_global_transition("214P", CombatTransition.new(SequenceInputCondition.new("214P")))
 	on_ground_fsm.initial_state = "Idle"
 	on_ground_fsm.initialize()
@@ -90,12 +91,29 @@ func _ready() -> void:
 
 func _process(_delta) -> void:
 	var combat_fms = combat_tree.state_machine.get_combat_fsm()
+
 	match combat_fms.current_state:
 		"Idle":
-			animation_player.play("idle")
+			if input_detector.is_input_pressed(VInput.RIGHT):
+				animation_player.play("walk_forward")
+			elif input_detector.is_input_pressed(VInput.LEFT):
+				animation_player.play("walk_backward")
+			else:
+				animation_player.play("idle")
 		"5P":
 			animation_player.play("5p")
-	pass
+		"5S":
+			animation_player.play("5s")
+		"5H":
+			animation_player.play("5h")
+		"5S-5S":
+			animation_player.play("5s-5s")
+		"214P":
+			animation_player.play("214p")
+		"5K":
+			animation_player.play("5k")
+		var matchless_state:
+			push_warning("Current state '%s' has no match set" % matchless_state)
 
 
 func is_on_floor(find_immediate: bool = false):

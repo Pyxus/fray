@@ -78,20 +78,32 @@ func advance(delta: float) -> void:
 		return
 	
 	if active and not _input_buffer.empty():
-		if allow_combat_transitions:
-			var detected_input: DetectedInput = _input_buffer.front().detected_input
-			var previous_state: String = combat_fsm.current_state
-
-			if combat_fsm.advance(detected_input):
-				combat_fsm.time_since_last_input = OS.get_ticks_msec() / 1000.0
-				_input_buffer.pop_front()
-				emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
+		var inputs_to_erase: Array
 
 		for buffered_input in _input_buffer:
-			if buffered_input.time_in_buffer >= input_max_time_in_buffer:
-				_input_buffer.erase(buffered_input)
+			if allow_combat_transitions:
+				var detected_input: DetectedInput = buffered_input.detected_input
+				var previous_state: String = combat_fsm.current_state
 
-			buffered_input.time_in_buffer += delta
+				var next_state := combat_fsm.get_next_state(detected_input)
+
+				if next_state.empty():
+					inputs_to_erase.append(buffered_input)
+				else:
+					combat_fsm.advance_to(next_state)
+					combat_fsm.time_since_last_input = OS.get_ticks_msec() / 1000.0
+					emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
+					_input_buffer.erase(buffered_input)
+			
+			if buffered_input.time_in_buffer >= input_max_time_in_buffer:
+				inputs_to_erase.append(buffered_input)
+			else:
+				buffered_input.time_in_buffer += delta
+		
+		for buffered_input in inputs_to_erase:
+			if "sequence_name" in buffered_input.detected_input:
+				print("Removed From Buffer: ", buffered_input.detected_input.sequence_name)
+			_input_buffer.erase(buffered_input)
 
 
 func goto_initial_combat_state() -> void:
@@ -113,13 +125,9 @@ func goto_initial_combat_state() -> void:
 func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_detected_input := BufferedDetectedInput.new()
 	var current_buffer_size: int = _input_buffer.size()
-	
+
 	buffered_detected_input.detected_input = detected_input
-	
-	if current_buffer_size + 1 > input_buffer_max_size:
-		_input_buffer[current_buffer_size - 1] = buffered_detected_input
-	else:
-		_input_buffer.append(buffered_detected_input)
+	_input_buffer.append(buffered_detected_input)
 
 
 func set_process_mode(value: int) -> void:
