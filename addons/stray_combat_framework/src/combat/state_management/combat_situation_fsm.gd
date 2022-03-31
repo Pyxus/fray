@@ -34,7 +34,12 @@ func set_condition_evaluator(evaluation_func: FuncRef) -> void:
 
 
 func get_combat_fsm() -> Resource: # CombatFSM
-	return get_current_state_obj()
+	var current_state = get_current_state_obj()
+	if current_state is CombatSituationState:
+		return current_state.combat_fsm
+	return null
+
+
 
 func _get_next_state(input: Object = null) -> String:
 	var next_transitions := get_next_transitions(current_state)

@@ -67,16 +67,16 @@ func advance(delta: float) -> void:
 		var previous_situation_state: String = state_machine.current_state
 
 		if state_machine.advance():
-			combat_fsm = state_machine.get_current_state_obj() as CombatFSM
+			combat_fsm = state_machine.get_combat_fsm() as CombatFSM
 
 			if combat_fsm != null:
 				combat_fsm.initialize()
 
 			emit_signal("situation_state_changed", previous_situation_state, state_machine.current_state)
-
+	
 	if combat_fsm == null:
 		return
-
+	
 	if active and not _input_buffer.empty():
 		if allow_combat_transitions:
 			var detected_input: DetectedInput = _input_buffer.front().detected_input
@@ -92,6 +92,22 @@ func advance(delta: float) -> void:
 				_input_buffer.erase(buffered_input)
 
 			buffered_input.time_in_buffer += delta
+
+
+func goto_initial_combat_state() -> void:
+	var combat_fsm: CombatFSM = state_machine.get_combat_fsm() as CombatFSM
+	if combat_fsm == null:
+		return
+
+	if combat_fsm.initial_state.empty():
+		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % combat_fsm)
+		return
+
+	var prev_state := combat_fsm.current_state
+	combat_fsm.initialize()
+
+	if prev_state != combat_fsm.current_state:
+		emit_signal("combat_state_changed", prev_state, combat_fsm.current_state)
 
 
 func buffer_input(detected_input: DetectedInput) -> void:

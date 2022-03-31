@@ -110,7 +110,7 @@ func rename_state(name: String, new_name: String) -> bool:
 		if transition_data.to == name:
 			transition_data.to == new_name
 
-	var state: State = _states.get_key(name)
+	var state: State = _states.get_value(name)
 	_states.erase_key(name)
 	_states.add(new_name, state)
 	emit_signal("state_renamed", name, new_name)
@@ -141,12 +141,12 @@ func get_state(name: String) -> State:
 	if not _states.has_key(name):
 		push_warning("Failed to get state. State %s does not exist" % name)
 		return null
-	return _states[name]
+	return _states.get_value(name)
 
 
 func get_current_state_obj() -> State:
 	if not current_state.empty():
-		return _states[current_state]
+		return _states.get_value(current_state)
 	
 	return null
 
@@ -160,7 +160,7 @@ func set_state_position(name: String, position: Vector2) -> void:
 		push_error("Failed to set state position. State %s does not exist" % name)
 		return
 		
-	_states.get_key(name).position = position
+	_states.get_value(name).position = position
 
 
 func get_state_position(name: String) -> Vector2:
@@ -168,7 +168,7 @@ func get_state_position(name: String) -> Vector2:
 		push_error("Failed to get state position. State %s does not exist" % name)
 		return Vector2.ZERO
 
-	return _states.get_key(name).position
+	return _states.get_value(name).position
 
 
 func add_transition(from: String, to: String, transition: Transition) -> void:
@@ -235,7 +235,9 @@ func get_next_transitions(from: String) -> Array: # TransitionData[]
 	for tranistion_data in _transitions:
 		if tranistion_data.from == from:
 			var td := TransitionData.new()
+			td.from = from
 			td.to = tranistion_data.to
+			td.transition = tranistion_data.transition
 			transitions.append(td)
 
 	return transitions

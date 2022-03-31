@@ -1,4 +1,4 @@
-extends Node
+extends Resource
 ## docstring
 
 #signals

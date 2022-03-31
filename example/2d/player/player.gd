@@ -1,6 +1,7 @@
 extends StrayCF.RigidFighterBody2D
 
 const VirtualInputCondition = StrayCF.VirtualInputCondition
+const SequenceInputCondition = StrayCF.SequenceInputCondition
 const CombatFSM = StrayCF.CombatFSM
 const CombatState = StrayCF.CombatState
 const CombatSituationFSM = StrayCF.CombatSituationFSM
@@ -57,23 +58,44 @@ func _ready() -> void:
 	var heavy_input_condition := VirtualInputCondition.new(VInput.HEAVY_SLASH)
 	var kick_input_condition := VirtualInputCondition.new(VInput.KICK)
 	
+	# On Ground State Machine
 	var on_ground_fsm := CombatFSM.new()
 	on_ground_fsm.add_state("Idle", CombatState.new())
-	on_ground_fsm.add_state("5P", CombatState.new())
+	on_ground_fsm.add_state("5P", CombatState.new(["normal"]))
 	on_ground_fsm.add_state("5S", CombatState.new())
 	on_ground_fsm.add_state("5K", CombatState.new())
 	on_ground_fsm.add_state("5H", CombatState.new())
 	on_ground_fsm.add_state("5S-5S", CombatState.new())
+	on_ground_fsm.add_state("214P", CombatState.new(["special"]))
 	on_ground_fsm.add_transition("Idle", "5P", CombatTransition.new(punch_input_condition))
 	on_ground_fsm.add_transition("Idle", "5S", CombatTransition.new(slash_input_condition))
 	on_ground_fsm.add_transition("Idle", "5K", CombatTransition.new(kick_input_condition))
 	on_ground_fsm.add_transition("Idle", "5H", CombatTransition.new(heavy_input_condition))
 	on_ground_fsm.add_transition("5S", "5S-5S", CombatTransition.new(slash_input_condition))
+	on_ground_fsm.add_global_transition_rule("normal", "special")
+	on_ground_fsm.add_global_transition("214P", CombatTransition.new(SequenceInputCondition.new("214P")))
+	on_ground_fsm.initial_state = "Idle"
+	on_ground_fsm.initialize()
 
+	# Situation State Machine
 	var state_machine := CombatSituationFSM.new()
 	state_machine.add_state("OnGround", CombatSituationState.new(on_ground_fsm))
+	state_machine.initial_state = "OnGround"
+	state_machine.initialize()
 
 	combat_tree.state_machine = state_machine
+
+	var _disable_warning = combat_tree.connect("combat_state_changed", self, "_on_CombatTree_combat_state_changed")
+
+
+func _process(_delta) -> void:
+	var combat_fms = combat_tree.state_machine.get_combat_fsm()
+	match combat_fms.current_state:
+		"Idle":
+			animation_player.play("idle")
+		"5P":
+			animation_player.play("5p")
+	pass
 
 
 func is_on_floor(find_immediate: bool = false):
@@ -139,3 +161,7 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 			elif input_detector.is_input_just_pressed(VInput.UP_RIGHT):
 				combat_animation_player.reset()
 """
+
+
+func _on_CombatTree_combat_state_changed(from: String, to: String) -> void:
+	print("State changed %s->%s" % [from, to])

@@ -8,6 +8,7 @@ extends "combat_tree_fsm.gd"
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
 const CombatTransition = preload("transitions/combat_transition.gd")
+const CombatState = preload("combat_state.gd")
 
 #exported variables
 
@@ -88,20 +89,48 @@ func rename_state(name: String, new_name: String) -> bool:
 	return true
 
 
+func get_next_global_transitions(from: String) -> Array: # TransitionData[]
+	var transitions: Array
+	var from_state := get_state(from) as CombatState
+	
+	if from_state == null:
+		return transitions
+	
+	for from_tag in from_state.tags:
+		if _global_transition_rules.has(from_tag):
+			var to_tag_rules: Array = _global_transition_rules[from_tag]
+			
+			for to_state_name in _global_transitions:
+				var to_state := get_state(to_state_name) as CombatState
+				
+				if to_state == null:
+					continue
+
+				for to_tag in to_state.tags:
+					if to_tag in to_tag_rules:
+						var td := TransitionData.new()
+						td.from = from
+						td.to = to_state_name
+						td.transition = _global_transitions[to_state_name]
+						transitions.append(td)					
+						break
+	return transitions
+
 func get_combat_fsm() -> Resource: # CombatFSM
-    return self
+	return self
 
 
 func _get_next_state(input: Object = null) -> String:
 	if input is DetectedInput:
+		var next_global_transitions := get_next_global_transitions(current_state)
 		var next_transitions := get_next_transitions(current_state)
 
-		for transition_data in next_transitions:
+		for transition_data in next_global_transitions + next_transitions:
 			var transition := transition_data.transition as CombatTransition
 			if transition == null:
 				continue
 
-			if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.input_delay:
+			if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.min_input_delay:
 				for transition_condition in transition.chain_conditions:
 					if not _is_condition_true(transition_condition):
 						return ""
