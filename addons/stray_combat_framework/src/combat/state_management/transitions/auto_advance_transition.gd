@@ -1,17 +1,17 @@
-extends "res://addons/stray_combat_framework/lib/state_machine/state.gd"
+extends "res://addons/stray_combat_framework/lib/state_machine/transition.gd"
 ## docstring
 
 #signals
 
 #enums
 
-#constants
+const EvaluatedCondition = preload("conditions/evaluated_condition.gd")
 
 #preloaded scripts and scenes
 
 #exported variables
 
-var tags: PoolStringArray
+var advance_condition: EvaluatedCondition
 
 #private variables
 
@@ -22,8 +22,8 @@ var tags: PoolStringArray
 
 #built-in virtual _ready method
 
-func _init(state_tags: PoolStringArray = []) -> void:
-    tags = state_tags
+#remaining built-in virtual methods
+
 #public methods
 
 #private methods

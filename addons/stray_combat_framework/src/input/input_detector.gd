@@ -1,5 +1,13 @@
 extends Node
 
+#FIXME: Buffer works inconsistently
+#TODO: Related to buffer concistency. Consider redesigning detector to use a circular buffer with pattern matching
+	# Right now the detector checks each sequence against the entire buffer each frame but if there was pattern matching then, for example,
+	# after 2 3 6 is read then only sequences starting with 2 3 6 would need to be check, and inputs could be checked as they are read rather than
+	# rechecking the entire buffer each frame. So the sequence 2 3 6 P is recognized the moment P is entered.
+	# However, at this moment I'm not sure how charged inputs, and input delay (invalidating input based on time between inputs) would best be handled.
+	# For charged inputs maybe I could keep track of which inputs are being held and re-add them to the buffer on release.
+
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("sequence/input_sequence.gd")
 const SequenceData = preload("sequence/sequence_data.gd")
@@ -17,8 +25,6 @@ const MouseInput = preload("virtual_inputs/mouse_input.gd")
 signal input_detected(detected_input)
 
 export var buffer_duration: float = 1
-
-var press_checks_enabled: bool
 
 var _time_since_first_input: float
 var _input_by_id: Dictionary
@@ -42,6 +48,7 @@ func _notification(what: int) -> void:
 	# I think that keeps the references alive since the combination exists within this dictionary.
 	# So i'm clearing it when this object gets deleted to free the memory.
 	# Perhaps a better setup is needed... but for now this seems to work
+	# TODO: Look into using funcrefs
 	if what == NOTIFICATION_PREDELETE:
 		_input_by_id.clear()
 
@@ -50,21 +57,21 @@ func is_input_pressed(input_id: int) -> bool:
 	if not _input_by_id.has(input_id):
 		push_warning("Input with id %d does not exist" % input_id)
 		return false
-	return _input_by_id[input_id].is_pressed() and press_checks_enabled
+	return _input_by_id[input_id].is_pressed()
 
 
 func is_input_just_pressed(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_pressed() and press_checks_enabled
+	return _input_by_id[id].is_just_pressed()
 
 
 func is_input_just_released(id: int) -> bool:
 	if not _input_by_id.has(id):
 		push_warning("Input with id %d does not exist" % id)
 		return false
-	return _input_by_id[id].is_just_released() and press_checks_enabled
+	return _input_by_id[id].is_just_released()
 
 
 func feed_input(id: int, time_held: float = 0.0, was_released: bool = true, owner_combination: CombinationInput = null) -> void:
@@ -172,12 +179,6 @@ func bind_mouse_input(id: int, button: int) -> void:
 	bind_virtual_input(id, mouse_input)
 
 
-func _feed_released_combination_components(input: CombinationInput, time_stamp: int) -> void:
-	for id in input.input_ids:
-		if is_input_pressed(id):
-			feed_input_at(time_stamp, id, 0, false, input)
-
-
 func _broadcast_input_detected(input_id: int, time_stamp: int, is_pressed: bool) -> void:
 	var detected_virtual_input := DetectedVirtualInput.new()
 	detected_virtual_input.input_id = input_id
@@ -220,7 +221,6 @@ func _check_for_inputs() -> void:
 
 			if virtual_input is CombinationInput and virtual_input.is_components_pressed_on_release:
 				virtual_input.release_components()
-				#call_deferred("_feed_released_combination_components", input, OS.get_ticks_msec())
 
 		virtual_input.poll()
 	

@@ -1,182 +1,144 @@
-extends Node
+extends "combat_tree_fsm.gd"
+## docstring
 
-signal tree_changed(from, to)
-signal state_changed(from, to) 
+#signals
 
-# TODO: Consider just going with UNCHAINABLE and CHAINABLE or something similar for frame data
-# Neutral/Recovery just means chaining is allowed
-# START_UP/ACTIVE/ACTIVE_GAP just means chaining is not allowed
-# At the moment they're redundant.
-# Better yet since its boolean just use a can_chain property
+#enums
 
-# TODO: Add support for unique state names
-# Would allow for refering to states by string names.
-enum FrameData {
-	NEUTRAL,
-	START_UP,
-	ACTIVE,
-	ACTIVE_GAP,
-	RECOVERY,
-}
-
-enum ProcessMode {
-	IDLE,
-	PHYSICS,
-	MANUAL
-}
-
-const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
-const Condition = preload("conditions/condition.gd")
-const StringCondition = preload("conditions/string_condition.gd")
-const CombatTree = preload("combat_tree.gd")
+const CombatTransition = preload("transitions/combat_transition.gd")
 const CombatState = preload("combat_state.gd")
 
-export var input_detector: NodePath
-export(FrameData) var frame_data: int
-export var input_buffer_max_size: int = 3
-export var input_max_time_in_buffer: float = 0.1
-export var active: bool
-export(ProcessMode) var process_mode: int 
+#exported variables
 
-onready var _input_detector: InputDetector
+var time_since_last_input: float
 
-var _input_buffer: Array
-var _combat_trees: Array
-var _current_tree: CombatTree
-var _current_state: CombatState
-var _condition_by_name: Dictionary
-var _my_states: Array
-var _time_since_last_input: float
+var _global_transitions: Dictionary # Dictionary<String, Transition>
+var _global_transition_rules: Dictionary # Dictionary<String, String[]>
+
+#onready variables
 
 
-func _ready() -> void:
-	_input_detector = get_node_or_null(input_detector)
+#built-in virtual _ready method
+
+#remaining built-in virtual methods
+
 	
-	if _input_detector != null:
-		_input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
-		
-func _process(delta: float) -> void:
-	if process_mode == ProcessMode.IDLE:
-		advance(delta)
-		
+func add_global_transition_rule(from_tag: String, to_tag: String) -> void:
+	if not _global_transition_rules.has(from_tag):
+		_global_transition_rules[from_tag] = []
 
-func _physics_process(delta: float) -> void:
-	if process_mode == ProcessMode.PHYSICS:
-		advance(delta)
-
-		
-func advance(delta: float) -> void:
-	if active and _current_tree != null:
-		var next_transition := _current_tree.get_next_transition(_condition_by_name)
-		if next_transition != null:
-			var prev_tree: CombatTree = _current_tree
-			set_current_tree(next_transition.to)
-			emit_signal("tree_changed", prev_tree, _current_tree)
-
-		if not _input_buffer.empty():
-			if frame_data == FrameData.RECOVERY or frame_data == FrameData.NEUTRAL:
-				var buffered_detected_input: BufferedDetectedInput = _input_buffer.front()
-				var next_chain = _current_state.get_next_chain(_condition_by_name, buffered_detected_input.detected_input, _time_since_last_input)
-
-				if next_chain != null:
-					var prev_state: CombatState = _current_state
-					_current_state = next_chain.to
-					_time_since_last_input = OS.get_ticks_msec() / 1000.0
-					_input_buffer.pop_front()
-					emit_signal("state_changed", prev_state, _current_state)
-
-			for buffered_input in _input_buffer:
-				if buffered_input.time_in_buffer >= input_max_time_in_buffer:
-					_input_buffer.erase(buffered_input)
-				buffered_input.time_in_buffer += delta
+	_global_transition_rules[from_tag].append(to_tag)
 
 
-func buffer_input(detected_input: DetectedInput) -> void:
-	var buffered_detected_input := BufferedDetectedInput.new()
-	var current_buffer_size: int = _input_buffer.size()
+func has_global_transition_rule(from_tag: String, to_tag: String) -> bool:
+	return _global_transition_rules.has(from_tag) and _global_transition_rules[from_tag].has(to_tag)
+
+
+func remove_global_transition_rule(from_tag: String, to_tag: String) -> void:
+	if has_global_transition_rule(from_tag, to_tag):
+		_global_transition_rules.erase(to_tag)
+
 	
-	buffered_detected_input.detected_input = detected_input
-	
-	if current_buffer_size + 1 > input_buffer_max_size:
-		_input_buffer[current_buffer_size - 1] = buffered_detected_input
-	else:
-		_input_buffer.append(buffered_detected_input)
+func delete_global_transition_rule(from_tag: String) -> void:
+	if _global_transition_rules.has(from_tag):
+		_global_transition_rules.erase(from_tag)
 
 
-func revert_to_root() -> void:
-	if _current_tree == null:
-		push_warning("Failed to revert to root. Current combat tree is not set")
-		return
-
-	emit_signal("state_changed", _current_state, _current_tree.get_root())
-	_current_state = _current_tree.get_root()
-
-
-func add_tree(combat_tree: CombatTree) -> void:
-	if _combat_trees.has(combat_tree):
-		push_warning("Combat tree has already been added.")
+func add_global_transition(to_state: String, combat_transition: CombatTransition) -> void:
+	if not has_state(to_state):
+		push_warning("Failed to add global transition. State '%s' does not exist." % to_state)
 		return
 	
-	_combat_trees.append(combat_tree)
+	_global_transitions[to_state] = combat_transition
 
 
-func set_current_tree(combat_tree: CombatTree) -> void:
-	if not _combat_trees.has(combat_tree):
-		push_warning("The given combat tree does not exist within this CombatFSM.")
+func has_global_transition(to_state: String) -> bool:
+	return _global_transitions.has(to_state)
+
+
+func remove_global_transition(to_state: String) -> void:
+	if not has_global_transition(to_state):
+		push_warning("Failed to remove global transition. State '%s' does not have a global transition")
 		return
-	
-	_current_tree = combat_tree
-	_current_state = combat_tree.get_root()
+
+	if has_global_transition(to_state):
+		_global_transitions.erase(to_state)
 
 
-func set_condition(condition_name: String, value: bool) -> void:
-	_condition_by_name[condition_name] = value
-
-
-func set_all_conditions(value: bool) -> void:
-	for condition_name in _condition_by_name:
-		_condition_by_name[condition_name] = value
-
-
-func get_current_tree() -> CombatTree:
-	return _current_tree
-
-
-func get_current_state() -> CombatState:
-	return _current_state
-
-	
-func is_current_state_root() -> bool:
-	if _current_tree == null:
-		push_error("Failed to check current state. Current combat tree is not set.")
+func remove_state(name: String) -> bool:
+	if not remove_meta(name):
 		return false
-	
-	return _current_state == _current_tree.get_root()
-	pass
 
+	if has_global_transition(name):
+		_global_transitions.erase(name)
 
-func is_condition_true(condition: Condition) -> bool:
-	if condition is StringCondition:
-		if not _condition_by_name.has(condition.condition_name):
-			return false
-
-		if not _condition_by_name[condition.condition_name]:
-			return false
-		
-		return _condition_by_name[condition.condition_name]
 	return true
 
 
-func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
-	buffer_input(detected_input)
+func rename_state(name: String, new_name: String) -> bool:
+	if not .rename_state(name, new_name):
+		return false
+	
+	if has_global_transition(name):
+		var transition: CombatTransition = _global_transitions[name]
+		remove_global_transition(name)
+		add_global_transition(new_name, transition)
+
+	return true
 
 
-class BufferedDetectedInput:
-	extends Reference
+func get_next_global_transitions(from: String) -> Array: # TransitionData[]
+	var transitions: Array
+	var from_state := get_state(from) as CombatState
+	
+	if from_state == null:
+		return transitions
+	
+	for from_tag in from_state.tags:
+		if _global_transition_rules.has(from_tag):
+			var to_tag_rules: Array = _global_transition_rules[from_tag]
+			
+			for to_state_name in _global_transitions:
+				var to_state := get_state(to_state_name) as CombatState
+				
+				if to_state == null:
+					continue
 
-	const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+				for to_tag in to_state.tags:
+					if to_tag in to_tag_rules:
+						var td := TransitionData.new()
+						td.from = from
+						td.to = to_state_name
+						td.transition = _global_transitions[to_state_name]
+						transitions.append(td)					
+						break
+	return transitions
 
-	var detected_input: DetectedInput
-	var time_in_buffer: float
+func get_combat_fsm() -> Resource: # CombatFSM
+	return self
+
+
+func _get_next_state(input: Object = null) -> String:
+	if input is DetectedInput:
+		var next_global_transitions := get_next_global_transitions(current_state)
+		var next_transitions := get_next_transitions(current_state)
+		
+		for transition_data in next_global_transitions + next_transitions:
+			var transition := transition_data.transition as CombatTransition
+			if transition == null:
+				continue
+
+			if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.min_input_delay:
+				for transition_condition in transition.chain_conditions:
+					if not _is_condition_true(transition_condition):
+						return ""
+
+				return transition_data.to
+
+	return "";
+
+#signal methods
+
+#inner classes

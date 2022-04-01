@@ -25,7 +25,7 @@ var _added_types: Array
 
 func _enter_tree() -> void:
 	add_custom_type("InputDetector", "Node", StrayCF.InputDetector, preload("assets/icons/input_detector.svg"))
-	add_custom_type("CombatFSM", "Node", StrayCF.CombatFSM, preload("assets/icons/combat_fsm.svg"))
+	add_custom_type("CombatTree", "Node", StrayCF.CombatTree, preload("assets/icons/combat_tree.svg"))
 	add_custom_type("CharacterBody2D", "RigidBody2D", StrayCF.CharacterBody2D, null)
 	add_custom_type("FighterBody2D", "RigidBody2D", StrayCF.RigidFighterBody2D, preload("assets/icons/fighter_body_2d.svg"))
 	add_custom_type("PushBox2D", "RigidBody2D", StrayCF.RigidPushBox2D, preload("assets/icons/push_box_2d.svg"))
@@ -40,7 +40,8 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
-	ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color( 0, 0.6, 0.7, 0.42 ))
+	if ProjectSettings.get_setting("debug/shapes/collision/shape_color") != Color("6bffffff"):
+		ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color( 0, 0.6, 0.7, 0.42 ))
 	for type in _added_types:
 		remove_custom_type(type)
 

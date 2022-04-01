@@ -92,3 +92,8 @@ margin_bottom = 14.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2( 478, 489 )
+current = true
+zoom = Vector2( 0.4, 0.4 )

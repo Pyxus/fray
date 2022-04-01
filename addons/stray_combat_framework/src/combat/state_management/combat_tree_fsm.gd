@@ -1,4 +1,4 @@
-extends "res://addons/stray_combat_framework/lib/state_machine/state.gd"
+extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
 ## docstring
 
 #signals
@@ -11,7 +11,7 @@ extends "res://addons/stray_combat_framework/lib/state_machine/state.gd"
 
 #exported variables
 
-var tags: PoolStringArray
+#public variables
 
 #private variables
 
@@ -22,9 +22,10 @@ var tags: PoolStringArray
 
 #built-in virtual _ready method
 
-func _init(state_tags: PoolStringArray = []) -> void:
-    tags = state_tags
-#public methods
+#remaining built-in virtual methods
+
+func get_combat_fsm() -> Resource: # CombatFSM
+    return null
 
 #private methods
 

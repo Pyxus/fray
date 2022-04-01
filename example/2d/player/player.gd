@@ -1,5 +1,13 @@
 extends StrayCF.RigidFighterBody2D
 
+const VirtualInputCondition = StrayCF.VirtualInputCondition
+const SequenceInputCondition = StrayCF.SequenceInputCondition
+const CombatFSM = StrayCF.CombatFSM
+const CombatState = StrayCF.CombatState
+const CombatSituationFSM = StrayCF.CombatSituationFSM
+const CombatSituationState = StrayCF.CombatSituationState
+const CombatTransition = StrayCF.CombatTransition
+
 enum VInput {
 	UP,
 	DOWN,
@@ -16,15 +24,17 @@ enum VInput {
 }
 
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
-onready var combat_fsm: StrayCF.CombatFSM = get_node("CombatFSM")
+onready var combat_tree: StrayCF.CombatTree = get_node("CombatTree")
 onready var ground_cast: RayCast2D = get_node("GroundCast")
-onready var combat_animation_player: StrayCF.CombatAnimationPlayer = get_node("AnimationPlayer")
+onready var animation_player: AnimationPlayer = get_node("AnimationPlayer")
 
 var max_jump_count: int = 1
 var jump_count: int = 0
 
 func _ready() -> void:
 	Engine.time_scale = .8
+
+	# Set up inputs
 	input_detector.bind_action_input(VInput.UP, "up")
 	input_detector.bind_action_input(VInput.DOWN, "down")
 	input_detector.bind_action_input(VInput.LEFT, "left")
@@ -42,92 +52,68 @@ func _ready() -> void:
 	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
 	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
 	
-	# Input Data
-	var punch_input_data := StrayCF.VirtualInputData.new(VInput.PUNCH)
-	var slash_input_data := StrayCF.VirtualInputData.new(VInput.SLASH)
-	var heavy_input_data := StrayCF.VirtualInputData.new(VInput.HEAVY_SLASH)
-	var kick_input_data := StrayCF.VirtualInputData.new(VInput.KICK)
-	var up_input_data := StrayCF.VirtualInputData.new(VInput.UP)
-	var up_right_data := StrayCF.VirtualInputData.new(VInput.UP_RIGHT)
-	var up_left_data := StrayCF.VirtualInputData.new(VInput.UP_LEFT)
+	# Input Conditions
+	var punch_input_condition := VirtualInputCondition.new(VInput.PUNCH)
+	var slash_input_condition := VirtualInputCondition.new(VInput.SLASH)
+	var heavy_input_condition := VirtualInputCondition.new(VInput.HEAVY_SLASH)
+	var kick_input_condition := VirtualInputCondition.new(VInput.KICK)
 	
-	# Standing States
-	var sitch_standing := StrayCF.CombatTree.new()
-	combat_fsm.add_tree(sitch_standing)
+	# On Ground State Machine
+	var on_ground_fsm := CombatFSM.new()
+	on_ground_fsm.add_state("Idle", CombatState.new(["neutral"]))
+	on_ground_fsm.add_state("5P", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5S", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5K", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5H", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("5S-5S", CombatState.new(["normal"]))
+	on_ground_fsm.add_state("214P", CombatState.new(["special"]))
+	on_ground_fsm.add_transition("Idle", "5P", CombatTransition.new(punch_input_condition))
+	on_ground_fsm.add_transition("Idle", "5S", CombatTransition.new(slash_input_condition))
+	on_ground_fsm.add_transition("Idle", "5K", CombatTransition.new(kick_input_condition))
+	on_ground_fsm.add_transition("Idle", "5H", CombatTransition.new(heavy_input_condition))
+	on_ground_fsm.add_transition("5S", "5S-5S", CombatTransition.new(slash_input_condition))
+	on_ground_fsm.add_global_transition_rule("normal", "special")
+	on_ground_fsm.add_global_transition_rule("neutral", "special")
+	on_ground_fsm.add_global_transition("214P", CombatTransition.new(SequenceInputCondition.new("214P")))
+	on_ground_fsm.initial_state = "Idle"
+	on_ground_fsm.initialize()
 
-	var standing_root := sitch_standing.get_root()
-	var standing_animation := StrayCF.CombatAnimation.new("idle")
-	standing_animation.root.transition_to(StrayCF.AnimationState.new("walk_backward", StrayCF.StringCondition.new("is_walking_backward")))
-	standing_animation.root.transition_to(StrayCF.AnimationState.new("walk_forward", StrayCF.StringCondition.new("is_walking_forward")))
-	combat_animation_player.associate_state_with_animation(standing_root, standing_animation)
-	
-	var standing_punch := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_punch, StrayCF.CombatAnimation.new("5p"))
-	
-	var standing_slash := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_slash, StrayCF.CombatAnimation.new("5s"))
-	
-	var standing_heavy := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_heavy, StrayCF.CombatAnimation.new("5h"))
-	
-	var standing_kick := StrayCF.CombatState.new("normal")
-	combat_animation_player.associate_state_with_animation(standing_kick, StrayCF.CombatAnimation.new("5k"))
-	
-	var jump_neutral_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_neutral_start, StrayCF.CombatAnimation.new("jump_neutral_start"))
-	
-	var jump_forward_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_forward_start, StrayCF.CombatAnimation.new("jump_forward_start"))
-	
-	var jump_backward_start := StrayCF.CombatState.new("jump")
-	combat_animation_player.associate_state_with_animation(jump_backward_start, StrayCF.CombatAnimation.new("jump_backward_start"))
-	
-	# Air States
-	var sitch_in_air := StrayCF.CombatTree.new()
-	combat_fsm.add_tree(sitch_in_air)
-	
-	var in_air_root := sitch_in_air.get_root()
-	var in_air_animation := StrayCF.CombatAnimation.new("fall_neutral")
-	var anim_state_jump_backward := StrayCF.AnimationState.new("jump_backward", StrayCF.StringCondition.new("is_jumping_backward"))
-	var anim_state_fall_backward := StrayCF.AnimationState.new("fall_backward", StrayCF.StringCondition.new("is_falling_backward"))
-	var anim_state_fall_forward := StrayCF.AnimationState.new("fall_forward", StrayCF.StringCondition.new("is_falling_forward"))
-	var anim_state_jump_forward := StrayCF.AnimationState.new("jump_forward", StrayCF.StringCondition.new("is_jumping_forward"))
-	in_air_animation.root.transition_to(anim_state_fall_forward)
-	in_air_animation.root.transition_to(anim_state_fall_backward)
-	in_air_animation.root.transition_to(anim_state_jump_forward)
-	in_air_animation.root.transition_to(anim_state_jump_backward)
-	anim_state_jump_forward.transition_to(anim_state_fall_forward)
-	anim_state_jump_backward.transition_to(anim_state_fall_backward, 2)
-	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_falling_forward"), ["fall_forward"])
-	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_falling_backward"), ["fall_backward"])
-	#in_air_animation.add_conditional_animation(StrayCF.StringCondition.new("is_jumping_forward"), ["jump_forward"])
-	#in_air_animation.add_conditional_animation(StrayCF.ConditionalAnimation.new("jump_backward", StrayCF.StringCondition.new("is_jumping_backward")))
-	combat_animation_player.associate_state_with_animation(in_air_root, in_air_animation)
-	
-	# Chaining
-	#sitch_standing.add_global_chain_to(jump_neutral_start, up_input_data)
-	#sitch_standing.add_global_chain_to(jump_forward_start, up_right_data)
-	#sitch_standing.add_global_chain_to(jump_backward_start, up_left_data)
-	
-	#standing_punch.chain_to(standing_punch, punch_input_data)
+	# Situation State Machine
+	var state_machine := CombatSituationFSM.new()
+	state_machine.add_state("OnGround", CombatSituationState.new(on_ground_fsm))
+	state_machine.initial_state = "OnGround"
+	state_machine.initialize()
 
-	#standing_punch.chain_to(standing_kick, kick_input_data)
+	combat_tree.state_machine = state_machine
 
-	standing_root.chain_to_global("jump")
-	standing_root.chain_to(standing_punch, punch_input_data)
-	standing_root.chain_to(standing_slash, slash_input_data)
-	standing_root.chain_to(standing_heavy, heavy_input_data)
-	standing_root.chain_to(standing_kick, kick_input_data)
-	
-	# Situation Transitions
-	sitch_standing.add_transition_to(sitch_in_air, StrayCF.StringCondition.new("is_in_air"))
-	sitch_in_air.add_transition_to(sitch_standing, StrayCF.StringCondition.new("is_on_ground"))
+	var _disable_warning = combat_tree.connect("combat_state_changed", self, "_on_CombatTree_combat_state_changed")
 
-	combat_fsm.set_current_tree(sitch_standing)
-	combat_fsm.revert_to_root()
-	
-	input_detector.press_checks_enabled = true
 
+func _process(_delta) -> void:
+	var combat_fms = combat_tree.state_machine.get_combat_fsm()
+
+	match combat_fms.current_state:
+		"Idle":
+			if input_detector.is_input_pressed(VInput.RIGHT):
+				animation_player.play("walk_forward")
+			elif input_detector.is_input_pressed(VInput.LEFT):
+				animation_player.play("walk_backward")
+			else:
+				animation_player.play("idle")
+		"5P":
+			animation_player.play("5p")
+		"5S":
+			animation_player.play("5s")
+		"5H":
+			animation_player.play("5h")
+		"5S-5S":
+			animation_player.play("5s-5s")
+		"214P":
+			animation_player.play("214p")
+		"5K":
+			animation_player.play("5k")
+		var matchless_state:
+			push_warning("Current state '%s' has no match set" % matchless_state)
 
 
 func is_on_floor(find_immediate: bool = false):
@@ -135,7 +121,7 @@ func is_on_floor(find_immediate: bool = false):
 		return true
 	return .is_on_floor(find_immediate)
 
-
+"""
 func _handle_movement(state: Physics2DDirectBodyState) -> void:
 	._handle_movement(state)
 	
@@ -192,3 +178,8 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 				combat_animation_player.reset()
 			elif input_detector.is_input_just_pressed(VInput.UP_RIGHT):
 				combat_animation_player.reset()
+"""
+
+
+func _on_CombatTree_combat_state_changed(from: String, to: String) -> void:
+	print("State changed %s->%s" % [from, to])
