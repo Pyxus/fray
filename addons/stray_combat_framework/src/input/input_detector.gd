@@ -1,11 +1,12 @@
 extends Node
 
 #FIXME: Buffer works inconsistently
-#TODO: Related to buffer concistency. Consider redesigning detector to use circular buffer and pattern matching
-# Right now the detector checks each each sequence against the entire buffer each frame but if there was pattern matching then, for example,
-# after 2 3 6 is read then only sequences starting with 2 3 6 would need to be check, and inputs could be checked as they are read rather than
-# rechecking the entire buffer each frame. Though at this moment I'm not sure how charged inputs would best be handled.
-# Maybe keep track of which inputs are being held and re-add them to the buffer on release.
+#TODO: Related to buffer concistency. Consider redesigning detector to use a circular buffer with pattern matching
+	# Right now the detector checks each sequence against the entire buffer each frame but if there was pattern matching then, for example,
+	# after 2 3 6 is read then only sequences starting with 2 3 6 would need to be check, and inputs could be checked as they are read rather than
+	# rechecking the entire buffer each frame. So the sequence 2 3 6 P is recognized the moment P is entered.
+	# However, at this moment I'm not sure how charged inputs, and input delay (invalidating input based on time between inputs) would best be handled.
+	# For charged inputs maybe I could keep track of which inputs are being held and re-add them to the buffer on release.
 
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("sequence/input_sequence.gd")
