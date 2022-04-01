@@ -253,9 +253,7 @@ func initialize() -> void:
 func advance(input: Object = null) -> bool:
 	var next_state: String = _get_next_state(input)
 	if not next_state.empty():
-		var prev_state = current_state
-		current_state = next_state
-		emit_signal("state_changed", prev_state, current_state)
+		advance_to(next_state)
 		return true
 	return false
 
@@ -284,6 +282,7 @@ func _is_condition_true(condition: String) -> bool:
 		return false
 		
 	return _condition_evaluator_func.call_func(condition)
+	
 #signal methods
 
 #inner classes

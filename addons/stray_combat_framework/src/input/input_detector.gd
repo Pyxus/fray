@@ -1,6 +1,11 @@
 extends Node
 
-#TODO: Buffer works inconsistently
+#FIXME: Buffer works inconsistently
+#TODO: Related to buffer concistency. Consider redesigning detector to use circular buffer and pattern matching
+# Right now the detector checks each each sequence against the entire buffer each frame but if there was pattern matching then, for example,
+# after 2 3 6 is read then only sequences starting with 2 3 6 would need to be check, and inputs could be checked as they are read rather than
+# rechecking the entire buffer each frame. Though at this moment I'm not sure how charged inputs would best be handled.
+# Maybe keep track of which inputs are being held and re-add them to the buffer on release.
 
 const BufferedInput = preload("buffered_input.gd")
 const InputSequence = preload("sequence/input_sequence.gd")
@@ -42,6 +47,7 @@ func _notification(what: int) -> void:
 	# I think that keeps the references alive since the combination exists within this dictionary.
 	# So i'm clearing it when this object gets deleted to free the memory.
 	# Perhaps a better setup is needed... but for now this seems to work
+	# TODO: Look into using funcrefs
 	if what == NOTIFICATION_PREDELETE:
 		_input_by_id.clear()
 
