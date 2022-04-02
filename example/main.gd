@@ -16,7 +16,26 @@ enum VInput {
 	HEAVY_SLASH,
 }
 
+const RS = preload("res://addons/stray_combat_framework/src/new_input/sequence/requirement_sequence.gd")
+
+onready var input_detector = get_node("NewInputDetector")
+
 func _ready() -> void:
+	input_detector.bind_action_input(VInput.UP, "up")
+	input_detector.bind_action_input(VInput.DOWN, "down")
+	input_detector.bind_action_input(VInput.LEFT, "left")
+	input_detector.bind_action_input(VInput.RIGHT, "right")
+	input_detector.bind_action_input(VInput.KICK, "kick")
+	input_detector.bind_action_input(VInput.PUNCH, "punch")
+	input_detector.bind_action_input(VInput.SLASH, "slash")
+	input_detector.bind_action_input(VInput.HEAVY_SLASH, "heavy_slash")
+
+	var six_p := RS.new()
+	six_p.append_input(VInput.RIGHT)
+	six_p.append_input(VInput.PUNCH)
+
+	input_detector.add_sequence_input("6p", six_p)
+
 	"""
 	var input_history_display = $UI/InputHistoryDisplay
 	#input_history_display.input_detector = $Player.input_detector
@@ -35,4 +54,8 @@ func _ready() -> void:
 	input_history_display.set_input_texture(VInput.SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Triangle.png"))
 	input_history_display.set_input_texture(VInput.HEAVY_SLASH, preload("res://addons/stray_combat_framework/assets/sprites/input_buttons/PS4_Circle.png"))
 	"""
+	pass
+
+
+func _process(delta):
 	pass

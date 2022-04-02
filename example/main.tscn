@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
-[ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/stray_combat_framework/src/new_input/input_detector.gd" type="Script" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 518.726, 10 )
@@ -13,9 +13,6 @@ absorbent = true
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
-
-[node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 476.614, 534.633 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2( 0, 599 )
@@ -97,3 +94,6 @@ __meta__ = {
 position = Vector2( 478, 489 )
 current = true
 zoom = Vector2( 0.4, 0.4 )
+
+[node name="NewInputDetector" type="Node" parent="."]
+script = ExtResource( 3 )
