@@ -18,7 +18,7 @@ var _root := InputNode.new()
 var _current_node: InputNode = _root
 var _sequence_by_path: Dictionary # Dictionary<string, SequenceInput[]>
 var _input_queue: Array # DetectedInputButton[]
-var _accepted_input_count: int
+var _has_discovered_sequence: bool
 
 #onready variables
 
@@ -29,7 +29,6 @@ var _accepted_input_count: int
 
 func advance(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
-	print("detected: ", input_button.id)
 	_input_queue.append(input_button)
 
 	if next_node != null:
@@ -38,24 +37,19 @@ func advance(input_button: DetectedInputButton) -> void:
 		_rescan()
 
 	var _input_path := _get_inputs_as_path()
-	
 	if _sequence_by_path.has(_input_path):
-		var is_inputs_accepted: bool = false
 		for sequence_input in _sequence_by_path[_input_path]:
 			if sequence_input.is_satisfied_by(_input_queue):
+				_has_discovered_sequence = true
+				print(sequence_input.sequence_name)
 				emit_signal("match_found", sequence_input.sequence_name)
-				print(_input_path, ":", sequence_input.sequence_name)
-				is_inputs_accepted = true
-		
-		if is_inputs_accepted:
-			_accepted_input_count = _input_queue.size()
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
 		revert()
 
 func revert() -> void:
 	_current_node = _root
-	_accepted_input_count = 0
+	_has_discovered_sequence = false
 	_input_queue.clear()
 
 
@@ -92,9 +86,8 @@ func destroy_tree() -> void:
 
 
 func _rescan() -> void:
-	var path_found: bool = false
-	if _accepted_input_count == 0 or _input_queue.size() >= 2:
-		#var scan_index: int = 1
+	var has_sub_sequence_match: bool = false
+	if not _has_discovered_sequence and _input_queue.size() >= 2:
 		var input_count: int = _input_queue.size() 
 		
 		for scan_index in range(1, input_count):
@@ -109,32 +102,15 @@ func _rescan() -> void:
 			if next_node != null:
 				_current_node = next_node
 				_input_queue = _input_queue.slice(scan_index, input_count)
-				path_found = true
+				has_sub_sequence_match = true
 				break
-		"""
-		while not path_found and scan_index < input_count:
-			var next_node = _root
 
-			for i in range(scan_index, input_count):
-				next_node = next_node.get_next(_input_queue[i].id)
-
-				if next_node == null:
-					break
-
-			if next_node == null:
-				next_node = _root
-				scan_index += 1
-			else:
-				_current_node = next_node
-				_input_queue = _input_queue.slice(scan_index, input_count)
-				path_found = true
-		"""
-
-	if not path_found:
+	if not has_sub_sequence_match:
 		var last_button: DetectedInputButton = _input_queue.back()
 		var next_node = _root.get_next(last_button.id)	
+		
+		revert()
 		if next_node != null:
-			revert()
 			_current_node = next_node
 			_input_queue.append(last_button)
 

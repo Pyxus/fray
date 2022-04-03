@@ -2,12 +2,16 @@ extends Node
 ## docstring
 
 #TODO: Implement support for charged inputs
+	# Right now only pressed inputs are fed to the sequence analyzer.
+	# This is because if released inputs were also fed the analyzer would always fail to find a match.
+	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
+	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
 #TODO: Implement support for motion inputs
 	# Motion inputs change their directional buttons based on a fighters position
 	# Right now this is not easy to set up...
 	# 1 way to do this is add a new directional_input_bind and override the pressed methods
 	# to change their return based on the current direction.
-	# Also consider make it as a conditional_input_bind to allow support any number of changes
+	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of changes
 
 signal input_detected(detected_input)
 
@@ -86,6 +90,8 @@ func _process(delta: float) -> void:
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = true
 			_detected_input_button_by_id[id] = detected_input
+			
+			combination_input.is_pressed = true
 
 			for cid in combination_input.combined_ids:
 				_ignore_input(cid)
@@ -96,11 +102,16 @@ func _process(delta: float) -> void:
 					if is_input_pressed(cid):
 						_detected_input_button_by_id[cid].time_stamp = time_stamp
 						_unignore_input(cid)
+						
 			var detected_input: DetectedInputButton = _detected_input_button_by_id[id]
 			detected_input.is_pressed = false
+			combination_input.is_pressed = false
 			_detected_input_button_by_id.erase(id)
-			emit_signal("input_detected", detected_input)
+			
 			_unignore_input(id)
+			emit_signal("input_detected", detected_input)
+		
+		combination_input.poll()
 
 	# Feed detected inputs to sequence analyzer and emit detection signals
 	for id in _detected_input_button_by_id:
@@ -112,29 +123,34 @@ func _process(delta: float) -> void:
 		detected_input.time_held += delta
 
 
-func has_bind(id: int) -> bool:
-	return _input_by_id.has(id)
-
-
 func is_input_pressed(id: int) -> bool:
-	if not _input_by_id.has(id):
+	if _input_by_id.has(id):
+		return _input_by_id[id].is_pressed()
+	elif _combination_input_by_id.has(id):
+		return _combination_input_by_id[id].is_pressed
+	else:
 		push_warning("No input with id '%d' binded." % id)
 		return false
-	return _input_by_id[id].is_pressed()
 
 
 func is_input_just_pressed(id: int) -> bool:
-	if not _input_by_id.has(id):
-		push_warning("Input with id %d does not exist" % id)
+	if _input_by_id.has(id):
+		return _input_by_id[id].is_just_pressed()
+	elif _combination_input_by_id.has(id):
+		return _combination_input_by_id[id].is_just_pressed()
+	else:
+		push_warning("No input with id '%d' binded." % id)
 		return false
-	return _input_by_id[id].is_just_pressed()
 
 
 func is_input_just_released(id: int) -> bool:
-	if not _input_by_id.has(id):
-		push_warning("Input with id %d does not exist" % id)
+	if _input_by_id.has(id):
+		return _input_by_id[id].is_just_released()
+	elif _combination_input_by_id.has(id):
+		return _combination_input_by_id[id].is_just_released()
+	else:
+		push_warning("No input with id '%d' binded." % id)
 		return false
-	return _input_by_id[id].is_just_released()
 
 
 func bind_input(id: int, input_bind: InputBind) -> void:
