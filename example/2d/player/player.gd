@@ -1,14 +1,15 @@
 extends StrayCF.RigidFighterBody2D
 
-const VirtualInputCondition = StrayCF.VirtualInputCondition
-const SequenceInputCondition = StrayCF.SequenceInputCondition
+const InputButtonCondition = StrayCF.InputButtonCondition
+const InputSequenceCondition = StrayCF.InputSequenceCondition
 const CombatFSM = StrayCF.CombatFSM
 const CombatState = StrayCF.CombatState
 const CombatSituationFSM = StrayCF.CombatSituationFSM
 const CombatSituationState = StrayCF.CombatSituationState
 const CombatTransition = StrayCF.CombatTransition
+const SequenceData = StrayCF.SequenceData
 
-enum VInput {
+enum Btn {
 	UP,
 	DOWN,
 	LEFT,
@@ -35,28 +36,27 @@ func _ready() -> void:
 	Engine.time_scale = .8
 
 	# Set up inputs
-	input_detector.bind_action_input(VInput.UP, "up")
-	input_detector.bind_action_input(VInput.DOWN, "down")
-	input_detector.bind_action_input(VInput.LEFT, "left")
-	input_detector.bind_action_input(VInput.RIGHT, "right")
-	input_detector.bind_action_input(VInput.KICK, "kick")
-	input_detector.bind_action_input(VInput.PUNCH, "punch")
-	input_detector.bind_action_input(VInput.SLASH, "slash")
-	input_detector.bind_action_input(VInput.HEAVY_SLASH, "heavy_slash")
-	input_detector.register_combination(VInput.UP_LEFT, [VInput.UP, VInput.LEFT])
-	input_detector.register_combination(VInput.UP_RIGHT, [VInput.UP, VInput.RIGHT])
-	input_detector.register_combination(VInput.DOWN_LEFT, [VInput.DOWN, VInput.LEFT])
-	input_detector.register_combination(VInput.DOWN_RIGHT, [VInput.DOWN, VInput.RIGHT])
+	input_detector.bind_action_input(Btn.UP, "up")
+	input_detector.bind_action_input(Btn.DOWN, "down")
+	input_detector.bind_action_input(Btn.LEFT, "left")
+	input_detector.bind_action_input(Btn.RIGHT, "right")
+	input_detector.bind_action_input(Btn.KICK, "kick")
+	input_detector.bind_action_input(Btn.PUNCH, "punch")
+	input_detector.bind_action_input(Btn.SLASH, "slash")
+	input_detector.bind_action_input(Btn.HEAVY_SLASH, "heavy_slash")
+	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
+	input_detector.register_input_combination(Btn.UP_LEFT, [Btn.UP, Btn.LEFT], true)
+	input_detector.register_input_combination(Btn.UP_RIGHT, [Btn.UP, Btn.RIGHT], true)
+	input_detector.register_input_combination(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], true)
+	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
 	
-	var qcb_p_sequence := StrayCF.SequenceData.new()
-	qcb_p_sequence.append_inputs([VInput.DOWN, VInput.DOWN_LEFT, VInput.LEFT, VInput.PUNCH])
-	input_detector.register_sequence_from_data("214P", qcb_p_sequence)
+	input_detector.register_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
 	
 	# Input Conditions
-	var punch_input_condition := VirtualInputCondition.new(VInput.PUNCH)
-	var slash_input_condition := VirtualInputCondition.new(VInput.SLASH)
-	var heavy_input_condition := VirtualInputCondition.new(VInput.HEAVY_SLASH)
-	var kick_input_condition := VirtualInputCondition.new(VInput.KICK)
+	var punch_input_condition := InputButtonCondition.new(Btn.PUNCH)
+	var slash_input_condition := InputButtonCondition.new(Btn.SLASH)
+	var heavy_input_condition := InputButtonCondition.new(Btn.HEAVY_SLASH)
+	var kick_input_condition := InputButtonCondition.new(Btn.KICK)
 	
 	# On Ground State Machine
 	var on_ground_fsm := CombatFSM.new()
@@ -74,7 +74,7 @@ func _ready() -> void:
 	on_ground_fsm.add_transition("5S", "5S-5S", CombatTransition.new(slash_input_condition))
 	on_ground_fsm.add_global_transition_rule("normal", "special")
 	on_ground_fsm.add_global_transition_rule("neutral", "special")
-	on_ground_fsm.add_global_transition("214P", CombatTransition.new(SequenceInputCondition.new("214P")))
+	on_ground_fsm.add_global_transition("214P", CombatTransition.new(InputSequenceCondition.new("214P")))
 	on_ground_fsm.initial_state = "Idle"
 	on_ground_fsm.initialize()
 
@@ -94,9 +94,9 @@ func _process(_delta) -> void:
 
 	match combat_fms.current_state:
 		"Idle":
-			if input_detector.is_input_pressed(VInput.RIGHT):
+			if input_detector.is_input_pressed(Btn.RIGHT):
 				animation_player.play("walk_forward")
-			elif input_detector.is_input_pressed(VInput.LEFT):
+			elif input_detector.is_input_pressed(Btn.LEFT):
 				animation_player.play("walk_backward")
 			else:
 				animation_player.play("idle")

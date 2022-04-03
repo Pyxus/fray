@@ -41,7 +41,6 @@ func advance(input_button: DetectedInputButton) -> void:
 		for sequence_input in _sequence_by_path[_input_path]:
 			if sequence_input.is_satisfied_by(_input_queue):
 				_has_discovered_sequence = true
-				print(sequence_input.sequence_name)
 				emit_signal("match_found", sequence_input.sequence_name)
 
 	if _current_node != _root and _current_node.get_child_count() == 0:

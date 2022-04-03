@@ -7,11 +7,11 @@ extends Node
 	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
 	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
 #TODO: Implement support for motion inputs
-	# Motion inputs change their directional buttons based on a fighters position
+	# Motion inputs change their directional buttons based on a fighter's position relative to another fighter.
 	# Right now this is not easy to set up...
-	# 1 way to do this is add a new directional_input_bind and override the pressed methods
+	# 1 way to do this is add a new directional_input_bind and override its methods
 	# to change their return based on the current direction.
-	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of changes
+	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of conditional changes
 
 signal input_detected(detected_input)
 
@@ -25,11 +25,11 @@ const DetectedInput = preload("detected_inputs/detected_input.gd")
 const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
 const DetectedInputSequence = preload("detected_inputs/detected_input_sequence.gd")
 const InputBind = preload("binds/input_bind.gd")
-const ActionInput = preload("binds/action_input.gd")
-const JoystickInput = preload("binds/joystick_input.gd")
-const JoystickAxisInput = preload("binds/joystick_input.gd")
-const KeyboardInput = preload("binds/keyboard_input.gd")
-const MouseInput = preload("binds/mouse_input.gd")
+const ActionInput = preload("binds/action_input_bind.gd")
+const JoystickInput = preload("binds/joystick_input_bind.gd")
+const JoystickAxisInput = preload("binds/joystick_input_bind.gd")
+const KeyboardInput = preload("binds/keyboard_input_bind.gd")
+const MouseInput = preload("binds/mouse_input_bind.gd")
 const CombinationInput = preload("combination_input.gd")
 
 #exported variables
@@ -213,8 +213,6 @@ func register_input_combination(id: int, combined_ids: PoolIntArray, press_held_
 	combination_input.is_simeultaneous = is_simeultaneous
 	combination_input.press_held_components_on_release = press_held_components_on_release
 	_combination_input_by_id[id] = combination_input
-
-	#TODO: Plan out combination input implementation
 
 
 func register_sequence(sequence_data: SequenceData) -> void:

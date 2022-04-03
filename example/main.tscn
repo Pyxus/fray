@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
+[ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/stray_combat_framework/src/input/input_detector.gd" type="Script" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
@@ -97,3 +98,6 @@ zoom = Vector2( 0.4, 0.4 )
 
 [node name="NewInputDetector" type="Node" parent="."]
 script = ExtResource( 3 )
+
+[node name="Player" parent="." instance=ExtResource( 2 )]
+position = Vector2( 438, 495 )

@@ -13,6 +13,6 @@ func _init(input_id: int = -1, is_triggered_on_release: bool = false) -> void:
 
 func is_satisfied_by(detected_input: DetectedInput) -> bool:
 	if detected_input is DetectedInputButton:
-		return detected_input.input_id == input_id and detected_input.is_pressed != is_triggered_on_release
+		return detected_input.id == input_id and detected_input.is_pressed != is_triggered_on_release
 
 	return false

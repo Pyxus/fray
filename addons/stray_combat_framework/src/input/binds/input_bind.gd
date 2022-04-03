@@ -1,5 +1,5 @@
 extends Resource
-#TODO: Don't be lazy... append the suffix input_bind to all binds for consistency
+
 var _previously_pressed: bool
 
 func poll() -> void:

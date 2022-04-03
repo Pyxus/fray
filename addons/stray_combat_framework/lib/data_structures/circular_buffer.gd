@@ -61,9 +61,10 @@ func peek_at(position: int):
 
 func read():
     if not empty():
+        var item = peek()
         _read_index = wrapi(_read_index + 1, 0, capacity)
         _is_full = false
-        return peek()
+        return item
     return null
 
 
@@ -86,7 +87,13 @@ func get_read_index() -> int:
 func get_write_index() -> int:
     return _write_index
 
+
+func clear() -> void:
+    _read_index = 0
+    _write_index = 0
+    _is_full = false
     
+
 func _iter_init(arg):
     return not empty()
 

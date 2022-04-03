@@ -1,6 +1,10 @@
 extends Node
 ## docstring
 
+#TODO: See if buffer can be improved further.
+	# Havn't looked into it but I think "garbage" inputs are clogging up the buffer.
+	# If the buffer capacity is large enough it feels very smooth, but maybe it can be improved wouth need for a high capacity?
+
 signal situation_changed(from, to)
 signal combat_state_changed(from, to)
 
@@ -23,7 +27,7 @@ export var state_machine: Resource # CombatTreeFSM
 export var input_detector: NodePath
 export var active: bool
 export var allow_combat_transitions: bool
-export var input_buffer_capacity: int = 3
+export var input_buffer_capacity: int = 10
 export var input_max_time_in_buffer: float = 0.1
 export(ProcessMode) var process_mode: int setget set_process_mode
 
@@ -34,6 +38,7 @@ onready var _input_detector: InputDetector = get_node_or_null(input_detector)
 var _conditions: Dictionary # Dictionary<String, bool>
 var _external_condition_evaluator: FuncRef
 var _input_buffer := CircularBuffer.new() # CircularBuffer<BufferedInput>
+var _buffered_state: String
 
 #optional built-in virtual _init method
 
@@ -76,28 +81,23 @@ func advance(delta: float) -> void:
 
 			emit_signal("situation_state_changed", previous_situation_state, state_machine.current_state)
 	
-	if combat_fsm != null and active and not _input_buffer.empty():
-		var inputs_to_erase: Array
+	if combat_fsm != null and active:
+		var current_time := OS.get_ticks_msec()
 
-		for buffered_input in _input_buffer:
-			var next_state := combat_fsm.get_next_state(buffered_input.detected_input)
+		if not _input_buffer.empty():
+			for buffered_input in _input_buffer:
+				var next_state := combat_fsm.get_next_state(buffered_input.detected_input)
 
-			if next_state.empty():
-				inputs_to_erase.append(buffered_input)
-			elif allow_combat_transitions:
-				var previous_state: String = combat_fsm.current_state
-				combat_fsm.advance_to(next_state)
-				combat_fsm.time_since_last_input = OS.get_ticks_msec() / 1000.0
-				inputs_to_erase.append(buffered_input)
-				emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
-			
-			if buffered_input.time_in_buffer >= input_max_time_in_buffer:
-				inputs_to_erase.append(buffered_input)
-			else:
-				buffered_input.time_in_buffer += delta
-		
-		for buffered_input in inputs_to_erase:
-			_input_buffer.erase(buffered_input)
+				if not next_state.empty() and (current_time - buffered_input.time_buffered) <= input_max_time_in_buffer * 1000:
+					_buffered_state = next_state
+					break
+
+		if allow_combat_transitions and not _buffered_state.empty():
+			var previous_state: String = combat_fsm.current_state
+			combat_fsm.advance_to(_buffered_state)
+			combat_fsm.time_since_last_input = current_time / 1000.0
+			_buffered_state = ""
+			emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
 
 
 func goto_initial_combat_state() -> void:
@@ -118,10 +118,10 @@ func goto_initial_combat_state() -> void:
 
 func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_input := BufferedInput.new()
-	var current_buffer_size: int = _input_buffer.size()
 
 	buffered_input.detected_input = detected_input
-	_input_buffer.append(buffered_input)
+	buffered_input.time_buffered = OS.get_ticks_msec()
+	_input_buffer.add(buffered_input)
 
 
 func set_process_mode(value: int) -> void:
@@ -160,6 +160,11 @@ func is_condition_true(condition: String) -> bool:
 	return false
 
 
+func clear_buffer() -> void:
+	_buffered_state = ""
+	_input_buffer.clear()
+
+
 func _update_evaluator_functions() -> void:
 	if _external_condition_evaluator != null and not _conditions.empty():
 		push_warning("Combat tree has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
@@ -180,7 +185,7 @@ class BufferedInput:
 
 	var detected_input: DetectedInput
 	var time_in_buffer: float
-	var time_added: int
+	var time_buffered: int
 
 
 """

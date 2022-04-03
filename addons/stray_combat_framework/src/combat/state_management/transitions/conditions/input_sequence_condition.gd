@@ -10,6 +10,6 @@ func _init(sequence_name: String) -> void:
 
 func is_satisfied_by(detected_input: DetectedInput) -> bool:
 	if detected_input is DetectedInputSequence:
-		return detected_input.sequence_name == sequence_name
+		return detected_input.name == sequence_name
 		
 	return false
