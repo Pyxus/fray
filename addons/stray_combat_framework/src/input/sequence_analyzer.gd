@@ -1,14 +1,6 @@
 extends Resource
 ## docstring
 
-#TODO: Allow rescan of inputs after accepted inputs
-	# Say for instance the sequence 236P is detected and accepted.
-	# If there exists a 2>3>6>P>2>3>6>P but 236P236S is entered.
-	# No rescan will be performed as rescan currently does not occur after 1 sequence has been discovered.
-	# And as it is if this is removed then rescan will check ever input from 3 -> S.
-	# Instead this limitation should be removed and rescan should perform its check starting from the 2 after the first P.
-	# That being said while I think it should be supported it should be encouraged to not design sequences like this.
-
 signal match_found(sequence_name)
 
 #enums
@@ -26,7 +18,7 @@ var _root := InputNode.new()
 var _current_node: InputNode = _root
 var _sequence_by_path: Dictionary # Dictionary<string, SequenceInput[]>
 var _input_queue: Array # DetectedInputButton[]
-var _has_discovered_sequence: bool
+var _rescan_start_index: int = 1
 
 #onready variables
 
@@ -38,17 +30,19 @@ var _has_discovered_sequence: bool
 func advance(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
 	_input_queue.append(input_button)
-
+	print("Detected Input: ", input_button.id)
 	if next_node != null:
 		_current_node = next_node
 	else:
+		print("Triggered Rescan: ", input_button.id)
 		_rescan()
 
 	var _input_path := _get_inputs_as_path()
 	if _sequence_by_path.has(_input_path):
 		for sequence_input in _sequence_by_path[_input_path]:
 			if sequence_input.is_satisfied_by(_input_queue):
-				_has_discovered_sequence = true
+				_rescan_start_index = _input_queue.size()
+				print(sequence_input.sequence_name)
 				emit_signal("match_found", sequence_input.sequence_name)
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
@@ -56,7 +50,8 @@ func advance(input_button: DetectedInputButton) -> void:
 
 func revert() -> void:
 	_current_node = _root
-	_has_discovered_sequence = false
+	#_has_discovered_sequence = false
+	_rescan_start_index = 1
 	_input_queue.clear()
 
 
@@ -94,10 +89,12 @@ func destroy_tree() -> void:
 
 func _rescan() -> void:
 	var has_sub_sequence_match: bool = false
-	if not _has_discovered_sequence and _input_queue.size() >= 2:
+	var last_button: DetectedInputButton = _input_queue.back()
+
+	if _input_queue.size() >= 2:
 		var input_count: int = _input_queue.size() 
 		
-		for scan_index in range(1, input_count):
+		for scan_index in range(_rescan_start_index, input_count):
 			var next_node = _root
 
 			for i in range(scan_index, input_count):
@@ -110,16 +107,11 @@ func _rescan() -> void:
 				_current_node = next_node
 				_input_queue = _input_queue.slice(scan_index, input_count)
 				has_sub_sequence_match = true
-				break
+				_rescan_start_index = 1
+				print("Successful Rescan")
+				return
 
-	if not has_sub_sequence_match:
-		var last_button: DetectedInputButton = _input_queue.back()
-		var next_node = _root.get_next(last_button.id)	
-		
-		revert()
-		if next_node != null:
-			_current_node = next_node
-			_input_queue.append(last_button)
+	revert()
 
 
 func _get_inputs_as_path() -> String:

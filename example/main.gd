@@ -21,22 +21,7 @@ enum Btn {
 onready var input_detector = get_node("NewInputDetector")
 
 func _ready() -> void:
-	input_detector.bind_action_input(Btn.UP, "up")
-	input_detector.bind_action_input(Btn.DOWN, "down")
-	input_detector.bind_action_input(Btn.LEFT, "left")
-	input_detector.bind_action_input(Btn.RIGHT, "right")
-	input_detector.bind_action_input(Btn.KICK, "kick")
-	input_detector.bind_action_input(Btn.PUNCH, "punch")
-	input_detector.bind_action_input(Btn.SLASH, "slash")
-	input_detector.bind_action_input(Btn.HEAVY_SLASH, "heavy_slash")
-	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
-	input_detector.register_input_combination(Btn.UP_LEFT, [Btn.UP, Btn.LEFT], true)
-	input_detector.register_input_combination(Btn.UP_RIGHT, [Btn.UP, Btn.RIGHT], true)
-	input_detector.register_input_combination(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], true)
-	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
-	
-	input_detector.register_sequence(SequenceData.new("qcfp", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("dp", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
+
 	"""
 	var input_history_display = $UI/InputHistoryDisplay
 	#input_history_display.input_detector = $Player.input_detector

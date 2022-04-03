@@ -1973,8 +1973,8 @@ hit_attributes = ExtResource( 22 )
 shape = SubResource( 130 )
 
 [node name="5S-5S" type="Node2D" parent="HitStateController2D"]
-visible = false
 script = ExtResource( 4 )
+is_active = true
 
 [node name="HurtBoxes" type="Node2D" parent="HitStateController2D/5S-5S"]
 script = ExtResource( 12 )
@@ -2262,8 +2262,8 @@ position = Vector2( 53.3067, 2.36232 )
 shape = SubResource( 201 )
 
 [node name="214P" type="Node2D" parent="HitStateController2D"]
+visible = false
 script = ExtResource( 4 )
-is_active = true
 
 [node name="HurtBoxSwitcher" type="Node2D" parent="HitStateController2D/214P"]
 script = ExtResource( 12 )

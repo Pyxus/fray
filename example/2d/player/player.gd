@@ -51,6 +51,9 @@ func _ready() -> void:
 	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
 	
 	input_detector.register_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
+	input_detector.register_sequence(SequenceData.new("236P", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
+	input_detector.register_sequence(SequenceData.new("DP", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
+	input_detector.register_sequence(SequenceData.new("236P214S", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH, Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.SLASH]))
 	
 	# Input Conditions
 	var punch_input_condition := InputButtonCondition.new(Btn.PUNCH)
@@ -182,4 +185,5 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 
 
 func _on_CombatTree_combat_state_changed(from: String, to: String) -> void:
-	print("State changed %s->%s" % [from, to])
+	#print("State changed %s->%s" % [from, to])
+	pass
