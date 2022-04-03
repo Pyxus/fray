@@ -89,8 +89,9 @@ func apply_impulse(offset: Vector2, impulse: Vector2) -> void:
 	allow_force_resolution()
 	
 # TODO: Determine if contacting updating is useful 
-# So I think the original idea of this was some kind of performancing saving measure... Maybe?
-# Can't remmeber and im not sure if this is useful. Consider removing.
+	# So I think the original idea of this was some kind of performancing saving measure... Maybe?
+	# That or it was meant to create a rolling window for things like floor detection on a bumpy surface?
+	# Can't remmeber and im not sure if this is useful. Consider removing.
 func update_contacts() -> void:
 	if _contact_timer.is_stopped():
 		var contact_count := _body_state.get_contact_count()

@@ -1,6 +1,14 @@
 extends Resource
 ## docstring
 
+#TODO: Allow rescan of inputs after accepted inputs
+	# Say for instance the sequence 236P is detected and accepted.
+	# If there exists a 2>3>6>P>2>3>6>P but 236P236S is entered.
+	# No rescan will be performed as rescan currently does not occur after 1 sequence has been discovered.
+	# And as it is if this is removed then rescan will check ever input from 3 -> S.
+	# Instead this limitation should be removed and rescan should perform its check starting from the 2 after the first P.
+	# That being said while I think it should be supported it should be encouraged to not design sequences like this.
+
 signal match_found(sequence_name)
 
 #enums
