@@ -1,6 +1,6 @@
 extends Node
 
-const SequenceData = preload("res://addons/stray_combat_framework/src/new_input/sequence_data.gd")
+const SequenceData = StrayCF.SequenceData
 
 enum Btn {
 	UP,
