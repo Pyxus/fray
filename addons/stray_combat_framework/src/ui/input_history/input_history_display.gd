@@ -1,5 +1,6 @@
 extends PanelContainer
 
+"""
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const DetectedVirtualInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_virtual_input.gd")
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
@@ -72,3 +73,4 @@ func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	if detected_input is DetectedVirtualInput:
 		if detected_input.is_pressed:
 			add_input(detected_input)
+"""
