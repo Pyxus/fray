@@ -100,7 +100,10 @@ func advance(delta: float) -> void:
 			emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
 
 
-func goto_initial_combat_state() -> void:
+func goto_initial_combat_state(ignore_buffer: bool = false) -> void:
+	if not ignore_buffer and not _buffered_state.empty():
+		return
+
 	var combat_fsm: CombatFSM = state_machine.get_combat_fsm() as CombatFSM
 	if combat_fsm == null:
 		return

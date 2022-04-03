@@ -41,7 +41,7 @@ func set_capacity(value: int) -> void:
 func add(item) -> bool:
     if not _is_full:
         _buffer[_write_index] = item
-        _write_index = wrapi(_write_index + 1, 0, capacity)
+        _write_index = (_write_index + 1) % capacity
         _is_full = _write_index == _read_index
         return true
     return false
@@ -62,7 +62,7 @@ func peek_at(position: int):
 func read():
     if not empty():
         var item = peek()
-        _read_index = wrapi(_read_index + 1, 0, capacity)
+        _read_index = (_read_index + 1) % capacity
         _is_full = false
         return item
     return null
