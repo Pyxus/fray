@@ -23,6 +23,7 @@ enum Btn {
 	SLASH,
 	HEAVY_SLASH,
 	RIGHT_PUNCH,
+	FORWARD,
 }
 
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")

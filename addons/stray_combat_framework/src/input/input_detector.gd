@@ -6,12 +6,6 @@ extends Node
 	# This is because if released inputs were also fed the analyzer would always fail to find a match.
 	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
 	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
-#TODO: Add support for motion inputs
-	# Motion inputs change their directional buttons based on a fighter's position relative to another fighter.
-	# Right now this is not easy to set up...
-	# 1 way to do this is add a new directional_input_bind and override its methods
-	# to change their return based on the current direction.
-	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of conditional changes
 
 signal input_detected(detected_input)
 
@@ -25,11 +19,12 @@ const DetectedInput = preload("detected_inputs/detected_input.gd")
 const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
 const DetectedInputSequence = preload("detected_inputs/detected_input_sequence.gd")
 const InputBind = preload("binds/input_bind.gd")
-const ActionInput = preload("binds/action_input_bind.gd")
-const JoystickInput = preload("binds/joystick_input_bind.gd")
-const JoystickAxisInput = preload("binds/joystick_input_bind.gd")
-const KeyboardInput = preload("binds/keyboard_input_bind.gd")
-const MouseInput = preload("binds/mouse_input_bind.gd")
+const ActionInputBind = preload("binds/action_input_bind.gd")
+const JoystickInputBind = preload("binds/joystick_input_bind.gd")
+const JoystickAxisInputBind = preload("binds/joystick_input_bind.gd")
+const KeyboardInputBind = preload("binds/keyboard_input_bind.gd")
+const MouseInputBind = preload("binds/mouse_input_bind.gd")
+const ConditionalInputBind = preload("binds/conditional_input_bind.gd")
 const CombinationInput = preload("combination_input.gd")
 
 #exported variables
@@ -41,6 +36,8 @@ var _combination_input_by_id: Dictionary # Dictionary<int, InputCombination>
 var _input_by_id: Dictionary # Dictionary<int, InputBind>
 var _detected_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
 var _ignored_input_hash_set: Dictionary # Dictionary<int, bool>
+var _conditions: Dictionary # Dictionary<String, bool>
+var _condition_evaluator_func := funcref(self, "is_condition_true")
 
 #onready variables
 
@@ -125,6 +122,20 @@ func _process(delta: float) -> void:
 		detected_input.time_held += delta
 
 
+func is_condition_true(condition: String) -> bool:
+	if _conditions.has(condition):
+		return _conditions[condition]
+	return false
+
+
+func clear_conditions() -> void:
+	_conditions.clear()
+
+
+func set_condition(condition: String, value: bool) -> void:
+	_conditions[condition] = value
+
+
 func is_input_pressed(id: int) -> bool:
 	if _input_by_id.has(id):
 		return _input_by_id[id].is_pressed()
@@ -160,20 +171,20 @@ func bind_input(id: int, input_bind: InputBind) -> void:
 
 
 func bind_action_input(id: int, action: String) -> void:
-	var action_input := ActionInput.new()
+	var action_input := ActionInputBind.new()
 	action_input.action = action
 	bind_input(id, action_input)
 
 
 func bind_joystick_input(id: int, device: int, button: int) -> void:
-	var joystick_input := JoystickInput.new()
+	var joystick_input := JoystickInputBind.new()
 	joystick_input.device = device
 	joystick_input.button = button
 	bind_input(id, joystick_input)
 
 
 func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> void:
-	var joystick_axis_input := JoystickAxisInput.new()
+	var joystick_axis_input := JoystickAxisInputBind.new()
 	joystick_axis_input.device = device
 	joystick_axis_input.axis = axis
 	joystick_axis_input.deadzone = deadzone
@@ -181,17 +192,22 @@ func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> voi
 
 
 func bind_keyboard_input(id: int, key: int) -> void:
-	var keyboard_input := KeyboardInput.new()
+	var keyboard_input := KeyboardInputBind.new()
 	keyboard_input.key = key
 	bind_input(id, keyboard_input)
 
 
 func bind_mouse_input(id: int, button: int) -> void:
-	var mouse_input := MouseInput.new()
+	var mouse_input := MouseInputBind.new()
 	mouse_input.button = button
 	bind_input(id, mouse_input)
 
 
+func bind_conditional_input(id: int, conditional_input: ConditionalInputBind) -> void:
+	conditional_input.set_condition_evaluator(_condition_evaluator_func)
+	bind_input(id, conditional_input)
+
+	
 func register_input_combination(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
 	if _input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by binded input")
@@ -261,6 +277,8 @@ func _is_inputed_in_order(components: PoolIntArray, tolerance: float = 30) -> bo
 			return false
 
 	return true
+
+
 func _on_SequenceTree_match_found(sequence_name: String) -> void:
 	var detected_input := DetectedInputSequence.new()
 	detected_input.name = sequence_name
