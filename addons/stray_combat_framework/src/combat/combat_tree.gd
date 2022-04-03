@@ -14,6 +14,7 @@ enum ProcessMode {
 
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
 
 const CombatFSM = preload("state_management/combat_fsm.gd")
 const CombatSituationFSM = preload("state_management/combat_situation_fsm.gd")
@@ -22,7 +23,7 @@ export var state_machine: Resource # CombatTreeFSM
 export var input_detector: NodePath
 export var active: bool
 export var allow_combat_transitions: bool
-export var input_buffer_max_size: int = 3
+export var input_buffer_capacity: int = 3
 export var input_max_time_in_buffer: float = 0.1
 export(ProcessMode) var process_mode: int setget set_process_mode
 
@@ -32,7 +33,7 @@ onready var _input_detector: InputDetector = get_node_or_null(input_detector)
 
 var _conditions: Dictionary # Dictionary<String, bool>
 var _external_condition_evaluator: FuncRef
-var _input_buffer: Array
+var _input_buffer := CircularBuffer.new() # CircularBuffer<BufferedInput>
 
 #optional built-in virtual _init method
 
@@ -43,6 +44,7 @@ func _ready() -> void:
 	if state_machine != null:
 		state_machine.initialize()
 
+	_input_buffer.capacity = input_buffer_capacity
 	set_process_mode(process_mode)
 	_update_evaluator_functions()
 
@@ -86,8 +88,8 @@ func advance(delta: float) -> void:
 				var previous_state: String = combat_fsm.current_state
 				combat_fsm.advance_to(next_state)
 				combat_fsm.time_since_last_input = OS.get_ticks_msec() / 1000.0
-				emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
 				inputs_to_erase.append(buffered_input)
+				emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
 			
 			if buffered_input.time_in_buffer >= input_max_time_in_buffer:
 				inputs_to_erase.append(buffered_input)
@@ -115,11 +117,11 @@ func goto_initial_combat_state() -> void:
 
 
 func buffer_input(detected_input: DetectedInput) -> void:
-	var buffered_detected_input := BufferedDetectedInput.new()
+	var buffered_input := BufferedInput.new()
 	var current_buffer_size: int = _input_buffer.size()
 
-	buffered_detected_input.detected_input = detected_input
-	_input_buffer.append(buffered_detected_input)
+	buffered_input.detected_input = detected_input
+	_input_buffer.append(buffered_input)
 
 
 func set_process_mode(value: int) -> void:
@@ -171,13 +173,14 @@ func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
 	buffer_input(detected_input)
 
 
-class BufferedDetectedInput:
+class BufferedInput:
 	extends Reference
 
 	const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 
 	var detected_input: DetectedInput
 	var time_in_buffer: float
+	var time_added: int
 
 
 """
