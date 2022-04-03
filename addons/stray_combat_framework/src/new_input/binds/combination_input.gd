@@ -3,7 +3,7 @@ extends "input_bind.gd"
 export var input_ids: PoolIntArray setget set_input_ids
 
 var is_input_pressed_func: FuncRef
-var has_input_func: FuncRef
+var has_bind_func: FuncRef
 
 func is_pressed() -> bool:
 	if not map_has_inputs():
@@ -30,7 +30,7 @@ func set_input_ids(value: PoolIntArray) -> void:
 
 func map_has_inputs() -> bool:
 	for input in input_ids:
-		if not has_input_func.call_func(input):
+		if not has_bind_func.call_func(input):
 			push_error("Input with id %d does not exist in input map." % input)
 			return false
 	

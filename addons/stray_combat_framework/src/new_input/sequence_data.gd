@@ -6,9 +6,10 @@ const DetectedInput = preload("detected_inputs/detected_input.gd")
 var sequence_name: String
 var input_requirements: Array
 
-func _init(name: String = "", requirements: Array = []) -> void:
+func _init(name: String = "", requirements: PoolIntArray = []) -> void:
     sequence_name = name
-    input_requirements = requirements
+    
+    append_inputs(requirements)
 
 
 func append_input(id: int, max_delay: float = 0.2, min_time_held: float = 0.0) -> void:
@@ -34,14 +35,11 @@ func is_satisfied_by(input_sequence: Array) -> bool:
 
         if detected_input.id != input_requirement.input_id:
             return false
-        
-        if detected_input.is_pressed != input_requirement.is_pressed_input:
-            return false
-            
+
         if detected_input.time_held < input_requirement.min_time_held:
             return false
         
-        if i > 0 and detected_input.get_time_between(input_sequence[i - 1]) > input_requirement.max_delay:
+        if i > 0 and detected_input.get_time_between(input_sequence[i - 1]) / 1000.0 > input_requirement.max_delay:
             return false
 
     return true
