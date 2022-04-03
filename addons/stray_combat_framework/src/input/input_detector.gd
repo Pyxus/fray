@@ -165,21 +165,17 @@ func is_input_just_released(id: int) -> bool:
 		return false
 
 
-func bind_input(id: int, input_bind: InputBind) -> void:
-	_input_by_id[id] = input_bind
-
-
 func bind_action_input(id: int, action: String) -> void:
 	var action_input := ActionInput.new()
 	action_input.action = action
-	bind_input(id, action_input)
+	_bind_input(id, action_input)
 
 
 func bind_joystick_input(id: int, device: int, button: int) -> void:
 	var joystick_input := JoystickInput.new()
 	joystick_input.device = device
 	joystick_input.button = button
-	bind_input(id, joystick_input)
+	_bind_input(id, joystick_input)
 
 
 func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> void:
@@ -187,19 +183,19 @@ func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> voi
 	joystick_axis_input.device = device
 	joystick_axis_input.axis = axis
 	joystick_axis_input.deadzone = deadzone
-	bind_input(id, joystick_axis_input)
+	_bind_input(id, joystick_axis_input)
 
 
 func bind_keyboard_input(id: int, key: int) -> void:
 	var keyboard_input := KeyboardInput.new()
 	keyboard_input.key = key
-	bind_input(id, keyboard_input)
+	_bind_input(id, keyboard_input)
 
 
 func bind_mouse_input(id: int, button: int) -> void:
 	var mouse_input := MouseInput.new()
 	mouse_input.button = button
-	bind_input(id, mouse_input)
+	_bind_input(id, mouse_input)
 
 
 func register_input_combination(id: int, combined_ids: PoolIntArray, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
@@ -229,6 +225,10 @@ func register_input_combination(id: int, combined_ids: PoolIntArray, press_held_
 
 func register_sequence(sequence_data: SequenceData) -> void:
 	_sequence_analyzer.register_sequence(sequence_data)
+
+
+func _bind_input(id: int, input_bind: InputBind) -> void:
+	_input_by_id[id] = input_bind
 
 
 func _ignore_input(input_id: int) -> void:
