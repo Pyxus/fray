@@ -30,11 +30,10 @@ var _rescan_start_index: int = 1
 func advance(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
 	_input_queue.append(input_button)
-	print("Detected Input: ", input_button.id)
+
 	if next_node != null:
 		_current_node = next_node
 	else:
-		print("Triggered Rescan: ", input_button.id)
 		_rescan()
 
 	var _input_path := _get_inputs_as_path()
@@ -42,7 +41,6 @@ func advance(input_button: DetectedInputButton) -> void:
 		for sequence_input in _sequence_by_path[_input_path]:
 			if sequence_input.is_satisfied_by(_input_queue):
 				_rescan_start_index = _input_queue.size()
-				print(sequence_input.sequence_name)
 				emit_signal("match_found", sequence_input.sequence_name)
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
@@ -108,7 +106,6 @@ func _rescan() -> void:
 				_input_queue = _input_queue.slice(scan_index, input_count)
 				has_sub_sequence_match = true
 				_rescan_start_index = 1
-				print("Successful Rescan")
 				return
 
 	revert()
