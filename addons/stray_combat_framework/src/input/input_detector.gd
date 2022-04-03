@@ -1,18 +1,30 @@
 extends Node
 ## docstring
 
-#TODO: Implement support for charged inputs
+#TODO: Add support for charged inputs
 	# Right now only pressed inputs are fed to the sequence analyzer.
 	# This is because if released inputs were also fed the analyzer would always fail to find a match.
 	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
 	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
-#TODO: Implement support for motion inputs
+#TODO: Add support for motion inputs
 	# Motion inputs change their directional buttons based on a fighter's position relative to another fighter.
 	# Right now this is not easy to set up...
 	# 1 way to do this is add a new directional_input_bind and override its methods
 	# to change their return based on the current direction.
 	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of conditional changes
-
+#TODO: Add support for ordered combination inputs
+	# Combination inputs were supposed to be order independent. However, currently inputs like "6 pressed first + P".
+	# To elaborate... 
+	# 	1. in Strive 6P will only trigger if 6 and P are pressed at the same time or 6 is pressed then P is pressed.
+	# 	2. if 6 is held P can be repressed to trigger 6P again. 
+	# In the current system if this is added as a sequence then 6 must be pressed then P must be pressed in that order.
+	# Also if 6 is held for too long then pressing P can never again triggger the sequence until 6 is released so point 1 and 2 fail.
+	# If added is a normal combination input then 6P will trigger when both 6 and P are held.
+	# This can be at the same time or when 6 then P are pressed which satisfies point 1.
+	# But fails point 2 since pressing P then 6 will also trigger a 6P.
+	# Potential solution: As support for ordering. With this an order can be established so the combination only triggers if the buttons are pressed in order.
+	# The order will be evaluated based on input time stamps. In this way combination inputs will no longer always be order independent.
+	# However, they will still in a sense be time independent as the amount of time that elapses between inputs is irrelevant.
 signal input_detected(detected_input)
 
 #enums
