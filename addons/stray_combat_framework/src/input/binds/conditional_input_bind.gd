@@ -1,6 +1,11 @@
 extends "input_bind.gd"
 ## docstring
 
+#TODO: Switch to using ids instead of binds.
+    # In addition this class should no longer be a bind class.
+    # This should be done mainly to support combination inputs.
+    # Right now it's impossible to have inputs like 3, 9, 7, and 1 as options
+
 #signals
 
 #enums
