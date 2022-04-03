@@ -12,19 +12,7 @@ extends Node
 	# 1 way to do this is add a new directional_input_bind and override its methods
 	# to change their return based on the current direction.
 	# Maybe consider making it generic as a 'conditional_input_bind' to allow support any number of conditional changes
-#TODO: Add support for ordered combination inputs
-	# Combination inputs were supposed to be order independent. However, currently inputs like "6 pressed first + P".
-	# To elaborate... 
-	# 	1. in Strive 6P will only trigger if 6 and P are pressed at the same time or 6 is pressed then P is pressed.
-	# 	2. if 6 is held P can be repressed to trigger 6P again. 
-	# In the current system if this is added as a sequence then 6 must be pressed then P must be pressed in that order.
-	# Also if 6 is held for too long then pressing P can never again triggger the sequence until 6 is released so point 1 and 2 fail.
-	# If added is a normal combination input then 6P will trigger when both 6 and P are held.
-	# This can be at the same time or when 6 then P are pressed which satisfies point 1.
-	# But fails point 2 since pressing P then 6 will also trigger a 6P.
-	# Potential solution: As support for ordering. With this an order can be established so the combination only triggers if the buttons are pressed in order.
-	# The order will be evaluated based on input time stamps. In this way combination inputs will no longer always be order independent.
-	# However, they will still in a sense be time independent as the amount of time that elapses between inputs is irrelevant.
+
 signal input_detected(detected_input)
 
 #enums
@@ -94,7 +82,9 @@ func _process(delta: float) -> void:
 			if  _detected_input_button_by_id.has(id):
 				continue
 
-			if combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.combined_ids):
+			if combination_input.is_ordered and not _is_inputed_in_order(combination_input.components):
+				continue
+			elif combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.components):
 				continue
 
 			var detected_input := DetectedInputButton.new()
@@ -105,12 +95,12 @@ func _process(delta: float) -> void:
 			
 			combination_input.is_pressed = true
 
-			for cid in combination_input.combined_ids:
+			for cid in combination_input.components:
 				_ignore_input(cid)
 
 		elif _detected_input_button_by_id.has(id):
 			if combination_input.press_held_components_on_release:
-				for cid in combination_input.combined_ids:
+				for cid in combination_input.components:
 					if is_input_pressed(cid):
 						_detected_input_button_by_id[cid].time_stamp = time_stamp
 						_unignore_input(cid)
@@ -202,28 +192,34 @@ func bind_mouse_input(id: int, button: int) -> void:
 	bind_input(id, mouse_input)
 
 
-func register_input_combination(id: int, combined_ids: PoolIntArray, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
+func register_input_combination(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
 	if _input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by binded input")
 		return
 
-	if id in combined_ids:
-		push_error("Failed to register combination input. Combination id can not be included in input ids")
+	if id in components:
+		push_error("Failed to register combination input. Combination id can not be included in components")
 		return
 	
-	if combined_ids.size() < 2:
-		push_error("Failed to register combination input. Combination must contain 2 or more inputs.")
+	if components.size() <= 1:
+		push_error("Failed to register combination input. Combination must contain 2 or more components.")
 		return
 
-	for comb_id in combined_ids:
-		if not _input_by_id.has(comb_id):
-			push_error("Failed to register combination input. Combined ids contain unbinded input '%d'" % comb_id)
+	for cid in components:
+		if not _input_by_id.has(cid):
+			push_error("Failed to register combination input. Combined ids contain unbinded input '%d'" % cid)
 			return
 
 	var combination_input := CombinationInput.new()
-	combination_input.combined_ids = combined_ids
+	combination_input.components = components
+	combination_input.is_ordered = is_ordered
 	combination_input.is_simeultaneous = is_simeultaneous
 	combination_input.press_held_components_on_release = press_held_components_on_release
+	
+	if is_simeultaneous and is_ordered:
+		push_warning("Combination input can not be strictly simeultaneous if an order is given.")
+		combination_input.is_simeultaneous = false
+
 	_combination_input_by_id[id] = combination_input
 
 
@@ -240,19 +236,31 @@ func _unignore_input(input_id: int) -> void:
 		_ignored_input_hash_set.erase(input_id)
 
 
-func _is_inputed_quick_enough(combined_ids: PoolIntArray, tolerance: float = 30) -> bool:
+func _is_inputed_quick_enough(components: PoolIntArray, tolerance: float = 30) -> bool:
 	var avg_difference := 0
-	for i in len(combined_ids):
+	for i in len(components):
 		if i > 0:
-			avg_difference += _detected_input_button_by_id[combined_ids[i]].get_time_between(_detected_input_button_by_id[combined_ids[i - 1]])
+			avg_difference += _detected_input_button_by_id[components[i]].get_time_between(_detected_input_button_by_id[components[i - 1]])
 
-	avg_difference /= float(combined_ids.size())
+	avg_difference /= float(components.size())
 	if avg_difference <= tolerance:
 		return true
 	
 	return false
 
 
+func _is_inputed_in_order(components: PoolIntArray, tolerance: float = 30) -> bool:
+	if components.size() <= 1:
+		return false
+
+	for i in range(1, components.size()):
+		var input1: DetectedInput = _detected_input_button_by_id[components[i - 1]]
+		var input2: DetectedInput = _detected_input_button_by_id[components[i]]
+
+		if input1.time_stamp - tolerance > input2.time_stamp:
+			return false
+
+	return true
 func _on_SequenceTree_match_found(sequence_name: String) -> void:
 	var detected_input := DetectedInputSequence.new()
 	detected_input.name = sequence_name

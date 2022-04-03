@@ -22,6 +22,7 @@ enum Btn {
 	PUNCH,
 	SLASH,
 	HEAVY_SLASH,
+	RIGHT_PUNCH,
 }
 
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
@@ -36,6 +37,7 @@ func _ready() -> void:
 	Engine.time_scale = .8
 
 	# Set up inputs
+	input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
 	input_detector.bind_action_input(Btn.UP, "up")
 	input_detector.bind_action_input(Btn.DOWN, "down")
 	input_detector.bind_action_input(Btn.LEFT, "left")
@@ -44,15 +46,16 @@ func _ready() -> void:
 	input_detector.bind_action_input(Btn.PUNCH, "punch")
 	input_detector.bind_action_input(Btn.SLASH, "slash")
 	input_detector.bind_action_input(Btn.HEAVY_SLASH, "heavy_slash")
-	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
-	input_detector.register_input_combination(Btn.UP_LEFT, [Btn.UP, Btn.LEFT], true)
-	input_detector.register_input_combination(Btn.UP_RIGHT, [Btn.UP, Btn.RIGHT], true)
-	input_detector.register_input_combination(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], true)
-	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], true)
+	input_detector.register_input_combination(Btn.RIGHT_PUNCH, [Btn.RIGHT, Btn.PUNCH], true)
+	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], false, true)
+	input_detector.register_input_combination(Btn.UP_LEFT, [Btn.UP, Btn.LEFT], false, true)
+	input_detector.register_input_combination(Btn.UP_RIGHT, [Btn.UP, Btn.RIGHT], false, true)
+	input_detector.register_input_combination(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], false, true)
+	input_detector.register_input_combination(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], false, true)
 	
 	input_detector.register_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
 	input_detector.register_sequence(SequenceData.new("236P", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("DP", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
+	input_detector.register_sequence(SequenceData.new("623P", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
 	input_detector.register_sequence(SequenceData.new("236P214S", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH, Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.SLASH]))
 	
 	# Input Conditions
@@ -183,6 +186,8 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 				combat_animation_player.reset()
 """
 
+func _on_InputDetector_input_detected(detected_input) -> void:
+	pass
 
 func _on_CombatTree_combat_state_changed(from: String, to: String) -> void:
 	#print("State changed %s->%s" % [from, to])

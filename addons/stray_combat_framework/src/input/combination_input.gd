@@ -11,7 +11,8 @@ extends Resource
 
 #exported variables
 
-var combined_ids: PoolIntArray
+var components: PoolIntArray
+var is_ordered: bool
 var is_simeultaneous: bool
 var press_held_components_on_release: bool
 var is_pressed: bool
@@ -41,7 +42,7 @@ func has_ids(ids: PoolIntArray) -> bool:
     if ids.empty():
         return false
 
-    for id in combined_ids:
+    for id in components:
         if not id in ids:
             return false
     return true
