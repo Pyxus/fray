@@ -1,3 +1,5 @@
+#TODO: Has not been tested since before rework
+
 extends PanelContainer
 
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
