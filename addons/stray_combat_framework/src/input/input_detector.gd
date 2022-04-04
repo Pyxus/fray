@@ -24,16 +24,17 @@ const JoystickInputBind = preload("binds/joystick_input_bind.gd")
 const JoystickAxisInputBind = preload("binds/joystick_input_bind.gd")
 const KeyboardInputBind = preload("binds/keyboard_input_bind.gd")
 const MouseInputBind = preload("binds/mouse_input_bind.gd")
-const ConditionalInputBind = preload("binds/conditional_input_bind.gd")
 const CombinationInput = preload("combination_input.gd")
+const ConditionalInput = preload("conditional_input.gd")
 
 #exported variables
 
 #public variables
 
 var _sequence_analyzer := SequenceAnalyzer.new()
-var _combination_input_by_id: Dictionary # Dictionary<int, InputCombination>
-var _input_by_id: Dictionary # Dictionary<int, InputBind>
+var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
+var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
+var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
 var _detected_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
 var _ignored_input_hash_set: Dictionary # Dictionary<int, bool>
 var _conditions: Dictionary # Dictionary<String, bool>
@@ -52,8 +53,8 @@ func _process(delta: float) -> void:
 	var time_stamp := OS.get_ticks_msec()
 
 	# Check individual inputs
-	for id in _input_by_id:
-		var input_bind := _input_by_id[id] as InputBind
+	for id in _input_bind_by_id:
+		var input_bind := _input_bind_by_id[id] as InputBind
 		
 		if input_bind.is_just_pressed():
 			var detected_input := DetectedInputButton.new()
@@ -112,6 +113,31 @@ func _process(delta: float) -> void:
 		
 		combination_input.poll()
 
+	# Check conditional inputs
+	for id in _conditional_input_by_id:
+		var conditional_input := _conditional_input_by_id[id] as ConditionalInput
+
+		if is_input_just_pressed(conditional_input.current_input):
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = true
+			_detected_input_button_by_id[id] = detected_input
+		elif is_input_just_released(conditional_input.current_input):
+			var detected_input: DetectedInputButton = _detected_input_button_by_id[id]
+			detected_input.is_pressed = false
+			_detected_input_button_by_id.erase(id)
+			emit_signal("input_detected", detected_input)
+			_unignore_input(id)
+
+		# Update current condition
+		conditional_input.current_input = conditional_input.default_input
+		for condition in conditional_input.input_by_condition:
+			if is_condition_true(condition):
+				conditional_input.current_input = conditional_input.input_by_condition[condition]
+				break
+		
+
 	# Feed detected inputs to sequence analyzer and emit detection signals
 	for id in _detected_input_button_by_id:
 		var detected_input: DetectedInput = _detected_input_button_by_id[id]
@@ -137,8 +163,8 @@ func set_condition(condition: String, value: bool) -> void:
 
 
 func is_input_pressed(id: int) -> bool:
-	if _input_by_id.has(id):
-		return _input_by_id[id].is_pressed()
+	if _input_bind_by_id.has(id):
+		return _input_bind_by_id[id].is_pressed()
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_pressed
 	else:
@@ -147,8 +173,8 @@ func is_input_pressed(id: int) -> bool:
 
 
 func is_input_just_pressed(id: int) -> bool:
-	if _input_by_id.has(id):
-		return _input_by_id[id].is_just_pressed()
+	if _input_bind_by_id.has(id):
+		return _input_bind_by_id[id].is_just_pressed()
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_just_pressed()
 	else:
@@ -157,8 +183,8 @@ func is_input_just_pressed(id: int) -> bool:
 
 
 func is_input_just_released(id: int) -> bool:
-	if _input_by_id.has(id):
-		return _input_by_id[id].is_just_released()
+	if _input_bind_by_id.has(id):
+		return _input_bind_by_id[id].is_just_released()
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_just_released()
 	else:
@@ -167,7 +193,7 @@ func is_input_just_released(id: int) -> bool:
 
 
 func bind_input(id: int, input_bind: InputBind) -> void:
-	_input_by_id[id] = input_bind
+	_input_bind_by_id[id] = input_bind
 
 
 func bind_action_input(id: int, action: String) -> void:
@@ -203,14 +229,33 @@ func bind_mouse_input(id: int, button: int) -> void:
 	bind_input(id, mouse_input)
 
 
-func bind_conditional_input(id: int, conditional_input: ConditionalInputBind) -> void:
-	conditional_input.set_condition_evaluator(_condition_evaluator_func)
-	bind_input(id, conditional_input)
-
+func register_conditional_input(id: int, default_input: int, input_by_condition: Dictionary) -> void:
+	for cid in input_by_condition.values():
+		if not _input_bind_by_id.has(cid) and not _combination_input_by_id.has(cid):
+			push_error("Failed to register conditional input. Input dictionary contains unregistered and unbinded input '%d'" % cid)
+			return
+		
+		if cid == id:
+			push_error("Failed to register conditional input. Conditional input id can not be included in input dictioanry.")
+			return
 	
-func register_input_combination(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
-	if _input_by_id.has(id):
-		push_error("Failed to register combination input. Combination id is already used by binded input")
+	if not _input_bind_by_id.has(default_input) and not _combination_input_by_id.has(default_input):
+		push_error("Failed to register conditional input. Default input '%d' is not binded or a registered combination" % default_input)
+		return
+
+	if default_input == id:
+		push_error("Failed to register conditional input. Conditional input id can not be used as a default input.")
+		return
+
+	var conditional_input := ConditionalInput.new()
+	conditional_input.default_input = default_input
+	conditional_input.input_by_condition = input_by_condition
+	_conditional_input_by_id[id] = conditional_input
+
+
+func register_combination_input(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
+	if _input_bind_by_id.has(id) or _conditional_input_by_id.has(id):
+		push_error("Failed to register combination input. Combination id is already used by binded or registered input")
 		return
 
 	if id in components:
@@ -221,9 +266,17 @@ func register_input_combination(id: int, components: PoolIntArray, is_ordered: b
 		push_error("Failed to register combination input. Combination must contain 2 or more components.")
 		return
 
+	if _conditional_input_by_id.has(id):
+		push_error("Failed to register combination input. Combination components can not include conditional input")
+		return
+
 	for cid in components:
-		if not _input_by_id.has(cid):
+		if not _input_bind_by_id.has(cid):
 			push_error("Failed to register combination input. Combined ids contain unbinded input '%d'" % cid)
+			return
+		
+		if _conditional_input_by_id.has(cid):
+			push_error("Failed to register combination input. Combination components can not include a conditional input")
 			return
 
 	var combination_input := CombinationInput.new()
