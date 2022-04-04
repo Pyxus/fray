@@ -55,7 +55,7 @@ func read(input_button: DetectedInputButton) -> void:
 
 func add_sequence(sequence_data: SequenceData) -> void:
 	if sequence_data.sequence_name.empty():
-		push_error("Failed to register sequence. Sequence is not give a name")
+		push_error("Failed to add sequence. Sequence is not given a name")
 		return
 
 	var path: PoolStringArray

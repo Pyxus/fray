@@ -55,11 +55,11 @@ func _ready() -> void:
 	input_detector.register_combination_input(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], false, true)
 	input_detector.register_combination_input(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], false, true)
 	
-	input_detector.register_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.LEFT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("236P", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("623P", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
-	input_detector.register_sequence(SequenceData.new("236P214S", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH, Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.SLASH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.LEFT, Btn.PUNCH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("236P", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("623P", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("236P214S", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH, Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.SLASH]))
 	
 	# Input Conditions
 	var punch_input_condition := InputButtonCondition.new(Btn.PUNCH)

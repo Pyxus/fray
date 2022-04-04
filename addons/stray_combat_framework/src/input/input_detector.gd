@@ -46,6 +46,7 @@ var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
 var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
 var _detected_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
+var _released_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
 var _ignored_input_hash_set: Dictionary # Dictionary<int, bool>
 var _conditions: Dictionary # Dictionary<String, bool>
 
@@ -59,101 +60,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	var time_stamp := OS.get_ticks_msec()
-
-	# Check input binds
-	for id in _input_bind_by_id:
-		var input_bind := _input_bind_by_id[id] as InputBind
-		
-		if input_bind.is_just_pressed():
-			var detected_input := DetectedInputButton.new()
-			detected_input.id = id
-			detected_input.time_stamp = time_stamp
-			detected_input.is_pressed = true
-			detected_input.bind = input_bind.duplicate()
-			_detected_input_button_by_id[id] = detected_input
-		elif input_bind.is_just_released():
-			var detected_input: DetectedInputButton = _detected_input_button_by_id[id]
-			detected_input.is_pressed = false
-			_detected_input_button_by_id.erase(id)
-			emit_signal("input_detected", detected_input)
-			_unignore_input(id)
-		
-		input_bind.poll()
-	
-	# Check combined inputs
-	var detected_input_ids := _detected_input_button_by_id.keys()
-	for id in _combination_input_by_id:
-		var combination_input: CombinationInput = _combination_input_by_id[id]
-		if combination_input.has_ids(detected_input_ids):
-			if  _detected_input_button_by_id.has(id):
-				continue
-
-			if combination_input.is_ordered and not _is_inputed_in_order(combination_input.components):
-				continue
-			elif combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.components):
-				continue
-
-			var detected_input := DetectedInputButton.new()
-			detected_input.id = id
-			detected_input.time_stamp = time_stamp
-			detected_input.is_pressed = true
-			combination_input.is_pressed = true
-			_detected_input_button_by_id[id] = detected_input
-
-			for cid in combination_input.components:
-				_ignore_input(cid)
-
-		elif _detected_input_button_by_id.has(id):
-			if combination_input.press_held_components_on_release:
-				for cid in combination_input.components:
-					if is_input_pressed(cid):
-						_detected_input_button_by_id[cid].time_stamp = time_stamp
-						_unignore_input(cid)
-						
-			var detected_input: DetectedInputButton = _detected_input_button_by_id[id]
-			detected_input.is_pressed = false
-			combination_input.is_pressed = false
-			_detected_input_button_by_id.erase(id)
-			
-			_unignore_input(id)
-			emit_signal("input_detected", detected_input)
-		
-		combination_input.poll()
-
-	# Check conditional inputs
-	for id in _conditional_input_by_id:
-		var conditional_input := _conditional_input_by_id[id] as ConditionalInput
-
-		if is_input_just_pressed(conditional_input.current_input):
-			var detected_input := DetectedInputButton.new()
-			detected_input.id = id
-			detected_input.time_stamp = time_stamp
-			detected_input.is_pressed = true
-			_detected_input_button_by_id[id] = detected_input
-		elif is_input_just_released(conditional_input.current_input):
-			var detected_input: DetectedInputButton = _detected_input_button_by_id[id]
-			detected_input.is_pressed = false
-			_detected_input_button_by_id.erase(id)
-			emit_signal("input_detected", detected_input)
-			_unignore_input(id)
-
-		# Update current condition
-		conditional_input.current_input = conditional_input.default_input
-		for condition in conditional_input.input_by_condition:
-			if is_condition_true(condition):
-				conditional_input.current_input = conditional_input.input_by_condition[condition]
-				break
-		
-
-	# Feed detected inputs to sequence analyzer and emit detection signals
-	for id in _detected_input_button_by_id:
-		var detected_input: DetectedInput = _detected_input_button_by_id[id]
-		if not _ignored_input_hash_set.has(id):
-			sequence_analyzer.read(detected_input)
-			emit_signal("input_detected", detected_input)
-			_ignore_input(id)
-		detected_input.time_held += delta
+	_check_input_binds()
+	_check_combined_inputs()
+	_check_conditional_inputs()
+	_detect_inputs()
 
 
 func is_condition_true(condition: String) -> bool:
@@ -304,6 +214,125 @@ func register_combination_input(id: int, components: PoolIntArray, is_ordered: b
 		combination_input.is_simeultaneous = false
 
 	_combination_input_by_id[id] = combination_input
+
+
+func _check_input_binds() -> void:
+	var time_stamp := OS.get_ticks_msec()
+	for id in _input_bind_by_id:
+		var input_bind := _input_bind_by_id[id] as InputBind
+		
+		if input_bind.is_just_pressed():
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = true
+			detected_input.bind = input_bind.duplicate()
+			_detected_input_button_by_id[id] = detected_input
+		elif input_bind.is_just_released():
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = false
+			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
+			_released_input_button_by_id[id] = detected_input
+			#_detected_input_button_by_id.erase(id)
+			emit_signal("input_detected", detected_input)
+			_unignore_input(id)
+		
+		input_bind.poll()
+
+
+func _check_combined_inputs() -> void:
+	var time_stamp := OS.get_ticks_msec()
+	var detected_input_ids := _detected_input_button_by_id.keys()
+	for id in _combination_input_by_id:
+		var combination_input: CombinationInput = _combination_input_by_id[id]
+		if combination_input.has_ids(detected_input_ids):
+			if  _detected_input_button_by_id.has(id):
+				continue
+
+			if combination_input.is_ordered and not _is_inputed_in_order(combination_input.components):
+				continue
+			elif combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.components):
+				continue
+
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = true
+			combination_input.is_pressed = true
+			_detected_input_button_by_id[id] = detected_input
+
+			for cid in combination_input.components:
+				_ignore_input(cid)
+
+		elif _detected_input_button_by_id.has(id):
+			if combination_input.press_held_components_on_release:
+				for cid in combination_input.components:
+					if is_input_pressed(cid):
+						_detected_input_button_by_id[cid].time_stamp = time_stamp
+						_unignore_input(cid)
+						
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = false
+			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
+			combination_input.is_pressed = false
+			_released_input_button_by_id[id] = detected_input
+			#_detected_input_button_by_id.erase(id)
+			
+			_unignore_input(id)
+			emit_signal("input_detected", detected_input)
+		
+		combination_input.poll()
+
+
+func _check_conditional_inputs() -> void:
+	var time_stamp := OS.get_ticks_msec()
+	for id in _conditional_input_by_id:
+		var conditional_input := _conditional_input_by_id[id] as ConditionalInput
+
+		if is_input_just_pressed(conditional_input.current_input):
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = true
+			_detected_input_button_by_id[id] = detected_input
+		elif is_input_just_released(conditional_input.current_input):
+			var detected_input := DetectedInputButton.new()
+			detected_input.id = id
+			detected_input.time_stamp = time_stamp
+			detected_input.is_pressed = false
+			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
+			_released_input_button_by_id[id] = detected_input
+			#_detected_input_button_by_id.erase(id)
+			emit_signal("input_detected", detected_input)
+			_unignore_input(id)
+
+		# Update current condition
+		conditional_input.current_input = conditional_input.default_input
+		for condition in conditional_input.input_by_condition:
+			if is_condition_true(condition):
+				conditional_input.current_input = conditional_input.input_by_condition[condition]
+				break
+
+
+func _detect_inputs() -> void:
+	for id in _released_input_button_by_id:
+		var detected_input: DetectedInput = _released_input_button_by_id[id]
+		sequence_analyzer.read(detected_input)
+		emit_signal("input_detected", detected_input)
+		_detected_input_button_by_id.erase(id)
+
+	for id in _detected_input_button_by_id:
+		var detected_input: DetectedInput = _detected_input_button_by_id[id]
+		if not _ignored_input_hash_set.has(id):
+			sequence_analyzer.read(detected_input)
+			emit_signal("input_detected", detected_input)
+			_ignore_input(id)
+
+	_released_input_button_by_id.clear()
 
 
 func _ignore_input(input_id: int) -> void:
