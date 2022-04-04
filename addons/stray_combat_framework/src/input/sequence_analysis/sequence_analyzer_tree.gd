@@ -1,12 +1,11 @@
-extends Resource
+extends "sequence_analyzer.gd"
 ## docstring
 
-signal match_found(sequence_name)
+#signals
 
 #enums
 
-const SequenceData = preload("sequence_data.gd")
-const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
+#constants
 
 #preloaded scripts and scenes
 
@@ -27,7 +26,9 @@ var _rescan_start_index: int = 1
 
 #built-in virtual _ready method
 
-func advance(input_button: DetectedInputButton) -> void:
+#remaining built-in virtual methods
+
+func read(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
 
 	# Ignore released inputs if node not found
@@ -51,14 +52,8 @@ func advance(input_button: DetectedInputButton) -> void:
 	if _current_node != _root and _current_node.get_child_count() == 0:
 		revert()
 
-func revert() -> void:
-	_current_node = _root
-	#_has_discovered_sequence = false
-	_rescan_start_index = 1
-	_input_queue.clear()
 
-
-func register_sequence(sequence_data: SequenceData) -> void:
+func add_sequence(sequence_data: SequenceData) -> void:
 	if sequence_data.sequence_name.empty():
 		push_error("Failed to register sequence. Sequence is not give a name")
 		return
@@ -82,6 +77,12 @@ func register_sequence(sequence_data: SequenceData) -> void:
 		_sequence_by_path[path_string] = []
 
 	_sequence_by_path[path_string].append(sequence_data)
+
+
+func revert() -> void:
+	_current_node = _root
+	_rescan_start_index = 1
+	_input_queue.clear()
 
 
 func destroy_tree() -> void:
@@ -122,9 +123,9 @@ func _get_inputs_as_path() -> String:
 	for input in _input_queue:
 		path.append(str(input.id))
 
-	return path.join(">")	
-#signal methods
+	return path.join(">")
 
+#signal methods
 
 class InputNode:
 	extends Reference

@@ -1,7 +1,7 @@
 extends Resource
 
 const InputRequirement = preload("input_requirement.gd")
-const DetectedInput = preload("detected_inputs/detected_input.gd")
+const DetectedInput = preload("../detected_inputs/detected_input.gd")
 
 var sequence_name: String
 var input_requirements: Array

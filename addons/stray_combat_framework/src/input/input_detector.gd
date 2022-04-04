@@ -23,8 +23,9 @@ signal input_detected(detected_input)
 
 #constants
 
-const SequenceAnalyzer = preload("sequence_analyzer.gd")
-const SequenceData = preload("sequence_data.gd")
+const SequenceAnalyzer = preload("sequence_analysis/sequence_analyzer.gd")
+const SequenceAnalyzerTree = preload("sequence_analysis/sequence_analyzer_tree.gd")
+const SequenceData = preload("sequence_analysis/sequence_data.gd")
 const DetectedInput = preload("detected_inputs/detected_input.gd")
 const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
 const DetectedInputSequence = preload("detected_inputs/detected_input_sequence.gd")
@@ -34,14 +35,13 @@ const JoystickInputBind = preload("binds/joystick_input_bind.gd")
 const JoystickAxisInputBind = preload("binds/joystick_input_bind.gd")
 const KeyboardInputBind = preload("binds/keyboard_input_bind.gd")
 const MouseInputBind = preload("binds/mouse_input_bind.gd")
-const CombinationInput = preload("combination_input.gd")
-const ConditionalInput = preload("conditional_input.gd")
+const CombinationInput = preload("bind_dependent_input/combination_input.gd")
+const ConditionalInput = preload("bind_dependent_input/conditional_input.gd")
 
 #exported variables
 
-#public variables
+var sequence_analyzer := SequenceAnalyzerTree.new()
 
-var _sequence_analyzer := SequenceAnalyzer.new()
 var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
 var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
@@ -55,7 +55,7 @@ var _conditions: Dictionary # Dictionary<String, bool>
 #optional built-in virtual _init method
 
 func _ready() -> void:
-	_sequence_analyzer.connect("match_found", self, "_on_SequenceTree_match_found")
+	sequence_analyzer.connect("match_found", self, "_on_SequenceTree_match_found")
 
 
 func _process(delta: float) -> void:
@@ -150,7 +150,7 @@ func _process(delta: float) -> void:
 	for id in _detected_input_button_by_id:
 		var detected_input: DetectedInput = _detected_input_button_by_id[id]
 		if not _ignored_input_hash_set.has(id):
-			_sequence_analyzer.advance(detected_input)
+			sequence_analyzer.read(detected_input)
 			emit_signal("input_detected", detected_input)
 			_ignore_input(id)
 		detected_input.time_held += delta
@@ -304,10 +304,6 @@ func register_combination_input(id: int, components: PoolIntArray, is_ordered: b
 		combination_input.is_simeultaneous = false
 
 	_combination_input_by_id[id] = combination_input
-
-
-func register_sequence(sequence_data: SequenceData) -> void:
-	_sequence_analyzer.register_sequence(sequence_data)
 
 
 func _ignore_input(input_id: int) -> void:
