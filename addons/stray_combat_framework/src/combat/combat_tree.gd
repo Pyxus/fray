@@ -3,7 +3,7 @@ extends Node
 
 #TODO: See if buffer can be improved further.
 	# Havn't looked into it but I think "garbage" inputs are clogging up the buffer.
-	# If the buffer capacity is large enough it feels very smooth, but maybe it can be improved wouth need for a high capacity?
+	# If the buffer capacity is large enough it feels very smooth, but maybe it can be improved without need for a high capacity?
 
 signal situation_changed(from, to)
 signal combat_state_changed(from, to)

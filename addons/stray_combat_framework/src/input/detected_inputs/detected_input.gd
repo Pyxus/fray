@@ -1,4 +1,6 @@
 extends Reference
+## Base class for inputs detected by InputDetector.
+## Conceptually similiar to a godot InputEvent
 
 var time_stamp: int
 

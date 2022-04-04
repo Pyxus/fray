@@ -60,9 +60,7 @@ func _ready() -> void:
 	
 	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
 	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.LEFT, Btn.PUNCH]))
-	input_detector.sequence_analyzer.add_sequence(SequenceData.new("236P", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH]))
-	input_detector.sequence_analyzer.add_sequence(SequenceData.new("623P", [Btn.RIGHT, Btn.DOWN, Btn.DOWN_RIGHT, Btn.PUNCH]))
-	input_detector.sequence_analyzer.add_sequence(SequenceData.new("236P214S", [Btn.DOWN, Btn.DOWN_RIGHT, Btn.RIGHT, Btn.PUNCH, Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.SLASH]))
+	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
 	
 	# Input Conditions
 	var punch_input_condition := InputButtonCondition.new(Btn.PUNCH)
@@ -105,9 +103,6 @@ func _ready() -> void:
 
 func _process(_delta) -> void:
 	var combat_fms = combat_tree.state_machine.get_combat_fsm()
-
-	if input_detector.is_input_just_pressed(Btn.FORWARD):
-		print("FOWARD!")
 
 	match combat_fms.current_state:
 		"Idle":

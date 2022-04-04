@@ -1,5 +1,7 @@
 extends Resource
-## docstring
+## A virtual input composed of multiple input binds.
+## Virtually meaning the input is treated as an invidiaul button despite multiple button presses being involved.
+## Useful for creating diagonal buttons present in many 2D fighting games.
 
 #signals
 

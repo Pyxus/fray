@@ -1,4 +1,5 @@
 extends Resource
+## Contains data on the inputs required for a sequence to be recognized
 
 const InputRequirement = preload("input_requirement.gd")
 const DetectedInput = preload("../detected_inputs/detected_input.gd")
@@ -11,7 +12,7 @@ func _init(name: String = "", requirements: PoolIntArray = []) -> void:
     
     append_inputs(requirements)
 
-
+## Appends an input requirement to the end of the input_requirements array
 func append_input(id: int, max_delay: float = 0.2, min_time_held: float = 0.0) -> void:
     var input_requirement := InputRequirement.new()
     input_requirement.input_id = id
@@ -19,12 +20,12 @@ func append_input(id: int, max_delay: float = 0.2, min_time_held: float = 0.0) -
     input_requirement.min_time_held = min_time_held
     input_requirements.append(input_requirement)
 
-
-func append_inputs(ids: PoolIntArray) -> void:
+## Appends multiple inputs to the end of input_requirements
+func append_inputs(ids: PoolIntArray, max_delay: float = 0.2) -> void:
     for id in ids:
         append_input(id)
 
-
+## Returns true if the given sequence of DetectedInputs satisfies the requirements in the sequence data.
 func is_satisfied_by(input_sequence: Array) -> bool:
     if input_requirements.size() != input_sequence.size():
         return false
@@ -36,6 +37,7 @@ func is_satisfied_by(input_sequence: Array) -> bool:
         if detected_input.id != input_requirement.input_id:
             return false
 
+        #TODO: Ignore this check if input is pressed?
         if detected_input.time_held < input_requirement.min_time_held:
             return false
         

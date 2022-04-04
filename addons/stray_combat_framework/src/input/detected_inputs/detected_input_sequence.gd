@@ -1,5 +1,5 @@
 extends "detected_input.gd"
-## docstring
+## Detected input sequence
 
 #signals
 
@@ -11,8 +11,11 @@ extends "detected_input.gd"
 
 #exported variables
 
+## Name of the detected sequence
 var name: String
-var path: String
+## Sequence of input ids that lead to sequence being detected
+var sequence: PoolIntArray
+
 #private variables
 
 #onready variables

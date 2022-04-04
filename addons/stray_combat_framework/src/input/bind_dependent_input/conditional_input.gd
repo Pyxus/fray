@@ -1,5 +1,6 @@
 extends Resource
-## docstring
+## Input which changes what bind input it represents based on string conditions.
+## Useful for creating motion inputs which change based on what side a fighter is in 2D fighting games.
 
 #signals
 
