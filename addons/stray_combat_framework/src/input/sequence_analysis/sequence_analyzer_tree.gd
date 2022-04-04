@@ -1,6 +1,15 @@
 extends "sequence_analyzer.gd"
 ## docstring
 
+#TODO: Add support for charged inputs
+	# Right now only pressed inputs are fed to the sequence analyzer.
+	# This is because if released inputs were also fed the analyzer would always fail to find a match.
+	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
+	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
+	# Idea: Feed released inputs, have them ingored if no path. Perform a sub check from root to see if a path is open
+	# if a path is open keep track of the sub match until a mismatch is detected or a sequence is found. 
+	# If found accept this sub match and switch to this path. This will mean released inputs have priority in this case but I think that is alright.
+
 #signals
 
 #enums

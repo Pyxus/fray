@@ -1,21 +1,9 @@
 extends Node
 ## docstring
 
-#TODO: Add support for charged inputs
-	# Right now only pressed inputs are fed to the sequence analyzer.
-	# This is because if released inputs were also fed the analyzer would always fail to find a match.
-	# Since charged inputs by necessity must be released this means there is no support for them at the moment.
-	# Maybe I could feed released inputs to the analyzer and have it ignore them if there is no path for them?
-	# Idea: Feed released inputs, have them ingored if no path. Perform a sub check from root to see if a path is open
-	# if a path is open keep track of the sub match until a mismatch is detected or a sequence is found. 
-	# If found accept this sub match and switch to this path. This will mean released inputs have priority in this case but I think that is alright.
-#TODO: Test conditional inputs
 #TODO: Add methods to remove inputs
 	# If an input used in another input is removed then so should that input
 #TODO: Make sure sequences support infinite time between inputs
-#TODO: Make SequenceAnalyzer override friendly
-	# Worst case scenario if the default sequence analyzer doesn't do what a user wants allow them to implement their own without hassle.
-	# This means the sequence analyzer should not be dependent on the input detector beyond the fact that the detector feeds to the analyzer.
 
 signal input_detected(detected_input)
 
@@ -86,7 +74,7 @@ func is_input_pressed(id: int) -> bool:
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_pressed
 	elif _conditional_input_by_id.has(id):
-		return _input_bind_by_id[id].is_pressed(_conditional_input_by_id[id].current_input)
+		return _input_bind_by_id[_conditional_input_by_id[id].current_input].is_pressed()
 	else:
 		push_warning("No input with id '%d' binded." % id)
 		return false
@@ -98,7 +86,7 @@ func is_input_just_pressed(id: int) -> bool:
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_just_pressed()
 	elif _conditional_input_by_id.has(id):
-		return _input_bind_by_id[id].is_just_pressed(_conditional_input_by_id[id].current_input)
+		return _input_bind_by_id[_conditional_input_by_id[id].current_input].is_just_pressed()
 	else:
 		push_warning("No input with id '%d' binded." % id)
 		return false
@@ -110,7 +98,7 @@ func is_input_just_released(id: int) -> bool:
 	elif _combination_input_by_id.has(id):
 		return _combination_input_by_id[id].is_just_released()
 	elif _conditional_input_by_id.has(id):
-		return _input_bind_by_id[id].is_just_released(_conditional_input_by_id[id].current_input)
+		return _input_bind_by_id[_conditional_input_by_id[id].current_input].is_just_released()
 	else:
 		push_warning("No input with id '%d' binded." % id)
 		return false
@@ -292,7 +280,7 @@ func _check_conditional_inputs() -> void:
 	var time_stamp := OS.get_ticks_msec()
 	for id in _conditional_input_by_id:
 		var conditional_input := _conditional_input_by_id[id] as ConditionalInput
-
+		
 		if is_input_just_pressed(conditional_input.current_input):
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id

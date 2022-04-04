@@ -54,6 +54,9 @@ func _ready() -> void:
 	input_detector.register_combination_input(Btn.UP_RIGHT, [Btn.UP, Btn.RIGHT], false, true)
 	input_detector.register_combination_input(Btn.DOWN_LEFT, [Btn.DOWN, Btn.LEFT], false, true)
 	input_detector.register_combination_input(Btn.DOWN_RIGHT, [Btn.DOWN, Btn.RIGHT], false, true)
+
+	input_detector.register_conditional_input(Btn.FORWARD, Btn.RIGHT,{"is_on_right":Btn.LEFT})
+	input_detector.set_condition("is_on_right", false)
 	
 	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.DOWN_LEFT, Btn.LEFT, Btn.PUNCH]))
 	input_detector.sequence_analyzer.add_sequence(SequenceData.new("214P", [Btn.DOWN, Btn.LEFT, Btn.PUNCH]))
@@ -102,6 +105,9 @@ func _ready() -> void:
 
 func _process(_delta) -> void:
 	var combat_fms = combat_tree.state_machine.get_combat_fsm()
+
+	if input_detector.is_input_just_pressed(Btn.FORWARD):
+		print("FOWARD!")
 
 	match combat_fms.current_state:
 		"Idle":
