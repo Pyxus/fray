@@ -58,10 +58,10 @@ func read(input_button: DetectedInputButton) -> void:
 
 	var _input_path := _get_inputs_as_path()
 	if _sequence_by_path.has(_input_path):
-		for sequence_input in _sequence_by_path[_input_path]:
-			if sequence_input.is_satisfied_by(_input_queue):
+		for sequence_data in _sequence_by_path[_input_path]:
+			if is_match(_input_queue, sequence_data.input_requirements):
 				_rescan_start_index = _input_queue.size()
-				emit_signal("match_found", sequence_input.sequence_name, _get_inputs_as_int_array())
+				emit_signal("match_found", sequence_data.sequence_name, _get_inputs_as_int_array())
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
 		revert()
