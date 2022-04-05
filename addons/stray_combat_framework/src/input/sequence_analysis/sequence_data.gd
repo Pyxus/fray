@@ -1,3 +1,5 @@
+#TODO: Make sure sequences support infinite time between inputs
+
 extends Resource
 ## Contains data on the inputs required for a sequence to be recognized
 
@@ -25,6 +27,7 @@ func append_inputs(ids: PoolIntArray, max_delay: float = 0.2) -> void:
     for id in ids:
         append_input(id)
 
+#TODO: Consider moving this function into sequence analyzer. Kind of weird having this done in a data class
 ## Returns true if the given sequence of DetectedInputs satisfies the requirements in the sequence data.
 func is_satisfied_by(input_sequence: Array) -> bool:
     if input_requirements.size() != input_sequence.size():

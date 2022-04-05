@@ -3,7 +3,6 @@
 	# Small concern is that seperate detectors could cause polls and updates. Not sure if that could cause and issue.
 #TODO: Add methods to remove inputs
 	# If an input used in another input is removed then so should that input
-#TODO: Make sure sequences support infinite time between inputs
 
 extends Node
 ## A node used to detect inputs and input sequences.
@@ -223,13 +222,14 @@ func _check_input_binds() -> void:
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = true
-			detected_input.bind = input_bind.duplicate()
+			detected_input.binds.append(input_bind.duplicate())
 			_detected_input_button_by_id[id] = detected_input
 		elif input_bind.is_just_released():
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = false
+			detected_input.binds.append(input_bind.duplicate())
 			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
@@ -251,14 +251,16 @@ func _check_combined_inputs() -> void:
 			elif combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.components):
 				continue
 
+			combination_input.is_pressed = true
+
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = true
-			combination_input.is_pressed = true
 			_detected_input_button_by_id[id] = detected_input
 
 			for cid in combination_input.components:
+				detected_input.binds.append(_input_bind_by_id[cid].duplicate())
 				_ignore_input(cid)
 
 		elif _detected_input_button_by_id.has(id):
@@ -267,13 +269,18 @@ func _check_combined_inputs() -> void:
 					if is_input_pressed(cid):
 						_detected_input_button_by_id[cid].time_stamp = time_stamp
 						_unignore_input(cid)
-						
+			
+			combination_input.is_pressed = false
+
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = false
 			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
-			combination_input.is_pressed = false
+
+			for cid in combination_input.components:
+				detected_input.binds.append(_input_bind_by_id[cid].duplicate())
+
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
 		

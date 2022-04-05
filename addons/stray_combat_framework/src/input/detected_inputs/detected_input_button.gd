@@ -18,8 +18,8 @@ var id: int
 var time_held: float
 ## If true the input button is pressed. If false, the detected button is released.
 var is_pressed: bool
-## Contains the bind used in this input
-var bind: InputBind #TODO: Replace with binds array for combination inputs
+## Contains the bind(s) that triggered this detected input
+var binds: Array # InputBind[]
 
 #private variables
 
