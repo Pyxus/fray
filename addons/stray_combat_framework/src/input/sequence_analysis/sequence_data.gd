@@ -5,7 +5,7 @@ const InputRequirement = preload("input_requirement.gd")
 const DetectedInput = preload("../detected_inputs/detected_input.gd")
 
 var sequence_name: String
-var input_requirements: Array
+var input_requirements: Array # InputRequirement[]
 
 func _init(name: String = "", requirements: PoolIntArray = []) -> void:
     sequence_name = name
@@ -37,8 +37,7 @@ func is_satisfied_by(input_sequence: Array) -> bool:
         if detected_input.id != input_requirement.input_id:
             return false
 
-        #TODO: Ignore this check if input is pressed?
-        if detected_input.time_held < input_requirement.min_time_held:
+        if not detected_input.is_pressed and detected_input.time_held < input_requirement.min_time_held:
             return false
         
         if i > 0 and detected_input.get_time_between(input_sequence[i - 1]) / 1000.0 > input_requirement.max_delay:
