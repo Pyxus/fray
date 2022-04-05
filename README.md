@@ -14,7 +14,7 @@ Stray is a work in progress addon for the [Godot Game Engine](https://godotengin
 
 Stray provides tools for setting up and managing a fighter's hitbox / attackbox based on their current state.
 
-### Fighter State Management
+### Combat State Management
 
 Stray features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a predefined "action graph".
 
@@ -22,11 +22,11 @@ Through this system SCF supports the implementation of [chaining](https://glossa
 
 ### Input Buffering
 
-Inputs fed to the state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action games as without it players would need frame perfect inputs to perform their actions.
+Inputs fed to stray's combat state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action games as without it players would need frame perfect inputs to perform their actions.
 
-### Complex Input Support
+### Complex Input Detection
 
-Stray provides support for the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
+Stray provides tools for detecting the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
 
 ## ⚙ Installation
 
