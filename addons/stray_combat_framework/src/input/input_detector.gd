@@ -1,9 +1,3 @@
-#TODO: Move input binds and combination inputs into a input data class
-	# This would allow users to easily reuse the same set of inputs in multiple detectors.
-	# Small concern is that seperate detectors could cause polls and updates. Not sure if that could cause and issue.
-#TODO: Add methods to remove inputs
-	# If an input used in another input is removed then so should that input
-
 extends Node
 ## A node used to detect inputs and input sequences.
 ## Before use inputs must first be bound through the bind methods provided.
