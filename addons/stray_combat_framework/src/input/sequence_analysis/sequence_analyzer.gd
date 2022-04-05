@@ -40,16 +40,17 @@ func is_match(detected_input_buttons: Array, input_requirements: Array) -> bool:
 	for i in len(input_requirements):
 		var detected_input: DetectedInputButton = detected_input_buttons[i]
 		var input_requirement: InputRequirement = input_requirements[i]
-
+		
 		if detected_input.id != input_requirement.input_id:
 			return false
 
 		if not detected_input.is_pressed and detected_input.time_held < input_requirement.min_time_held:
 			return false
 		
-		var time_since_last_input := detected_input.get_time_between(detected_input_buttons[i - 1]) / 1000.0
-		if i > 0 and time_since_last_input > input_requirement.max_delay:
-			return false
+		if i > 0:
+			var time_since_last_input := detected_input.get_time_between(detected_input_buttons[i - 1]) / 1000.0
+			if input_requirement.max_delay >= 0 and time_since_last_input > input_requirement.max_delay:
+				return false
 
 	return true
 	

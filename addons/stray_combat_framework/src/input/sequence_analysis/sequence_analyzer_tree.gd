@@ -45,10 +45,12 @@ var _rescan_start_index: int = 1
 
 func read(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
-
+	
 	# Ignore released inputs if node not found
 	if next_node == null and not input_button.is_pressed:
 		return
+
+	print("Detected: ", input_button.id)
 
 	_input_queue.append(input_button)
 
