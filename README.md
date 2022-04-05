@@ -1,14 +1,22 @@
 # ![Stray Banner](docs/stray_banner.png)
 
-![Godot version](https://img.shields.io/badge/Godot-v3.4-blue)
+![Stray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v3.4-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
 
 Stray Combat Framework (SCF) is a work in progress addon for the [Godot Game Engine](https://godotengine.org). It features tools for implementing action / fighting game style combat such as hit detection, input buffering, and fighter state management.
 
+## ⚠️ Important
+
+**SCF is in alpha! Extensive testing is still required, breaking changes may still be made, and parts of the features below may not yet be fully implemented.**
+
 ## ✨ Core Features
+
+### Hit Box Management
+
+Provides tools for managing a fighter's hitbox based on their current state.
 
 ### Fighter State Management
 
-Stray features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another based on a predefined "action graph".
+SCF features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another based on a predefined "action graph".
 
 Through this system SCF supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
