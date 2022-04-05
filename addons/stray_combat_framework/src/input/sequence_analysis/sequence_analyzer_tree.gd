@@ -10,6 +10,7 @@
 	# Player holds down while pressing other buttons.
 	# Player attempts to input 236P without first releasing and reinputing the 2
 	# 236P input is recognized and accepted.
+#TODO: Make sure sequences support infinite time between inputs
 
 extends "sequence_analyzer.gd"
 ## Tree based sequence analyzer.

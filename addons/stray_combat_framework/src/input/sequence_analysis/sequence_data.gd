@@ -1,5 +1,3 @@
-#TODO: Make sure sequences support infinite time between inputs
-
 extends Resource
 ## Contains data on the inputs required for a sequence to be recognized
 

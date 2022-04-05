@@ -32,7 +32,7 @@ func read(input_button: DetectedInputButton) -> void:
 func add_sequence(sequence_data: SequenceData) -> void:
 	push_error("No add implementation provided.")
 
-
+## Returns true if the given sequence of DetectedInputs meets the input requirements of the sequence data.
 func is_match(detected_input_buttons: Array, input_requirements: Array) -> bool:
 	if detected_input_buttons.size() != input_requirements.size():
 		return false
@@ -52,6 +52,7 @@ func is_match(detected_input_buttons: Array, input_requirements: Array) -> bool:
 			return false
 
 	return true
+	
 #private methods
 	
 #signal methods
