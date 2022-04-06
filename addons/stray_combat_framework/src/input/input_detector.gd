@@ -134,7 +134,7 @@ func bind_mouse_input(id: int, button: int) -> void:
 ## This is useful for constructing the 'motion inputs' featured in many fighting games.
 ##
 ## if is_simeultaneous is true, the combination will only be detected if the components are pressed at the same time
-func register_combination_input(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
+func register_combination_input(id: int, components: PoolIntArray, type: int = CombinationInput.PressType.SYNCHRONOUS, press_held_components_on_release: bool = false) -> void:
 	if _input_bind_by_id.has(id) or _conditional_input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by bound or registered input")
 		return
@@ -162,13 +162,8 @@ func register_combination_input(id: int, components: PoolIntArray, is_ordered: b
 
 	var combination_input := CombinationInput.new()
 	combination_input.components = components
-	combination_input.is_ordered = is_ordered
-	combination_input.is_simeultaneous = is_simeultaneous
+	combination_input.type = type
 	combination_input.press_held_components_on_release = press_held_components_on_release
-	
-	if is_simeultaneous and is_ordered:
-		push_warning("Combination input can not be strictly simeultaneous if an order is given.")
-		combination_input.is_simeultaneous = false
 
 	_combination_input_by_id[id] = combination_input
 
@@ -248,10 +243,15 @@ func _check_combined_inputs() -> void:
 			if  _detected_input_button_by_id.has(id):
 				continue
 
-			if combination_input.is_ordered and not _is_inputed_in_order(combination_input.components):
-				continue
-			elif combination_input.is_simeultaneous and not _is_inputed_quick_enough(combination_input.components):
-				continue
+			match combination_input.press_type:
+				CombinationInput.Type.SYNCHRONOUS:
+					if not _is_inputed_quick_enough(combination_input.components):
+						continue
+				CombinationInput.Type.ORDERED:
+					if not _is_inputed_in_order(combination_input.components):
+						continue
+				var unkown_press_type:
+					push_warning("Unkown combination input type '%d' for input with id '%d'" % [unkown_press_type, id])
 
 			combination_input.is_pressed = true
 
