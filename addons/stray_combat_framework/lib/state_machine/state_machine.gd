@@ -22,7 +22,6 @@ var current_state: String setget set_current_state
 
 var _states := ReverseableDictionary.new() # Dictionary<String, State>
 var _transitions: Array # TransitionData[]
-var _condition_evaluator_func: FuncRef # func(string) -> bool
 
 #onready variables
 
@@ -33,11 +32,6 @@ var _condition_evaluator_func: FuncRef # func(string) -> bool
 
 #remaining built-in virtual methods
 
-
-func set_condition_evaluator(evaluation_func: FuncRef) -> void:
-	_condition_evaluator_func = evaluation_func
-
-	
 func set_current_state(name: String) -> void:
 	if not has_state(name):
 		push_warning("Failed to set current state. State '%s' does not exist." % name)
@@ -274,14 +268,6 @@ func get_next_state(input: Object = null) -> String:
 	
 func _get_next_state(input: Object = null) -> String:
 	return "";
-
-
-func _is_condition_true(condition: String) -> bool:
-	if _condition_evaluator_func == null or not _condition_evaluator_func.is_valid():
-		push_error("Failed to evaluate condition '%s'. Condition evaluator function is either nor set or no longer valid." % condition)
-		return false
-		
-	return _condition_evaluator_func.call_func(condition)
 	
 #signal methods
 

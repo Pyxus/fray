@@ -9,7 +9,7 @@ signal activated()
 
 #signals
 
-const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/misc/child_change_detector.gd")
+const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/helpers/child_change_detector.gd")
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
 const HitBox2D = preload("hit_box_2d.gd")

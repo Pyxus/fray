@@ -1,4 +1,4 @@
-extends "combat_tree_fsm.gd"
+extends "base_tree_fsm.gd"
 ## docstring
 
 #signals
