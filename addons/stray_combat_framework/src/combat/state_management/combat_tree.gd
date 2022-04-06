@@ -1,9 +1,16 @@
-extends Node
-## docstring
-
 #TODO: See if buffer can be improved further.
 	# Havn't looked into it but I think "garbage" inputs are clogging up the buffer.
 	# If the buffer capacity is large enough it feels very smooth, but maybe it can be improved without need for a high capacity?
+
+extends Node
+## docstring
+
+# Imports
+const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
+const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
+const CombatFSM = preload("combat_fsm.gd")
+const CombatSituationFSM = preload("combat_situation_fsm.gd")
 
 signal situation_changed(from, to)
 signal combat_state_changed(from, to)
@@ -15,13 +22,6 @@ enum ProcessMode {
 }
 
 #constants
-
-const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
-const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
-const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
-
-const CombatFSM = preload("combat_fsm.gd")
-const CombatSituationFSM = preload("combat_situation_fsm.gd")
 
 export var state_machine: Resource # CombatTreeFSM
 export var input_detector: NodePath

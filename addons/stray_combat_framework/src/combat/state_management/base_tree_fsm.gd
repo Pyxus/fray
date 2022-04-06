@@ -1,35 +1,18 @@
 extends "res://addons/stray_combat_framework/lib/state_machine/state_machine.gd"
-## docstring
+## Base class for finite state machine used by CombatTree
 
-#signals
-
-#enums
-
-#constants
-
-#preloaded scripts and scenes
-
-#exported variables
-
-#public variables
 
 var _condition_evaluator_func: FuncRef # func(string) -> bool
 
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
+## Sets the condition evaluator function used by the finite state machine
 func set_condition_evaluator(evaluation_func: FuncRef) -> void:
 	_condition_evaluator_func = evaluation_func
 
-	
+#TODO: Remove this... Why is a parent class dependent on a child class?
+## Abstract method which returns the current combat fsm
 func get_combat_fsm() -> Resource: # CombatFSM
-    return null
+	push_error("No get_combat_fsm implementation provided.")
+	return null
 
 
 func _is_condition_true(condition: String) -> bool:
@@ -38,7 +21,3 @@ func _is_condition_true(condition: String) -> bool:
 		return false
 		
 	return _condition_evaluator_func.call_func(condition)
-
-#signal methods
-
-#inner classes
