@@ -1,7 +1,13 @@
 extends "input_bind.gd"
+## Joystick axis input bind
 
+## The Joystick device id
 export var device: int
+
+## Joystick axis identifier. See JoyStickList
 export var axis: int
+
+## Joystick deadzone
 export var deadzone: float setget set_deadzone
 
 func _init(joystick_device: int = -1, joystick_axis: int = -1, joystick_deadzone: float = 0) -> void:

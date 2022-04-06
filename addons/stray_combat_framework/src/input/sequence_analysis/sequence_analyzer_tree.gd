@@ -4,35 +4,17 @@
 	# 236P input is recognized and accepted.
 
 extends "sequence_analyzer.gd"
-## Tree based sequence analyzer.
-## This analyzer stores inputs in a tree data structure and then attempts to match by following along the tree paths with each input read.
-
-#signals
-
-#enums
-
-#constants
-
-#preloaded scripts and scenes
-
-#exported variables
-
-#public variables
+## Tree based implementation of SequenceAnalyzer.
+##
+## @desc:
+## 		This analyzer stores sequences in a tree data structure and then attempts to
+##		match to match them to the incoming input with each read call.
 
 var _root := InputNode.new()
 var _current_node: InputNode = _root
 var _sequence_by_path: Dictionary # Dictionary<string, SequenceInput[]>
 var _input_queue: Array # DetectedInputButton[]
 var _rescan_start_index: int = 1
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
 
 func read(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
@@ -86,7 +68,7 @@ func add_sequence(sequence_data: SequenceData) -> void:
 
 	_sequence_by_path[path_string].append(sequence_data)
 
-## Reverts the tree's scanning back to the root
+## Reverts the tree's scanner back to the root
 func revert() -> void:
 	_current_node = _root
 	_rescan_start_index = 1

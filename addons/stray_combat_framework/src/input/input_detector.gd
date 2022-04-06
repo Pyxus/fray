@@ -1,16 +1,14 @@
 extends Node
+##
 ## A node used to detect inputs and input sequences.
-## Before use inputs must first be bound through the bind methods provided.
-## Bound inputs can be used to register combination and conditional inputs.
-## Sequences must be added by directly accessing the sequence analyzer property.
+##
+## @desc:
+##		Before use inputs must first be bound through the bind methods provided.
+## 		Bound inputs can be used to register combination and conditional inputs.
+## 		Sequences must be added by directly accessing the sequence analyzer property.
+##
 
-## Emitted when a bound, registered, or sequence input is detected
-signal input_detected(detected_input)
-
-#enums
-
-#constants
-
+# Imports
 const SequenceAnalyzer = preload("sequence_analysis/sequence_analyzer.gd")
 const SequenceAnalyzerTree = preload("sequence_analysis/sequence_analyzer_tree.gd")
 const SequenceData = preload("sequence_analysis/sequence_data.gd")
@@ -26,10 +24,11 @@ const MouseInputBind = preload("binds/mouse_input_bind.gd")
 const CombinationInput = preload("bind_dependent_input/combination_input.gd")
 const ConditionalInput = preload("bind_dependent_input/conditional_input.gd")
 
-## The sequence analyzer used to detect sequence inputs
-export var sequence_analyzer: Resource = SequenceAnalyzerTree.new()
+## Emitted when a bound, registered, or sequence input is detected.
+signal input_detected(detected_input)
 
-#public variables
+## The sequence analyzer used to detect sequence inputs.
+export var sequence_analyzer: Resource = SequenceAnalyzerTree.new()
 
 var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
@@ -39,10 +38,6 @@ var _released_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButt
 var _ignored_input_hash_set: Dictionary # Dictionary<int, bool>
 var _conditions: Dictionary # Dictionary<String, bool>
 
-#onready variables
-
-
-#optional built-in virtual _init method
 
 func _ready() -> void:
 	sequence_analyzer.connect("match_found", self, "_on_SequenceTree_match_found")
@@ -54,7 +49,7 @@ func _process(delta: float) -> void:
 	_check_conditional_inputs()
 	_detect_inputs()
 
-## Returns true if an input is being pressed
+## Returns true if an input is being pressed.
 func is_input_pressed(id: int) -> bool:
 	if _input_bind_by_id.has(id):
 		return _input_bind_by_id[id].is_pressed()
@@ -90,24 +85,24 @@ func is_input_just_released(id: int) -> bool:
 		push_warning("No input with id '%d' bound." % id)
 		return false
 
-
+## Binds input to detector under given id.
 func bind_input(id: int, input_bind: InputBind) -> void:
 	_input_bind_by_id[id] = input_bind
 
-
+## Binds action input
 func bind_action_input(id: int, action: String) -> void:
 	var action_input := ActionInputBind.new()
 	action_input.action = action
 	bind_input(id, action_input)
 
-
+## Binds joystick button input
 func bind_joystick_input(id: int, device: int, button: int) -> void:
 	var joystick_input := JoystickInputBind.new()
 	joystick_input.device = device
 	joystick_input.button = button
 	bind_input(id, joystick_input)
 
-
+## Binds joystick axis input
 func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> void:
 	var joystick_axis_input := JoystickAxisInputBind.new()
 	joystick_axis_input.device = device
@@ -115,19 +110,30 @@ func bind_joystick_axis(id: int, device: int, axis: int, deadzone: float) -> voi
 	joystick_axis_input.deadzone = deadzone
 	bind_input(id, joystick_axis_input)
 
-
+## Binds keyboard key input
 func bind_keyboard_input(id: int, key: int) -> void:
 	var keyboard_input := KeyboardInputBind.new()
 	keyboard_input.key = key
 	bind_input(id, keyboard_input)
 
-
+## Binds mouse button input
 func bind_mouse_input(id: int, button: int) -> void:
 	var mouse_input := MouseInputBind.new()
 	mouse_input.button = button
 	bind_input(id, mouse_input)
 
-## Registers combination input using bind inputs as components.
+## Registers combination input using input ids as components.
+##
+## components is an array of input ids that compose the combination - the id assigned to a combination can not be used as a component
+##
+## If is_ordered is true, the combination will only be detected if the components are pressed in the order given.
+## For example, if the components are 'forward' and 'button_a' then the combination is only triggered if 'forward' is pressed and held, then 'button_a' is pressed.
+## The order is ignored if the inputs are pressed simeultaneously.
+##
+## if press_held_components_on_release is true, then when one component of a combination is released the remaining components are treated as if they were just pressed.
+## This is useful for constructing the 'motion inputs' featured in many fighting games.
+##
+## if is_simeultaneous is true, the combination will only be detected if the components are pressed at the same time
 func register_combination_input(id: int, components: PoolIntArray, is_ordered: bool = false, press_held_components_on_release: bool = false, is_simeultaneous: bool = false) -> void:
 	if _input_bind_by_id.has(id) or _conditional_input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by bound or registered input")
@@ -166,8 +172,10 @@ func register_combination_input(id: int, components: PoolIntArray, is_ordered: b
 
 	_combination_input_by_id[id] = combination_input
 
-## Registers conditional input using bind and combination inputs.
-## The input_by_condition dictionary must be a string, int dictionary where the int is the id to a non-conditional input.
+## Registers conditional input using input ids.
+##
+## The input_by_condition must be a string : int dictionary where the string represents the condition and the int is a valid input id.
+## For example, {"is_on_left_side" : InputEnum.FORWARD, "is_on_right_side" : InputEnum.BACKWARD}
 func register_conditional_input(id: int, default_input: int, input_by_condition: Dictionary) -> void:
 	for cid in input_by_condition.values():
 		if not _input_bind_by_id.has(cid) and not _combination_input_by_id.has(cid):

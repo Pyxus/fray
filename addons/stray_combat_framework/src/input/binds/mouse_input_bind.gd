@@ -1,5 +1,7 @@
 extends "input_bind.gd"
+## Mouse input bind
 
+## The mouse button identifier, one of the ButtonList buttons or button wheel constants.
 export var button: int
 
 func _init(mouse_button: int = -1) -> void:

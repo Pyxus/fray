@@ -1,34 +1,23 @@
 extends Resource
 ## Abstract class used by input detector to detect input sequences.
 
-signal match_found(sequence_name, sequence)
-
-#enums
-
+# Imports
 const DetectedInputButton = preload("../detected_inputs/detected_input_button.gd")
 const SequenceData = preload("sequence_data.gd")
 const InputRequirement = preload("input_requirement.gd")
 
-#preloaded scripts and scenes
+## Emmited when a sequence match is found.
+##
+## sequence_name is the name of the sequence.
+##
+## sequence is an array of input ids that was used to match the sequence.
+signal match_found(sequence_name, sequence)
 
-#exported variables
-
-#public variables
-
-#private variables
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-## Abstract class used to read next input.
+## Abstract method used to read next input.
 func read(input_button: DetectedInputButton) -> void:
 	push_error("No read implementation provided.")
 
-## Abstract class used to add sequence for scanner to recognize.
+## Abstract method used to add sequence for scanner to recognize.
 func add_sequence(sequence_data: SequenceData) -> void:
 	push_error("No add implementation provided.")
 
@@ -53,9 +42,3 @@ func is_match(detected_input_buttons: Array, input_requirements: Array) -> bool:
 				return false
 
 	return true
-	
-#private methods
-	
-#signal methods
-
-#inner class

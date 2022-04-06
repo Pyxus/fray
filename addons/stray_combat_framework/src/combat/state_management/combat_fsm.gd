@@ -116,6 +116,7 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 						break
 	return transitions
 
+
 func get_combat_fsm() -> Resource: # CombatFSM
 	return self
 

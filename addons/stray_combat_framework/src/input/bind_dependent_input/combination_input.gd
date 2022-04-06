@@ -1,17 +1,9 @@
 extends Resource
 ## A virtual input composed of multiple input binds.
-## Virtually meaning the input is treated as an invidiaul button despite multiple button presses being involved.
-## Useful for creating diagonal buttons present in many 2D fighting games.
-
-#signals
-
-#enums
-
-#constants
-
-#preloaded scripts and scenes
-
-#exported variables
+##
+## @desc:
+## 		Virtual meaning the input is treated as an invidiaul button despite multiple button presses being involved.
+## 		Useful for creating diagonal buttons present in many 2D fighting games.
 
 var components: PoolIntArray
 var is_ordered: bool
@@ -20,17 +12,6 @@ var press_held_components_on_release: bool
 var is_pressed: bool
 
 var _previously_pressed: bool
-
-#private variables
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
 
 func poll() -> void:
 	if is_pressed:
@@ -49,14 +30,10 @@ func has_ids(ids: PoolIntArray) -> bool:
             return false
     return true
 
+
 func is_just_released() -> bool:
 	return not is_pressed and _previously_pressed
 
 
 func is_just_pressed() -> bool:
 	return is_pressed and not _previously_pressed
-#private methods
-
-#signal methods
-
-#inner classes

@@ -1,41 +1,20 @@
 extends "detected_input.gd"
 ## Detected input button.
-## Bind, combination, and conditional inputs are all considered to be input buttons.
+##
+## @desc:
+##      Bind, combination, and conditional inputs are all considered to be input buttons.
 
-#signals
-
-#enums
-
+# Imports
 const InputBind = preload("../binds/input_bind.gd")
-
-#preloaded scripts and scenes
-
-#exported variables
 
 ## Id of the detected input
 var id: int
-## Amount of time the input was held. Will only be non-zero for released inputs.
+
+## Amount of time in miliseconds the input was held. Will only be non-zero for released inputs.
 var time_held: float
+
 ## If true the input button is pressed. If false, the detected button is released.
 var is_pressed: bool
+
 ## Contains the bind(s) that triggered this detected input
 var binds: Array # InputBind[]
-
-#private variables
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
-#public methods
-
-#private methods
-
-#signal methods
-
-#inner classes

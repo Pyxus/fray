@@ -1,6 +1,11 @@
+#TODO: Rename to Joypad
 extends "input_bind.gd"
+## Joystick input bind
 
+## The Joystick device id
 export var device: int
+
+## Button identifier. One of the JoyStickList button constants
 export var button: int
 
 func _init(joystick_device: int = -1, joystick_button: int = -1) -> void:
