@@ -13,7 +13,7 @@ const AttackAttributes = preload("src/combat/collision_detection/hit_attributes/
 const HurtAttributes = preload("src/combat/collision_detection/hit_attributes/hurt_attributes.gd")
 
 # Combat - State Management
-const CombatTree = preload("src/combat/combat_tree.gd")
+const CombatTree = preload("src/combat/state_management/combat_tree.gd")
 const CombatFSM = preload("src/combat/state_management/combat_fsm.gd")
 const CombatState = preload("src/combat/state_management/combat_state.gd")
 const CombatSituationFSM = preload("src/combat/state_management/combat_situation_fsm.gd")

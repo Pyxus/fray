@@ -1,3 +1,6 @@
+#TODO: Rename to hit_box_switcher_2d
+	# Just a more accurate name
+
 tool
 extends Node2D
 ## Node capable of switching between its HitBox2D and PushBox2D children.

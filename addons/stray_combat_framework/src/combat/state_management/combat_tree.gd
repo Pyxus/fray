@@ -20,8 +20,8 @@ const InputDetector = preload("res://addons/stray_combat_framework/src/input/inp
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
 
-const CombatFSM = preload("state_management/combat_fsm.gd")
-const CombatSituationFSM = preload("state_management/combat_situation_fsm.gd")
+const CombatFSM = preload("combat_fsm.gd")
+const CombatSituationFSM = preload("combat_situation_fsm.gd")
 
 export var state_machine: Resource # CombatTreeFSM
 export var input_detector: NodePath
