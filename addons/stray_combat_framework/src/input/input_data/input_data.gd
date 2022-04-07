@@ -14,32 +14,33 @@ var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
 var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
 
+## Returns input bind with given id
 func get_input_bind(id: int) -> InputBind:
     if _input_bind_by_id.has(id):
         return _input_bind_by_id[id]
     return null
 
-
+## Returns combination input with given id
 func get_combination_input(id: int) -> CombinationInput:
     if _combination_input_by_id.has(id):
         return _combination_input_by_id[id]
     return null
 
-
+## Returns conditional input with given id
 func get_conditional_input(id: int) -> ConditionalInput:
     if _conditional_input_by_id.has(id):
         return _conditional_input_by_id[id]
     return null
 
-
+## Returns array of input bind ids
 func get_input_bind_ids() -> Array:
 	return _input_bind_by_id.keys()
 
-
+## Returns array of combination input ids
 func get_combination_input_ids() -> Array:
 	return _combination_input_by_id.keys()
 
-
+## Returns array of conditional input ids
 func get_conditional_input_ids() -> Array:
 	return _conditional_input_by_id.keys()
 
