@@ -10,6 +10,7 @@ extends Node2D
 
 const NONE = -1
 
+"""
 const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/helpers/child_change_detector.gd")
 
 const HitState2D = preload("hit_state_2d.gd")
@@ -98,3 +99,4 @@ func _on_HitState_activated(hit_state: HitState2D) -> void:
 	elif hit_state != _current_hit_state:
 		hit_state.is_active = false
 	pass
+"""

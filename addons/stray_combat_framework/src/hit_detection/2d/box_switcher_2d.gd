@@ -14,7 +14,7 @@ signal box_activated()
 signal active_box_set()
 
 #enums
-
+"""
 const NONE = -1
 
 const ReverseableDictionary = preload("res://addons/stray_combat_framework/lib/data_structures/reversable_dictionary.gd")
@@ -184,3 +184,4 @@ func _on_PushBox2D_activated(activated_push_box: RigidPushBox2D) -> void:
 			push_box.is_active = false
 
 
+"""

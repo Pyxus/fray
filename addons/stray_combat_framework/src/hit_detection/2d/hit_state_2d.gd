@@ -9,6 +9,7 @@ signal activated()
 
 #signals
 
+"""
 const ChildChangeDetector = preload("res://addons/stray_combat_framework/lib/helpers/child_change_detector.gd")
 
 const BoxSwitcher2D = preload("box_switcher_2d.gd")
@@ -87,3 +88,4 @@ func _on_PushBox2D_activated() -> void:
 
 func _on_BoxSwitcher_active_box_set() -> void:
 	set_is_active(true)
+"""
