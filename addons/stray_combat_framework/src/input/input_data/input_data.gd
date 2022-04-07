@@ -125,6 +125,7 @@ func register_conditional_input(id: int, default_input: int, input_by_condition:
 	_conditional_input_by_id[id] = conditional_input
 
 
+## Remove input bind along with any combination input or conditional input using it as a component.
 func remove_input_bind(id: int) -> void:
 	if _input_bind_by_id.has(id):
 		_input_bind_by_id.erase(id)
@@ -132,14 +133,15 @@ func remove_input_bind(id: int) -> void:
 		for cid in _combination_input_by_id:
 			var combination_input: CombinationInput = _combination_input_by_id[cid]
 			if id in combination_input.components:
-				_combination_input_by_id.erase(cid)
+				remove_combination_input(cid)
 		
 		for cid in _conditional_input_by_id:
 			var conditional_input: ConditionalInput = _conditional_input_by_id[cid]
 			if id == conditional_input.default_input or id in conditional_input.input_by_condition.values():
-				_conditional_input_by_id.erase(cid)
+				remove_conditional_input(cid)
 
 
+## Remove combination input along with any conditional input using it as a component.
 func remove_combination_input(id: int) -> void:
 	if _combination_input_by_id.has(id):
 		_combination_input_by_id.erase(id)
@@ -147,9 +149,10 @@ func remove_combination_input(id: int) -> void:
 		for cid in _conditional_input_by_id:
 			var conditional_input: ConditionalInput = _conditional_input_by_id[cid]
 			if id == conditional_input.default_input or id in conditional_input.input_by_condition.values():
-				_conditional_input_by_id.erase(cid)
+				remove_conditional_input(cid)
 
 
+## Remove conditional input.
 func remove_conditional_input(id: int) -> void:
 	if _conditional_input_by_id.has(id):
 		_conditional_input_by_id.erase(id)
