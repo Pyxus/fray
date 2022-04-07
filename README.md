@@ -1,10 +1,19 @@
-# ![Stray Banner](docs/stray_banner.png)
+# Fray
+
+<p align="center">
+  <a href="https://godotengine.org">
+    <img src="docs/fray_banner.png" width="500" alt="Godot Engine logo">
+  </a>
+</p>
+
 
 ![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v3.4-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
 
+## 📖 About
+
 Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org). It features tools for implementing action / fighting game style combat such as hit detection, input buffering, and fighter state management.
 
-## ⚠️ Important
+## ⚠️ IMPORTANT
 
 **This addon is in alpha! Extensive testing is still required, breaking changes may still be made, and parts of the features below may not yet be fully implemented.**
 
@@ -16,7 +25,7 @@ Fray provides tools for setting up and managing a fighter's hitbox / attackbox b
 
 ### Combat State Management
 
-Fray features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a predefined "action graph".
+Fray features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a user defined "combat graph".
 
 Through this system SCF supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
