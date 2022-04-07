@@ -10,17 +10,17 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Reference",
-"class": "StrayCF",
+"class": "Fray",
 "language": "GDScript",
-"path": "res://addons/stray_combat_framework/namespace.gd"
+"path": "res://addons/fray/namespace.gd"
 } ]
 _global_script_class_icons={
-"StrayCF": ""
+"Fray": ""
 }
 
 [application]
 
-config/name="Stray Combat Framework"
+config/name="Fray - Combat Framework"
 run/main_scene="res://example/main.tscn"
 config/icon="res://icon.png"
 

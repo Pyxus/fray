@@ -1,13 +1,13 @@
-extends StrayCF.RigidFighterBody2D
+extends Fray.RigidFighterBody2D
 
-const InputButtonCondition = StrayCF.InputButtonCondition
-const InputSequenceCondition = StrayCF.InputSequenceCondition
-const ActionFSM = StrayCF.ActionFSM
-const ActionState = StrayCF.ActionState
-const SituationFSM = StrayCF.SituationFSM
-const SituationState = StrayCF.SituationState
-const InputTransition = StrayCF.InputTransition
-const SequenceData = StrayCF.SequenceData
+const InputButtonCondition = Fray.InputButtonCondition
+const InputSequenceCondition = Fray.InputSequenceCondition
+const ActionFSM = Fray.ActionFSM
+const ActionState = Fray.ActionState
+const SituationFSM = Fray.SituationFSM
+const SituationState = Fray.SituationState
+const InputTransition = Fray.InputTransition
+const SequenceData = Fray.SequenceData
 
 enum Btn {
 	UP,
@@ -26,8 +26,8 @@ enum Btn {
 	FORWARD,
 }
 
-onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
-onready var combat_tree: StrayCF.CombatGraph = get_node("CombatTree")
+onready var input_detector: Fray.InputDetector = get_node("InputDetector")
+onready var combat_tree: Fray.CombatGraph = get_node("CombatTree")
 onready var ground_cast: RayCast2D = get_node("GroundCast")
 onready var animation_player: AnimationPlayer = get_node("AnimationPlayer")
 

@@ -2,7 +2,7 @@
 
 [ext_resource path="res://example/main.gd" type="Script" id=1]
 [ext_resource path="res://example/2d/player/player.tscn" type="PackedScene" id=2]
-[ext_resource path="res://addons/stray_combat_framework/src/input/input_detector.gd" type="Script" id=3]
+[ext_resource path="res://addons/fray/src/input/input_detector.gd" type="Script" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 518.726, 10 )
