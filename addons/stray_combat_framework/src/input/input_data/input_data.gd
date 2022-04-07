@@ -14,35 +14,6 @@ var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
 var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
 
-## Returns input bind with given id
-func get_input_bind(id: int) -> InputBind:
-    if _input_bind_by_id.has(id):
-        return _input_bind_by_id[id]
-    return null
-
-## Returns combination input with given id
-func get_combination_input(id: int) -> CombinationInput:
-    if _combination_input_by_id.has(id):
-        return _combination_input_by_id[id]
-    return null
-
-## Returns conditional input with given id
-func get_conditional_input(id: int) -> ConditionalInput:
-    if _conditional_input_by_id.has(id):
-        return _conditional_input_by_id[id]
-    return null
-
-## Returns array of input bind ids
-func get_input_bind_ids() -> Array:
-	return _input_bind_by_id.keys()
-
-## Returns array of combination input ids
-func get_combination_input_ids() -> Array:
-	return _combination_input_by_id.keys()
-
-## Returns array of conditional input ids
-func get_conditional_input_ids() -> Array:
-	return _conditional_input_by_id.keys()
 
 ## Binds input to detector under given id.
 func bind_input(id: int, input_bind: InputBind) -> void:
@@ -152,6 +123,67 @@ func register_conditional_input(id: int, default_input: int, input_by_condition:
 	conditional_input.default_input = default_input
 	conditional_input.input_by_condition = input_by_condition
 	_conditional_input_by_id[id] = conditional_input
+
+
+func remove_input_bind(id: int) -> void:
+	if _input_bind_by_id.has(id):
+		_input_bind_by_id.erase(id)
+
+		for cid in _combination_input_by_id:
+			var combination_input: CombinationInput = _combination_input_by_id[cid]
+			if id in combination_input.components:
+				_combination_input_by_id.erase(cid)
+		
+		for cid in _conditional_input_by_id:
+			var conditional_input: ConditionalInput = _conditional_input_by_id[cid]
+			if id == conditional_input.default_input or id in conditional_input.input_by_condition.values():
+				_conditional_input_by_id.erase(cid)
+
+
+func remove_combination_input(id: int) -> void:
+	if _combination_input_by_id.has(id):
+		_combination_input_by_id.erase(id)
+		
+		for cid in _conditional_input_by_id:
+			var conditional_input: ConditionalInput = _conditional_input_by_id[cid]
+			if id == conditional_input.default_input or id in conditional_input.input_by_condition.values():
+				_conditional_input_by_id.erase(cid)
+
+
+func remove_conditional_input(id: int) -> void:
+	if _conditional_input_by_id.has(id):
+		_conditional_input_by_id.erase(id)
+
+## Returns input bind with given id
+func get_input_bind(id: int) -> InputBind:
+    if _input_bind_by_id.has(id):
+        return _input_bind_by_id[id]
+    return null
+
+## Returns combination input with given id
+func get_combination_input(id: int) -> CombinationInput:
+    if _combination_input_by_id.has(id):
+        return _combination_input_by_id[id]
+    return null
+
+## Returns conditional input with given id
+func get_conditional_input(id: int) -> ConditionalInput:
+    if _conditional_input_by_id.has(id):
+        return _conditional_input_by_id[id]
+    return null
+
+## Returns array of input bind ids
+func get_input_bind_ids() -> Array:
+	return _input_bind_by_id.keys()
+
+## Returns array of combination input ids
+func get_combination_input_ids() -> Array:
+	return _combination_input_by_id.keys()
+
+## Returns array of conditional input ids
+func get_conditional_input_ids() -> Array:
+	return _conditional_input_by_id.keys()
+
 #private variables
 
 #onready variables
