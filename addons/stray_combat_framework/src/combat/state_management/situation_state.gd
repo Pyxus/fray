@@ -5,21 +5,21 @@ extends "res://addons/stray_combat_framework/lib/state_machine/state.gd"
 
 #enums
 
-const CombatFSM = preload("combat_fsm.gd")
+const ActionFSM = preload("action_fsm.gd")
 
 #preloaded scripts and scenes
 
 #exported variables
 
-var combat_fsm: CombatFSM
+var action_fsm: ActionFSM
 
 #private variables
 
 #onready variables
 
 
-func _init(state_combat_fsm: CombatFSM = null) -> void:
-    self.combat_fsm = state_combat_fsm
+func _init(state_action_fsm: ActionFSM = null) -> void:
+    action_fsm = state_action_fsm
 
 #built-in virtual _ready method
 

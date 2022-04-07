@@ -2,11 +2,11 @@ extends StrayCF.RigidFighterBody2D
 
 const InputButtonCondition = StrayCF.InputButtonCondition
 const InputSequenceCondition = StrayCF.InputSequenceCondition
-const CombatFSM = StrayCF.CombatFSM
-const CombatState = StrayCF.CombatState
-const CombatSituationFSM = StrayCF.CombatSituationFSM
-const CombatSituationState = StrayCF.CombatSituationState
-const CombatTransition = StrayCF.CombatTransition
+const ActionFSM = StrayCF.ActionFSM
+const ActionState = StrayCF.ActionState
+const SituationFSM = StrayCF.SituationFSM
+const SituationState = StrayCF.SituationState
+const InputTransition = StrayCF.InputTransition
 const SequenceData = StrayCF.SequenceData
 
 enum Btn {
@@ -27,7 +27,7 @@ enum Btn {
 }
 
 onready var input_detector: StrayCF.InputDetector = get_node("InputDetector")
-onready var combat_tree: StrayCF.CombatTree = get_node("CombatTree")
+onready var combat_tree: StrayCF.CombatGraph = get_node("CombatTree")
 onready var ground_cast: RayCast2D = get_node("GroundCast")
 onready var animation_player: AnimationPlayer = get_node("AnimationPlayer")
 
@@ -69,40 +69,40 @@ func _ready() -> void:
 	var kick_input_condition := InputButtonCondition.new(Btn.KICK)
 	
 	# On Ground State Machine
-	var on_ground_fsm := CombatFSM.new()
-	on_ground_fsm.add_state("Idle", CombatState.new(["neutral"]))
-	on_ground_fsm.add_state("5P", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("5S", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("5K", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("5H", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("5S-5S", CombatState.new(["normal"]))
-	on_ground_fsm.add_state("214P", CombatState.new(["special"]))
-	on_ground_fsm.add_transition("Idle", "5P", CombatTransition.new(punch_input_condition))
-	on_ground_fsm.add_transition("Idle", "5S", CombatTransition.new(slash_input_condition))
-	on_ground_fsm.add_transition("Idle", "5K", CombatTransition.new(kick_input_condition))
-	on_ground_fsm.add_transition("Idle", "5H", CombatTransition.new(heavy_input_condition))
-	on_ground_fsm.add_transition("5S", "5S-5S", CombatTransition.new(slash_input_condition))
-	on_ground_fsm.add_transition("5S", "5H", CombatTransition.new(heavy_input_condition))
-	on_ground_fsm.add_transition("5H", "5K", CombatTransition.new(kick_input_condition))
+	var on_ground_fsm := ActionFSM.new()
+	on_ground_fsm.add_state("Idle", ActionState.new(["neutral"]))
+	on_ground_fsm.add_state("5P", ActionState.new(["normal"]))
+	on_ground_fsm.add_state("5S", ActionState.new(["normal"]))
+	on_ground_fsm.add_state("5K", ActionState.new(["normal"]))
+	on_ground_fsm.add_state("5H", ActionState.new(["normal"]))
+	on_ground_fsm.add_state("5S-5S", ActionState.new(["normal"]))
+	on_ground_fsm.add_state("214P", ActionState.new(["special"]))
+	on_ground_fsm.add_transition("Idle", "5P", InputTransition.new(punch_input_condition))
+	on_ground_fsm.add_transition("Idle", "5S", InputTransition.new(slash_input_condition))
+	on_ground_fsm.add_transition("Idle", "5K", InputTransition.new(kick_input_condition))
+	on_ground_fsm.add_transition("Idle", "5H", InputTransition.new(heavy_input_condition))
+	on_ground_fsm.add_transition("5S", "5S-5S", InputTransition.new(slash_input_condition))
+	on_ground_fsm.add_transition("5S", "5H", InputTransition.new(heavy_input_condition))
+	on_ground_fsm.add_transition("5H", "5K", InputTransition.new(kick_input_condition))
 	on_ground_fsm.add_global_transition_rule("normal", "special")
 	on_ground_fsm.add_global_transition_rule("neutral", "special")
-	on_ground_fsm.add_global_transition("214P", CombatTransition.new(InputSequenceCondition.new("214P")))
+	on_ground_fsm.add_global_transition("214P", InputTransition.new(InputSequenceCondition.new("214P")))
 	on_ground_fsm.initial_state = "Idle"
 	on_ground_fsm.initialize()
 
 	# Situation State Machine
-	var state_machine := CombatSituationFSM.new()
-	state_machine.add_state("OnGround", CombatSituationState.new(on_ground_fsm))
+	var state_machine := SituationFSM.new()
+	state_machine.add_state("OnGround", SituationState.new(on_ground_fsm))
 	state_machine.initial_state = "OnGround"
 	state_machine.initialize()
 
 	combat_tree.state_machine = state_machine
 
-	var _disable_warning = combat_tree.connect("combat_state_changed", self, "_on_CombatTree_combat_state_changed")
+	var _disable_warning = combat_tree.connect("action_state_changed", self, "_on_CombatTree_combat_state_changed")
 
 
 func _process(_delta) -> void:
-	var combat_fms = combat_tree.state_machine.get_combat_fsm()
+	var combat_fms = combat_tree.state_machine.get_action_fsm()
 
 	match combat_fms.current_state:
 		"Idle":

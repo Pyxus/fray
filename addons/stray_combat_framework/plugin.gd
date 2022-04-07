@@ -25,7 +25,7 @@ var _added_types: Array
 
 func _enter_tree() -> void:
 	add_custom_type("InputDetector", "Node", StrayCF.InputDetector, preload("assets/icons/input_detector.svg"))
-	add_custom_type("CombatTree", "Node", StrayCF.CombatTree, preload("assets/icons/combat_tree.svg"))
+	add_custom_type("CombatTree", "Node", StrayCF.CombatGraph, preload("assets/icons/combat_tree.svg"))
 	add_custom_type("CharacterBody2D", "RigidBody2D", StrayCF.CharacterBody2D, null)
 	add_custom_type("FighterBody2D", "RigidBody2D", StrayCF.RigidFighterBody2D, preload("assets/icons/fighter_body_2d.svg"))
 	add_custom_type("PushBox2D", "RigidBody2D", StrayCF.RigidPushBox2D, preload("assets/icons/push_box_2d.svg"))

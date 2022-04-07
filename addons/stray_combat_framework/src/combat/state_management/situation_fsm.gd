@@ -1,4 +1,4 @@
-extends "base_tree_fsm.gd"
+extends "combat_fsm.gd"
 ## docstring
 
 #signals
@@ -6,7 +6,7 @@ extends "base_tree_fsm.gd"
 #enums
 
 const AutoAdvanceTransition = preload("transitions/auto_advance_transition.gd")
-const CombatSituationState = preload("combat_situation_state.gd")
+const SituationState = preload("situation_state.gd")
 
 #preloaded scripts and scenes
 
@@ -29,14 +29,14 @@ func set_condition_evaluator(evaluation_func: FuncRef) -> void:
 	.set_condition_evaluator(evaluation_func)
 
 	for state in get_all_states_obj():
-		if state is CombatSituationState:
-			state.combat_fsm.set_condition_evaluator(evaluation_func)
+		if state is SituationState:
+			state.action_fsm.set_condition_evaluator(evaluation_func)
 
 
-func get_combat_fsm() -> Resource: # CombatFSM
+func get_action_fsm() -> Resource: # ActionFSM
 	var current_state = get_current_state_obj()
-	if current_state is CombatSituationState:
-		return current_state.combat_fsm
+	if current_state is SituationState:
+		return current_state.action_fsm
 	return null
 
 

@@ -13,12 +13,13 @@ const AttackAttributes = preload("src/combat/collision_detection/hit_attributes/
 const HurtAttributes = preload("src/combat/collision_detection/hit_attributes/hurt_attributes.gd")
 
 # Combat - State Management
-const CombatTree = preload("src/combat/state_management/combat_tree.gd")
+const CombatGraph = preload("src/combat/state_management/combat_graph.gd")
 const CombatFSM = preload("src/combat/state_management/combat_fsm.gd")
-const CombatState = preload("src/combat/state_management/combat_state.gd")
-const CombatSituationFSM = preload("src/combat/state_management/combat_situation_fsm.gd")
-const CombatSituationState = preload("src/combat/state_management/combat_situation_state.gd")
-const CombatTransition = preload("src/combat/state_management/transitions/combat_transition.gd")
+const ActionFSM = preload("src/combat/state_management/action_fsm.gd")
+const ActionState = preload("src/combat/state_management/action_state.gd")
+const SituationFSM = preload("src/combat/state_management/situation_fsm.gd")
+const SituationState = preload("src/combat/state_management/situation_state.gd")
+const InputTransition = preload("src/combat/state_management/transitions/input_transition.gd")
 const EvaluatedCondition = preload("src/combat/state_management/transitions/conditions/evaluated_condition.gd")
 const InputCondition = preload("src/combat/state_management/transitions/conditions/input_condition.gd")
 const InputSequenceCondition = preload("src/combat/state_management/transitions/conditions/input_sequence_condition.gd")

@@ -9,11 +9,11 @@ extends Node
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
 const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
 const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
-const CombatFSM = preload("combat_fsm.gd")
-const CombatSituationFSM = preload("combat_situation_fsm.gd")
+const ActionFSM = preload("action_fsm.gd")
+const SituationFSM = preload("situation_fsm.gd")
 
 signal situation_changed(from, to)
-signal combat_state_changed(from, to)
+signal action_state_changed(from, to)
 
 enum ProcessMode {
 	IDLE,
@@ -68,43 +68,44 @@ func advance(delta: float) -> void:
 	if state_machine == null:
 		return
 
-	var combat_fsm: CombatFSM = state_machine.get_combat_fsm() as CombatFSM
+	var action_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
 
-	if state_machine is CombatSituationFSM:
+	if state_machine is SituationFSM:
 		var previous_situation_state: String = state_machine.current_state
 
 		if state_machine.advance():
-			combat_fsm = state_machine.get_combat_fsm() as CombatFSM
+			var current_situation = state_machine.get_current_state_obj()
+			action_fsm = current_situation.action_fsm as ActionFSM
 
-			if combat_fsm != null:
-				combat_fsm.initialize()
+			if action_fsm != null:
+				action_fsm.initialize()
 
 			emit_signal("situation_state_changed", previous_situation_state, state_machine.current_state)
 	
-	if combat_fsm != null and active:
+	if action_fsm != null and active:
 		var current_time := OS.get_ticks_msec()
 
 		if not _input_buffer.empty():
 			for buffered_input in _input_buffer:
-				var next_state := combat_fsm.get_next_state(buffered_input.detected_input)
+				var next_state := action_fsm.get_next_state(buffered_input.detected_input)
 
 				if not next_state.empty() and (current_time - buffered_input.time_buffered) <= input_max_time_in_buffer * 1000:
 					_buffered_state = next_state
 					break
 
 		if allow_combat_transitions and not _buffered_state.empty():
-			var previous_state: String = combat_fsm.current_state
-			combat_fsm.advance_to(_buffered_state)
-			combat_fsm.time_since_last_input = current_time / 1000.0
+			var previous_state: String = action_fsm.current_state
+			action_fsm.advance_to(_buffered_state)
+			action_fsm.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
-			emit_signal("combat_state_changed", previous_state, combat_fsm.current_state)
+			emit_signal("action_state_changed", previous_state, action_fsm.current_state)
 
 
 func goto_initial_combat_state(ignore_buffer: bool = false) -> void:
 	if not ignore_buffer and not _buffered_state.empty():
 		return
 
-	var combat_fsm: CombatFSM = state_machine.get_combat_fsm() as CombatFSM
+	var combat_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
 	if combat_fsm == null:
 		return
 
@@ -116,7 +117,7 @@ func goto_initial_combat_state(ignore_buffer: bool = false) -> void:
 	combat_fsm.initialize()
 
 	if prev_state != combat_fsm.current_state:
-		emit_signal("combat_state_changed", prev_state, combat_fsm.current_state)
+		emit_signal("action_state_changed", prev_state, combat_fsm.current_state)
 
 
 func buffer_input(detected_input: DetectedInput) -> void:
