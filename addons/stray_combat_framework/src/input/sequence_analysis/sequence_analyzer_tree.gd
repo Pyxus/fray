@@ -23,8 +23,6 @@ func read(input_button: DetectedInputButton) -> void:
 	if next_node == null and not input_button.is_pressed:
 		return
 
-	print("Detected: ", input_button.id)
-
 	_input_queue.append(input_button)
 
 	if next_node != null:
@@ -32,12 +30,19 @@ func read(input_button: DetectedInputButton) -> void:
 	else:
 		_rescan()
 
+	if _current_node.data != null:
+		for sequence_data in _current_node.data:
+			if is_match(_input_queue, sequence_data.input_requirements):
+				_rescan_start_index = _input_queue.size()
+				emit_signal("match_found", sequence_data.sequence_name, _get_inputs_as_int_array())
+	"""
 	var _input_path := _get_inputs_as_path()
 	if _sequence_by_path.has(_input_path):
 		for sequence_data in _sequence_by_path[_input_path]:
 			if is_match(_input_queue, sequence_data.input_requirements):
 				_rescan_start_index = _input_queue.size()
 				emit_signal("match_found", sequence_data.sequence_name, _get_inputs_as_int_array())
+	"""
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
 		revert()
@@ -48,7 +53,7 @@ func add_sequence(sequence_data: SequenceData) -> void:
 		push_error("Failed to add sequence. Sequence is not given a name")
 		return
 
-	var path: PoolStringArray
+	#var path: PoolStringArray
 	var next_node := _root
 
 	for req in sequence_data.input_requirements:
@@ -60,13 +65,17 @@ func add_sequence(sequence_data: SequenceData) -> void:
 			next_node.id = req.input_id
 			prev_node.add_node(next_node)
 	
-		path.append(str(req.input_id))
+		#path.append(str(req.input_id))
 	
+	next_node.data.append(sequence_data)
+
+	"""
 	var path_string = path.join(">")
 	if not _sequence_by_path.has(path_string):
 		_sequence_by_path[path_string] = []
 
 	_sequence_by_path[path_string].append(sequence_data)
+	"""
 
 ## Reverts the tree's scanner back to the root
 func revert() -> void:
@@ -128,9 +137,11 @@ func _get_inputs_as_int_array() -> PoolIntArray:
 class InputNode:
 	extends Reference
 	
+	const SequenceData = preload("sequence_data.gd")
 	const InputRequirement = preload("input_requirement.gd")
 
 	var id: int
+	var data: Array # SequenceData[]
 
 	var _next_nodes: Array # InputNode[]
 

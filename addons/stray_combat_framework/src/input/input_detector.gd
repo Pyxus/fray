@@ -243,7 +243,7 @@ func _check_combined_inputs() -> void:
 			if  _detected_input_button_by_id.has(id):
 				continue
 
-			match combination_input.press_type:
+			match combination_input.type:
 				CombinationInput.Type.SYNCHRONOUS:
 					if not _is_inputed_quick_enough(combination_input.components):
 						continue
