@@ -16,7 +16,7 @@ func poll() -> void:
 
 ## Abstract method used to check if input is pressed
 func is_pressed() -> bool:
-	push_error("No is_pressed implementation provided.")
+	push_error("Method not implemented.")
 	return false
 
 ## Returns true when a user starts pressing the input, meaning it's true only on the frame the user pressed down the input.

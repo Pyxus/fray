@@ -15,11 +15,11 @@ signal match_found(sequence_name, sequence)
 
 ## Abstract method used to read next input.
 func read(input_button: DetectedInputButton) -> void:
-	push_error("No read implementation provided.")
+	push_error("Method not implemented.")
 
 ## Abstract method used to add sequence for scanner to recognize.
 func add_sequence(sequence_data: SequenceData) -> void:
-	push_error("No add implementation provided.")
+	push_error("Method not implemented.")
 
 ## Returns true if the given sequence of DetectedInputs meets the input requirements of the sequence data.
 func is_match(detected_input_buttons: Array, input_requirements: Array) -> bool:

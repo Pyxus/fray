@@ -1891,7 +1891,6 @@ anims/walk_forward = SubResource( 40 )
 
 [node name="CombatTree" type="Node" parent="."]
 script = ExtResource( 8 )
-input_detector = NodePath("../InputDetector")
 active = true
 allow_action_transitions = true
 

@@ -191,4 +191,7 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 """
 
 func _on_InputDetector_input_detected(detected_input) -> void:
-	pass
+	if "id" in detected_input:
+		combat_tree.buffer_input_button(detected_input.id, detected_input.is_pressed)
+	elif "sequence_name" in detected_input:
+		combat_tree.buffer_input_button(detected_input.sequence_name)

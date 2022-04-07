@@ -13,7 +13,7 @@ extends "combat_fsm.gd"
 ##		For example, many fighting games all all moves tagged as "normal" to transition into moves tagged as "special".
 
 # Imports
-const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const ActionState = preload("action_state.gd")
 
@@ -121,7 +121,7 @@ func get_action_fsm() -> Resource: # ActionFSM
 
 
 func _get_next_state(input: Object = null) -> String:
-	if input is DetectedInput:
+	if input is BufferedInput:
 		var next_global_transitions := get_next_global_transitions(current_state)
 		var next_transitions := get_next_transitions(current_state)
 		

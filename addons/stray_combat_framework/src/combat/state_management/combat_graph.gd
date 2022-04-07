@@ -7,7 +7,9 @@ extends Node
 
 # Imports
 const InputDetector = preload("res://addons/stray_combat_framework/src/input/input_detector.gd")
-const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const BufferedInput = preload("buffered_input/buffered_input.gd")
+const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
+const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
 const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_structures/circular_buffer.gd")
 const ActionFSM = preload("action_fsm.gd")
 const SituationFSM = preload("situation_fsm.gd")
@@ -22,10 +24,6 @@ enum ProcessMode {
 
 ## The state machine used by this CombatGraph.
 export var state_machine: Resource # CombatFSM
-
-## The path to the InputDetector used for detecting inputs.
-## Inputs can optionally be fed directly with the buffer_input method.
-export var input_detector: NodePath
 
 ## If true the combat graph will be processing.
 export var active: bool
@@ -46,8 +44,6 @@ export(ProcessMode) var process_mode: int setget set_process_mode
 
 #public variables
 
-onready var _input_detector: InputDetector = get_node_or_null(input_detector)
-
 var _conditions: Dictionary # Dictionary<String, bool>
 var _external_condition_evaluator: FuncRef
 var _input_buffer := CircularBuffer.new() # CircularBuffer<BufferedInput>
@@ -56,9 +52,6 @@ var _buffered_state: String
 #optional built-in virtual _init method
 
 func _ready() -> void:
-	if _input_detector != null:
-		_input_detector.connect("input_detected", self, "_on_InputDetector_input_detected")
-
 	if state_machine != null:
 		state_machine.initialize()
 
@@ -101,9 +94,9 @@ func advance(delta: float) -> void:
 
 		if not _input_buffer.empty():
 			for buffered_input in _input_buffer:
-				var next_state := action_fsm.get_next_state(buffered_input.detected_input)
+				var next_state := action_fsm.get_next_state(buffered_input)
 
-				if not next_state.empty() and (current_time - buffered_input.time_buffered) <= input_max_time_in_buffer * 1000:
+				if not next_state.empty() and (current_time - buffered_input.time_stamp) <= input_max_time_in_buffer * 1000:
 					_buffered_state = next_state
 					break
 
@@ -129,13 +122,13 @@ func goto_initial_action_state(ignore_buffer: bool = false) -> void:
 	var prev_state := action_fsm.current_state
 	action_fsm.initialize()
 
-## Buffers an input to be processed by the graph
-func buffer_input(detected_input: DetectedInput) -> void:
-	var buffered_input := BufferedInput.new()
+## Buffers an input button to be processed by the graph
+func buffer_input_button(id: int, is_released: bool = false) -> void:
+	_input_buffer.add(BufferedInputButton.new(OS.get_ticks_msec(), id, is_released))
 
-	buffered_input.detected_input = detected_input
-	buffered_input.time_buffered = OS.get_ticks_msec()
-	_input_buffer.add(buffered_input)
+## Buffers an input sequence to be processed by the graph
+func buffer_input_sequence(sequence_name: String) -> void:
+	_input_buffer.add(BufferedInputSequence.new(OS.get_ticks_msec(), sequence_name))
 
 ## Clears the current buffered inputs and buffered state
 func clear_buffer() -> void:
@@ -186,17 +179,3 @@ func _update_evaluator_functions() -> void:
 	if state_machine != null:
 		var evaluation_func: FuncRef = _external_condition_evaluator if _external_condition_evaluator != null else funcref(self, "is_condition_true")
 		state_machine.set_condition_evaluator(evaluation_func)
-
-
-func _on_InputDetector_input_detected(detected_input: DetectedInput) -> void:
-	buffer_input(detected_input)
-
-
-class BufferedInput:
-	extends Reference
-
-	const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
-
-	var detected_input: DetectedInput
-	var time_in_buffer: float
-	var time_buffered: int

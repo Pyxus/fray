@@ -9,7 +9,7 @@ func set_condition_evaluator(evaluation_func: FuncRef) -> void:
 
 ## Abstract method which returns the current action fsm
 func get_action_fsm() -> Resource: # ActionFSM
-	push_error("No get_action_fsm implementation provided.")
+	push_error("Method not implemented.")
 	return null
 
 

@@ -1,9 +1,10 @@
 extends Resource
-## Class representing condition
+## Abstract Class representing input condition
 
 # Imports
-const DetectedInput = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input.gd")
+const BufferedInput = preload("../../buffered_input/buffered_input.gd")
 
-## Returns true if the detected input satisfies this condition
-func is_satisfied_by(detected_input: DetectedInput) -> bool:
+## Abstract method which returns true if the detected input satisfies this condition
+func is_satisfied_by(buffered_input: BufferedInput) -> bool:
+	push_error("Method not implemented.")
 	return false

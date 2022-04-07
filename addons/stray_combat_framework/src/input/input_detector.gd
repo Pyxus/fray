@@ -46,6 +46,7 @@ func _process(delta: float) -> void:
 
 ## Returns true if an input is being pressed.
 func is_input_pressed(id: int) -> bool:
+	#Im sorry I got tired i'll make it look nicer... eventually ;-;
 	var input = input_data.get_input_bind(id)
 
 	if input != null:
