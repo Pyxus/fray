@@ -12,9 +12,6 @@ const CircularBuffer = preload("res://addons/stray_combat_framework/lib/data_str
 const ActionFSM = preload("action_fsm.gd")
 const SituationFSM = preload("situation_fsm.gd")
 
-signal situation_changed(from, to)
-signal action_state_changed(from, to)
-
 enum ProcessMode {
 	IDLE,
 	PHYSICS,
@@ -23,12 +20,28 @@ enum ProcessMode {
 
 #constants
 
-export var state_machine: Resource # CombatTreeFSM
+## The state machine used by this CombatGraph.
+export var state_machine: Resource # CombatFSM
+
+## The path to the InputDetector used for detecting inputs.
+## Inputs can optionally be fed directly with the buffer_input method.
 export var input_detector: NodePath
+
+## If true the combat graph will be processing.
 export var active: bool
-export var allow_combat_transitions: bool
+
+## Allow transitions action transitions to occur in the graph.
+## Enabling and disabling this property allows you to control when a fighter
+## is able to transition into the next buffered state.
+export var allow_action_transitions: bool
+
+## The max number of detected inputs that can be buffered.
 export var input_buffer_capacity: int = 10
+
+## The max time a detected input can exist in the buffer before it is ignored.
 export var input_max_time_in_buffer: float = 0.1
+
+## The process mode of this CombatGraph.
 export(ProcessMode) var process_mode: int setget set_process_mode
 
 #public variables
@@ -63,8 +76,11 @@ func _physics_process(delta: float) -> void:
 	if process_mode == ProcessMode.PHYSICS:
 		advance(delta)
 
-
+## Manually advances the the combat graph's processing.
 func advance(delta: float) -> void:
+	if not active:
+		return
+
 	if state_machine == null:
 		return
 
@@ -79,10 +95,8 @@ func advance(delta: float) -> void:
 
 			if action_fsm != null:
 				action_fsm.initialize()
-
-			emit_signal("situation_state_changed", previous_situation_state, state_machine.current_state)
 	
-	if action_fsm != null and active:
+	if action_fsm != null:
 		var current_time := OS.get_ticks_msec()
 
 		if not _input_buffer.empty():
@@ -93,39 +107,40 @@ func advance(delta: float) -> void:
 					_buffered_state = next_state
 					break
 
-		if allow_combat_transitions and not _buffered_state.empty():
+		if allow_action_transitions and not _buffered_state.empty():
 			var previous_state: String = action_fsm.current_state
 			action_fsm.advance_to(_buffered_state)
 			action_fsm.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
-			emit_signal("action_state_changed", previous_state, action_fsm.current_state)
 
-
-func goto_initial_combat_state(ignore_buffer: bool = false) -> void:
+## Returns the current ActionFSM to it's initial state if available
+func goto_initial_action_state(ignore_buffer: bool = false) -> void:
 	if not ignore_buffer and not _buffered_state.empty():
 		return
 
-	var combat_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
-	if combat_fsm == null:
+	var action_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
+	if action_fsm == null:
 		return
 
-	if combat_fsm.initial_state.empty():
-		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % combat_fsm)
+	if action_fsm.initial_state.empty():
+		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % action_fsm)
 		return
 
-	var prev_state := combat_fsm.current_state
-	combat_fsm.initialize()
+	var prev_state := action_fsm.current_state
+	action_fsm.initialize()
 
-	if prev_state != combat_fsm.current_state:
-		emit_signal("action_state_changed", prev_state, combat_fsm.current_state)
-
-
+## Buffers an input to be processed by the graph
 func buffer_input(detected_input: DetectedInput) -> void:
 	var buffered_input := BufferedInput.new()
 
 	buffered_input.detected_input = detected_input
 	buffered_input.time_buffered = OS.get_ticks_msec()
 	_input_buffer.add(buffered_input)
+
+## Clears the current buffered inputs and buffered state
+func clear_buffer() -> void:
+	_buffered_state = ""
+	_input_buffer.clear()
 
 
 func set_process_mode(value: int) -> void:
@@ -162,11 +177,6 @@ func is_condition_true(condition: String) -> bool:
 	
 	push_warning("Combat condition '%s' was never set" % condition)
 	return false
-
-
-func clear_buffer() -> void:
-	_buffered_state = ""
-	_input_buffer.clear()
 
 
 func _update_evaluator_functions() -> void:

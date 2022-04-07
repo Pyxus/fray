@@ -1,38 +1,20 @@
 extends "res://addons/stray_combat_framework/lib/state_machine/transition.gd"
-## docstring
+## Used to represent an input based transition
 
-#signals
-
-#enums
-
-#constants
-
+# Imports
 const InputCondition = preload("conditions/input_condition.gd")
 
-#exported variables
-
+## Input condition corresponding to this transition
 var input_condition: InputCondition
-var chain_conditions: Array # EvaluatedCondition[]
+
+## Array of evaluated conditions that need to be true for this transition to occur.
+var prerequisites: Array # EvaluatedCondition[]
+
+## The minimum amount of time that must occur between inputs
 var min_input_delay: float
 
-#private variables
 
-#onready variables
-
-
-func _init(t_input_condition: InputCondition = null, t_chain_conditions: Array = [], t_min_input_delay: float = 0) -> void:
+func _init(t_input_condition: InputCondition = null, t_prerequisites: Array = [], t_min_input_delay: float = 0) -> void:
     input_condition = t_input_condition
-    chain_conditions = t_chain_conditions
+    prerequisites = t_prerequisites
     min_input_delay = t_min_input_delay
-    
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
-#public methods
-
-#private methods
-
-#signal methods
-
-#inner classes

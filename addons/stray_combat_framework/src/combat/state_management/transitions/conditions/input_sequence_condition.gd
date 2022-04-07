@@ -1,4 +1,5 @@
 extends "input_condition.gd"
+## Class representing sequence condition
 
 const DetectedInputSequence = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input_sequence.gd")
 

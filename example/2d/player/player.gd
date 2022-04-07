@@ -98,8 +98,6 @@ func _ready() -> void:
 
 	combat_tree.state_machine = state_machine
 
-	var _disable_warning = combat_tree.connect("action_state_changed", self, "_on_CombatTree_combat_state_changed")
-
 
 func _process(_delta) -> void:
 	var combat_fms = combat_tree.state_machine.get_action_fsm()
@@ -193,8 +191,4 @@ func _handle_movement(state: Physics2DDirectBodyState) -> void:
 """
 
 func _on_InputDetector_input_detected(detected_input) -> void:
-	pass
-
-func _on_CombatTree_combat_state_changed(from: String, to: String) -> void:
-	#print("State changed %s->%s" % [from, to])
 	pass

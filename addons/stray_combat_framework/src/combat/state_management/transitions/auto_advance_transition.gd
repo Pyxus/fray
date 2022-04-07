@@ -1,33 +1,8 @@
 extends "res://addons/stray_combat_framework/lib/state_machine/transition.gd"
-## docstring
+## Transition that advances automatically if advance_condition is true
 
-#signals
-
-#enums
-
+# Imports
 const EvaluatedCondition = preload("conditions/evaluated_condition.gd")
 
-#preloaded scripts and scenes
-
-#exported variables
-
+## Allow transition to advance if true
 var advance_condition: EvaluatedCondition
-
-#private variables
-
-#onready variables
-
-
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
-#public methods
-
-#private methods
-
-#signal methods
-
-#inner classes

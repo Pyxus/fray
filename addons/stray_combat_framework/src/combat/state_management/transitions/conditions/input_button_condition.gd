@@ -1,9 +1,14 @@
 extends "input_condition.gd"
+## Class representing input button condition
 
+# Imports
 const DetectedInputButton = preload("res://addons/stray_combat_framework/src/input/detected_inputs/detected_input_button.gd")
 
+## Input id
 export var input_id: int
-export var is_triggered_on_release: bool
+
+## If true the condition only counts the input if it is released
+export var is_triggered_on_release: bool #TODO: Reimplement, current this condition is ignored
 
 
 func _init(input_id: int = -1, is_triggered_on_release: bool = false) -> void:
