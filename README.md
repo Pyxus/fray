@@ -19,9 +19,9 @@ Fray is a work in progress addon for the [Godot Game Engine](https://godotengine
 
 ## ✨ Core Features
 
-### Hit Box Management
+### Hit Detection
 
-Fray provides tools for setting up and managing a fighter's hitbox / attackbox based on their current state.
+Fray provides tools for setting up and managing a fighter's hitbox / attackbox.
 
 ### Combat State Management
 
