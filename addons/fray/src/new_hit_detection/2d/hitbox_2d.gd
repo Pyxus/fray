@@ -2,7 +2,7 @@ tool
 extends Area2D
 ## 2D area intended to detect combat interactions.
 ## 
-## Serves as the base class for AttackBox and HurtBox.
+## Serves as the base class for Attackox and HurtBox.
 
 #inner classes
 
@@ -13,8 +13,6 @@ signal deactivated()
 #enums
 
 const HitAttributes = preload("../hit_attributes/hit_attributes.gd")
-const AttackAttributes = preload("../hit_attributes/attack_attributes.gd")
-const HurtAttributes = preload("../hit_attributes/hurt_attributes.gd")
 
 export var hit_attributes: Resource setget set_hit_attributes # Custom resource exports would be pretty nice godot ¬¬
 export var is_active: bool setget set_is_active
@@ -35,6 +33,7 @@ func _ready() -> void:
 	set_is_active(is_active)
 	connect("area_entered", self, "_on_area_entered")
 	connect("area_exited", self, "_on_area_exited")
+
 
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
@@ -99,6 +98,7 @@ func set_is_active(value: bool) -> void:
 func _on_area_entered(area: Area2D) -> void:
 	if not _detection_exceptions.has(area):
 		pass
+
 
 func _on_area_exited(area: Area2D) -> void:
 	if not _detection_exceptions.has(area):
