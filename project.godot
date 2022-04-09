@@ -9,13 +9,19 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Reference",
+"base": "Object",
 "class": "Fray",
 "language": "GDScript",
 "path": "res://addons/fray/namespace.gd"
+}, {
+"base": "Object",
+"class": "FrayInterface",
+"language": "GDScript",
+"path": "res://addons/fray/interface.gd"
 } ]
 _global_script_class_icons={
-"Fray": ""
+"Fray": "",
+"FrayInterface": ""
 }
 
 [application]
