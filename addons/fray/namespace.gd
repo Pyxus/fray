@@ -15,9 +15,7 @@ const HitBox2D = preload("src/hit_detection/2d/hitbox_2d.gd")
 const BoxSwitcher2D = preload("src/hit_detection/2d/hitbox_switcher_2d.gd")
 const HitState2D = preload("src/hit_detection/2d/hit_state_2d.gd")
 const HitStateCoordinator2D = preload("src/hit_detection/2d/hit_state_coordinator_2d.gd")
-const HitAttributes = preload("src/hit_detection/hit_attributes/hit_attributes.gd")
-const AttackAttributes = preload("src/hit_detection/hit_attributes/attack_attributes.gd")
-const HurtAttributes = preload("src/hit_detection/hit_attributes/hurt_attributes.gd")
+const HitAttributes = preload("src/hit_detection/hit_attributes.gd")
 
 # Combat - State Management
 const CombatGraph = preload("src/state_management/combat_graph.gd")
