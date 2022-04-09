@@ -1,4 +1,9 @@
 class_name Fray
+extends Object
+
+func _init() -> void:
+	push_warning("The 'Fray' class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
+	free()
 
 # Physics Body
 const CharacterBody2D = preload("src/physics_body/2d/character_body_2d.gd")

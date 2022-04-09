@@ -20,7 +20,7 @@ export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 
 var box_color: Color = Color.black
-var belongs_to: Object
+var source: Object setget set_source
 
 var _detection_exceptions: Array
 
@@ -39,6 +39,10 @@ func _process(_delta: float) -> void:
 	if Engine.editor_hint:
 		modulate = box_color
 		return
+
+
+func set_source(hitbox_source: Object) -> void:
+	source = hitbox_source
 
 
 func set_hit_attributes(value: Resource) -> void:
@@ -78,20 +82,29 @@ func set_flip_v(value: bool) -> void:
 			child.position.y *= -1
 
 
+func activate() -> void:
+	set_is_active(true)
+
+
+func deactivate() -> void:
+	set_is_active(false)
+
+
 func set_is_active(value: bool) -> void:
-	if is_active != value:
-		if value:
-			show()
-			monitorable = true
-			monitoring = true
-			emit_signal("activated")
-		else:
-			hide()
-			monitorable = false
-			monitoring = false
-			emit_signal("deactivated")
-		
 	is_active = value
+	
+	if is_active:
+		show()
+		monitorable = true
+		monitoring = true
+		emit_signal("activated")
+
+	else:
+		hide()
+		monitorable = false
+		monitoring = false
+		emit_signal("deactivated")
+	
 
 #private methods
 
