@@ -30,9 +30,9 @@ func _enter_tree() -> void:
 	add_custom_type("FighterBody2D", "RigidBody2D", Fray.RigidFighterBody2D, preload("assets/icons/fighter_body_2d.svg"))
 	add_custom_type("PushBox2D", "RigidBody2D", Fray.RigidPushBox2D, preload("assets/icons/push_box_2d.svg"))
 	add_custom_type("HitBox2D", "Area2D", Fray.HitBox2D, preload("assets/icons/hit_box_2d.svg"))
-	add_custom_type("BoxSwitcher2D", "Node2D", Fray.BoxSwitcher2D, preload("assets/icons/box_switcher_2d.svg"))
+	add_custom_type("HitboxSwitcher2D", "Node2D", Fray.HitboxSwitcher2D, preload("assets/icons/box_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", Fray.HitState2D, preload("assets/icons/hit_state_2d.svg"))
-	add_custom_type("HitStateController2D", "Node2D", Fray.HitStateController2D, preload("assets/icons/hit_state_controller_2d.svg"))
+	add_custom_type("HitStateCoordinator2D", "Node2D", Fray.HitStateCoordinator2D, preload("assets/icons/hit_state_controller_2d.svg"))
 
 	if ProjectSettings.get_setting("debug/shapes/collision/shape_color") != Color("6bffffff"):
 		ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color("6bffffff"))

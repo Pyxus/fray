@@ -92,12 +92,13 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 		ChildChangeDetector.Change.ADDED, ChildChangeDetector.Change.SCRIPT_CHANGED:
 			if FrayInterface.implements_IHitbox(node):
 				SignalUtils.safe_connect(node, "activated", self, "_on_IHitbox_activated", [node])
+			else:
+				SignalUtils.safe_disconnect(node, "activated", self, "_on_IHitbox_activated")
 
 
 func _on_IHitbox_activated(hitbox: Object) -> void:
 	emit_signal("activated")
 	if hitbox != _current_hitbox:
-		print(hitbox.name, "|", _current_hitbox.name)
 		hitbox.deactivate()
 
 #inner classes

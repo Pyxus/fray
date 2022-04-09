@@ -51,19 +51,15 @@ func get_current_hit_state() -> HitState2D:
 
 func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 	match change:
-		ChildChangeDetector.Change.ADDED:
-			if node is HitState2D:
-				SignalUtils.safe_connect(node, "activated", self, "_on_Hitstate2D_activated", [node])
-	
 		ChildChangeDetector.Change.REMOVED:
 			if node is HitState2D:
 				SignalUtils.safe_disconnect(node, "activated", self, "_on_Activatible_activated")
 	
-		ChildChangeDetector.Change.SCRIPT_CHANGED:
+		ChildChangeDetector.Change.ADDED, ChildChangeDetector.Change.SCRIPT_CHANGED:
 			if node is HitState2D:
 				SignalUtils.safe_connect(node, "activated", self, "_on_Hitstate2D_activated", [node])
 			else:
-				SignalUtils.safe_connect(node, "activated", self, "_on_Hitstate2D_activated", [node])
+				SignalUtils.safe_disconnect(node, "activated", self, "_on_Hitstate2D_activated")
 					
 
 func _on_Hitstate2D_activated(node: Node) -> void:

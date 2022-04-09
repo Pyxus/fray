@@ -4,7 +4,9 @@ extends Area2D
 ## 
 ## Serves as the base class for Attackox and HurtBox.
 
-#inner classes
+# Imports
+const HitAttributes = preload("../hit_attributes/hit_attributes.gd")
+var Hitbox2D = load("res://addons/fray/src/hit_detection/2d/hitbox_2d.gd")
 
 signal hit_box_detected()
 signal activated()
@@ -12,7 +14,7 @@ signal deactivated()
 
 #enums
 
-const HitAttributes = preload("../hit_attributes/hit_attributes.gd")
+
 
 export var hit_attributes: Resource setget set_hit_attributes # Custom resource exports would be pretty nice godot ¬¬
 export var is_active: bool setget set_is_active
@@ -32,7 +34,6 @@ var _detection_exceptions: Array
 func _ready() -> void:
 	set_is_active(is_active)
 	connect("area_entered", self, "_on_area_entered")
-	connect("area_exited", self, "_on_area_exited")
 
 
 func _process(_delta: float) -> void:
@@ -106,13 +107,11 @@ func set_is_active(value: bool) -> void:
 		emit_signal("deactivated")
 	
 
-#private methods
-
-func _on_area_entered(area: Area2D) -> void:
-	if not _detection_exceptions.has(area):
-		pass
+func _hitbox_detected(hitbox: Area2D) -> void:
+	pass
 
 
-func _on_area_exited(area: Area2D) -> void:
-	if not _detection_exceptions.has(area):
-		pass
+func _on_area_entered(hitbox: Area2D) -> void:
+	if hitbox is Hitbox2D:
+		if not _detection_exceptions.has(hitbox) and hitbox.source != source:
+			_hitbox_detected(hitbox)

@@ -11,10 +11,10 @@ const RigidFighterBody2D = preload("src/physics_body/2d/rigid_fighter_body_2d.gd
 const RigidPushBox2D = preload("src/physics_body/2d/rigid_push_box_2d.gd")
 
 # Hit Detection
-const HitBox2D = preload("src/hit_detection/2d/hit_box_2d.gd")
-const BoxSwitcher2D = preload("src/hit_detection/2d/box_switcher_2d.gd")
+const HitBox2D = preload("src/hit_detection/2d/hitbox_2d.gd")
+const BoxSwitcher2D = preload("src/hit_detection/2d/hitbox_switcher_2d.gd")
 const HitState2D = preload("src/hit_detection/2d/hit_state_2d.gd")
-const HitStateController2D = preload("src/hit_detection/2d/hit_state_controller_2d.gd")
+const HitStateCoordinator2D = preload("src/hit_detection/2d/hit_state_coordinator_2d.gd")
 const HitAttributes = preload("src/hit_detection/hit_attributes/hit_attributes.gd")
 const AttackAttributes = preload("src/hit_detection/hit_attributes/attack_attributes.gd")
 const HurtAttributes = preload("src/hit_detection/hit_attributes/hurt_attributes.gd")
