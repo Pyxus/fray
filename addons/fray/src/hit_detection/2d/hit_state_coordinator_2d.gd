@@ -1,6 +1,10 @@
 tool
 extends Node2D
-## docstring
+## Node used to coordinate HitState2D children
+## 
+## @desc:
+##		When a HitState2D child is activated all others will be deactivate.
+##		This is a convinience tool for enforcing discrete hit states.
 
 # Imports
 const HitState2D = preload("hit_state_2d.gd")
@@ -44,7 +48,7 @@ func set_hitbox_source(value: NodePath) -> void:
 			if child is HitState2D:
 				child.set_hitbox_source(hitbox_source)
 
-
+## Returns the current activated hit state
 func get_current_hit_state() -> HitState2D:
 	return _current_hit_state
 

@@ -1,6 +1,12 @@
 tool
 extends Node2D
-## docstring
+## Node capable of switching between IHitboxes.
+## @desc:
+## 		Only one IHitbox in switcher can be activated at a time.
+## 		This node is intended to be used when animating by keying the active hitbox.
+##
+##		IHitbox is a pseudo interface, see interface script.
+##		It is implemented by Hitboxes, HitboxSwitchers, and Pushboxes
 
 # Imports
 const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")

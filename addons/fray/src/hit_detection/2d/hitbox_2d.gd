@@ -1,11 +1,9 @@
 tool
 extends Area2D
 ## 2D area intended to detect combat interactions.
-## 
-## Serves as the base class for Attackox and HurtBox.
 
 # Imports
-const HitAttributes = preload("../hit_attributes/hit_attributes.gd")
+const HitAttributes = preload("../hit_attributes.gd")
 var Hitbox2D = load("res://addons/fray/src/hit_detection/2d/hitbox_2d.gd")
 
 signal hit_box_detected()
@@ -14,14 +12,12 @@ signal deactivated()
 
 #enums
 
-
-
 export var hit_attributes: Resource setget set_hit_attributes # Custom resource exports would be pretty nice godot ¬¬
 export var is_active: bool setget set_is_active
 export var flip_h: bool setget set_flip_h
 export var flip_v: bool setget set_flip_v
 
-var box_color: Color = Color.black
+## Source of the hitbox. Can be used to prevent hitboxes produced by the same entity from interacting
 var source: Object setget set_source
 
 var _detection_exceptions: Array
@@ -38,7 +34,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if Engine.editor_hint:
-		modulate = box_color
+		modulate = hit_attributes.get_color() if hit_attributes != null else Color.black
 		return
 
 
@@ -49,19 +45,17 @@ func set_source(hitbox_source: Object) -> void:
 func set_hit_attributes(value: Resource) -> void:
 	if value is HitAttributes:
 		hit_attributes = value
-		box_color = hit_attributes.get_color()
 	elif value == null:
 		hit_attributes = null
-		box_color = Color.black
 	else:
 		push_warning("You tried to pass a resource that isn't a hit attribute. If we had custom exports I wouldn't need to do this.")
 	
-	
+## Adds a hitbox to a list of hitboxes this hitbox can't detect
 func add_detection_exception_with(hitbox: Area2D) -> void:
-	if not _detection_exceptions.has(hitbox):
+	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
 		_detection_exceptions.append(hitbox)
 	
-	
+## Removes a hitbox to a list of hitboxes this hitbox can't detect
 func remove_detection_exception_with(hitbox: Area2D) -> void:
 	if _detection_exceptions.has(hitbox):
 		_detection_exceptions.erase(hitbox)
