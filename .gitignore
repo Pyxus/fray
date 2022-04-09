@@ -6,3 +6,11 @@ export_presets.cfg
 
 # Mono-specific ignores
 .mono/
+
+# Project-specific
+/addons
+!/addons/fray
+/test
+*.import
+project.godot
+/default_env.tres
