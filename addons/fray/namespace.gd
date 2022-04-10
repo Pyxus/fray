@@ -6,9 +6,9 @@ func _init() -> void:
 	free()
 
 # Physics Body
-const CharacterBody2D = preload("src/physics_body/2d/character_body_2d.gd")
-const RigidFighterBody2D = preload("src/physics_body/2d/rigid_fighter_body_2d.gd")
-const RigidPushBox2D = preload("src/physics_body/2d/rigid_push_box_2d.gd")
+#const CharacterBody2D = preload("src/physics_body/2d/character_body_2d.gd")
+#const RigidFighterBody2D = preload("src/physics_body/2d/rigid_fighter_body_2d.gd")
+#const RigidPushBox2D = preload("src/physics_body/2d/rigid_push_box_2d.gd")
 
 # Hit Detection
 const HitBox2D = preload("src/hit_detection/2d/hitbox_2d.gd")
@@ -18,7 +18,7 @@ const HitStateCoordinator2D = preload("src/hit_detection/2d/hit_state_coordinato
 const HitAttributes = preload("src/hit_detection/hit_attributes.gd")
 
 # Combat - State Management
-const CombatGraph = preload("src/state_management/combat_graph.gd")
+const ActionGraph = preload("src/state_management/action_graph.gd")
 const CombatFSM = preload("src/state_management/combat_fsm.gd")
 const ActionFSM = preload("src/state_management/action_fsm.gd")
 const ActionState = preload("src/state_management/action_state.gd")
