@@ -16,7 +16,7 @@ const SequenceData = preload("sequence_analysis/sequence_data.gd")
 const DetectedInput = preload("detected_inputs/detected_input.gd")
 const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
 const DetectedInputSequence = preload("detected_inputs/detected_input_sequence.gd")
-const InputData = preload("input_data/input_data.gd")
+const InputSet = preload("input_data/input_set.gd")
 const InputBind = preload("input_data/binds/input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
 const ConditionalInput = preload("input_data/conditional_input.gd")
@@ -24,7 +24,7 @@ const ConditionalInput = preload("input_data/conditional_input.gd")
 ## Emitted when a bound, registered, or sequence input is detected.
 signal input_detected(detected_input)
 
-export var input_data: Resource = InputData.new()
+export var input_set: Resource = InputSet.new()
 
 ## The sequence analyzer used to detect sequence inputs.
 export var sequence_analyzer: Resource = SequenceAnalyzerTree.new()
@@ -53,87 +53,71 @@ func _process(delta: float) -> void:
 
 ## Returns true if an input is being pressed.
 func is_input_pressed(id: int) -> bool:
-	#Im sorry I got tired i'll make it look nicer... eventually ;-;
-	var input = input_data.get_input_bind(id)
+	var input: Reference = input_set.get_input(id)
 
-	if input != null:
+	if input is InputBind:
 		return input.is_pressed()
-	
-	input = input_data.get_combination_input(id)
-	if input != null:
+	elif input is CombinationInput:
 		return input.is_pressed
-	
-	input = input_data.get_conditional_input(id)
-	if input != null:
-		var comp_input = input_data.get_input_bind(input.current_input)
+	elif input is ConditionalInput:
+		var current_input: Reference = input_set.get_input(input.current_input)
 
-		if comp_input != null:
-			return comp_input.is_pressed()
-		
-		comp_input = input_data.get_input_bind(input.current_input)
-		if comp_input != null:
-			return comp_input.is_pressed
+		if current_input is InputBind:
+			return current_input.is_pressed()
+		elif current_input is CombinationInput:
+			return input.is_pressed;
+		else:
+			push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, current_input.current_input])
+			return false
+	else:
+		push_warning("No input with id '%d' bound." % id)
 
-		push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, input.current_input])
-		return false
-
-	push_warning("No input with id '%d' bound." % id)
 	return false
 
 ## Returns true when a user starts pressing the input, meaning it's true only on the frame the user pressed down the input.
 func is_input_just_pressed(id: int) -> bool:
-	var input = input_data.get_input_bind(id)
+	var input: Reference = input_set.get_input(id)
 
-	if input != null:
+	if input is InputBind:
 		return input.is_just_pressed()
-	
-	input = input_data.get_combination_input(id)
-	if input != null:
-		return input.is_pressed
-	
-	input = input_data.get_conditional_input(id)
-	if input != null:
-		var comp_input = input_data.get_input_bind(input.current_input)
+	elif input is CombinationInput:
+		return input.is_just_pressed()
+	elif input is ConditionalInput:
+		var current_input: Reference = input_set.get_input(input.current_input)
 
-		if comp_input != null:
-			return comp_input.is_just_pressed()
-		
-		comp_input = input_data.get_input_bind(input.current_input)
-		if comp_input != null:
-			return comp_input.is_just_pressed()
+		if current_input is InputBind:
+			return current_input.is_just_pressed()
+		elif current_input is CombinationInput:
+			return input.is_just_pressed();
+		else:
+			push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, current_input.current_input])
+			return false
+	else:
+		push_warning("No input with id '%d' bound." % id)
 
-		push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, input.current_input])
-		return false
-
-	push_warning("No input with id '%d' bound." % id)
 	return false
 
 ## Returns true when the user stops pressing the input, meaning it's true only on the frame that the user released the button.
 func is_input_just_released(id: int) -> bool:
-	var input = input_data.get_input_bind(id)
+	var input: Reference = input_set.get_input(id)
 
-	if input != null:
+	if input is InputBind:
 		return input.is_just_released()
-	
-	input = input_data.get_combination_input(id)
-	if input != null:
+	elif input is CombinationInput:
 		return input.is_just_released()
-	
-	input = input_data.get_conditional_input(id)
-	if input != null:
-		var comp_input = input_data.get_input_bind(input.current_input)
+	elif input is ConditionalInput:
+		var current_input: Reference = input_set.get_input(input.current_input)
 
-		if comp_input != null:
-			return comp_input.is_just_released()
-		
-		comp_input = input_data.get_input_bind(input.current_input)
-		if comp_input != null:
-			return comp_input.is_just_released()
+		if current_input is InputBind:
+			return current_input.is_just_released()
+		elif current_input is CombinationInput:
+			return input.is_just_released();
+		else:
+			push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, current_input.current_input])
+			return false
+	else:
+		push_warning("No input with id '%d' bound." % id)
 
-		push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, input.current_input])
-		return false
-
-	push_warning("No input with id '%d' bound." % id)
 	return false
 
 ## Sets condition to given value. Used for checking conditional inputs.
@@ -153,8 +137,8 @@ func clear_conditions() -> void:
 
 func _check_input_binds() -> void:
 	var time_stamp := OS.get_ticks_msec()
-	for id in input_data.get_input_bind_ids():
-		var input_bind: InputBind = input_data.get_input_bind(id)
+	for id in input_set.get_input_bind_ids():
+		var input_bind: InputBind = input_set.get_input_bind(id)
 		
 		if input_bind.is_just_pressed():
 			var detected_input := DetectedInputButton.new()
@@ -179,8 +163,8 @@ func _check_input_binds() -> void:
 func _check_combined_inputs() -> void:
 	var time_stamp := OS.get_ticks_msec()
 	var detected_input_ids := _detected_input_button_by_id.keys()
-	for id in input_data.get_combination_input_ids():
-		var combination_input: CombinationInput = input_data.get_combination_input(id)
+	for id in input_set.get_combination_input_ids():
+		var combination_input: CombinationInput = input_set.get_combination_input(id)
 		if combination_input.has_ids(detected_input_ids):
 			if  _detected_input_button_by_id.has(id):
 				continue
@@ -192,8 +176,6 @@ func _check_combined_inputs() -> void:
 				CombinationInput.Type.ORDERED:
 					if not _is_inputed_in_order(combination_input.components):
 						continue
-				var unkown_press_type:
-					push_warning("Unkown combination input type '%d' for input with id '%d'" % [unkown_press_type, id])
 
 			combination_input.is_pressed = true
 
@@ -233,8 +215,8 @@ func _check_combined_inputs() -> void:
 
 func _check_conditional_inputs() -> void:
 	var time_stamp := OS.get_ticks_msec()
-	for id in input_data.get_conditional_input_ids():
-		var conditional_input: ConditionalInput = input_data.get_conditional_input(id)
+	for id in input_set.get_conditional_input_ids():
+		var conditional_input: ConditionalInput = input_set.get_conditional_input(id)
 		
 		if is_input_just_pressed(conditional_input.current_input):
 			var detected_input := DetectedInputButton.new()

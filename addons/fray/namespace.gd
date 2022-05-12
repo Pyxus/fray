@@ -32,7 +32,7 @@ const InputButtonCondition = preload("src/state_management/transitions/condition
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")
-const InputData = preload("src/input/input_data/input_data.gd")
+const InputSet = preload("src/input/input_data/input_set.gd")
 const SequenceAnalyzer = preload("src/input/sequence_analysis/sequence_analyzer.gd")
 const SequenceAnalyzerTree = preload("src/input/sequence_analysis/sequence_analyzer_tree.gd")
 const DetectedInput = preload("src/input/detected_inputs/detected_input.gd")
