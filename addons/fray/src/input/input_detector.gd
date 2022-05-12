@@ -65,7 +65,7 @@ func is_input_pressed(id: int) -> bool:
 		if current_input is InputBind:
 			return current_input.is_pressed()
 		elif current_input is CombinationInput:
-			return input.is_pressed;
+			return current_input.is_pressed;
 		else:
 			push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, current_input.current_input])
 			return false
@@ -88,7 +88,7 @@ func is_input_just_pressed(id: int) -> bool:
 		if current_input is InputBind:
 			return current_input.is_just_pressed()
 		elif current_input is CombinationInput:
-			return input.is_just_pressed();
+			return current_input.is_just_pressed();
 		else:
 			push_warning("Conditional input '%d' contains input '%d' that doesn't map to any bind or combination" % [id, current_input.current_input])
 			return false
@@ -300,4 +300,5 @@ func _on_SequenceTree_match_found(sequence_name: String, sequence: PoolIntArray)
 	var detected_input := DetectedInputSequence.new()
 	detected_input.name = sequence_name
 	detected_input.sequence = sequence
+	print("Hi")
 	emit_signal("input_detected", detected_input)

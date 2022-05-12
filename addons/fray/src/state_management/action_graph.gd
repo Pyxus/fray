@@ -15,6 +15,7 @@ const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const ActionFSM = preload("action_fsm.gd")
 const SituationFSM = preload("situation_fsm.gd")
+const SituationState = preload("situation_state.gd")
 
 enum ProcessMode {
 	IDLE,
@@ -29,13 +30,13 @@ enum ProcessMode {
 ## The SituationFSM provides a way of grouping actions.
 export var state_machine: Resource # CombatFSM
 
+## If true the combat graph will be processing.
+export var active: bool
+
 ## Allow transitions action transitions to occur in the graph.
 ## Enabling and disabling this property allows you to control when a fighter
 ## is able to transition into the next buffered state.
 export var allow_action_transitions: bool
-
-## If true the combat graph will be processing.
-export var active: bool
 
 ## The max number of detected inputs that can be buffered.
 export var input_buffer_capacity: int = 10
@@ -90,10 +91,8 @@ func advance(delta: float) -> void:
 	var action_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
 
 	if state_machine is SituationFSM:
-		var previous_situation_state: String = state_machine.current_state
-
 		if state_machine.advance():
-			var current_situation = state_machine.get_current_state_obj()
+			var current_situation: SituationState = state_machine.get_current_state_obj()
 			action_fsm = current_situation.action_fsm as ActionFSM
 
 			if action_fsm != null:
