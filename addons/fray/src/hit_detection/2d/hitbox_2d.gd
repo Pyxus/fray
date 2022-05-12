@@ -6,7 +6,7 @@ extends Area2D
 const HitAttributes = preload("../hit_attributes.gd")
 var Hitbox2D = load("res://addons/fray/src/hit_detection/2d/hitbox_2d.gd")
 
-signal hit_box_detected()
+signal hit_detected(hitbox)
 signal activated()
 signal deactivated()
 
@@ -25,7 +25,10 @@ var _detection_exceptions: Array
 #onready variables
 
 
-#optional built-in virtual _init method
+func _init() -> void:
+	FrayInterface.assert_implements(self, "IHitbox")
+	FrayInterface.assert_implements(self, "IHitDetector")
+
 
 func _ready() -> void:
 	set_is_active(is_active)
@@ -109,3 +112,4 @@ func _on_area_entered(hitbox: Area2D) -> void:
 	if hitbox is Hitbox2D:
 		if not _detection_exceptions.has(hitbox) and hitbox.source != source:
 			_hitbox_detected(hitbox)
+			emit_signal("hit_detected", hitbox)

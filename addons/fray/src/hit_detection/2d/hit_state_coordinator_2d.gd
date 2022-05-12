@@ -8,10 +8,11 @@ extends Node2D
 
 # Imports
 const HitState2D = preload("hit_state_2d.gd")
+const Hitbox2D = preload("hitbox_2d.gd")
 const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")
 const SignalUtils = preload("res://addons/fray/lib/helpers/utils/signal_utils.gd")
 
-#signals
+signal hit_detected(hitbox)
 
 #enums
 
@@ -29,7 +30,8 @@ var _current_hit_state: HitState2D
 #onready variables
 
 
-#optional built-in virtual _init method
+func _init() -> void:
+	FrayInterface.assert_implements(self, "IHitDetector")
 
 #built-in virtual _ready method
 
@@ -55,15 +57,12 @@ func get_current_hit_state() -> HitState2D:
 
 func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 	match change:
-		ChildChangeDetector.Change.REMOVED:
-			if node is HitState2D:
-				SignalUtils.safe_disconnect(node, "activated", self, "_on_Activatible_activated")
-	
 		ChildChangeDetector.Change.ADDED, ChildChangeDetector.Change.SCRIPT_CHANGED:
 			if node is HitState2D:
 				SignalUtils.safe_connect(node, "activated", self, "_on_Hitstate2D_activated", [node])
-			else:
-				SignalUtils.safe_disconnect(node, "activated", self, "_on_Hitstate2D_activated")
+
+			if FrayInterface.implements(node, "IHitDetector"):
+				SignalUtils.safe_connect(node, "hit_detected", self, "_on_IHitDetector_activated")
 					
 
 func _on_Hitstate2D_activated(node: Node) -> void:
@@ -71,4 +70,6 @@ func _on_Hitstate2D_activated(node: Node) -> void:
 		if child != node:
 			child.deactivate()
 
-#inner classes
+
+func _on_IHitDetector_activated(hitbox: Hitbox2D) -> void:
+	emit_signal("hit_detected", hitbox)

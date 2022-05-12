@@ -30,6 +30,12 @@ func _enter_tree() -> void:
 	add_custom_type("HitboxSwitcher2D", "Node2D", Fray.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", Fray.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("HitStateCoordinator2D", "Node2D", Fray.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
+	add_custom_type("HitAttributes", "Resource", Fray.HitAttributes, null)
+	add_custom_type("InputData", "Resource", Fray.InputData, null)
+	add_custom_type("SequenceAnalyzer", "Resource", Fray.SequenceAnalyzer, null)
+	add_custom_type("SequenceAnalyzerTree", "Resource", Fray.SequenceAnalyzerTree, null)
+	add_custom_type("ActionFSM", "Resource", Fray.ActionFSM, null)
+	add_custom_type("SituationFSM", "Resource", Fray.SituationFSM, null)
 
 	if ProjectSettings.get_setting("debug/shapes/collision/shape_color") != Color("6bffffff"):
 		ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color("6bffffff"))

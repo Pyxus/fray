@@ -220,6 +220,7 @@ func has_transition(from: String, to: String) -> bool:
 func has_next_transition(input: Object = null) -> bool:
 	return not _get_next_state(input).empty()
 
+
 func get_transition(from: String, to: String) -> Transition:
 	for transition_data in _transitions:
 		if transition_data.from == from and transition_data.to == to:
@@ -240,7 +241,10 @@ func get_next_transitions(from: String) -> Array: # TransitionData[]
 	return transitions
 
 
-func initialize() -> void:
+func initialize(state: String = "") -> void:
+	if not state.empty():
+		set_initial_state(state)
+
 	current_state = initial_state
 
 

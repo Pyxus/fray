@@ -64,7 +64,7 @@ func bind_mouse_input(id: int, button: int) -> void:
 ## This is useful for constructing the 'motion inputs' featured in many fighting games.
 ##
 ## if is_simeultaneous is true, the combination will only be detected if the components are pressed at the same time
-func register_combination_input(id: int, components: PoolIntArray, type: int = CombinationInput.PressType.SYNCHRONOUS, press_held_components_on_release: bool = false) -> void:
+func register_combination_input(id: int, components: PoolIntArray, press_held_components_on_release: bool = false, type: int = CombinationInput.Type.SYNCHRONOUS) -> void:
 	if _input_bind_by_id.has(id) or _conditional_input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by bound or registered input")
 		return
@@ -159,21 +159,21 @@ func remove_conditional_input(id: int) -> void:
 
 ## Returns input bind with given id
 func get_input_bind(id: int) -> InputBind:
-    if _input_bind_by_id.has(id):
-        return _input_bind_by_id[id]
-    return null
+	if _input_bind_by_id.has(id):
+		return _input_bind_by_id[id]
+	return null
 
 ## Returns combination input with given id
 func get_combination_input(id: int) -> CombinationInput:
-    if _combination_input_by_id.has(id):
-        return _combination_input_by_id[id]
-    return null
+	if _combination_input_by_id.has(id):
+		return _combination_input_by_id[id]
+	return null
 
 ## Returns conditional input with given id
 func get_conditional_input(id: int) -> ConditionalInput:
-    if _conditional_input_by_id.has(id):
-        return _conditional_input_by_id[id]
-    return null
+	if _conditional_input_by_id.has(id):
+		return _conditional_input_by_id[id]
+	return null
 
 ## Returns array of input bind ids
 func get_input_bind_ids() -> Array:

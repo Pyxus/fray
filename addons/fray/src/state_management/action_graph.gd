@@ -1,3 +1,4 @@
+tool
 extends Node
 ## A node that transitions between action states on a CombatFSM
 ##
@@ -28,13 +29,13 @@ enum ProcessMode {
 ## The SituationFSM provides a way of grouping actions.
 export var state_machine: Resource # CombatFSM
 
-## If true the combat graph will be processing.
-export var active: bool
-
 ## Allow transitions action transitions to occur in the graph.
 ## Enabling and disabling this property allows you to control when a fighter
 ## is able to transition into the next buffered state.
 export var allow_action_transitions: bool
+
+## If true the combat graph will be processing.
+export var active: bool
 
 ## The max number of detected inputs that can be buffered.
 export var input_buffer_capacity: int = 10
@@ -52,6 +53,9 @@ var _buffered_state: String
 
 
 func _ready() -> void:
+	if Engine.editor_hint:
+		return
+
 	if state_machine != null:
 		state_machine.initialize()
 
@@ -61,11 +65,17 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if Engine.editor_hint:
+		return
+
 	if process_mode == ProcessMode.IDLE:
 		advance(delta)
 		
 
 func _physics_process(delta: float) -> void:
+	if Engine.editor_hint:
+		return
+
 	if process_mode == ProcessMode.PHYSICS:
 		advance(delta)
 

@@ -11,10 +11,10 @@ var sequence_name: String
 ## Array holding the InputRequirements used to detect a sequence.
 var input_requirements: Array # InputRequirement[]
 
-func _init(name: String = "", requirement_ids: PoolIntArray = []) -> void:
+func _init(name: String = "", input_ids: PoolIntArray = []) -> void:
     sequence_name = name
     
-    for id in requirement_ids:
+    for id in input_ids:
         append_input(id)
 
 ## Appends an input requirement to the end of the input_requirements array

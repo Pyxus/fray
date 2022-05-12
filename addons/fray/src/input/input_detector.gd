@@ -1,3 +1,4 @@
+tool
 extends Node
 ##
 ## A node used to detect inputs and input sequences.
@@ -35,10 +36,16 @@ var _conditions: Dictionary # Dictionary<String, bool>
 
 
 func _ready() -> void:
+	if Engine.editor_hint:
+		return
+
 	sequence_analyzer.connect("match_found", self, "_on_SequenceTree_match_found")
 
 
 func _process(delta: float) -> void:
+	if Engine.editor_hint:
+		return
+
 	_check_input_binds()
 	_check_combined_inputs()
 	_check_conditional_inputs()
@@ -234,7 +241,7 @@ func _check_conditional_inputs() -> void:
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = true
-			detected_input.bind_ids.append(conditional_input.current_id)
+			detected_input.bind_ids.append(conditional_input.current_input)
 			_detected_input_button_by_id[id] = detected_input
 		elif is_input_just_released(conditional_input.current_input):
 			var detected_input := DetectedInputButton.new()
@@ -242,7 +249,7 @@ func _check_conditional_inputs() -> void:
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = false
 			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
-			detected_input.bind_ids.append(conditional_input.current_id)
+			detected_input.bind_ids.append(conditional_input.current_input)
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
 

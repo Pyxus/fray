@@ -12,7 +12,7 @@ func _init() -> void:
 
 # Hit Detection
 const HitBox2D = preload("src/hit_detection/2d/hitbox_2d.gd")
-const BoxSwitcher2D = preload("src/hit_detection/2d/hitbox_switcher_2d.gd")
+const HitboxSwitcher2D = preload("src/hit_detection/2d/hitbox_switcher_2d.gd")
 const HitState2D = preload("src/hit_detection/2d/hit_state_2d.gd")
 const HitStateCoordinator2D = preload("src/hit_detection/2d/hit_state_coordinator_2d.gd")
 const HitAttributes = preload("src/hit_detection/hit_attributes.gd")
@@ -32,6 +32,9 @@ const InputButtonCondition = preload("src/state_management/transitions/condition
 
 # Input
 const InputDetector = preload("src/input/input_detector.gd")
+const InputData = preload("src/input/input_data/input_data.gd")
+const SequenceAnalyzer = preload("src/input/sequence_analysis/sequence_analyzer.gd")
+const SequenceAnalyzerTree = preload("src/input/sequence_analysis/sequence_analyzer_tree.gd")
 const DetectedInput = preload("src/input/detected_inputs/detected_input.gd")
 const DetectedInputSequence = preload("src/input/detected_inputs/detected_input_sequence.gd")
 const DetectedInputButton = preload("src/input/detected_inputs/detected_input_button.gd")
