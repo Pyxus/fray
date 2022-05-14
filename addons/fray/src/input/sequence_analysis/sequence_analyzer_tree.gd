@@ -15,14 +15,13 @@ var _current_node: InputNode = _root
 var _input_queue: Array # DetectedInputButton[]
 var _rescan_start_index: int = 1
 
-func read(input_button: DetectedInputButton) -> void:
+
+func _read(input_button: DetectedInputButton) -> void:
 	var next_node := _current_node.get_next(input_button.id)
 
 	# Ignore released inputs if node not found
 	if next_node == null and not input_button.is_pressed:
 		return
-
-	print(input_button.id)
 
 	_input_queue.append(input_button)
 
@@ -35,7 +34,6 @@ func read(input_button: DetectedInputButton) -> void:
 		for sequence_data in _current_node.data:
 			if is_match(_input_queue, sequence_data.input_requirements):
 				_rescan_start_index = _input_queue.size()
-				print("tired")
 				emit_signal("match_found", sequence_data.sequence_name, _get_inputs_as_int_array())
 
 	if _current_node != _root and _current_node.get_child_count() == 0:

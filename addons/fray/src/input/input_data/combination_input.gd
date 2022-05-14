@@ -6,13 +6,13 @@ extends Resource
 ## 		Useful for creating diagonal buttons present in many 2D fighting games.
 
 enum Type {
-	SYNCHRONOUS, ## Components must all be pressed at the same time
-	ASYNCHRONOUS, ## Components can be pressed at any time so long as they are all pressed.
+	SYNC, ## Components must all be pressed at the same time
+	ASYNC, ## Components can be pressed at any time so long as they are all pressed.
 	ORDERED, ## Like asynchronous but the presses must occur in order
 }
 
 var components: PoolIntArray
-var type: int = Type.SYNCHRONOUS
+var type: int = Type.SYNC
 var press_held_components_on_release: bool
 var is_pressed: bool
 

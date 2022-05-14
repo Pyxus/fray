@@ -50,6 +50,7 @@ func _process(delta: float) -> void:
 	_check_combined_inputs()
 	_check_conditional_inputs()
 	_detect_inputs()
+	_poll_inputs()
 
 ## Returns true if an input is being pressed.
 func is_input_pressed(id: int) -> bool:
@@ -156,8 +157,6 @@ func _check_input_binds() -> void:
 			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
-		
-		input_bind.poll()
 
 
 func _check_combined_inputs() -> void:
@@ -170,7 +169,7 @@ func _check_combined_inputs() -> void:
 				continue
 
 			match combination_input.type:
-				CombinationInput.Type.SYNCHRONOUS:
+				CombinationInput.Type.SYNC:
 					if not _is_inputed_quick_enough(combination_input.components):
 						continue
 				CombinationInput.Type.ORDERED:
@@ -209,8 +208,6 @@ func _check_combined_inputs() -> void:
 
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
-		
-		combination_input.poll()
 
 
 func _check_conditional_inputs() -> void:
@@ -218,7 +215,7 @@ func _check_conditional_inputs() -> void:
 	for id in input_set.get_conditional_input_ids():
 		var conditional_input: ConditionalInput = input_set.get_conditional_input(id)
 		
-		if is_input_just_pressed(conditional_input.current_input):
+		if is_input_just_pressed(id):
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
@@ -242,6 +239,15 @@ func _check_conditional_inputs() -> void:
 				conditional_input.current_input = conditional_input.input_by_condition[condition]
 				break
 
+
+func _poll_inputs() -> void:
+	for id in input_set.get_input_bind_ids():
+		var input_bind: InputBind = input_set.get_input_bind(id)
+		input_bind.poll()
+
+	for id in input_set.get_combination_input_ids():
+		var combination_input: CombinationInput = input_set.get_combination_input(id)
+		combination_input.poll()
 
 func _detect_inputs() -> void:
 	for id in _released_input_button_by_id:
@@ -300,5 +306,4 @@ func _on_SequenceTree_match_found(sequence_name: String, sequence: PoolIntArray)
 	var detected_input := DetectedInputSequence.new()
 	detected_input.name = sequence_name
 	detected_input.sequence = sequence
-	print("Hi")
 	emit_signal("input_detected", detected_input)
