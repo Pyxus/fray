@@ -23,7 +23,7 @@ func _init(name: String = "", input_ids: PoolIntArray = []) -> void:
 ## Depending on the SequenceAnalyzer implementation the max_delay of the first requirement does nothing.
 ##
 ## min_time_held is the minimum time in seconds that the input is required to be held.
-func append_input(id: int, max_delay: float = 0.2, min_time_held: float = 0.0) -> void:
+func append_input(id: int, max_delay: float = 0.3, min_time_held: float = 0.0) -> void:
     var input_requirement := InputRequirement.new()
     input_requirement.input_id = id
     input_requirement.max_delay = max_delay
