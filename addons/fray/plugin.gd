@@ -24,18 +24,18 @@ var _added_types: Array
 #built-in virtual _ready method
 
 func _enter_tree() -> void:
-	add_custom_type("InputDetector", "Node", Fray.InputDetector, preload("assets/icons/input_detector.svg"))
-	add_custom_type("ActionGraph", "Node", Fray.ActionGraph, preload("assets/icons/action_graph.svg"))
-	add_custom_type("HitBox2D", "Area2D", Fray.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
-	add_custom_type("HitboxSwitcher2D", "Node2D", Fray.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
-	add_custom_type("HitState2D", "Node2D", Fray.HitState2D, preload("assets/icons/hit_state_2d.svg"))
-	add_custom_type("HitStateCoordinator2D", "Node2D", Fray.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
-	add_custom_type("HitAttributes", "Resource", Fray.HitAttributes, null)
-	add_custom_type("InputData", "Resource", Fray.InputData, null)
-	add_custom_type("SequenceAnalyzer", "Resource", Fray.SequenceAnalyzer, null)
-	add_custom_type("SequenceAnalyzerTree", "Resource", Fray.SequenceAnalyzerTree, null)
-	add_custom_type("ActionFSM", "Resource", Fray.ActionFSM, null)
-	add_custom_type("SituationFSM", "Resource", Fray.SituationFSM, null)
+	add_custom_type("InputDetector", "Node", FrayInput.InputDetector, preload("assets/icons/input_detector.svg"))
+	add_custom_type("InputData", "Resource", FrayInput.InputData, null)
+	add_custom_type("SequenceAnalyzer", "Resource", FrayInput.SequenceAnalyzer, null)
+	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInput.SequenceAnalyzerTree, null)
+	add_custom_type("ActionGraph", "Node", FrayStateManagement.ActionGraph, preload("assets/icons/action_graph.svg"))
+	add_custom_type("ActionFSM", "Resource", FrayStateManagement.ActionFSM, null)
+	add_custom_type("SituationFSM", "Resource", FrayStateManagement.SituationFSM, null)
+	add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
+	add_custom_type("HitboxSwitcher2D", "Node2D", FrayHitDetection.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
+	add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))
+	add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
+	add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
 
 	if ProjectSettings.get_setting("debug/shapes/collision/shape_color") != Color("6bffffff"):
 		ProjectSettings.set_setting("debug/shapes/collision/shape_color", Color("6bffffff"))
