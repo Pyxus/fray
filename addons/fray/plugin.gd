@@ -44,11 +44,13 @@ func _enter_tree() -> void:
 	add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
 	add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
 	
+	"""
 	if ProjectSettings.get("fray_settings/show_color_change_dialog"):
 		_color_change_dialog = ShapeColorChangeDialogScn.instance()
 		add_child(_color_change_dialog)
 		_color_change_dialog.connect("option_selected", self, "_on_ShapeColorChangeDialog_option_selected")
 		_color_change_dialog.popup_centered(_color_change_dialog.get_minimum_size())
+	"""
 
 
 func _exit_tree():
@@ -60,13 +62,13 @@ func enable_plugin() -> void:
 	add_project_setting("fray_settings/show_color_change_dialog", TYPE_BOOL, PROPERTY_HINT_NONE, "", true)
 	
 	
-func disable_plugin() -> void:
-	for type in _added_types:
-		remove_custom_type(type)
-	
+func disable_plugin() -> void:	
+	"""
 	for setting in _added_project_settings:
 		ProjectSettings.clear(setting)
 	ProjectSettings.save()
+	"""
+	pass
 	
 
 func add_custom_type(type: String, base: String, script: Script, icon: Texture) -> void:
