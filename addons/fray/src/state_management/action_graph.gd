@@ -8,11 +8,10 @@ extends Node
 ##		
 
 # Imports
-const InputDetector = preload("res://addons/fray/src/input/input_detector.gd")
+const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
 const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
-const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const ActionFSM = preload("action_fsm.gd")
 const SituationFSM = preload("situation_fsm.gd")
 const SituationState = preload("situation_state.gd")
