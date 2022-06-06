@@ -6,7 +6,6 @@ func _init() -> void:
 	free()
 
 const ActionGraph = preload("action_graph.gd")
-const CombatFSM = preload("combat_fsm.gd")
 const ActionFSM = preload("action_fsm.gd")
 const ActionState = preload("action_state.gd")
 const InputTransition = preload("transitions/input_transition.gd")
