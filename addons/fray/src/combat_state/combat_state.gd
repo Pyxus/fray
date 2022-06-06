@@ -6,4 +6,4 @@ var tags: PoolStringArray
 
 
 func _init(state_tags: PoolStringArray = []) -> void:
-    tags = state_tags
+	tags = state_tags

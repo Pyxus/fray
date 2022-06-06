@@ -5,17 +5,21 @@ extends "res://addons/fray/lib/state_machine/state_machine.gd"
 ##		Contains multiple states representing a fighter's actions, connected in a graph. 
 ##		State transitions occur based on states reachable using the given input.
 ##
-##		ActionFSM has API for creating global transitions within the state machine.
-##		Global transitions is a convinience feature that allows you to automatically connect states based on transition rules.
-##		Transition rules make use of the tags defined in an action state.
-##		States with a given from_tag will automatically have a transition setup for gobal states with a given to_tag.
-##		This is useful for setting up actions that need to be available from multiple states in the state machine without needing to manually connect them.
-##		For example, many fighting games all all moves tagged as "normal" to transition into moves tagged as "special".
+##		CombatFSM has API for creating global transitions within the state machine.
+##		Global transitions is a convinience feature that allows you to automatically 
+##		connect states based on transition rules.
+##		Transition rules make use of the tags defined in a combat state.
+##		States with a given from_tag will automatically have a transition 
+##		setup for gobal states with a given to_tag.
+##		This is useful for setting up actions that need to be available from 
+##		multiple states in the state machine without needing to manually connect them.
+##		For example, many fighting games all all moves tagged as "normal" to 
+##		transition into moves tagged as "special".
 
 # Imports
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
-const ActionState = preload("action_state.gd")
+const CombatState = preload("combat_state.gd")
 
 ## Time since the last detected input in seconds
 var time_since_last_input: float
@@ -95,7 +99,7 @@ func rename_state(name: String, new_name: String) -> bool:
 ## Returns an array of transition data containing the next global transitions avaiable to a state based on the transition rules.
 func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 	var transitions: Array
-	var from_state := get_state(from) as ActionState
+	var from_state := get_state(from) as CombatState
 	
 	if from_state == null:
 		return transitions
@@ -105,7 +109,7 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 			var to_tag_rules: Array = _global_transition_rules[from_tag]
 			
 			for to_state_name in _global_transitions:
-				var to_state := get_state(to_state_name) as ActionState
+				var to_state := get_state(to_state_name) as CombatState
 				
 				if to_state == null:
 					continue
@@ -119,10 +123,6 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 						transitions.append(td)					
 						break
 	return transitions
-
-
-func get_action_fsm() -> Resource: # ActionFSM
-	return self
 
 
 func _get_next_state(input: Object = null) -> String:

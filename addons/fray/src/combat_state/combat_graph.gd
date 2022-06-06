@@ -1,18 +1,16 @@
 tool
 extends Node
-## A node that transitions between action states on a CombatFSM
+## A node that buffers transitions between states in a CombatFSM
 ##
 ## @desc:
-##		The ActionGraph represents a fighter's current action and the actions available to them from that state through inputs.
-##		The graph is also able to buffer a fighter's next action for a smoother player experience.
-##		
+##		The graph is able to buffer a fighter's next action for a smoother player experience.
 
 # Imports
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
 const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
-const ActionFSM = preload("action_fsm.gd")
+const CombatFSM = preload("combat_fsm.gd")
 
 enum ProcessMode {
 	IDLE,
@@ -23,17 +21,18 @@ enum ProcessMode {
 #constants
 
 ## The state machine used by this graph.
-## The default implementations are ActionFSM and SituationFSM.
+## The default implementations are CombatFSM.
 ## The SituationFSM provides a way of grouping actions.
-export var state_machine: Resource setget set_state_machine # ActionFSM
+export var state_machine: Resource setget set_state_machine # CombatFSM
 
 ## If true the combat graph will be processing.
 export var active: bool
 
-## Allow transitions action transitions to occur in the graph.
+## Allow transitions transitions to occur in the graph.
 ## Enabling and disabling this property allows you to control when a fighter
-## is able to transition into the next buffered state.
-export var allow_action_transitions: bool
+## is allowed to transition into the next buffered state.
+## This can be used to control when a player is allowed to 'cancel' an attack.
+export var allow_transitions: bool
 
 ## The max number of detected inputs that can be buffered.
 export var input_buffer_capacity: int = 10
@@ -95,27 +94,25 @@ func advance(delta: float) -> void:
 					_buffered_state = next_state
 					break
 
-		if allow_action_transitions and not _buffered_state.empty():
+		if allow_transitions and not _buffered_state.empty():
 			var previous_state: String = state_machine.current_state
 			state_machine.advance_to(_buffered_state)
 			state_machine.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
 
-## Returns the current ActionFSM to it's initial state if available
-func goto_initial_action_state(ignore_buffer: bool = false) -> void:
+## Returns the current state machine to it's initial state if available
+func goto_initial_state(ignore_buffer: bool = false) -> void:
 	if not ignore_buffer and not _buffered_state.empty():
 		return
 
-	var action_fsm: ActionFSM = state_machine.get_action_fsm() as ActionFSM
-	if action_fsm == null:
+	if state_machine == null:
 		return
 
-	if action_fsm.initial_state.empty():
-		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % action_fsm)
+	if state_machine.initial_state.empty():
+		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % state_machine)
 		return
 
-	var prev_state := action_fsm.current_state
-	action_fsm.initialize()
+	state_machine.initialize()
 
 ## Buffers an input button to be processed by the graph
 func buffer_input_button(id: int, is_released: bool = false) -> void:
@@ -131,7 +128,7 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
-func set_state_machine(value: ActionFSM) -> void:
+func set_state_machine(value: CombatFSM) -> void:
 	state_machine = value
 	
 	if state_machine != null:
