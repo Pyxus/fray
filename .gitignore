@@ -8,7 +8,7 @@ export_presets.cfg
 .mono/
 
 # Project-specific
-/addons
+/addons/*
 !/addons/fray
 /test
 *.import
