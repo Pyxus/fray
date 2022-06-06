@@ -1,4 +1,4 @@
-extends "combat_fsm.gd"
+extends "res://addons/fray/lib/state_machine/state_machine.gd"
 ## State machine that controls fighter's actions
 ##
 ## @desc:
@@ -22,6 +22,11 @@ var time_since_last_input: float
 
 var _global_transitions: Dictionary # Dictionary<String, Transition>
 var _global_transition_rules: Dictionary # Dictionary<String, String[]>
+var _condition_evaluator_func: FuncRef # func(string) -> bool
+
+## Sets the condition evaluator function used by the finite state machine
+func set_condition_evaluator(evaluation_func: FuncRef) -> void:
+	_condition_evaluator_func = evaluation_func
 
 ## Adds global transition rule based on tags.
 func add_global_transition_rule(from_tag: String, to_tag: String) -> void:
@@ -139,6 +144,13 @@ func _get_next_state(input: Object = null) -> String:
 
 	return "";
 
+
+func _is_condition_true(condition: String) -> bool:
+	if _condition_evaluator_func == null or not _condition_evaluator_func.is_valid():
+		push_error("Failed to evaluate condition '%s'. Condition evaluator function is either nor set or no longer valid." % condition)
+		return false
+		
+	return _condition_evaluator_func.call_func(condition)
 #signal methods
 
 #inner classes
