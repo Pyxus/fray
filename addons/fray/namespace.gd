@@ -5,10 +5,6 @@ func _init() -> void:
 	push_warning("The 'Fray' class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
 	free()
 
-# Physics Body
-#const CharacterBody2D = preload("src/physics_body/2d/character_body_2d.gd")
-#const RigidFighterBody2D = preload("src/physics_body/2d/rigid_fighter_body_2d.gd")
-#const RigidPushBox2D = preload("src/physics_body/2d/rigid_push_box_2d.gd")
 
 # Hit Detection
 const HitBox2D = preload("src/hit_detection/2d/hitbox_2d.gd")
