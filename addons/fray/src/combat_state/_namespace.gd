@@ -1,8 +1,8 @@
-class_name FrayStateManagement
+class_name FrayCombatState
 extends Object
 
 func _init() -> void:
-	assert(false, "The 'FrayStateManagement' class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
+	assert(false, "The 'FrayCombatState' class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
 	free()
 
 const ActionGraph = preload("action_graph.gd")
