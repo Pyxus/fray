@@ -6,7 +6,6 @@ extends Node
 ##		The graph is able to buffer a combatant's next action 
 ##		for a smoother player experience.
 
-signal state_changed(from, to)
 
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const BufferedInput = preload("buffered_input/buffered_input.gd")
