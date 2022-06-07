@@ -1,4 +1,4 @@
-tool
+#tool
 extends Node
 ##
 ## A node used to detect inputs and input sequences.
@@ -9,7 +9,7 @@ extends Node
 ## 		Sequences must be added by directly accessing the sequence analyzer property.
 ##
 
-# Imports
+const SignalUtils = preload("res://addons/fray/lib/helpers/utils/signal_utils.gd")
 const SequenceAnalyzer = preload("sequence_analysis/sequence_analyzer.gd")
 const SequenceAnalyzerTree = preload("sequence_analysis/sequence_analyzer_tree.gd")
 const SequenceData = preload("sequence_analysis/sequence_data.gd")
@@ -27,7 +27,7 @@ signal input_detected(detected_input)
 export var input_set: Resource = InputSet.new()
 
 ## The sequence analyzer used to detect sequence inputs.
-export var sequence_analyzer: Resource = SequenceAnalyzerTree.new()
+export var sequence_analyzer: Resource = SequenceAnalyzerTree.new() setget set_sequence_analyzer
 
 var _detected_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
 var _released_input_button_by_id: Dictionary # Dictionary<int, DetectedInputButton>
@@ -39,7 +39,7 @@ func _ready() -> void:
 	if Engine.editor_hint:
 		return
 
-	sequence_analyzer.connect("match_found", self, "_on_SequenceTree_match_found")
+	set_sequence_analyzer(sequence_analyzer)
 
 
 func _process(delta: float) -> void:
@@ -52,6 +52,17 @@ func _process(delta: float) -> void:
 	_detect_inputs()
 	_poll_inputs()
 
+
+func set_sequence_analyzer(value: SequenceAnalyzer) -> void:
+	if is_instance_valid(sequence_analyzer):
+		SignalUtils.safe_disconnect(self, "match_found", sequence_analyzer, "_on_SequenceTree_match_found")
+	
+	sequence_analyzer = value
+	
+	if is_instance_valid(sequence_analyzer):
+		SignalUtils.safe_connect(sequence_analyzer, "match_found", self, "_on_SequenceTree_match_found")
+	
+	
 ## Returns true if an input is being pressed.
 func is_input_pressed(id: int) -> bool:
 	var input: Reference = input_set.get_input(id)
@@ -248,6 +259,7 @@ func _poll_inputs() -> void:
 	for id in input_set.get_combination_input_ids():
 		var combination_input: CombinationInput = input_set.get_combination_input(id)
 		combination_input.poll()
+
 
 func _detect_inputs() -> void:
 	for id in _released_input_button_by_id:

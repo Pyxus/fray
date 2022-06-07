@@ -37,7 +37,7 @@ func _enter_tree() -> void:
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInput.SequenceAnalyzer, null)
 	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInput.SequenceAnalyzerTree, null)
 	add_custom_type("CombatGraph", "Node", FrayCombatState.CombatGraph, preload("assets/icons/combat_graph.svg"))
-	add_custom_type("CombatFSM", "Resource", FrayCombatState.CombatFSM, null)
+	add_custom_type("CombatSituation", "Resource", FrayCombatState.CombatSituation, null)
 	add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
 	add_custom_type("HitboxSwitcher2D", "Node2D", FrayHitDetection.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))

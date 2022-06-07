@@ -64,7 +64,9 @@ func add_mouse_input(id: int, button: int) -> void:
 ## This is useful for constructing the 'motion inputs' featured in many fighting games.
 ##
 ## if is_simeultaneous is true, the combination will only be detected if the components are pressed at the same time
-func add_combination_input(id: int, components: PoolIntArray, press_held_components_on_release: bool = false, type: int = CombinationInput.Type.SYNC) -> void:
+func add_combination_input(id: int, components: PoolIntArray, 
+	press_held_components_on_release: bool = false, 
+	type: int = CombinationInput.Type.SYNC) -> void:
 	if _input_bind_by_id.has(id) or _conditional_input_by_id.has(id):
 		push_error("Failed to register combination input. Combination id is already used by bound or registered input")
 		return

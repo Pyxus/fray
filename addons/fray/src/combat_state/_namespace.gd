@@ -6,7 +6,7 @@ func _init() -> void:
 	free()
 
 const CombatGraph = preload("combat_graph.gd")
-const CombatFSM = preload("combat_fsm.gd")
+const CombatSituation = preload("combat_situation.gd")
 const CombatState = preload("combat_state.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const EvaluatedCondition = preload("transitions/conditions/evaluated_condition.gd")

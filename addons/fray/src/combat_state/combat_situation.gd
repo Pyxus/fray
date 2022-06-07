@@ -1,24 +1,26 @@
 extends "res://addons/fray/lib/state_machine/state_machine.gd"
-## State machine that controls fighter's actions
+## State machine that represents the set of actions available to a combatant
+## In a given situation.
 ##
 ## @desc:
-##		Contains multiple states representing a fighter's actions, connected in a graph. 
-##		State transitions occur based on states reachable using the given input.
+##		Contains multiple states representing a combatant's actions, connected in a graph. 
+##		State transitions occur based on predefined inputs and conditions.
 ##
-##		CombatFSM has API for creating global transitions within the state machine.
-##		Global transitions is a convinience feature that allows you to automatically 
+##		CombatSituation is able to create global transitions within the state machine.
+##		Global transitions are a convinience feature that allows you to automatically 
 ##		connect states based on transition rules.
 ##		Transition rules make use of the tags defined in a combat state.
-##		States with a given from_tag will automatically have a transition 
-##		setup for gobal states with a given to_tag.
+##		States with a given 'from_tag' will automatically have a transition 
+##		setup for gobal states with a given 'to_tag'.
 ##		This is useful for setting up actions that need to be available from 
 ##		multiple states in the state machine without needing to manually connect them.
-##		For example, many fighting games all all moves tagged as "normal" to 
+##		For example, in many fighting games all moves tagged as "normal" may 
 ##		transition into moves tagged as "special".
 
 # Imports
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
+const InputCondition = preload("transitions/conditions/input_condition.gd")
 const CombatState = preload("combat_state.gd")
 
 ## Time since the last detected input in seconds
@@ -28,6 +30,16 @@ var _global_transitions: Dictionary # Dictionary<String, Transition>
 var _global_transition_rules: Dictionary # Dictionary<String, String[]>
 var _condition_evaluator_func: FuncRef # func(string) -> bool
 
+
+func add_input_transition(from: String, to: String, input_condition: InputCondition, 
+	prerequisites: Array = [], min_input_delay: float = 0) -> void:
+	add_transition(from, to, 
+		InputTransition.new(input_condition, prerequisites, min_input_delay))
+	
+	
+func add_combat_state(name: String, tags: PoolStringArray = []) -> void:
+	add_state(name, CombatState.new(tags))
+	
 ## Sets the condition evaluator function used by the finite state machine
 func set_condition_evaluator(evaluation_func: FuncRef) -> void:
 	_condition_evaluator_func = evaluation_func

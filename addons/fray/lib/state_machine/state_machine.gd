@@ -61,8 +61,12 @@ func add_state(name: String, state: State) -> void:
 	if _states.has_value(state):
 		push_warning("Failed to add state. State already added with name %s" % _states.get_key(state))
 		return
-		
+	
 	_states.add(name, state)
+	
+	if _states.empty():
+		set_initial_state(name)
+	
 	emit_signal("state_added", name)
 
 

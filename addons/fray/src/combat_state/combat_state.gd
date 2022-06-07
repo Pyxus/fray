@@ -1,5 +1,5 @@
 extends "res://addons/fray/lib/state_machine/state.gd"
-## State representing a fighter's action
+## State representing a combatant's action
 
 ## Array of tags assigned to this state
 var tags: PoolStringArray

@@ -3,7 +3,7 @@ extends Node2D
 ## Node used to contain a configuration of IHitboxs
 ##
 ## @desc:
-## 		This node is intended to represent a single state of a fighter such as a fighting move.
+## 		This node is intended to represent a single state of a combatant such as a fighting move.
 ##
 ##		IHitbox is a pseudo interface, see interface script.
 ##		It is implemented by Hitboxes, HitboxSwitchers, and Pushboxes

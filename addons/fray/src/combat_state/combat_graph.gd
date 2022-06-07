@@ -1,16 +1,18 @@
 tool
 extends Node
-## A node that buffers transitions between states in a CombatFSM
+## A node that controls transitions between states in a CombatSituation
 ##
 ## @desc:
-##		The graph is able to buffer a fighter's next action for a smoother player experience.
+##		The graph is able to buffer a combatant's next action 
+##		for a smoother player experience.
 
-# Imports
+signal state_changed(from, to)
+
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
 const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
-const CombatFSM = preload("combat_fsm.gd")
+const CombatSituation = preload("combat_situation.gd")
 
 enum ProcessMode {
 	IDLE,
@@ -20,16 +22,14 @@ enum ProcessMode {
 
 #constants
 
-## The state machine used by this graph.
-## The default implementations are CombatFSM.
-## The SituationFSM provides a way of grouping actions.
-export var state_machine: Resource setget set_state_machine # CombatFSM
+## The current combat situation used by this graph.
+export var combat_situation: Resource setget set_combat_situation # CombatSituation
 
 ## If true the combat graph will be processing.
 export var active: bool
 
 ## Allow transitions transitions to occur in the graph.
-## Enabling and disabling this property allows you to control when a fighter
+## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
 ## This can be used to control when a player is allowed to 'cancel' an attack.
 export var allow_transitions: bool
@@ -54,7 +54,7 @@ func _ready() -> void:
 		return
 
 	_input_buffer.capacity = input_buffer_capacity
-	set_state_machine(state_machine)
+	set_combat_situation(combat_situation)
 	set_process_mode(process_mode)
 	_update_evaluator_functions()
 
@@ -79,25 +79,25 @@ func advance(delta: float) -> void:
 	if not active:
 		return
 
-	if state_machine == null:
+	if combat_situation == null:
 		push_warning("Failed to advance, no state machine set.")
 		return
 
-	if state_machine != null:
+	if combat_situation != null:
 		var current_time := OS.get_ticks_msec()
 
 		if not _input_buffer.empty():
 			for buffered_input in _input_buffer:
-				var next_state: String = state_machine.get_next_state(buffered_input)
+				var next_state: String = combat_situation.get_next_state(buffered_input)
 
 				if not next_state.empty() and (current_time - buffered_input.time_stamp) <= input_max_time_in_buffer * 1000:
 					_buffered_state = next_state
 					break
 
 		if allow_transitions and not _buffered_state.empty():
-			var previous_state: String = state_machine.current_state
-			state_machine.advance_to(_buffered_state)
-			state_machine.time_since_last_input = current_time / 1000.0
+			var previous_state: String = combat_situation.current_state
+			combat_situation.advance_to(_buffered_state)
+			combat_situation.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
 
 ## Returns the current state machine to it's initial state if available
@@ -105,14 +105,14 @@ func goto_initial_state(ignore_buffer: bool = false) -> void:
 	if not ignore_buffer and not _buffered_state.empty():
 		return
 
-	if state_machine == null:
+	if combat_situation == null:
 		return
 
-	if state_machine.initial_state.empty():
-		push_warning("Failed to to go to initial combat state. Current CombatFSM '%s' does not have an initial state set." % state_machine)
+	if combat_situation.initial_state.empty():
+		push_warning("Failed to to go to initial combat state. Current CombatSituation '%s' does not have an initial state set." % combat_situation)
 		return
 
-	state_machine.initialize()
+	combat_situation.initialize()
 
 ## Buffers an input button to be processed by the graph
 func buffer_input_button(id: int, is_released: bool = false) -> void:
@@ -128,11 +128,11 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
-func set_state_machine(value: CombatFSM) -> void:
-	state_machine = value
+func set_combat_situation(value: CombatSituation) -> void:
+	combat_situation = value
 	
-	if state_machine != null:
-		state_machine.initialize()
+	if combat_situation != null:
+		combat_situation.initialize()
 	
 	
 func set_process_mode(value: int) -> void:
@@ -180,6 +180,6 @@ func _update_evaluator_functions() -> void:
 	if _external_condition_evaluator != null and not _conditions.empty():
 		push_warning("Combat tree has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
 
-	if state_machine != null:
+	if combat_situation != null:
 		var evaluation_func: FuncRef = _external_condition_evaluator if _external_condition_evaluator != null else funcref(self, "is_condition_true")
-		state_machine.set_condition_evaluator(evaluation_func)
+		combat_situation.set_condition_evaluator(evaluation_func)

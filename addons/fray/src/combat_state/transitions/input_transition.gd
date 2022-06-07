@@ -15,6 +15,6 @@ var min_input_delay: float
 
 
 func _init(t_input_condition: InputCondition = null, t_prerequisites: Array = [], t_min_input_delay: float = 0) -> void:
-    input_condition = t_input_condition
-    prerequisites = t_prerequisites
-    min_input_delay = t_min_input_delay
+	input_condition = t_input_condition
+	prerequisites = t_prerequisites
+	min_input_delay = t_min_input_delay
