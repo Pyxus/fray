@@ -3,12 +3,12 @@ extends "res://addons/fray/lib/state_machine/state_machine.gd"
 ## In a given situation.
 ##
 ## @desc:
-##		Contains multiple states representing a combatant's actions, connected in a graph. 
-##		State transitions occur based on predefined inputs and conditions.
+##		Contains multiple states representing a combatant's actions, and
+##		the states available to them from a given state. 
+##		State transitions occur based on user defined inputs and conditions.
 ##
-##		CombatSituation is able to create global transitions within the state machine.
 ##		Global transitions are a convinience feature that allows you to automatically 
-##		connect states based on transition rules.
+##		connect states based on global transition rules.
 ##		Transition rules make use of the tags defined in a combat state.
 ##		States with a given 'from_tag' will automatically have a transition 
 ##		setup for gobal states with a given 'to_tag'.
