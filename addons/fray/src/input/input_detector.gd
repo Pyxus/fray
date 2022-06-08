@@ -47,7 +47,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if Engine.editor_hint:
 		return
-
+	
 	_check_input_binds()
 	_check_combined_inputs()
 	_check_conditional_inputs()
@@ -201,7 +201,7 @@ func _check_combined_inputs() -> void:
 	for id in input_set.get_combination_input_ids():
 		var combination_input: CombinationInput = input_set.get_combination_input(id)
 		if combination_input.has_ids(detected_input_ids):
-			if  _detected_input_button_by_id.has(id):
+			if _detected_input_button_by_id.has(id):
 				continue
 
 			match combination_input.type:
