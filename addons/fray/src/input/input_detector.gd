@@ -18,6 +18,8 @@ const DetectedInputButton = preload("detected_inputs/detected_input_button.gd")
 const DetectedInputSequence = preload("detected_inputs/detected_input_sequence.gd")
 const InputSet = preload("input_data/input_set.gd")
 const InputBind = preload("input_data/binds/input_bind.gd")
+const ActionInputBind = preload("input_data/binds/action_input_bind.gd")
+const JoystickAxisInputBind = preload("input_data/binds/joystick_axis_input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
 const ConditionalInput = preload("input_data/conditional_input.gd")
 
@@ -55,16 +57,30 @@ func _process(delta: float) -> void:
 
 func set_sequence_analyzer(value: SequenceAnalyzer) -> void:
 	if is_instance_valid(sequence_analyzer):
-		SignalUtils.safe_disconnect(self, "match_found", sequence_analyzer, "_on_SequenceTree_match_found")
+		SignalUtils.safe_disconnect(sequence_analyzer, "match_found", self, "_on_SequenceTree_match_found")
 	
 	sequence_analyzer = value
 	
 	if is_instance_valid(sequence_analyzer):
 		SignalUtils.safe_connect(sequence_analyzer, "match_found", self, "_on_SequenceTree_match_found")
+
+## Get axis input by specifiying two input ids, one negative and one positive.
+func get_axis(negative_input_id: int, positive_input_id: int) -> float:
+	return  get_strength(positive_input_id) - get_strength(negative_input_id)
+
+## Returns a value between 0 and 1 representing the intensity of an input.
+## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
+func get_strength(id: int) -> float:
+	var input: Reference = input_set.get_input(id)
+	if input is ActionInputBind:
+		return Input.get_action_strength(input.action)
+	elif input is JoystickAxisInputBind:
+		return Input.get_joy_axis(input.device, input.axis)
 	
-	
+	return float(is_pressed(id))
+
 ## Returns true if an input is being pressed.
-func is_input_pressed(id: int) -> bool:
+func is_pressed(id: int) -> bool:
 	var input: Reference = input_set.get_input(id)
 
 	if input is InputBind:
@@ -87,7 +103,7 @@ func is_input_pressed(id: int) -> bool:
 	return false
 
 ## Returns true when a user starts pressing the input, meaning it's true only on the frame the user pressed down the input.
-func is_input_just_pressed(id: int) -> bool:
+func is_just_pressed(id: int) -> bool:
 	var input: Reference = input_set.get_input(id)
 
 	if input is InputBind:
@@ -110,7 +126,7 @@ func is_input_just_pressed(id: int) -> bool:
 	return false
 
 ## Returns true when the user stops pressing the input, meaning it's true only on the frame that the user released the button.
-func is_input_just_released(id: int) -> bool:
+func is_just_released(id: int) -> bool:
 	var input: Reference = input_set.get_input(id)
 
 	if input is InputBind:
@@ -202,7 +218,7 @@ func _check_combined_inputs() -> void:
 		elif _detected_input_button_by_id.has(id):
 			if combination_input.press_held_components_on_release:
 				for cid in combination_input.components:
-					if is_input_pressed(cid):
+					if is_pressed(cid):
 						_detected_input_button_by_id[cid].time_stamp = time_stamp
 						_unignore_input(cid)
 			
@@ -226,14 +242,14 @@ func _check_conditional_inputs() -> void:
 	for id in input_set.get_conditional_input_ids():
 		var conditional_input: ConditionalInput = input_set.get_conditional_input(id)
 		
-		if is_input_just_pressed(id):
+		if is_just_pressed(id):
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
 			detected_input.is_pressed = true
 			detected_input.bind_ids.append(conditional_input.current_input)
 			_detected_input_button_by_id[id] = detected_input
-		elif is_input_just_released(conditional_input.current_input):
+		elif is_just_released(conditional_input.current_input):
 			var detected_input := DetectedInputButton.new()
 			detected_input.id = id
 			detected_input.time_stamp = time_stamp
