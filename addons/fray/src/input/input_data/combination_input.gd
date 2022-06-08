@@ -27,18 +27,18 @@ func poll() -> void:
 
 
 func has_ids(ids: PoolIntArray) -> bool:
-    if ids.empty():
-        return false
+	if ids.empty():
+		return false
 
-    for id in components:
-        if not id in ids:
-            return false
-    return true
-
-
-func is_just_released() -> bool:
-	return not is_pressed and _previously_pressed
+	for id in components:
+		if not id in ids:
+			return false
+	return true
 
 
 func is_just_pressed() -> bool:
 	return is_pressed and not _previously_pressed
+	
+	
+func is_just_released() -> bool:
+	return not is_pressed and _previously_pressed

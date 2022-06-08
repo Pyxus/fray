@@ -52,7 +52,6 @@ func _process(delta: float) -> void:
 	_check_combined_inputs()
 	_check_conditional_inputs()
 	_detect_inputs()
-	_poll_inputs()
 
 
 func set_sequence_analyzer(value: SequenceAnalyzer) -> void:
@@ -165,6 +164,11 @@ func clear_conditions() -> void:
 
 func _check_input_binds() -> void:
 	var time_stamp := OS.get_ticks_msec()
+	
+	for id in input_set.get_input_bind_ids():
+		var input_bind: InputBind = input_set.get_input_bind(id)
+		input_bind.poll()
+	
 	for id in input_set.get_input_bind_ids():
 		var input_bind: InputBind = input_set.get_input_bind(id)
 		
@@ -184,11 +188,17 @@ func _check_input_binds() -> void:
 			detected_input.time_held = time_stamp - _detected_input_button_by_id[id].time_stamp
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
+			
 
 
 func _check_combined_inputs() -> void:
 	var time_stamp := OS.get_ticks_msec()
 	var detected_input_ids := _detected_input_button_by_id.keys()
+	
+	for id in input_set.get_combination_input_ids():
+		var combination_input: CombinationInput = input_set.get_combination_input(id)
+		combination_input.poll()
+	
 	for id in input_set.get_combination_input_ids():
 		var combination_input: CombinationInput = input_set.get_combination_input(id)
 		if combination_input.has_ids(detected_input_ids):
@@ -265,16 +275,6 @@ func _check_conditional_inputs() -> void:
 			if is_condition_true(condition):
 				conditional_input.current_input = conditional_input.input_by_condition[condition]
 				break
-
-
-func _poll_inputs() -> void:
-	for id in input_set.get_input_bind_ids():
-		var input_bind: InputBind = input_set.get_input_bind(id)
-		input_bind.poll()
-
-	for id in input_set.get_combination_input_ids():
-		var combination_input: CombinationInput = input_set.get_combination_input(id)
-		combination_input.poll()
 
 
 func _detect_inputs() -> void:

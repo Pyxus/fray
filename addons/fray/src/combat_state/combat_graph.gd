@@ -1,6 +1,6 @@
 tool
 extends Node
-## A node that controls transitions between states in a CombatSituation
+## A node that navigates between states in a CombatSituation based on buffered inputs.
 ##
 ## @desc:
 ##		The graph is able to buffer a combatant's next action 
@@ -19,9 +19,8 @@ enum ProcessMode {
 	MANUAL,
 }
 
-#constants
 
-## The current combat situation used by this graph.
+## The current CombatSituation used by this graph.
 export var combat_situation: Resource setget set_combat_situation # CombatSituation
 
 ## If true the combat graph will be processing.
