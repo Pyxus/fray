@@ -167,10 +167,6 @@ func _check_input_binds() -> void:
 	
 	for id in input_set.get_input_bind_ids():
 		var input_bind: InputBind = input_set.get_input_bind(id)
-		input_bind.poll()
-	
-	for id in input_set.get_input_bind_ids():
-		var input_bind: InputBind = input_set.get_input_bind(id)
 		
 		if input_bind.is_just_pressed():
 			var detected_input := DetectedInputButton.new()
@@ -189,6 +185,9 @@ func _check_input_binds() -> void:
 			_released_input_button_by_id[id] = detected_input
 			_unignore_input(id)
 			
+	for id in input_set.get_input_bind_ids():
+		var input_bind: InputBind = input_set.get_input_bind(id)
+		input_bind.poll()
 
 
 func _check_combined_inputs() -> void:
