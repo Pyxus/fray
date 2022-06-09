@@ -40,7 +40,7 @@ var _conditions: Dictionary # Dictionary<String, bool>
 func _ready() -> void:
 	if Engine.editor_hint:
 		return
-
+	
 	set_sequence_analyzer(sequence_analyzer)
 
 

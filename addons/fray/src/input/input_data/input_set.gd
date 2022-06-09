@@ -200,6 +200,17 @@ func get_combination_input_ids() -> Array:
 func get_conditional_input_ids() -> Array:
 	return _conditional_input_by_id.keys()
 
+
+func has_input_bind(id: int) -> bool:
+	return _input_bind_by_id.has(id)
+
+
+func has_combination_input(id: int) -> bool:
+	return _combination_input_by_id.has(id)
+
+
+func has_conditional_input(id: int) -> bool:
+	return _conditional_input_by_id.has(id)
 #private variables
 
 #onready variables
