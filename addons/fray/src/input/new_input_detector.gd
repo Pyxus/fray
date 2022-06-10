@@ -42,10 +42,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var connected_devices := _get_all_devices()
 	
-	for bind_id in _input_set.get_input_bind_ids():
-		var bind := _input_set.get_input_bind(bind_id)
-		
-		for device in connected_devices:
+	for device in connected_devices:
+	
+		for bind_id in _input_set.get_input_bind_ids():
+			var bind := _input_set.get_input_bind(bind_id)
 			var input_state := _get_input_state(bind_id, device)
 			
 			if bind.is_pressed(device):
@@ -58,10 +58,8 @@ func _process(delta: float) -> void:
 				_unfilter_input(bind_id, device)
 				#_emit_input_event(input_state, bind_id, device, false)
 	
-	for combination_id in _input_set.get_combination_input_ids():
-		var combination := _input_set.get_combination_input(combination_id)
-		
-		for device in connected_devices:
+		for combination_id in _input_set.get_combination_input_ids():
+			var combination := _input_set.get_combination_input(combination_id)
 			var input_state := _get_input_state(combination_id, device)
 			
 			if _is_combination_pressed(combination, device):
@@ -83,8 +81,7 @@ func _process(delta: float) -> void:
 							ci_state.press()
 							_unfilter_input(component, device)
 	
-	for conditional_id in _input_set.get_conditional_input_ids():
-		for device in connected_devices:
+		for conditional_id in _input_set.get_conditional_input_ids():
 			var input_state := _get_input_state(conditional_id, device)
 			if is_just_pressed(conditional_id, device):
 				if not _is_filtered_input(input_state.id, device):
@@ -95,7 +92,6 @@ func _process(delta: float) -> void:
 				_unfilter_input(conditional_id, device)
 				#_emit_input_event(input_state, conditional_id, device, false)
 
-	for device in connected_devices:
 		for pressed_input in _pressed_inputs[device]:
 			var input_state := _get_input_state(pressed_input, device)
 			if is_pressed(pressed_input, device):
