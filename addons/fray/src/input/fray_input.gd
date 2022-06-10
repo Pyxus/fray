@@ -93,9 +93,9 @@ func _process(delta: float) -> void:
 				if not _is_filtered_input(pressed_input, device):
 					_emit_input_event(input_state, pressed_input, device, false, true)
 				else:
-					_emit_input_event(input_state, pressed_input, device, false)
+					_emit_input_event(input_state, pressed_input, device, false, false)
 			else:
-				_emit_input_event(input_state, pressed_input, device, false)
+				_emit_input_event(input_state, pressed_input, device, true, false)
 
 ## Returns the input map used by the FrayInput singleton
 ## The FrayInputMap is used to register inputs to be detected
@@ -118,7 +118,10 @@ func is_just_pressed(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 	
 	if input_state == null:
-		push_error("Unrecognized input id '%d'" % id)
+		if _input_map.has_input(id):
+			push_error("Unrecognized input id '%d'" % id)
+		if get_connected_devices().has(id):
+			push_error("Unrecognized device '%s'" % device)
 		return false
 	
 	if Engine.is_in_physics_frame():
@@ -133,17 +136,24 @@ func is_just_pressed_explicit(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 	
 	if input_state == null:
-		push_error("Unrecognized input id '%d'" % id)
+		if _input_map.has_input(id):
+			push_error("Unrecognized input id '%d'" % id)
+		if get_connected_devices().has(id):
+			push_error("Unrecognized device '%s'" % device)
 		return false
 	
 	return is_just_pressed(id, device) and input_state.explicit_press
+
 ## Returns true when the user stops pressing the input, 
 ## meaning it's true only on the frame that the user released the button.
 func is_just_released(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 	
 	if input_state == null:
-		push_error("Unrecognized input id '%d'" % id)
+		if _input_map.has_input(id):
+			push_error("Unrecognized input id '%d'" % id)
+		if get_connected_devices().has(id):
+			push_error("Unrecognized device '%s'" % device)
 		return false
 	
 	if Engine.is_in_physics_frame():
@@ -170,13 +180,13 @@ func get_strength(id: int, device: int = DEVICE_KBM_JOY1) -> float:
 ## Returns an array of all connected devices.
 ## This array always contains device 0 as this represents
 ## both the keyboard and mouse as well as the first joypad
-func get_connected_devices() -> PoolIntArray:
+func get_connected_devices() -> Array:
 	var connected_joypads := Input.get_connected_joypads()
 	
 	if connected_joypads.empty():
 		connected_joypads.append(DEVICE_KBM_JOY1)
 		
-	return PoolIntArray(connected_joypads)
+	return connected_joypads
 	
 ## Sets condition to given value. Used for checking conditional inputs.
 func set_condition(condition: String, device: int, value: bool) -> void:

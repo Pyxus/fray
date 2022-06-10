@@ -27,7 +27,7 @@ func _read(input_event: FrayInputEvent) -> void:
 		return
 	
 	var next_node := _current_node.get_next(input_event.id)
-	
+
 	if next_node == null or not input_event.is_just_pressed(true):
 		return
 
