@@ -3,7 +3,7 @@ extends Resource
 
 # Imports
 const InputRequirement = preload("input_requirement.gd")
-const DetectedInput = preload("../detected_inputs/detected_input.gd")
+const DetectedInput = preload("../events/fray_input_event.gd")
 
 ## Name of the sequence. This name does not need to be unique.
 var sequence_name: String

@@ -6,4 +6,3 @@ extends Resource
 
 var input_by_condition: Dictionary # Dictionary<string, int>
 var default_input: int
-var current_input: int

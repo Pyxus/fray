@@ -5,12 +5,14 @@ const InputBind = preload("input_data/binds/input_bind.gd")
 const ActionInputBind = preload("input_data/binds/action_input_bind.gd")
 const JoystickAxisInputBind = preload("input_data/binds/joystick_axis_input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
+const FrayInputEvent = preload("events/fray_input_event.gd")
 
 const DEVICE_ALL = -1
-const DEVICE_KBM = 0
+const DEVICE_KBM_JOY1 = 0
+
+signal input_detected(input_event)
 
 var _input_set: InputSet
-var _released_input: PoolIntArray
 
 ## Type Dictionary<int, Dictionary<int, InputState>>
 var _device_bind_input_states: Dictionary
@@ -32,9 +34,9 @@ func _ready() -> void:
 	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
 	
 	for device in Input.get_connected_joypads():
-		_init_device_state(device)
+		_connect_device(device)
 	
-	_init_device_state(DEVICE_KBM)
+	_connect_device(DEVICE_KBM_JOY1)
 
 
 func _process(delta: float) -> void:
@@ -50,10 +52,15 @@ func _process(delta: float) -> void:
 				if not input_state.pressed:
 					input_state.press()
 					_add_pressed_input(bind_id, device)
+					#_emit_input_event(input_state, bind_id, device, false)
+				else:
+					#_emit_input_event(input_state, bind_id, device, true)
+					pass
 			elif input_state.pressed:
 				input_state.unpress()
 				_remove_pressed_input(bind_id, device)
 				_unfilter_input(bind_id, device)
+				_emit_input_event(input_state, bind_id, device, false)
 	
 	for combination_id in _input_set.get_combination_input_ids():
 		var combination := _input_set.get_combination_input(combination_id)
@@ -66,10 +73,15 @@ func _process(delta: float) -> void:
 					input_state.press()
 					_add_pressed_input(combination_id, device)
 					_filter_inputs(combination.components, device)
+					#_emit_input_event(input_state, combination_id, device, true)
+				else:
+					#_emit_input_event(input_state, combination_id, device, false)
+					pass
 			elif input_state.pressed:
 				input_state.unpress()
 				_remove_pressed_input(combination_id, device)
 				_unfilter_input(combination_id, device)
+				_emit_input_event(input_state, combination_id, device, false)
 				
 				if combination.press_held_components_on_release:
 					for component in combination.components:
@@ -80,38 +92,37 @@ func _process(delta: float) -> void:
 	
 	for conditional_id in _input_set.get_conditional_input_ids():
 		for device in connected_devices:
-			if is_just_pressed(conditional_id, device):
-				var input_state := _get_input_state(conditional_id, device)
-				if _filtered_inputs[device].has(input_state.id):
-					continue
-					
-				_add_pressed_input(conditional_id, device)
-				
-				if false:
-					var combination := _input_set.get_combination_input(input_state.id)
-					if combination.press_held_components_on_release:
+			var input_state := _get_input_state(conditional_id, device)
+			if is_pressed(conditional_id, device):
+				if is_just_pressed(conditional_id, device):
+					if not _is_filtered_input(input_state.id, device):
+						_add_pressed_input(conditional_id, device)
 						_filter_input(input_state.id, device)
+					#_emit_input_event(input_state, conditional_id, device, false)
 				else:
-					_filter_input(input_state.id, device)
+					#_emit_input_event(input_state, conditional_id, device, true)
+					pass
 			elif is_just_released(conditional_id, device):
 				_remove_pressed_input(conditional_id, device)
 				_unfilter_input(conditional_id, device)
-	
-	for released_input in _released_input:
-		# Feed to Sequence Analyzer
-		pass
-	
+				_emit_input_event(input_state, conditional_id, device, false)
+
 	for device in connected_devices:
 		for pressed_input in _pressed_inputs[device]:
-			if not _filtered_inputs[device].has(pressed_input):
-				# Feed to Sequence Analyzer
-				print(pressed_input)
-				_filter_input(pressed_input, device)
-		
-	_released_input = []
+			var input_state := _get_input_state(pressed_input, device)
+			if is_just_pressed(pressed_input, device):
+				if not _is_filtered_input(pressed_input, device):
+					_emit_input_event(input_state, pressed_input, device, false, true)
+					#_filter_input(pressed_input, device)
+				else:
+					_emit_input_event(input_state, pressed_input, device, false)
+			else:
+				_emit_input_event(input_state, pressed_input, device, false)
+				pass
+
 
 ## Returns true if an input is being pressed.
-func is_pressed(id: int, device: int = DEVICE_KBM) -> bool:
+func is_pressed(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 
 	if input_state == null:
@@ -122,7 +133,7 @@ func is_pressed(id: int, device: int = DEVICE_KBM) -> bool:
 
 ## Returns true when a user starts pressing the input, 
 ## meaning it's true only on the frame the user pressed down the input.
-func is_just_pressed(id: int, device: int = DEVICE_KBM) -> bool:
+func is_just_pressed(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 	
 	if input_state == null:
@@ -136,7 +147,7 @@ func is_just_pressed(id: int, device: int = DEVICE_KBM) -> bool:
 
 ## Returns true when the user stops pressing the input, 
 ## meaning it's true only on the frame that the user released the button.
-func is_just_released(id: int, device: int = DEVICE_KBM) -> bool:
+func is_just_released(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(id, device)
 	
 	if input_state == null:
@@ -179,13 +190,28 @@ func clear_conditions() -> void:
 	_conditions.clear()
 
 
+func _emit_input_event(state: InputState, id: int, device: int, is_echo: bool, is_filtered: bool = false) -> void:
+	var input_event := FrayInputEvent.new()
+	input_event.device = device
+	input_event.id = id
+	input_event.time_pressed = state.time_pressed
+	input_event.time_emitted = OS.get_ticks_msec()
+	input_event.echo = is_echo
+	input_event.pressed = state.pressed
+	input_event.filtered = is_filtered
+	emit_signal("input_detected", input_event)
+	
+	
 func _add_pressed_input(id: int, device: int) -> void:
 	_pressed_inputs[device][id] = true
 
 
 func _remove_pressed_input(id: int, device: int) -> void:
 	_pressed_inputs[device].erase(id)
-	#_released_input.append(id)
+	
+
+func _is_filtered_input(id: int, device: int) -> bool:
+	return _filtered_inputs[device].has(id)
 	
 	
 func _filter_input(id: int, device: int) -> void:
@@ -201,15 +227,6 @@ func _unfilter_input(id: int, device: int) -> void:
 	_filtered_inputs[device].erase(id)
 	
 	
-func _get_all_devices() -> PoolIntArray:
-	var connected_joypads := Input.get_connected_joypads()
-	
-	if connected_joypads.empty():
-		connected_joypads.append(DEVICE_KBM)
-		
-	return PoolIntArray(connected_joypads)
-
-
 func _is_combination_quick_enough(device: int, components: PoolIntArray, tolerance: float = 30) -> bool:
 	var avg_difference := 0
 	for i in len(components):
@@ -283,14 +300,23 @@ func _get_input_state(id: int, device: int) -> InputState:
 	return null
 
 
-func _init_device_state(device: int) -> void:
+func _get_all_devices() -> PoolIntArray:
+	var connected_joypads := Input.get_connected_joypads()
+	
+	if connected_joypads.empty():
+		connected_joypads.append(DEVICE_KBM_JOY1)
+		
+	return PoolIntArray(connected_joypads)
+	
+	
+func _connect_device(device: int) -> void:
 	_device_bind_input_states[device] = {}
 	_device_combination_inputs_states[device] = {}
 	_filtered_inputs[device] = {}
 	_pressed_inputs[device] = {}
 	
 
-func _clear_device_state(device: int) -> void:
+func _disconnect_device(device: int) -> void:
 	_device_bind_input_states.erase(device)
 	_device_combination_inputs_states.erase(device)
 	_filtered_inputs.erase(device)
@@ -298,11 +324,11 @@ func _clear_device_state(device: int) -> void:
 	
 	
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
-	if device != DEVICE_KBM:
+	if device != DEVICE_KBM_JOY1:
 		if connected:
-			_init_device_state(device)
+			_connect_device(device)
 		else:
-			_clear_device_state(device)
+			_disconnect_device(device)
 
 	
 class InputState:
@@ -316,7 +342,6 @@ class InputState:
 	var physics_frame: int
 	var idle_frame: int
 	var time_pressed: int
-	var time_released: int
 	
 	
 	func press() -> void:
@@ -330,11 +355,3 @@ class InputState:
 		pressed = false
 		physics_frame = Engine.get_physics_frames()
 		idle_frame = Engine.get_idle_frames()
-		time_released = OS.get_ticks_msec()
-
-
-class DeviceInput:
-	extends Reference
-	
-	var device: int
-	var input: int 

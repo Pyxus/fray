@@ -16,15 +16,6 @@ var type: int = Type.SYNC
 var press_held_components_on_release: bool
 var is_pressed: bool
 
-var _previously_pressed: bool
-
-func poll() -> void:
-	if is_pressed:
-		if not _previously_pressed:
-			_previously_pressed = true
-	else:
-		_previously_pressed = false
-
 
 func has_ids(ids: PoolIntArray) -> bool:
 	if ids.empty():
@@ -34,11 +25,3 @@ func has_ids(ids: PoolIntArray) -> bool:
 		if not id in ids:
 			return false
 	return true
-
-
-func is_just_pressed() -> bool:
-	return is_pressed and not _previously_pressed
-	
-	
-func is_just_released() -> bool:
-	return not is_pressed and _previously_pressed

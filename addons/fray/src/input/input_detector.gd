@@ -9,6 +9,7 @@ extends Node
 ## 		Sequences must be added by directly accessing the sequence analyzer property.
 ##
 
+"""
 const SignalUtils = preload("res://addons/fray/lib/helpers/utils/signal_utils.gd")
 const SequenceAnalyzer = preload("sequence_analysis/sequence_analyzer.gd")
 const SequenceAnalyzerTree = preload("sequence_analysis/sequence_analyzer_tree.gd")
@@ -334,3 +335,4 @@ func _on_SequenceTree_match_found(sequence_name: String, sequence: PoolIntArray)
 	detected_input.name = sequence_name
 	detected_input.sequence = sequence
 	emit_signal("input_detected", detected_input)
+"""

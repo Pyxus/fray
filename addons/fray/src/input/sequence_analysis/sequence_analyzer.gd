@@ -2,7 +2,7 @@ extends Resource
 ## Abstract class used by input detector to detect input sequences.
 
 # Imports
-const DetectedInputButton = preload("../detected_inputs/detected_input_button.gd")
+const DetectedInputButton = preload("../events/fray_input_event.gd")
 const SequenceData = preload("sequence_data.gd")
 const InputRequirement = preload("input_requirement.gd")
 
