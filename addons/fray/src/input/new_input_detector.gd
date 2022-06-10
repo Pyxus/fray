@@ -52,15 +52,11 @@ func _process(delta: float) -> void:
 				if not input_state.pressed:
 					input_state.press()
 					_add_pressed_input(bind_id, device)
-					#_emit_input_event(input_state, bind_id, device, false)
-				else:
-					#_emit_input_event(input_state, bind_id, device, true)
-					pass
 			elif input_state.pressed:
 				input_state.unpress()
-				_remove_pressed_input(bind_id, device)
+				#_remove_pressed_input(bind_id, device)
 				_unfilter_input(bind_id, device)
-				_emit_input_event(input_state, bind_id, device, false)
+				#_emit_input_event(input_state, bind_id, device, false)
 	
 	for combination_id in _input_set.get_combination_input_ids():
 		var combination := _input_set.get_combination_input(combination_id)
@@ -73,15 +69,12 @@ func _process(delta: float) -> void:
 					input_state.press()
 					_add_pressed_input(combination_id, device)
 					_filter_inputs(combination.components, device)
-					#_emit_input_event(input_state, combination_id, device, true)
-				else:
-					#_emit_input_event(input_state, combination_id, device, false)
 					pass
 			elif input_state.pressed:
 				input_state.unpress()
-				_remove_pressed_input(combination_id, device)
+				#_remove_pressed_input(combination_id, device)
 				_unfilter_input(combination_id, device)
-				_emit_input_event(input_state, combination_id, device, false)
+				#_emit_input_event(input_state, combination_id, device, false)
 				
 				if combination.press_held_components_on_release:
 					for component in combination.components:
@@ -93,32 +86,29 @@ func _process(delta: float) -> void:
 	for conditional_id in _input_set.get_conditional_input_ids():
 		for device in connected_devices:
 			var input_state := _get_input_state(conditional_id, device)
-			if is_pressed(conditional_id, device):
-				if is_just_pressed(conditional_id, device):
-					if not _is_filtered_input(input_state.id, device):
-						_add_pressed_input(conditional_id, device)
-						_filter_input(input_state.id, device)
-					#_emit_input_event(input_state, conditional_id, device, false)
-				else:
-					#_emit_input_event(input_state, conditional_id, device, true)
-					pass
+			if is_just_pressed(conditional_id, device):
+				if not _is_filtered_input(input_state.id, device):
+					_add_pressed_input(conditional_id, device)
+					_filter_input(input_state.id, device)
 			elif is_just_released(conditional_id, device):
-				_remove_pressed_input(conditional_id, device)
+				#_remove_pressed_input(conditional_id, device)
 				_unfilter_input(conditional_id, device)
-				_emit_input_event(input_state, conditional_id, device, false)
+				#_emit_input_event(input_state, conditional_id, device, false)
 
 	for device in connected_devices:
 		for pressed_input in _pressed_inputs[device]:
 			var input_state := _get_input_state(pressed_input, device)
-			if is_just_pressed(pressed_input, device):
-				if not _is_filtered_input(pressed_input, device):
-					_emit_input_event(input_state, pressed_input, device, false, true)
-					#_filter_input(pressed_input, device)
+			if is_just_released(pressed_input, device):
+				_remove_pressed_input(pressed_input, device)
+				_emit_input_event(input_state, pressed_input, device, false)
+			elif is_pressed(pressed_input, device):
+				if is_just_pressed(pressed_input, device):
+					if not _is_filtered_input(pressed_input, device):
+						_emit_input_event(input_state, pressed_input, device, false, true)
+					else:
+						_emit_input_event(input_state, pressed_input, device, false)
 				else:
 					_emit_input_event(input_state, pressed_input, device, false)
-			else:
-				_emit_input_event(input_state, pressed_input, device, false)
-				pass
 
 
 ## Returns true if an input is being pressed.
