@@ -14,7 +14,6 @@ var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
 var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
 var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
 
-
 ## Adds input to set with given id.
 func add_input(id: int, input_bind: InputBind) -> void:
 	_input_bind_by_id[id] = input_bind

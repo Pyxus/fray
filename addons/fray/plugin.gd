@@ -32,10 +32,9 @@ func _ready() -> void:
 
 
 func _enter_tree() -> void:
-	add_custom_type("InputDetector", "Node", FrayInput.InputDetector, preload("assets/icons/input_detector.svg"))
-	add_custom_type("InputSet", "Resource", FrayInput.InputSet, null)
-	add_custom_type("SequenceAnalyzer", "Resource", FrayInput.SequenceAnalyzer, null)
-	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInput.SequenceAnalyzerTree, null)
+	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/fray_input.gd")
+	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)
+	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInputNS.SequenceAnalyzerTree, null)
 	add_custom_type("CombatGraph", "Node", FrayCombatState.CombatGraph, preload("assets/icons/combat_graph.svg"))
 	add_custom_type("CombatSituation", "Resource", FrayCombatState.CombatSituation, null)
 	add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
@@ -54,6 +53,7 @@ func _enter_tree() -> void:
 
 
 func _exit_tree():
+	remove_autoload_singleton("FrayInput")
 	for type in _added_types:
 		remove_custom_type(type)
 

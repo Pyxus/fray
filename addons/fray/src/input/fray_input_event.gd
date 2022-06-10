@@ -1,9 +1,8 @@
 extends Reference
-## Base class for inputs detected by InputDetector.
+## Base class for inputs detected by the FrayInput singleton.
 ##
 ## @desc:
 ## 		Conceptually similiar to a godot's built-in InputEvent.
-##		This class is emitted in the InputDetector's input_detected signal.
 
 ## Time in miliseconds that the input was initially detected
 var time_pressed: int
@@ -26,10 +25,24 @@ var device: int
 ## The input's ID
 var id: int
 
-## Returns the time in miliseconds between two input events.
+## The input's true ID. Will equal the id if not a conditional input
+var true_id: int
+
+## The input's components. Will be empty if input was not a combination
+var components: PoolIntArray
+
+## Returns the time in seconds between two input events.
 func get_time_between(fray_input_event: Reference) -> float:
-	return abs(fray_input_event.time_pressed - time_pressed)
+	return abs(fray_input_event.time_pressed - time_pressed) / 1000.0
 
 ## Returns the time the input was held in seconds
 func get_time_held() -> float:
 	return (time_emitted - time_pressed) / 1000.0
+
+## Returns true if input was pressed with no echo
+func is_just_pressed() -> bool:
+	return pressed and not echo
+
+## Returns true if input was pressed with no echo and is filtered
+func is_just_pressed_filtered() -> bool:
+	return is_just_pressed() and filtered
