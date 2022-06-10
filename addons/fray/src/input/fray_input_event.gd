@@ -16,6 +16,10 @@ var echo: bool
 ## Returns true if the input is being pressed false if it is released
 var pressed: bool
 
+## Returns true if this event was triggered by a direct press.
+## For example, will be false if this event was a component release press.
+var explicit_press: bool
+
 ## Returns true if the input was pressed with its components ignored
 var filtered: bool
 
@@ -40,9 +44,11 @@ func get_time_held() -> float:
 	return (time_emitted - time_pressed) / 1000.0
 
 ## Returns true if input was pressed with no echo
-func is_just_pressed() -> bool:
-	return pressed and not echo
+func is_just_pressed(check_filtered: bool = false) -> bool:
+	return pressed\
+		and not echo\
+		and check_filtered == filtered
 
-## Returns true if input was pressed with no echo and is filtered
-func is_just_pressed_filtered() -> bool:
-	return is_just_pressed() and filtered
+## Returns true if input was explicitly pressed
+func is_just_pressed_explicit(check_filtered: bool = false) -> bool:
+	return is_just_pressed(check_filtered) and explicit_press

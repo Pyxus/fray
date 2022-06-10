@@ -13,13 +13,13 @@ var _sequence_data: Dictionary
 ## exactly match a sequence.
 ##
 ## sequence is a Sequence.
-func add_sequence(name: String, sequence: Sequence) -> void:
+func add(name: String, sequence: Sequence) -> void:
 	if not _sequence_data.has(name):
 		_sequence_data[name] = []
 	_sequence_data[name].append(sequence)
 
 
-func remove_sequence(name: String, index: int) -> void:
+func remove(name: String, index: int) -> void:
 	if _sequence_data.has(name):
 		var sequences: Array = _sequence_data[name]
 		if sequences.size() < index and index >= 0:
@@ -27,7 +27,7 @@ func remove_sequence(name: String, index: int) -> void:
 		else:
 			push_error("Index out of range")
 
-func clear_sequences(name: String) -> void:
+func clear(name: String) -> void:
 	if _sequence_data.has(name):
 		_sequence_data[name].clear()
 

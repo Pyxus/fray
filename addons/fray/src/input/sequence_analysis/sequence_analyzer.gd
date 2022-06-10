@@ -10,8 +10,8 @@ const SequenceCollection = preload("sequence_collection.gd")
 ##
 ## sequence_name is the name of the sequence.
 ##
-## sequence is the array of input ids that was used to match the sequence.
-signal match_found(sequence_name, sequence)
+## inputs is an array of input ids that was used to match the sequence.
+signal match_found(sequence_name, inputs)
 
 ## Used to feed next inputs to analyzer.
 func read(input_event: FrayInputEvent) -> void:

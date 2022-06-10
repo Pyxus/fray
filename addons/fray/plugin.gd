@@ -59,8 +59,8 @@ func _exit_tree():
 
 
 func enable_plugin() -> void:
-	add_project_setting("fray_settings/show_color_change_dialog", TYPE_BOOL, PROPERTY_HINT_NONE, "", true)
-	
+	#add_project_setting("fray_settings/show_color_change_dialog", TYPE_BOOL, PROPERTY_HINT_NONE, "", true)
+	pass
 	
 func disable_plugin() -> void:	
 	"""

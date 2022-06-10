@@ -15,15 +15,20 @@ const Sequence = preload("sequence.gd")
 var _root := InputNode.new()
 var _current_node: InputNode = _root
 var _rescan_start_index: int = 1
+var _is_initialized: bool
 
 ## Type: FrayInputEvent[]
 var _input_queue: Array
 
 
 func _read(input_event: FrayInputEvent) -> void:
+	if not _is_initialized:
+		push_warning("Failed to read input event. Sequence analyzer is not initialized")
+		return
+	
 	var next_node := _current_node.get_next(input_event.id)
-
-	if next_node == null and not input_event.is_just_pressed_filtered():
+	
+	if next_node == null or not input_event.is_just_pressed(true):
 		return
 
 	_input_queue.append(input_event)
@@ -34,10 +39,13 @@ func _read(input_event: FrayInputEvent) -> void:
 		_rescan()
 
 	for name in _current_node.data:
-		var sequence: Sequence = _current_node.data[name]
-		if is_match(_input_queue, sequence.input_requirements):
-			_rescan_start_index = _input_queue.size()
-			emit_signal("match_found", name, _get_inputs_as_int_array())
+		var sequences: Array = _current_node.data[name]
+		
+		for sequence in sequences:
+			if is_match(_input_queue, sequence.input_requirements):
+				_rescan_start_index = _input_queue.size()
+				emit_signal("match_found", name, _get_inputs_as_int_array())
+				break
 
 	if _current_node != _root and _current_node.get_child_count() == 0:
 		revert()
@@ -63,7 +71,7 @@ func initialize(sequence_collection: SequenceCollection) -> void:
 				next_node.data[name] = []
 
 			next_node.data[name].append(sequence)
-
+	_is_initialized = true
 
 ## Reverts the tree's scanner back to the root
 func revert() -> void:

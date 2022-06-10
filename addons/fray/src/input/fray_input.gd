@@ -45,7 +45,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	var connected_devices := _get_all_devices()
+	var connected_devices := get_connected_devices()
 	
 	for device in connected_devices:
 	
@@ -126,6 +126,17 @@ func is_just_pressed(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
 	else:
 		return input_state.pressed and input_state.idle_frame == Engine.get_idle_frames()
 
+## Returns true if input was explicitly pressed
+## meaning it is only true if the 'just_pressed' was not
+## trigerred by a combination component release.
+func is_just_pressed_explicit(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
+	var input_state := _get_input_state(id, device)
+	
+	if input_state == null:
+		push_error("Unrecognized input id '%d'" % id)
+		return false
+	
+	return is_just_pressed(id, device) and input_state.explicit_press
 ## Returns true when the user stops pressing the input, 
 ## meaning it's true only on the frame that the user released the button.
 func is_just_released(id: int, device: int = DEVICE_KBM_JOY1) -> bool:
@@ -156,13 +167,24 @@ func get_strength(id: int, device: int = DEVICE_KBM_JOY1) -> float:
 	
 	return float(is_pressed(id, device))
 
+## Returns an array of all connected devices.
+## This array always contains device 0 as this represents
+## both the keyboard and mouse as well as the first joypad
+func get_connected_devices() -> PoolIntArray:
+	var connected_joypads := Input.get_connected_joypads()
+	
+	if connected_joypads.empty():
+		connected_joypads.append(DEVICE_KBM_JOY1)
+		
+	return PoolIntArray(connected_joypads)
+	
 ## Sets condition to given value. Used for checking conditional inputs.
 func set_condition(condition: String, device: int, value: bool) -> void:
 	_conditions[device][condition] = true
 
 ## Returns the value of a condition set with set_condition.
 func is_condition_true(condition: String, device: int) -> bool:
-	if _conditions.has(device):
+	if _conditions[device].has(condition):
 		return _conditions[device][condition]
 	return false
 
@@ -181,6 +203,7 @@ func _emit_input_event(state: InputState, id: int, device: int, is_echo: bool, i
 	input_event.echo = is_echo
 	input_event.pressed = state.pressed
 	input_event.filtered = is_filtered
+	input_event.explicit_press = state.explicit_press
 	
 	if _input_map.has_combination_input(id):
 		var combination := _input_map.get_combination_input(id)
@@ -199,6 +222,7 @@ func _add_pressed_input(id: int, device: int) -> void:
 
 func _remove_pressed_input(id: int, device: int) -> void:
 	_pressed_inputs[device].erase(id)
+
 
 func _is_filtered_input(id: int, device: int) -> bool:
 	return _filtered_inputs[device].has(id)
@@ -222,7 +246,7 @@ func _release_combination_components(combination: CombinationInput, device: int)
 		for component in combination.components:
 			if is_pressed(component):
 				var ci_state := _get_input_state(component, device)
-				ci_state.press()
+				ci_state.press(false)
 				_unfilter_input(component, device)
 				
 				
@@ -298,15 +322,6 @@ func _get_input_state(id: int, device: int) -> InputState:
 	
 	return null
 
-
-func _get_all_devices() -> PoolIntArray:
-	var connected_joypads := Input.get_connected_joypads()
-	
-	if connected_joypads.empty():
-		connected_joypads.append(DEVICE_KBM_JOY1)
-		
-	return PoolIntArray(connected_joypads)
-	
 	
 func _connect_device(device: int) -> void:
 	_device_bind_input_states[device] = {}
@@ -340,16 +355,18 @@ class InputState:
 	
 	var id: int
 	var pressed: bool
+	var explicit_press: bool
 	var physics_frame: int
 	var idle_frame: int
 	var time_pressed: int
 	
 	
-	func press() -> void:
+	func press(is_explicit_press: bool = true) -> void:
 		pressed = true
 		physics_frame = Engine.get_physics_frames()
 		idle_frame = Engine.get_idle_frames()
 		time_pressed = OS.get_ticks_msec()
+		explicit_press = is_explicit_press
 	
 	
 	func unpress() -> void:
