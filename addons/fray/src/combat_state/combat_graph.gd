@@ -87,18 +87,20 @@ func advance(delta: float) -> void:
 	
 	var current_time := OS.get_ticks_msec()
 	
-	if not _input_buffer.empty():
+	if allow_transitions:
 		for buffered_input in _input_buffer:
 			var next_state: String = combat_situation.get_next_state(buffered_input)
-			if not next_state.empty() and (current_time - buffered_input.time_stamp) <= input_max_time_in_buffer * 1000:
+			var time_since_inputted: int = current_time - buffered_input.time_stamp
+			
+			if not next_state.empty() and time_since_inputted <= input_max_time_in_buffer * 1000:
 				_buffered_state = next_state
 				break
 
-	if allow_transitions and not _buffered_state.empty():
-		var previous_state: String = combat_situation.current_state
-		combat_situation.advance_to(_buffered_state)
-		combat_situation.time_since_last_input = current_time / 1000.0
-		_buffered_state = ""
+		if  not _buffered_state.empty():
+			var previous_state: String = combat_situation.current_state
+			combat_situation.advance_to(_buffered_state)
+			combat_situation.time_since_last_input = current_time / 1000.0
+			_buffered_state = ""
 
 ## Returns the current state machine to it's initial state if available
 func goto_initial_state(ignore_buffer: bool = false) -> void:
@@ -131,8 +133,7 @@ func set_combat_situation(new_situation: CombatSituation) -> void:
 		combat_situation = new_situation
 		if combat_situation != null:
 			combat_situation.initialize()
-	
-	clear_buffer()
+			clear_buffer()
 	
 	
 func set_process_mode(value: int) -> void:

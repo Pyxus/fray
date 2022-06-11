@@ -22,88 +22,88 @@ var _is_full: bool
 
 
 func _init(buffer_capacity: int = 1) -> void:
-    set_capacity(buffer_capacity)
+	set_capacity(buffer_capacity)
 
 #built-in virtual _ready method
 
 #remaining built-in virtual methods
 
 func set_capacity(value: int) -> void:
-    if value <= 0:
-        push_error("Circular buffer capacity can not be smaller than 1")
+	if value <= 0:
+		push_error("Circular buffer capacity can not be smaller than 1")
 
-    capacity = max(1, value)
-    _buffer.resize(capacity)
-    _read_index = 0
-    _write_index = 0
+	capacity = max(1, value)
+	_buffer.resize(capacity)
+	_read_index = 0
+	_write_index = 0
 
 
 func add(item) -> bool:
-    if not _is_full:
-        _buffer[_write_index] = item
-        _write_index = (_write_index + 1) % capacity
-        _is_full = _write_index == _read_index
-        return true
-    return false
+	if not _is_full:
+		_buffer[_write_index] = item
+		_write_index = (_write_index + 1) % capacity
+		_is_full = _write_index == _read_index
+		return true
+	return false
 
 
 func insert(position: int, item):
-    _buffer[position] = item
+	_buffer[position] = item
 
 
 func peek():
-    return _buffer[_read_index]
+	return _buffer[_read_index]
 
 
 func peek_at(position: int):
-    return _buffer[position]
+	return _buffer[position]
 
 
 func read():
-    if not empty():
-        var item = peek()
-        _read_index = (_read_index + 1) % capacity
-        _is_full = false
-        return item
-    return null
+	if not empty():
+		var item = peek()
+		_read_index = (_read_index + 1) % capacity
+		_is_full = false
+		return item
+	return null
 
 
 func full() -> bool:
-    return _is_full
+	return _is_full
 
 
 func empty() -> bool:
-    return _write_index == _read_index and not _is_full
+	return _write_index == _read_index and not _is_full
 
 
 func get_count() -> int:
-    return _write_index - _read_index
+	return _write_index - _read_index
 
 
 func get_read_index() -> int:
-    return _read_index
+	return _read_index
 
 
 func get_write_index() -> int:
-    return _write_index
+	return _write_index
 
 
 func clear() -> void:
-    _read_index = 0
-    _write_index = 0
-    _is_full = false
-    
+	_read_index = 0
+	_write_index = 0
+	_is_full = false
+	
 
 func _iter_init(arg):
-    return not empty()
+	return not empty()
 
 
 func _iter_next(arg):
-    return not empty()
+	return not empty()
 
 
 func _iter_get(arg):
-    return read()
+	return read()
 
 #signal methods
 
