@@ -17,7 +17,6 @@ extends "res://addons/fray/lib/state_machine/state_machine.gd"
 ##		For example, in many fighting games all moves tagged as "normal" may 
 ##		transition into moves tagged as "special".
 
-# Imports
 const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const InputCondition = preload("transitions/conditions/input_condition.gd")
@@ -31,12 +30,6 @@ var _global_transition_rules: Dictionary # Dictionary<String, String[]>
 var _condition_evaluator_func: FuncRef # func(string) -> bool
 
 
-func add_input_transition(from: String, to: String, input_condition: InputCondition, 
-	prerequisites: Array = [], min_input_delay: float = 0) -> void:
-	add_transition(from, to, 
-		InputTransition.new(input_condition, prerequisites, min_input_delay))
-	
-	
 func add_combat_state(name: String, tags: PoolStringArray = []) -> void:
 	add_state(name, CombatState.new(tags))
 	
@@ -73,6 +66,13 @@ func add_global_transition(to_state: String, input_transition: InputTransition) 
 	
 	_global_transitions[to_state] = input_transition
 
+## Adds transition from state to state based on input
+func add_input_transition(from: String, to: String, 
+	input_condition: InputCondition, 
+	prerequisites: Array = [], min_input_delay: float = 0) -> void:
+	add_transition(from, to, 
+		InputTransition.new(input_condition, prerequisites, min_input_delay))
+	
 ## Returns true if a state has a global transition
 func has_global_transition(to_state: String) -> bool:
 	return _global_transitions.has(to_state)
@@ -111,6 +111,10 @@ func rename_state(name: String, new_name: String) -> bool:
 ## Returns an array of transition data containing the next global transitions avaiable to a state based on the transition rules.
 func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 	var transitions: Array
+	
+	if not has_state(from):
+		return transitions
+		
 	var from_state := get_state(from) as CombatState
 	
 	if from_state == null:

@@ -42,7 +42,7 @@ func set_current_state(name: String) -> void:
 
 func set_initial_state(name: String) -> void:
 	if not has_state(name):
-		push_warning("Failed to set start state. State '%s' does not exist." % name)
+		push_warning("Failed to set initial state. State '%s' does not exist." % name)
 		initial_state = ""
 		return
 
@@ -62,11 +62,12 @@ func add_state(name: String, state: State) -> void:
 		push_warning("Failed to add state. State already added with name %s" % _states.get_key(state))
 		return
 	
+	
 	_states.add(name, state)
 	
-	if _states.empty():
+	if _states.size() == 1:
 		set_initial_state(name)
-	
+		
 	emit_signal("state_added", name)
 
 
@@ -137,7 +138,7 @@ func get_all_states_obj() -> Array: # State[]
 	
 func get_state(name: String) -> State:
 	if not _states.has_key(name):
-		push_warning("Failed to get state. State %s does not exist" % name)
+		push_warning("Failed to get state. State '%s' does not exist" % name)
 		return null
 	return _states.get_value(name)
 
@@ -266,7 +267,7 @@ func advance_to(to_state: String) -> void:
 		return
 
 	var prev_state = current_state
-	current_state = to_state
+	set_current_state(to_state)
 	emit_signal("state_changed", prev_state, current_state)
 
 

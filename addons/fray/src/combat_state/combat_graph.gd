@@ -1,11 +1,9 @@
-tool
 extends Node
 ## A node that navigates between states in a CombatSituation based on buffered inputs.
 ##
 ## @desc:
 ##		The graph is able to buffer a combatant's next action 
 ##		for a smoother player experience.
-
 
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
 const BufferedInput = preload("buffered_input/buffered_input.gd")
@@ -19,9 +17,6 @@ enum ProcessMode {
 	MANUAL,
 }
 
-
-## The current CombatSituation used by this graph.
-export var combat_situation: Resource setget set_combat_situation # CombatSituation
 
 ## If true the combat graph will be processing.
 export var active: bool
@@ -41,9 +36,18 @@ export var input_max_time_in_buffer: float = 0.1
 ## The process mode of this graph.
 export(ProcessMode) var process_mode: int setget set_process_mode
 
-var _conditions: Dictionary # Dictionary<String, bool>
+## The current CombatSituation used by this graph.
+var combat_situation: CombatSituation setget set_combat_situation
+
+## Type: Dictionary<String, bool>
+var _conditions: Dictionary
+
+## Type: CircularBuffer<BufferedInput>
+var _input_buffer := CircularBuffer.new()
+
+## func(String) -> bool
 var _external_condition_evaluator: FuncRef
-var _input_buffer := CircularBuffer.new() # CircularBuffer<BufferedInput>
+
 var _buffered_state: String
 
 
@@ -80,44 +84,39 @@ func advance(delta: float) -> void:
 	if combat_situation == null:
 		push_warning("Failed to advance, no state machine set.")
 		return
+	
+	var current_time := OS.get_ticks_msec()
+	
+	if not _input_buffer.empty():
+		for buffered_input in _input_buffer:
+			var next_state: String = combat_situation.get_next_state(buffered_input)
+			if not next_state.empty() and (current_time - buffered_input.time_stamp) <= input_max_time_in_buffer * 1000:
+				_buffered_state = next_state
+				break
 
-	if combat_situation != null:
-		var current_time := OS.get_ticks_msec()
-
-		if not _input_buffer.empty():
-			for buffered_input in _input_buffer:
-				var next_state: String = combat_situation.get_next_state(buffered_input)
-
-				if not next_state.empty() and (current_time - buffered_input.time_stamp) <= input_max_time_in_buffer * 1000:
-					_buffered_state = next_state
-					break
-
-		if allow_transitions and not _buffered_state.empty():
-			var previous_state: String = combat_situation.current_state
-			combat_situation.advance_to(_buffered_state)
-			combat_situation.time_since_last_input = current_time / 1000.0
-			_buffered_state = ""
+	if allow_transitions and not _buffered_state.empty():
+		var previous_state: String = combat_situation.current_state
+		combat_situation.advance_to(_buffered_state)
+		combat_situation.time_since_last_input = current_time / 1000.0
+		_buffered_state = ""
 
 ## Returns the current state machine to it's initial state if available
 func goto_initial_state(ignore_buffer: bool = false) -> void:
-	if not ignore_buffer and not _buffered_state.empty():
-		return
-
-	if combat_situation == null:
+	if combat_situation == null or not ignore_buffer and not _buffered_state.empty():
 		return
 
 	if combat_situation.initial_state.empty():
 		push_warning("Failed to to go to initial combat state. Current CombatSituation '%s' does not have an initial state set." % combat_situation)
 		return
-
-	combat_situation.initialize()
+	
+	combat_situation.advance_to(combat_situation.initial_state)
 
 ## Buffers an input button to be processed by the graph
-func buffer_input_button(id: int, is_released: bool = false) -> void:
+func buffer_button(id: int, is_released: bool = false) -> void:
 	_input_buffer.add(BufferedInputButton.new(OS.get_ticks_msec(), id, is_released))
 
 ## Buffers an input sequence to be processed by the graph
-func buffer_input_sequence(sequence_name: String) -> void:
+func buffer_sequence(sequence_name: String) -> void:
 	_input_buffer.add(BufferedInputSequence.new(OS.get_ticks_msec(), sequence_name))
 
 ## Clears the current buffered inputs and buffered state
@@ -126,11 +125,14 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
-func set_combat_situation(value: CombatSituation) -> void:
-	combat_situation = value
+func set_combat_situation(new_situation: CombatSituation) -> void:
+	if new_situation != combat_situation:
+		
+		combat_situation = new_situation
+		if combat_situation != null:
+			combat_situation.initialize()
 	
-	if combat_situation != null:
-		combat_situation.initialize()
+	clear_buffer()
 	
 	
 func set_process_mode(value: int) -> void:
