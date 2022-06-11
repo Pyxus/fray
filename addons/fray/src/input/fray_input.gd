@@ -189,17 +189,17 @@ func get_connected_devices() -> Array:
 	return connected_joypads
 	
 ## Sets condition to given value. Used for checking conditional inputs.
-func set_condition(condition: String, device: int, value: bool) -> void:
-	_conditions[device][condition] = true
+func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1) -> void:
+	_conditions[device][condition] = value
 
 ## Returns the value of a condition set with set_condition.
-func is_condition_true(condition: String, device: int) -> bool:
+func is_condition_true(condition: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	if _conditions[device].has(condition):
 		return _conditions[device][condition]
 	return false
 
 ## Clears the condition dict
-func clear_conditions(device: int) -> void:
+func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 	_conditions[device].clear()
 
 
