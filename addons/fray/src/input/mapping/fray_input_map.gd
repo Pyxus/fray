@@ -21,6 +21,9 @@ var _conditional_input_by_id: Dictionary
 
 ## Adds input to set with given id.
 func add_input(id: int, input_bind: InputBind) -> void:
+	if _input_bind_by_id.has(id):
+		push_warning("Id '%d' was previously assigned. This bind will be overwritten" % id)
+	
 	_input_bind_by_id[id] = input_bind
 
 ## Adds action input
