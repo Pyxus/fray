@@ -1,5 +1,5 @@
 extends Resource
-## docstring
+## Contains a mapping of ids and and input binds
 
 const InputBind = preload("binds/input_bind.gd")
 const ActionInputBind = preload("binds/action_input_bind.gd")
@@ -10,10 +10,14 @@ const MouseInputBind = preload("binds/mouse_input_bind.gd")
 const CombinationInput = preload("combination_input.gd")
 const ConditionalInput = preload("conditional_input.gd")
 
-var _input_bind_by_id: Dictionary # Dictionary<int, InputBind>
-var _combination_input_by_id: Dictionary # Dictionary<int, CombinationInput>
-var _conditional_input_by_id: Dictionary # Dictionary<int, ConditionalInput>
+## Type: Dictionary<int, InputBind>
+var _input_bind_by_id: Dictionary
 
+## Type: Dictionary<int, CombinationInput>
+var _combination_input_by_id: Dictionary
+
+## Type: Dictionary<int, ConditionalInput>
+var _conditional_input_by_id: Dictionary
 
 ## Adds input to set with given id.
 func add_input(id: int, input_bind: InputBind) -> void:
@@ -159,17 +163,6 @@ func remove_conditional_input(id: int) -> void:
 	if _conditional_input_by_id.has(id):
 		_conditional_input_by_id.erase(id)
 
-## Returns input associated with given id. Input will be of type: InputBind | CombinationInput | ConditionalInput
-func get_input(id: int) -> Reference:
-	if _input_bind_by_id.has(id):
-		return _input_bind_by_id[id]
-	elif _combination_input_by_id.has(id):
-		return _combination_input_by_id[id]
-	elif _conditional_input_by_id.has(id):
-		return _conditional_input_by_id[id]
-	else:
-		return null
-
 ## Returns input bind with given id
 func get_input_bind(id: int) -> InputBind:
 	if _input_bind_by_id.has(id):
@@ -200,21 +193,20 @@ func get_combination_input_ids() -> Array:
 func get_conditional_input_ids() -> Array:
 	return _conditional_input_by_id.keys()
 
-#private variables
+## Returns true if the given id is mapped to some input
+func has_input(id: int) -> bool:
+	return has_input_bind(id)\
+		or has_combination_input(id)\
+		or has_combination_input(id)
 
-#onready variables
+## Returns true if the given id mapped to an input bind
+func has_input_bind(id: int) -> bool:
+	return _input_bind_by_id.has(id)
 
+## Returns true if the given id is mapped to a combination input
+func has_combination_input(id: int) -> bool:
+	return _combination_input_by_id.has(id)
 
-#optional built-in virtual _init method
-
-#built-in virtual _ready method
-
-#remaining built-in virtual methods
-
-#public methods
-
-#private methods
-
-#signal methods
-
-#inner classes
+## Returns true if the given input is mapped to a conditional input
+func has_conditional_input(id: int) -> bool:
+	return _conditional_input_by_id.has(id)
