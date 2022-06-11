@@ -6,7 +6,6 @@ extends Node2D
 ##		When a HitState2D child is activated all others will be deactivate.
 ##		This is a convinience tool for enforcing discrete hit states.
 
-# Imports
 const HitState2D = preload("hit_state_2d.gd")
 const Hitbox2D = preload("hitbox_2d.gd")
 const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")

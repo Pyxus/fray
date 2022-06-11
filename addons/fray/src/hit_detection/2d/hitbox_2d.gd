@@ -2,7 +2,6 @@ tool
 extends Area2D
 ## 2D area intended to detect combat interactions.
 
-# Imports
 const HitAttributes = preload("../hit_attributes.gd")
 var Hitbox2D = load("res://addons/fray/src/hit_detection/2d/hitbox_2d.gd")
 

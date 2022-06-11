@@ -8,7 +8,6 @@ extends Node2D
 ##		IHitbox is a pseudo interface, see interface script.
 ##		It is implemented by Hitboxes, HitboxSwitchers, and Pushboxes
 
-# Imports
 const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")
 const SignalUtils = preload("res://addons/fray/lib/helpers/utils/signal_utils.gd")
 const Hitbox2D = preload("hitbox_2d.gd")

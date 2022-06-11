@@ -1,7 +1,6 @@
 extends Reference
 ## Abstract class used by input detector to detect input sequences.
 
-# Imports
 const FrayInputEvent = preload("../fray_input_event.gd")
 const InputRequirement = preload("input_requirement.gd")
 const SequenceCollection = preload("sequence_collection.gd")

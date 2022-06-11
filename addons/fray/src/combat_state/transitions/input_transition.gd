@@ -1,7 +1,6 @@
 extends "res://addons/fray/lib/state_machine/transition.gd"
 ## Used to represent an input based transition
 
-# Imports
 const InputCondition = preload("conditions/input_condition.gd")
 
 ## Input condition corresponding to this transition

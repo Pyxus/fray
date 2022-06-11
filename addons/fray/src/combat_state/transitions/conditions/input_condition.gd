@@ -1,7 +1,6 @@
 extends Resource
 ## Abstract Class representing input condition
 
-# Imports
 const BufferedInput = preload("../../buffered_input/buffered_input.gd")
 
 ## Abstract method which returns true if the detected input satisfies this condition
