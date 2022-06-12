@@ -48,7 +48,6 @@ If you would like to know more about installing plugins see the [Official Godot 
 ## 📚 Documentation
 
 - [Getting Started](./docs/getting_started/index.md)
-- [Example](https://github.com/Pyxus/fray/releases/tag/example)
 - Fray API (Coming Eventually)
 
 ## 📃 Credits
