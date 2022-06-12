@@ -25,7 +25,7 @@ Fray provides tools for setting up and managing a fighter's hitbox / attackbox.
 
 ### Combat State Management
 
-Fray features a hiearchacel state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a user defined "combat graph".
+Fray features a state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a user defined "combat graph".
 
 Through this system Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
@@ -48,7 +48,7 @@ If you would like to know more about installing plugins see the [Official Godot 
 ## 📚 Documentation
 
 - [Getting Started](./docs/getting_started/index.md)
-- Examples (Coming Eventually)
+- [Example](https://github.com/Pyxus/fray/releases/tag/example)
 - Fray API (Coming Eventually)
 
 ## 📃 Credits
