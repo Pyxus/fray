@@ -32,7 +32,9 @@ static func assert_implements(obj: Object, interface: String) -> void:
 	if not has_implementation:
 		for missing_member in _get_missing_members(obj, interface):
 			push_error(missing_member)
-
+	
+	
+	
 	assert(has_implementation, "Script '%s' does not implement interface '%s'" % [script_name, interface])
 
 	

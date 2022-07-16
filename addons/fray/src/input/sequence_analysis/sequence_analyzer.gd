@@ -25,7 +25,7 @@ func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
 		var input_event: FrayInputEvent = fray_input_events[i]
 		var input_requirement: InputRequirement = input_requirements[i]
 		
-		if input_event.id != input_requirement.input_id:
+		if input_event.input != input_requirement.input:
 			return false
 
 		if not input_event.pressed and input_event.get_time_held() < input_requirement.min_time_held:

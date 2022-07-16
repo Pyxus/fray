@@ -4,5 +4,5 @@ extends Resource
 ## @desc:
 ##      Useful for creating motion inputs which change based on what side a combatant is in 2D fighting games.
 
-var input_by_condition: Dictionary # Dictionary<string, int>
-var default_input: int
+var input_by_condition: Dictionary # Dictionary<string, string>
+var default_input: String
