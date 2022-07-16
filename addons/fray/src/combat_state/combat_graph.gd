@@ -114,8 +114,8 @@ func goto_initial_state(ignore_buffer: bool = false) -> void:
 	combat_situation.advance_to(combat_situation.initial_state)
 
 ## Buffers an input button to be processed by the graph
-func buffer_button(id: int, is_released: bool = false) -> void:
-	_input_buffer.add(BufferedInputButton.new(OS.get_ticks_msec(), id, is_released))
+func buffer_button(input: String, is_released: bool = false) -> void:
+	_input_buffer.add(BufferedInputButton.new(OS.get_ticks_msec(), input, is_released))
 
 ## Buffers an input sequence to be processed by the graph
 func buffer_sequence(sequence_name: String) -> void:

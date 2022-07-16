@@ -4,10 +4,12 @@ extends Object
 func _init() -> void:
 	assert(false, "The 'FrayInputNS' class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
 
-const FrayInputEvent = preload("fray_input_event.gd")
+const FrayInputEvent = preload("events/fray_input_event.gd")
+const FrayInputEventCombination = preload("events/fray_input_event_combination.gd")
+const FrayInputEventConditional = preload("events/fray_input_event_conditional.gd")
 const FrayInputMap = preload("mapping/fray_input_map.gd")
-const SequenceAnalyzer = preload("sequence_analysis/sequence_analyzer.gd")
-const SequenceAnalyzerTree = preload("sequence_analysis/sequence_analyzer_tree.gd")
+const SequenceAnalyzer = preload("sequence_analyzer.gd")
+const SequenceAnalyzerTree = preload("sequence_analyzer_tree.gd")
 const Sequence = preload("sequence_analysis/sequence.gd")
 const SequenceCollection = preload("sequence_analysis/sequence_collection.gd")
 const InputBind = preload("mapping/binds/input_bind.gd")

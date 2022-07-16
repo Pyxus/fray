@@ -9,19 +9,20 @@ enum Type {
 	SYNC, ## Components must all be pressed at the same time
 	ASYNC, ## Components can be pressed at any time so long as they are all pressed.
 	ORDERED, ## Like asynchronous but the presses must occur in order
+	GROUP, ## Any component in the combination must be pressed. EXPERIMENTAL
 }
 
-var components: PoolIntArray
+var components: PoolStringArray
 var type: int = Type.SYNC
 var press_held_components_on_release: bool
 var is_pressed: bool
 
 
-func has_ids(ids: PoolIntArray) -> bool:
-	if ids.empty():
+func has_components(names: PoolStringArray) -> bool:
+	if names.empty():
 		return false
 
-	for id in components:
-		if not id in ids:
+	for name in names:
+		if not name in names:
 			return false
 	return true

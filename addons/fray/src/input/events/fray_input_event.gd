@@ -26,14 +26,8 @@ var filtered: bool
 ## The devices' ID
 var device: int
 
-## The input's ID
-var id: int
-
-## The input's true ID. Will equal the id if not a conditional input
-var true_id: int
-
-## The input's components. Will be empty if input was not a combination
-var components: PoolIntArray
+## The input's name
+var input: String
 
 ## Returns the time in seconds between two input events.
 func get_time_between(fray_input_event: Reference) -> float:
