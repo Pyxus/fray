@@ -9,6 +9,7 @@ enum Type {
 	SYNC, ## Components must all be pressed at the same time
 	ASYNC, ## Components can be pressed at any time so long as they are all pressed.
 	ORDERED, ## Like asynchronous but the presses must occur in order
+	GROUP, ## Any component in the combination must be pressed. EXPERIMENTAL
 }
 
 var components: PoolStringArray

@@ -288,18 +288,24 @@ func _is_combination_in_order(device: int, components: PoolStringArray, toleranc
 
 func _is_combination_pressed(combination: CombinationInput, device: int) -> bool:
 	match combination.type:
-			CombinationInput.Type.SYNC:
-				if not _is_combination_quick_enough(device, combination.components):
+		CombinationInput.Type.SYNC:
+			return _is_combination_quick_enough(device, combination.components)
+		CombinationInput.Type.ASYNC:
+			for component in combination.components:
+				if not is_pressed(component):
 					return false
-			CombinationInput.Type.ORDERED:
-				if not _is_combination_quick_enough(device, combination.components):
-					return false
-	
-	for component in combination.components:
-		if not is_pressed(component):
+			return true
+		CombinationInput.Type.ORDERED:
+			return _is_combination_quick_enough(device, combination.components)
+		CombinationInput.Type.GROUP:
+			for component in combination.components:
+				if is_pressed(component):
+					return true
 			return false
-			
-	return true
+		var type:
+			push_error("Failed to check combination input. Unknown combination type '%d'" % type)
+
+	return false
 
 
 func _get_input_state(input: String, device: int) -> InputState:

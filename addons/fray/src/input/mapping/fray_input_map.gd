@@ -71,33 +71,40 @@ func add_mouse_input(name: String, button: int) -> void:
 ## This is useful for constructing the 'motion inputs' featured in many fighting games.
 ##
 ## if is_simeultaneous is true, the combination will only be detected if the components are pressed at the same time
-func add_combination_input(name: String, components: PoolStringArray, 
+func add_combination_input(
+	name: String, 
+	components: PoolStringArray, 
 	press_held_components_on_release: bool = false, 
-	type: int = CombinationInput.Type.SYNC) -> void:
-	if _input_bind_by_name.has(name) or _conditional_input_by_name.has(name):
-		push_error("Failed to register combination input. Combination name is already used by bound or registered input")
+	type: int = CombinationInput.Type.SYNC
+	) -> void:
+	if _input_bind_by_name.has(name):
+		push_error("Failed to add combination input. Combination name is already used by input bind")
+		return
+	elif _conditional_input_by_name.has(name):
+		push_error("Failed to add combination input. Combination name is already used by conditional input")
 		return
 
 	if name in components:
-		push_error("Failed to register combination input. Combination name can not be included in components")
+		push_error("Failed to add combination input. Combination name can not be included in components")
 		return
 	
 	if components.size() <= 1:
-		push_error("Failed to register combination input. Combination must contain 2 or more components.")
-		return
-
-	if _conditional_input_by_name.has(name):
-		push_error("Failed to register combination input. Combination components can not include conditional input")
+		push_error("Failed to add combination input. Combination must contain 2 or more components.")
 		return
 
 	for cid in components:
 		if not _input_bind_by_name.has(cid):
-			push_error("Failed to register combination input. Combined ids contain unbound input '%d'" % cid)
+			push_error("Failed to add combination input. Combined inputs contain unbound input '%d'" % cid)
 			return
 		
 		if _conditional_input_by_name.has(cid):
-			push_error("Failed to register combination input. Combination components can not include a conditional input")
+			push_error("Failed to add combination input. Combination components can not include a conditional input.")
 			return
+
+#		Disabled to support the experimental 'Group' feature of combination inputs
+#		if _combination_input_by_name.has(cid):
+#			push_error("Failed to add combination input. Combination components can not include a combination input.")
+#			return
 
 	var combination_input := CombinationInput.new()
 	combination_input.components = components
@@ -113,19 +120,19 @@ func add_combination_input(name: String, components: PoolStringArray,
 func add_conditional_input(name: String, default_input: String, input_by_condition: Dictionary) -> void:
 	for cid in input_by_condition.values():
 		if not _input_bind_by_name.has(cid) and not _combination_input_by_name.has(cid):
-			push_error("Failed to register conditional input. Input dictionary contains unregistered and unbound input '%d'" % cid)
+			push_error("Failed to add conditional input. Input dictionary contains unknown input '%s'" % cid)
 			return
 		
 		if cid == name:
-			push_error("Failed to register conditional input. Conditional input name can not be included in input dictioanry.")
+			push_error("Failed to add conditional input. Conditional input name can not be included in dictioanry.")
 			return
 	
 	if not _input_bind_by_name.has(default_input) and not _combination_input_by_name.has(default_input):
-		push_error("Failed to register conditional input. Default input '%d' is not bound or a registered combination" % default_input)
+		push_error("Failed to add conditional input. Default input '%s' does not exist" % default_input)
 		return
 
 	if default_input == name:
-		push_error("Failed to register conditional input. Conditional input name can not be used as a default input.")
+		push_error("Failed to add conditional input. Conditional input name can not be used as a default input.")
 		return
 
 	var conditional_input := ConditionalInput.new()
