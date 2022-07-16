@@ -6,14 +6,6 @@ extends Resource
 
 var _previously_pressed: bool
 
-## Used by InputDetector to update whether or not the button has been released
-func poll() -> void:
-	if is_pressed():
-		if not _previously_pressed:
-			_previously_pressed = true
-	else:
-		_previously_pressed = false
-
 ## Abstract method used to check if input is pressed
 func is_pressed(device: int = 0) -> bool:
 	push_error("Method 'is_pressed' not implemented.")

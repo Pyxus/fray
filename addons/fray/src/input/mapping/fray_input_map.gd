@@ -33,16 +33,14 @@ func add_action_input(name: String, action: String) -> void:
 	add_input(name, action_input)
 
 ## Adds joystick button input
-func add_joystick_input(name: String, device: int, button: int) -> void:
+func add_joystick_input(name: String, button: int) -> void:
 	var joystick_input := JoystickInputBind.new()
-	joystick_input.device = device
 	joystick_input.button = button
 	add_input(name, joystick_input)
 
 ## Adds joystick axis input
-func add_joystick_axis(name: String, device: int, axis: int, deadzone: float) -> void:
+func add_joystick_axis(name: String, axis: int, deadzone: float) -> void:
 	var joystick_axis_input := JoystickAxisInputBind.new()
-	joystick_axis_input.device = device
 	joystick_axis_input.axis = axis
 	joystick_axis_input.deadzone = deadzone
 	add_input(name, joystick_axis_input)
