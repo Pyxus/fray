@@ -5,7 +5,9 @@ extends Node
 ## @desc:
 ##		Before use inputs must first be added to the FrayInputMap
 
-const FrayInputEvent = preload("fray_input_event.gd")
+const FrayInputEvent = preload("events/fray_input_event.gd")
+const FrayInputEventCombination = preload("events/fray_input_event_combination.gd")
+const FrayInputEventConditional = preload("events/fray_input_event_conditional.gd")
 const FrayInputMap = preload("mapping/fray_input_map.gd")
 const InputBind = preload("mapping/binds/input_bind.gd")
 const ActionInputBind = preload("mapping/binds/action_input_bind.gd")
@@ -205,23 +207,23 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 
 func _emit_input_event(state: InputState, input: String, device: int, is_echo: bool, is_filtered: bool = false) -> void:
 	var input_event := FrayInputEvent.new()
+	
+	if _input_map.has_combination_input(input):
+		input_event = FrayInputEventCombination.new()
+		for component in _input_map.get_combination_input(input).components:
+			input_event.components.append(component)
+	elif _input_map.has_conditional_input(input):
+		input_event = FrayInputEventConditional.new()
+		input_event.true_input = _get_input_state(input, device).input
+		
 	input_event.device = device
 	input_event.input = input
-	input_event.true_input = input
 	input_event.time_pressed = state.time_pressed
 	input_event.time_emitted = OS.get_ticks_msec()
 	input_event.echo = is_echo
 	input_event.pressed = state.pressed
 	input_event.filtered = is_filtered
 	input_event.explicit_press = state.explicit_press
-	
-	if _input_map.has_combination_input(input):
-		var combination := _input_map.get_combination_input(input)
-		for component in combination.components:
-			input_event.components.append(component)
-	elif _input_map.has_conditional_input(input):
-		var input_state := _get_input_state(input, device)
-		input_event.true_input = input_state.input
 	
 	emit_signal("input_detected", input_event)
 	

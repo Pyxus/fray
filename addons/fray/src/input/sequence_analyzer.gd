@@ -1,9 +1,9 @@
 extends Reference
 ## Abstract class used by input detector to detect input sequences.
 
-const FrayInputEvent = preload("../fray_input_event.gd")
-const InputRequirement = preload("input_requirement.gd")
-const SequenceCollection = preload("sequence_collection.gd")
+const FrayInputEvent = preload("events/fray_input_event.gd")
+const InputRequirement = preload("sequence_data/input_requirement.gd")
+const SequenceCollection = preload("sequence_data/sequence_collection.gd")
 
 ## Emmited when a sequence match is found.
 ##

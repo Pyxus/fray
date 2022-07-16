@@ -10,7 +10,7 @@ extends "sequence_analyzer.gd"
 ## 		This analyzer stores sequences in a tree data structure and then attempts to
 ##		match to match them to the incoming input with each read call.
 
-const Sequence = preload("sequence.gd")
+const Sequence = preload("sequence_data/sequence.gd")
 
 var _root := InputNode.new()
 var _current_node: InputNode = _root

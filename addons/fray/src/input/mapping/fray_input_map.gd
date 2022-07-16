@@ -59,7 +59,7 @@ func add_mouse_input(name: String, button: int) -> void:
 	mouse_input.button = button
 	add_input(name, mouse_input)
 
-## Registers combination input using input ids as components.
+## Add combination input using other inputs as components.
 ##
 ## components is an array of input ids that compose the combination - the name assigned to a combination can not be used as a component
 ##
@@ -166,6 +166,11 @@ func remove_combination_input(name: String) -> void:
 			var conditional_input: ConditionalInput = _conditional_input_by_name[cid]
 			if name == conditional_input.default_input or name in conditional_input.input_by_condition.values():
 				remove_conditional_input(cid)
+				
+		for cid in _combination_input_by_name:
+			var combination_input: CombinationInput = _combination_input_by_name[cid]
+			if name in combination_input.components:
+				remove_combination_input(cid)
 
 
 ## Remove conditional input.

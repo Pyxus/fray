@@ -29,12 +29,6 @@ var device: int
 ## The input's name
 var input: String
 
-## The input's true name. Will equal the 'input' if event was not triggered by a conditional input
-var true_input: String
-
-## The input's components. Will be empty if the event was not triggered by a combination input
-var components: PoolIntArray
-
 ## Returns the time in seconds between two input events.
 func get_time_between(fray_input_event: Reference) -> float:
 	return abs(fray_input_event.time_pressed - time_pressed) / 1000.0
