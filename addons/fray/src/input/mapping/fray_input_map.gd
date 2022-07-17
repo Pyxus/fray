@@ -21,9 +21,8 @@ var _conditional_input_by_name: Dictionary
 
 ## Adds input to set with given name.
 func add_input(name: String, input_bind: InputBind) -> void:
-	if _input_bind_by_name.has(name):
-		push_warning("Id '%d' was previously assigned. This bind will be overwritten" % name)
-	
+	if _err_input_already_exists(name, "Failed to add input bind. "):
+		return
 	_input_bind_by_name[name] = input_bind
 
 ## Adds action input
@@ -75,11 +74,8 @@ func add_combination_input(
 	press_held_components_on_release: bool = false, 
 	type: int = CombinationInput.Type.SYNC
 	) -> void:
-	if _input_bind_by_name.has(name):
-		push_error("Failed to add combination input. Combination name is already used by input bind")
-		return
-	elif _conditional_input_by_name.has(name):
-		push_error("Failed to add combination input. Combination name is already used by conditional input")
+	
+	if _err_input_already_exists(name, "Failed to add combination input. "):
 		return
 
 	if name in components:
@@ -140,70 +136,52 @@ func add_conditional_input(name: String, default_input: String, input_by_conditi
 
 
 ## Remove input bind along with any combination input or conditional input using it as a component.
-func remove_input_bind(name: String) -> void:
-	if _input_bind_by_name.has(name):
-		_input_bind_by_name.erase(name)
-
-		for cid in _combination_input_by_name:
-			var combination_input: CombinationInput = _combination_input_by_name[cid]
-			if name in combination_input.components:
-				remove_combination_input(cid)
-		
-		for cid in _conditional_input_by_name:
-			var conditional_input: ConditionalInput = _conditional_input_by_name[cid]
-			if name == conditional_input.default_input or name in conditional_input.input_by_condition.values():
-				remove_conditional_input(cid)
+func remove_input_bind(input: String) -> void:
+	if _input_bind_by_name.has(input):
+		_input_bind_by_name.erase(input)
+		_remove_dependent_inputs(input)
 
 
 ## Remove combination input along with any conditional input using it as a component.
-func remove_combination_input(name: String) -> void:
-	if _combination_input_by_name.has(name):
-		_combination_input_by_name.erase(name)
-		
-		for cid in _conditional_input_by_name:
-			var conditional_input: ConditionalInput = _conditional_input_by_name[cid]
-			if name == conditional_input.default_input or name in conditional_input.input_by_condition.values():
-				remove_conditional_input(cid)
-				
-		for cid in _combination_input_by_name:
-			var combination_input: CombinationInput = _combination_input_by_name[cid]
-			if name in combination_input.components:
-				remove_combination_input(cid)
+func remove_combination_input(input: String) -> void:
+	if _combination_input_by_name.has(input):
+		_combination_input_by_name.erase(input)
+		_remove_dependent_inputs(input)
 
 
 ## Remove conditional input.
-func remove_conditional_input(name: String) -> void:
-	if _conditional_input_by_name.has(name):
-		_conditional_input_by_name.erase(name)
+func remove_conditional_input(input: String) -> void:
+	if _conditional_input_by_name.has(input):
+		_conditional_input_by_name.erase(input)
 
 ## Returns input bind with given name
-func get_input_bind(name: String) -> InputBind:
-	if _input_bind_by_name.has(name):
-		return _input_bind_by_name[name]
+func get_input_bind(input: String) -> InputBind:
+	if _input_bind_by_name.has(input):
+		return _input_bind_by_name[input]
 	return null
 
 ## Returns combination input with given name
-func get_combination_input(name: String) -> CombinationInput:
-	if _combination_input_by_name.has(name):
-		return _combination_input_by_name[name]
+func get_combination_input(input: String) -> CombinationInput:
+	if _combination_input_by_name.has(input):
+		return _combination_input_by_name[input]
 	return null
 
 ## Returns conditional input with given name
-func get_conditional_input(name: String) -> ConditionalInput:
-	if _conditional_input_by_name.has(name):
-		return _conditional_input_by_name[name]
+func get_conditional_input(input: String) -> ConditionalInput:
+	if _conditional_input_by_name.has(input):
+		return _conditional_input_by_name[input]
 	return null
 
 ## Returns array of input bind ids
-func get_input_bind_ids() -> Array:
+func get_input_bind_names() -> Array:
 	return _input_bind_by_name.keys()
 
 ## Returns array of combination input ids
-func get_combination_input_ids() -> Array:
+func get_combination_input_names() -> Array:
 	return _combination_input_by_name.keys()
 
 ## Returns array of conditional input ids
-func get_conditional_input_ids() -> Array:
+func get_conditional_input_names() -> Array:
 	return _conditional_input_by_name.keys()
 
 ## Returns true if the given name is mapped to some input
@@ -223,3 +201,28 @@ func has_combination_input(name: String) -> bool:
 ## Returns true if the given input is mapped to a conditional input
 func has_conditional_input(name: String) -> bool:
 	return _conditional_input_by_name.has(name)
+	
+
+func _err_input_already_exists(input: String, failed_to_add: String) -> bool:
+	if has_input_bind(input):
+		push_error("%sA input bind with name '%s' already exists" % [failed_to_add, input])
+		return true
+	elif has_combination_input(input):
+		push_error("%sA combination input with name '%s' already exists" % [failed_to_add, input])
+		return true
+	elif has_conditional_input(input):
+		push_error("%sA conditional input with name '%s' already exists" % [failed_to_add, input])
+		return true
+	return false
+
+
+func _remove_dependent_inputs(input: String) -> void:
+	for cid in _conditional_input_by_name:
+		var conditional_input: ConditionalInput = _conditional_input_by_name[cid]
+		if input == conditional_input.default_input or input in conditional_input.input_by_condition.values():
+			remove_conditional_input(cid)
+			
+	for cid in _combination_input_by_name:
+		var combination_input: CombinationInput = _combination_input_by_name[cid]
+		if input in combination_input.components:
+			remove_combination_input(cid)
