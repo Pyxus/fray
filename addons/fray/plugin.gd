@@ -32,6 +32,7 @@ func _ready() -> void:
 
 
 func _enter_tree() -> void:
+	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/mapping/fray_input_map.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)
 	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInputNS.SequenceAnalyzerTree, null)

@@ -6,20 +6,18 @@ extends Node
 ##		Before use inputs must first be added to the FrayInputMap
 
 const FrayInputEvent = preload("events/fray_input_event.gd")
+const FrayInputMap_ = preload("fray_input_map.gd")
 const FrayInputEventCombination = preload("events/fray_input_event_combination.gd")
 const FrayInputEventConditional = preload("events/fray_input_event_conditional.gd")
-const FrayInputMap = preload("mapping/fray_input_map.gd")
-const InputBind = preload("mapping/binds/input_bind.gd")
-const ActionInputBind = preload("mapping/binds/action_input_bind.gd")
-const JoystickAxisInputBind = preload("mapping/binds/joystick_axis_input_bind.gd")
-const CombinationInput = preload("mapping/combination_input.gd")
+const InputBind = preload("input_data/input_bind.gd")
+const ActionInputBind = preload("input_data/action_input_bind.gd")
+const JoystickAxisInputBind = preload("input_data/joystick_axis_input_bind.gd")
+const CombinationInput = preload("input_data/combination_input.gd")
 
 const DEVICE_ALL = -1
 const DEVICE_KBM_JOY1 = 0
 
 signal input_detected(input_event)
-
-var _input_map := FrayInputMap.new()
 
 ## Type: Dictionary<int, Dictionary<String, InputState>>
 var _device_bind_input_states: Dictionary
@@ -36,6 +34,8 @@ var _pressed_inputs: Dictionary
 ## Type: Dictionary<int, Dictionary<String, bool>>
 var _conditions: Dictionary 
 
+onready var _input_map: FrayInputMap_ = get_node("/root/FrayInputMap")
+
 
 func _ready() -> void:
 	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
@@ -50,7 +50,6 @@ func _process(delta: float) -> void:
 	var connected_devices := get_connected_devices()
 	
 	for device in connected_devices:
-	
 		for bind_id in _input_map.get_input_bind_names():
 			var bind := _input_map.get_input_bind(bind_id)
 			var input_state := _get_input_state(bind_id, device)
@@ -101,7 +100,7 @@ func _process(delta: float) -> void:
 
 ## Returns the input map used by the FrayInput singleton
 ## The FrayInputMap is used to register inputs to be detected
-func get_input_map() -> FrayInputMap:
+func get_input_map() -> FrayInputMap_:
 	return _input_map
 
 ## Returns true if an input is being pressed.

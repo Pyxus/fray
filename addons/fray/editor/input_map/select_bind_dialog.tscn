@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/fray/editor/input_map/select_bind_dialog.gd" type="Script" id=1]
+
+[node name="SelectBindDialog" type="WindowDialog"]
+margin_right = 155.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 155, 100 )
+window_title = "Select Bind"
+script = ExtResource( 1 )
+
+[node name="ItemList" type="ItemList" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+items = [ "Action", null, false, "Joystick Axis", null, false, "Joystick Button", null, false, "Keyboard", null, false, "Mouse Button", null, false ]
+allow_reselect = true
+auto_height = true
+
+[connection signal="item_selected" from="ItemList" to="." method="_on_ItemList_item_selected"]
