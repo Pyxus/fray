@@ -1,3 +1,4 @@
+tool
 extends "fray_input_data.gd"
 ## Input which changes what bind input it represents based on string conditions.
 ##

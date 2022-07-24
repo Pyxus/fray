@@ -11,7 +11,7 @@ const FrayInputEventCombination = preload("events/fray_input_event_combination.g
 const FrayInputEventConditional = preload("events/fray_input_event_conditional.gd")
 const InputBind = preload("input_data/input_bind.gd")
 const ActionInputBind = preload("input_data/action_input_bind.gd")
-const JoystickAxisInputBind = preload("input_data/joystick_axis_input_bind.gd")
+const JoyAxisInputBind = preload("input_data/joy_axis_input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
 
 const DEVICE_ALL = -1
@@ -46,7 +46,7 @@ func _ready() -> void:
 	_connect_device(DEVICE_KBM_JOY1)
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var connected_devices := get_connected_devices()
 	
 	for device in connected_devices:
@@ -173,7 +173,7 @@ func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	
 	if input_bind is ActionInputBind:
 		return Input.get_action_strength(input_bind.action)
-	elif input_bind is JoystickAxisInputBind:
+	elif input_bind is JoyAxisInputBind:
 		return Input.get_joy_axis(device, input_bind.axis)
 	
 	return float(is_pressed(input, device))

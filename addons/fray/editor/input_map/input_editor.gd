@@ -1,7 +1,6 @@
 extends Tree
 
 
-
 var _input_data: FrayInputNS.FrayInputData
 
 var _mouse_name_by_id := {
@@ -16,13 +15,14 @@ var _mouse_name_by_id := {
 	BUTTON_XBUTTON2 : "Extra Button 2",
 }
 
+var _fray_config := ConfigFile.new()
 var _root := create_item()
-var _editor_state: Dictionary
 var _axis_options_button := OptionButton.new()
 var _joy_button_options_button := OptionButton.new()
 var _mouse_button_options_button := OptionButton.new()
 var _keyboard_assign_button := Button.new()
 var _keyboard_assign_dialog := ConfirmationDialog.new()
+var _action_name_item: TreeItem
 
 
 func _ready() -> void:
@@ -61,41 +61,38 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	if _input_data != null:
-		if _input_data is FrayInputNS.InputBind:
-			if _input_data is FrayInputNS.ActionInputBind:
-				pass
-			elif _input_data is FrayInputNS.JoystickAxisInputBind:
-				pass
-			elif _input_data is FrayInputNS.JoystickButtonInputBind:
-				pass
-			elif _input_data is FrayInputNS.KeyboardInputBind:
-				pass
-			elif _input_data is FrayInputNS.MouseInputBind:
-				pass
+		if _input_data is FrayInputNS.ActionInputBind:
+			pass
+		elif _input_data is FrayInputNS.JoyAxisInputBind:
+			pass
+		elif _input_data is FrayInputNS.JoyButtonInputBind:
+			pass
+		elif _input_data is FrayInputNS.KeyboardInputBind:
+			pass
+		elif _input_data is FrayInputNS.MouseInputBind:
+			pass
 		elif _input_data is FrayInputNS.CombinationInput:
 			pass
 		elif _input_data is FrayInputNS.ConditionalInput:
 			pass
 	
 	
-func set__input_data(data: FrayInputNS.FrayInputData) -> void:
+func set_input_data(data: FrayInputNS.FrayInputData) -> void:
 	clear_tree()
 	_input_data = data
 	
 	if _input_data is FrayInputNS.ActionInputBind:
-		var action_name_item := create_item(_root)
-		action_name_item.set_text(0, "Action")
-		action_name_item.set_text(1, _input_data.action)
-		action_name_item.set_cell_mode(1, TreeItem.CELL_MODE_STRING)
-		action_name_item.set_editable(1, true)
-		_editor_state = {"action" : action_name_item} 
-		#NOTE: Either redesign for 4.0 or replace with lambda
-	elif _input_data is FrayInputNS.JoystickAxisInputBind:
+		_action_name_item = create_item(_root)
+		_action_name_item.set_text(0, "Action")
+		_action_name_item.set_text(1, _input_data.action)
+		_action_name_item.set_cell_mode(1, TreeItem.CELL_MODE_STRING)
+		_action_name_item.set_editable(1, true)
+	elif _input_data is FrayInputNS.JoyAxisInputBind:
 		var joy_axis_item := create_item(_root)
 		joy_axis_item.set_text(0, "Axis")
 		joy_axis_item.set_cell_mode(1, TreeItem.CELL_MODE_CUSTOM)
 		joy_axis_item.set_custom_draw(1, self, "_draw_axis_options")
-		_axis_options_button.show()
+		joy_axis_item.set_tooltip(0, "HELLO")
 		
 		for i in _axis_options_button.get_item_count():
 			var item_id := _axis_options_button.get_item_id(i)
@@ -115,12 +112,8 @@ func set__input_data(data: FrayInputNS.FrayInputData) -> void:
 		joy_deadzone_item.set_range_config(1, 0, 1, 0.01)
 		joy_deadzone_item.set_range(1, _input_data.deadzone)
 		joy_deadzone_item.set_editable(1, true)
-		
-		_editor_state = {
-			"joy_deadzone" : joy_deadzone_item,
-			"check_positive" : check_positive_item,
-		}
-	elif _input_data is FrayInputNS.JoystickButtonInputBind:
+
+	elif _input_data is FrayInputNS.JoyButtonInputBind:
 		var joy_button_item := create_item(_root)
 		joy_button_item.set_text(0, "Button")
 		joy_button_item.set_cell_mode(1, TreeItem.CELL_MODE_CUSTOM)

@@ -1,3 +1,4 @@
+tool
 extends "fray_input_data.gd"
 ## A virtual input composed of multiple input binds.
 ##

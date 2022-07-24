@@ -1,4 +1,4 @@
-#TODO: Rename to Joypad
+tool
 extends "input_bind.gd"
 ## Joystick input bind
 
