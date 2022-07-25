@@ -78,7 +78,7 @@ func add_combination_input(
 	name: String, 
 	components: PoolStringArray, 
 	press_held_components_on_release: bool = false, 
-	type: int = CombinationInput.Type.SYNC
+	mode: int = CombinationInput.Mode.SYNC
 	) -> void:
 	
 	if _err_input_already_exists(name, "Failed to add combination input. "):
@@ -106,7 +106,7 @@ func add_combination_input(
 
 	var combination_input := CombinationInput.new()
 	combination_input.components = components
-	combination_input.type = type
+	combination_input.mode = mode
 	combination_input.press_held_components_on_release = press_held_components_on_release
 
 	_combination_input_by_name[name] = combination_input
