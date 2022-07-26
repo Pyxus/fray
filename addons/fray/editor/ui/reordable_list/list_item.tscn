@@ -10,9 +10,10 @@ margin_bottom = 22.0
 script = ExtResource( 2 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
-margin_right = 487.0
+margin_right = 162.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
 
 [node name="Grabber" type="Button" parent="HBoxContainer"]
 margin_right = 28.0
@@ -27,14 +28,14 @@ margin_bottom = 18.0
 text = "0"
 
 [node name="ContentContainer" type="MarginContainer" parent="."]
-margin_left = 491.0
-margin_right = 978.0
+margin_left = 166.0
+margin_right = 977.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 
 [node name="RemovalButton" type="Button" parent="."]
-margin_left = 982.0
-margin_right = 1010.0
+margin_left = 981.0
+margin_right = 1009.0
 margin_bottom = 22.0
 icon = ExtResource( 1 )
 

@@ -20,6 +20,9 @@ var _added_types: Array
 var _added_project_settings: Array
 var _color_change_dialog: ShapeColorChangeDialog
 var _input_map_editor = InputMapEditorScn.instance()
+var _editor_interface := get_editor_interface()
+var _editor_settings := _editor_interface.get_editor_settings()
+var _global = load("res://addons/fray/editor/global.tres")
 
 #onready variables
 
@@ -33,7 +36,12 @@ func _ready() -> void:
 	pass
 
 
+func _process(delta: float) -> void:
+	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
+	
+	
 func _enter_tree() -> void:
+	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
 	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/fray_input_map.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)

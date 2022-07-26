@@ -1,3 +1,4 @@
+tool
 extends PanelContainer
 
 signal item_removed(item_content)

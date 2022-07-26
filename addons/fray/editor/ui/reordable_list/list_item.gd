@@ -1,3 +1,4 @@
+tool
 extends HBoxContainer
 
 signal remove_button_pressed()
