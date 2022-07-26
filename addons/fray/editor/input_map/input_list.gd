@@ -72,6 +72,7 @@ func _add_input(input_name: String, section: TreeItem) -> void:
 	new_item.set_metadata(0, input_name)
 	new_item.set_text(0, input_name)
 	new_item.add_button(0, ICON_REMOVE)
+	new_item.select(0)
 
 
 func _on_item_selected() -> void:

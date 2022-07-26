@@ -108,12 +108,12 @@ margin_right = 762.0
 margin_bottom = 572.0
 
 [node name="Control" type="Control" parent="."]
-visible = false
 margin_right = 1024.0
 margin_bottom = 600.0
 mouse_filter = 2
 
 [node name="SelectBindPopup" type="PopupMenu" parent="Control"]
+visible = true
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = -106.0
@@ -122,7 +122,7 @@ margin_bottom = 163.0
 rect_min_size = Vector2( 105, 130 )
 custom_constants/vseparation = 5
 custom_constants/hseparation = 0
-items = [ "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false ]
+items = [ "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false, "Select Bind", null, 0, false, false, -1, 0, null, "", true, "Action", null, 0, false, false, 0, 0, null, "", false, "Joy Axis", null, 0, false, false, 1, 0, null, "", false, "Joy Button", null, 0, false, false, 2, 0, null, "", false, "Key", null, 0, false, false, 3, 0, null, "", false, "Mouse Button", null, 0, false, false, 4, 0, null, "", false ]
 hide_on_checkable_item_selection = false
 
 [connection signal="text_changed" from="VBoxContainer/HBoxContainer/HBoxContainer/HBoxContainer/InputNameEdit" to="." method="_on_InputNameEdit_text_changed"]

@@ -8,6 +8,7 @@ extends EditorPlugin
 
 #enums
 
+const FrayConfig = preload("res://addons/fray/fray_config.gd")
 const ShapeColorChangeDialog = preload("editor/shape_color_change_dialog.gd")
 const ShapeColorChangeDialogScn = preload("editor/shape_color_change_dialog.tscn")
 const InputMapEditorScn = preload("editor/input_map/input_map_editor.tscn")
@@ -42,6 +43,7 @@ func _process(delta: float) -> void:
 	
 func _enter_tree() -> void:
 	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
+	_global.fray_config = FrayConfig.new()
 	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/fray_input_map.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)

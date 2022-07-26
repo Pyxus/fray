@@ -29,8 +29,6 @@ enum BindOption{
 
 var _editor_property_style: StyleBoxFlat = load("res://addons/fray/assets/styles/editor_property.tres")
 var _global = load("res://addons/fray/editor/global.tres")
-var _fray_config := FrayConfig.new()
-var _selected_input: String
 
 onready var _input_list: InputList = $"VBoxContainer/HSplitContainer/ScrollContainer/InputList"
 onready var _input_name_edit: LineEdit = $"VBoxContainer/HBoxContainer/HBoxContainer/HBoxContainer/InputNameEdit"
@@ -46,7 +44,8 @@ func _ready() -> void:
 	color.v -= 0.115
 	_editor_property_style.bg_color = color
 	_load_inputs()
-
+	
+	_select_bind_popup.clear()
 	_select_bind_popup.add_separator("Select Bind")
 
 	for option in BindOption:
@@ -61,24 +60,24 @@ func _notification(what):
 			_editor_property_style.bg_color = color
 			
 
-func change_inspector(new_inspector: InputInspector, input_data: FrayInputNS.FrayInputData) -> void:
+func change_inspector(new_inspector: InputInspector, input_name: String, input_data: FrayInputNS.FrayInputData) -> void:
 	if is_instance_valid(_current_inspector):
 		_current_inspector.queue_free()
 
 	_current_inspector = new_inspector
 	_current_inspector.connect("save_request", self, "_on_InputInspector_save_request")
 	_inspector_container.add_child(_current_inspector)
-	_current_inspector.initialize(input_data)
+	_current_inspector.initialize(input_name, input_data)
 
 
 func save() -> void:
 	if  is_instance_valid(_current_inspector):
-		_fray_config.save_input(_selected_input, _current_inspector.get_input_data())
+		_global.fray_config.save_input(_current_inspector.get_input_name(), _current_inspector.get_input_data())
 
 
 func _load_inputs() -> void:
-	for input_name in _fray_config.get_input_names():
-		var input_data := _fray_config.get_input(input_name)
+	for input_name in _global.fray_config.get_input_names():
+		var input_data = _global.fray_config.get_input(input_name)
 
 		if input_data is FrayInputNS.InputBind:
 			_input_list.add_bind(input_name)
@@ -89,30 +88,32 @@ func _load_inputs() -> void:
 
 
 func _add_input(input_name: String, type: int) -> void:
-	if _fray_config.has_input(input_name):
+	if _global.fray_config.has_input(input_name):
 		return
 
 	match type:
 		InputType.BIND:
-			_select_bind_popup.popup()
+			var pos := _add_input_button.rect_global_position
+			pos.y += _add_input_button.rect_size.y
+			_select_bind_popup.popup(Rect2(pos, _select_bind_popup.get_combined_minimum_size()))
 		InputType.COMBINATION:
 			var input_data := FrayInputNS.CombinationInput.new()
-			_fray_config.save_input(input_name, input_data)
+			_global.fray_config.save_input(input_name, input_data)
 			_input_list.add_combination(input_name)
-			change_inspector(CombinationInspectorScn.instance(), input_data)
+			change_inspector(CombinationInspectorScn.instance(), input_name, input_data)
 			_input_name_edit.clear()
 		InputType.CONDITIONAL:
 			var input_data := FrayInputNS.ConditionalInput.new()
-			_fray_config.save_input(input_name, input_data)
+			_global.fray_config.save_input(input_name, input_data)
 			_input_list.add_conditional(input_name)
-			change_inspector(ConditionaInspectorScn.instance(), input_data)
+			change_inspector(ConditionaInspectorScn.instance(), input_name, input_data)
 			_input_name_edit.clear()
 
 
 func _on_InputNameEdit_text_changed(new_text: String):
 	if new_text.empty():
 		_add_input_button.disabled = true
-	elif _fray_config.has_input(new_text):
+	elif _global.fray_config.has_input(new_text):
 		_add_input_button.disabled = true
 		_error_label.text = "Input '%s' already exists." % new_text
 		_error_label.show()
@@ -150,31 +151,32 @@ func _on_SelectBindPopup_id_pressed(id: int):
 
 	_input_list.add_bind(input_name)
 	_input_name_edit.clear()
-	_fray_config.save_input(input_name, input_data)
+	_global.fray_config.save_input(input_name, input_data)
 
 func _on_InputList_input_selected(input_name: String):
-	var input_data := _fray_config.get_input(input_name)
-	_selected_input = input_name
+	var input_data = _global.fray_config.get_input(input_name)
 
 	if input_data is FrayInputNS.ActionInputBind:
-		change_inspector(ActionInspectorScn.instance(), input_data)
+		change_inspector(ActionInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.JoyAxisInputBind:
-		change_inspector(JoyAxisInspectorScn.instance(), input_data)
+		change_inspector(JoyAxisInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.JoyButtonInputBind:
-		change_inspector(JoyButtonInspectorScn.instance(), input_data)
+		change_inspector(JoyButtonInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.KeyInputBind:
-		change_inspector(KeyInspectorScn.instance(), input_data)
+		change_inspector(KeyInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.MouseInputBind:
-		change_inspector(MouseButtonInspectorScn.instance(), input_data)
+		change_inspector(MouseButtonInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.CombinationInput:
-		change_inspector(CombinationInspectorScn.instance(), input_data)
+		change_inspector(CombinationInspectorScn.instance(), input_name, input_data)
 	elif input_data is FrayInputNS.ConditionalInput:
-		change_inspector(ConditionaInspectorScn.instance(), input_data)
+		change_inspector(ConditionaInspectorScn.instance(), input_name, input_data)
 
 
 func _on_InputList_delete_input_request(input_name: String):
 	_input_list.remove_input(input_name)
-	_fray_config.delete_input(input_name)
+	_global.fray_config.delete_input(input_name)
+	if _current_inspector.get_input_name() == input_name:
+		_current_inspector.queue_free()
 
 
 func _on_InputInspector_save_request() -> void:

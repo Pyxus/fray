@@ -3,11 +3,31 @@ extends "input_inspector.gd"
 
 
 const ReordableList = preload("res://addons/fray/editor/ui/reordable_list/reordable_list.gd")
+const WarningLineEdit = preload("res://addons/fray/editor/ui/warning_line_edit/warning_line_edit.gd")
+const WarningLineEditorScn = preload("res://addons/fray/editor/ui/warning_line_edit/warning_line_edit.tscn")
+const FrayConfig = preload("res://addons/fray/fray_config.gd")
+
+var _global = load("res://addons/fray/editor/global.tres")
 
 onready var _mode_selector: OptionButton = $"ScrollContainer/PropertyContainer/ModeProperty/ModeSelector"
 onready var _press_hcor_check_box: CheckBox = $"ScrollContainer/PropertyContainer/PressHCORProperty/PressHCORCheckBox"
 onready var _component_list: ReordableList = $"ScrollContainer/PropertyContainer/ComponentsProperty/PanelContainer/VBoxContainer/ComponentList"
 onready var _add_component_button: Button = $"ScrollContainer/PropertyContainer/ComponentsProperty/PanelContainer/VBoxContainer/AddComponentButton"
+
+
+func _process(delta: float) -> void:
+	var inputs = _global.fray_config.get_input_names()
+	for component_edit in _component_list.get_contents():
+		var component: String = component_edit.get_text()
+		if not component in inputs:
+			component_edit.set_warning("Fray input named '%s' does not exist." % component)
+		elif component == _input_name:
+			component_edit.set_warning("A combination can not include it self as a component")
+		elif _global.fray_config.get_input(component) is FrayInputNS.ConditionalInput:
+			component_edit.set_warning("A combination can not include conditional inputs")
+		else:
+			component_edit.set_warning("")
+	
 
 func _setup() -> void:
 	var Mode := FrayInputNS.CombinationInput.Mode
@@ -31,8 +51,8 @@ func _setup() -> void:
 
 func _save_components() -> void:
 	var components := []
-	for line_edit in _component_list.get_contents():
-		var component: String = line_edit.text
+	for component_edit in _component_list.get_contents():
+		var component: String = component_edit.get_text()
 		if not component.empty():
 			components.append(component)
 	_input_data.components = components
@@ -40,10 +60,10 @@ func _save_components() -> void:
 
 
 func _add_component_edit(input: String = "") -> void:
-	var line_edit := LineEdit.new()
-	line_edit.connect("text_changed", self, "_on_ComponentEdit_text_changed")
-	_component_list.add_item(line_edit)
-	line_edit.text = input
+	var component_edit: WarningLineEdit = WarningLineEditorScn.instance()
+	component_edit.connect("text_changed", self, "_on_ComponentEdit_text_changed")
+	_component_list.add_item(component_edit)
+	component_edit.set_text(input)
 	_component_list.show()
 
 

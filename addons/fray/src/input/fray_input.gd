@@ -39,7 +39,7 @@ onready var _input_map: FrayInputMap_ = get_node("/root/FrayInputMap")
 
 func _ready() -> void:
 	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
-	
+
 	for device in Input.get_connected_joypads():
 		_connect_device(device)
 	

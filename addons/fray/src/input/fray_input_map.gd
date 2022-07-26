@@ -1,6 +1,7 @@
 extends Node
 ## Contains a mapping of ids and and input binds
 
+const FrayConfig = preload("res://addons/fray/fray_config.gd")
 const FrayInputData = preload("input_data/fray_input_data.gd")
 const InputBind = preload("input_data/input_bind.gd")
 const ActionInputBind = preload("input_data/action_input_bind.gd")
@@ -19,6 +20,41 @@ var _combination_input_by_name: Dictionary
 
 ## Type: Dictionary<String, ConditionalInput>
 var _conditional_input_by_name: Dictionary
+
+
+func _ready() -> void:
+	var fray_config := FrayConfig.new()
+	
+	var binds := {}
+	var combinations := {}
+	var conditionals := {}
+	for input_name in fray_config.get_input_names():
+		var input_data := fray_config.get_input(input_name)
+		
+		if input_data is InputBind:
+			binds[input_name] = input_data
+		elif input_data is CombinationInput:
+			combinations[input_name] = input_data
+		elif input_data is ConditionalInput:
+			conditionals[input_name] = input_data
+	
+	for bind_name in binds:
+		bind_input(bind_name, binds[bind_name])
+	
+	for combination_name in combinations:
+		var combination: CombinationInput = combinations[combination_name]
+		add_combination_input(
+			combination_name, 
+			combination.components,
+			combination.press_held_components_on_release,
+			combination.mode)
+	
+	for conditional_name in conditionals:
+		var conditional: ConditionalInput = conditionals[conditional_name]
+		add_conditional_input(
+			conditional_name, 
+			conditional.default_input, 
+			conditional.input_by_condition)
 
 ## Binds input to set with given name.
 func bind_input(name: String, input_bind: InputBind) -> void:
