@@ -36,7 +36,7 @@ func add_item(content: Control) -> void:
 	var new_item: ListItem = ListItemScn.instance()
 	_item_container.add_child(new_item)
 	new_item.content = content
-	_update_order()
+	new_item.set_order(new_item.get_position_in_parent())
 	new_item.connect("remove_button_pressed", self, "_on_ListItem_remove_button_pressed", [new_item])
 	new_item.connect("grabber_grabbed", self, "_on_ListItem_grabber_grabbed", [new_item])
 

@@ -123,7 +123,8 @@ func _on_InputNameEdit_text_changed(new_text: String):
 
 
 func _on_InputNameEdit_text_entered(new_text: String):
-	_add_input(new_text, _input_type_selector.selected)
+	if not new_text.empty() and not _global.fray_config.has_input(new_text):
+		_add_input(new_text, _input_type_selector.selected)
 
 
 func _on_AddInputButton_pressed():
@@ -149,9 +150,9 @@ func _on_SelectBindPopup_id_pressed(id: int):
 			push_error("Unexpected id '%d' selected" % id)
 			return
 
+	_global.fray_config.save_input(input_name, input_data)
 	_input_list.add_bind(input_name)
 	_input_name_edit.clear()
-	_global.fray_config.save_input(input_name, input_data)
 
 func _on_InputList_input_selected(input_name: String):
 	var input_data = _global.fray_config.get_input(input_name)
@@ -175,7 +176,7 @@ func _on_InputList_input_selected(input_name: String):
 func _on_InputList_delete_input_request(input_name: String):
 	_input_list.remove_input(input_name)
 	_global.fray_config.delete_input(input_name)
-	if _current_inspector.get_input_name() == input_name:
+	if is_instance_valid(_current_inspector) and _current_inspector.get_input_name() == input_name:
 		_current_inspector.queue_free()
 
 

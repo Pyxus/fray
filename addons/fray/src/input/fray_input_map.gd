@@ -1,7 +1,6 @@
 extends Node
 ## Contains a mapping of ids and and input binds
 
-const FrayConfig = preload("res://addons/fray/fray_config.gd")
 const FrayInputData = preload("input_data/fray_input_data.gd")
 const InputBind = preload("input_data/input_bind.gd")
 const ActionInputBind = preload("input_data/action_input_bind.gd")
@@ -23,13 +22,13 @@ var _conditional_input_by_name: Dictionary
 
 
 func _ready() -> void:
-	var fray_config := FrayConfig.new()
+	var fray_config = load("res://addons/fray/fray_config.gd").new()
 	
 	var binds := {}
 	var combinations := {}
 	var conditionals := {}
 	for input_name in fray_config.get_input_names():
-		var input_data := fray_config.get_input(input_name)
+		var input_data = fray_config.get_input(input_name)
 		
 		if input_data is InputBind:
 			binds[input_name] = input_data
@@ -48,7 +47,7 @@ func _ready() -> void:
 			combination.components,
 			combination.press_held_components_on_release,
 			combination.mode)
-	
+
 	for conditional_name in conditionals:
 		var conditional: ConditionalInput = conditionals[conditional_name]
 		add_conditional_input(
@@ -160,7 +159,7 @@ func add_conditional_input(name: String, default_input: String = "", input_by_co
 		return
 
 	for input in input_by_condition.values():
-		if not has_input(name):
+		if not has_input(input):
 			push_warning("Input dictionary contains unknown input '%s'" % input)
 		elif input == name:
 			push_error("Failed to add conditional input. Conditional input can not include it self in dictionary.")
