@@ -8,8 +8,10 @@ extends EditorPlugin
 
 #enums
 
+const FrayConfig = preload("res://addons/fray/fray_config.gd")
 const ShapeColorChangeDialog = preload("editor/shape_color_change_dialog.gd")
 const ShapeColorChangeDialogScn = preload("editor/shape_color_change_dialog.tscn")
+const InputMapEditorScn = preload("editor/input_map/input_map_editor.tscn")
 
 #exported variables
 
@@ -18,6 +20,10 @@ const ShapeColorChangeDialogScn = preload("editor/shape_color_change_dialog.tscn
 var _added_types: Array
 var _added_project_settings: Array
 var _color_change_dialog: ShapeColorChangeDialog
+var _input_map_editor = InputMapEditorScn.instance()
+var _editor_interface := get_editor_interface()
+var _editor_settings := _editor_interface.get_editor_settings()
+var _global = load("res://addons/fray/editor/global.tres")
 
 #onready variables
 
@@ -31,8 +37,14 @@ func _ready() -> void:
 	pass
 
 
+func _process(delta: float) -> void:
+	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
+	
+	
 func _enter_tree() -> void:
-	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/mapping/fray_input_map.gd")
+	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
+	_global.fray_config = FrayConfig.new()
+	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/fray_input_map.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)
 	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInputNS.SequenceAnalyzerTree, null)
@@ -43,7 +55,7 @@ func _enter_tree() -> void:
 	add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
 	add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
-	
+	add_control_to_container(EditorPlugin.CONTAINER_PROJECT_SETTING_TAB_RIGHT, _input_map_editor)
 	"""
 	if ProjectSettings.get("fray_settings/show_color_change_dialog"):
 		_color_change_dialog = ShapeColorChangeDialogScn.instance()
@@ -55,8 +67,15 @@ func _enter_tree() -> void:
 
 func _exit_tree():
 	remove_autoload_singleton("FrayInput")
+	remove_autoload_singleton("FrayInputMap")
+	remove_control_from_container(EditorPlugin.CONTAINER_PROJECT_SETTING_TAB_RIGHT, _input_map_editor)
+	_input_map_editor.queue_free()
 	for type in _added_types:
 		remove_custom_type(type)
+
+
+func save_external_data():
+	pass
 
 
 func enable_plugin() -> void:

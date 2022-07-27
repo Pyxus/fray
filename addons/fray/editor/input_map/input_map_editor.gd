@@ -1,4 +1,17 @@
-extends Control
+tool
+extends MarginContainer
+
+const FrayConfig = preload("res://addons/fray/fray_config.gd")
+const InputInspector = preload("input_inspectors/input_inspector.gd")
+const InputList = preload("input_list.gd")
+
+const ActionInspectorScn = preload("input_inspectors/action_inspector.tscn")
+const JoyAxisInspectorScn = preload("input_inspectors/joy_axis_inspector.tscn")
+const JoyButtonInspectorScn = preload("input_inspectors/joy_button_inspector.tscn")
+const MouseButtonInspectorScn = preload("input_inspectors/mouse_button_inspector.tscn")
+const KeyInspectorScn = preload("input_inspectors/key_inspector.tscn")
+const CombinationInspectorScn = preload("input_inspectors/combination_inspector.tscn")
+const ConditionaInspectorScn = preload("input_inspectors/conditional_inspector.tscn")
 
 enum InputType{
 	BIND,
@@ -8,51 +21,99 @@ enum InputType{
 
 enum BindOption{
 	ACTION,
-	JOYSTICK_AXIS,
-	JOYSTICK_BUTTON,
-	KEYBOARD,
+	JOY_AXIS,
+	JOY_BUTTON,
+	KEY,
 	MOUSE_BUTTON,
 }
 
-const SelectBindDialog = preload("select_bind_dialog.gd")
+var _editor_property_style: StyleBoxFlat = load("res://addons/fray/assets/styles/editor_property.tres")
+var _global = load("res://addons/fray/editor/global.tres")
 
-var _input_bind_item: TreeItem
-var _combination_input_item: TreeItem
-var _conditiona_input_item: TreeItem
-
-onready var _input_map: FrayInputNS.FrayInputMap = get_node("/root/FrayInputMap")
-onready var _input_list: Tree = $HBoxContainer/HSplitContainer/ScrollContainer/InputList
-onready var _error_label: Label = $HBoxContainer/HBoxContainer/ErrorLabel
-onready var _input_name_edit: LineEdit = $HBoxContainer/HBoxContainer/HBoxContainer/InputNameEdit
-onready var _input_type_selection: OptionButton = $HBoxContainer/HBoxContainer/HBoxContainer2/InputTypeSelection
-onready var _add_input_button: Button = $HBoxContainer/HBoxContainer/AddInputButton
-onready var _select_bind_dialog: WindowDialog = $Node/SelectBindDialog
-onready var _input_editor: Tree = $HBoxContainer/HSplitContainer/PanelContainer/InputEditor
+onready var _input_list: InputList = $"VBoxContainer/HSplitContainer/ScrollContainer/InputList"
+onready var _input_name_edit: LineEdit = $"VBoxContainer/HBoxContainer/HBoxContainer/HBoxContainer/InputNameEdit"
+onready var _add_input_button: Button = $"VBoxContainer/HBoxContainer/HBoxContainer/AddInputButton"
+onready var _error_label: Label = $"VBoxContainer/HBoxContainer/HBoxContainer/ErrorLabel"
+onready var _input_type_selector: OptionButton = $"VBoxContainer/HBoxContainer/HBoxContainer/HBoxContainer2/InputTypeSelector"
+onready var _select_bind_popup: PopupMenu = $"Control/SelectBindPopup"
+onready var _inspector_container: Container = $"VBoxContainer/HSplitContainer/MarginContainer/InspectorContainer"
+onready var _current_inspector: InputInspector
 
 func _ready() -> void:
-	_input_list.set_column_titles_visible(true)
-	_input_list.set_column_title(0, "Inputs")
+	var color: Color = _global.base_color
+	color.v -= 0.115
+	_editor_property_style.bg_color = color
+	_load_inputs()
 	
-	var root = _input_list.create_item()
-	_input_bind_item = _input_list.create_item(root)
-	_input_bind_item.set_text(0, "Binds")
-	_input_bind_item.set_selectable(0, false)
+	_select_bind_popup.clear()
+	_select_bind_popup.add_separator("Select Bind")
 
-	_combination_input_item = _input_list.create_item(root)
-	_combination_input_item.set_text(0, "Combinations")
-	_combination_input_item.set_selectable(0, false)
-	
-	_conditiona_input_item = _input_list.create_item(root)
-	_conditiona_input_item.set_text(0, "Condtionals")
-	_conditiona_input_item.set_selectable(0, false)
-
-	#child1.add_button(0, load("res://addons/dialogue_manager/assets/icons/icon_dark_1.5.svg"))
+	for option in BindOption:
+		_select_bind_popup.add_item(option.capitalize(), BindOption[option])
 
 
-func _on_InputNameEdit_text_changed(new_text: String) -> void:
+func _notification(what):
+	match what:
+		NOTIFICATION_THEME_CHANGED:
+			var color: Color = _global.base_color
+			color.v -= 0.115
+			_editor_property_style.bg_color = color
+			
+
+func change_inspector(new_inspector: InputInspector, input_name: String, input_data: FrayInputNS.FrayInputData) -> void:
+	if is_instance_valid(_current_inspector):
+		_current_inspector.queue_free()
+
+	_current_inspector = new_inspector
+	_current_inspector.connect("save_request", self, "_on_InputInspector_save_request")
+	_inspector_container.add_child(_current_inspector)
+	_current_inspector.initialize(input_name, input_data)
+
+
+func save() -> void:
+	if  is_instance_valid(_current_inspector):
+		_global.fray_config.save_input(_current_inspector.get_input_name(), _current_inspector.get_input_data())
+
+
+func _load_inputs() -> void:
+	for input_name in _global.fray_config.get_input_names():
+		var input_data = _global.fray_config.get_input(input_name)
+
+		if input_data is FrayInputNS.InputBind:
+			_input_list.add_bind(input_name)
+		elif input_data is FrayInputNS.CombinationInput:
+			_input_list.add_combination(input_name)
+		elif input_data is FrayInputNS.ConditionalInput:
+			_input_list.add_conditional(input_name)
+
+
+func _add_input(input_name: String, type: int) -> void:
+	if _global.fray_config.has_input(input_name):
+		return
+
+	match type:
+		InputType.BIND:
+			var pos := _add_input_button.rect_global_position
+			pos.y += _add_input_button.rect_size.y
+			_select_bind_popup.popup(Rect2(pos, _select_bind_popup.get_combined_minimum_size()))
+		InputType.COMBINATION:
+			var input_data := FrayInputNS.CombinationInput.new()
+			_global.fray_config.save_input(input_name, input_data)
+			_input_list.add_combination(input_name)
+			change_inspector(CombinationInspectorScn.instance(), input_name, input_data)
+			_input_name_edit.clear()
+		InputType.CONDITIONAL:
+			var input_data := FrayInputNS.ConditionalInput.new()
+			_global.fray_config.save_input(input_name, input_data)
+			_input_list.add_conditional(input_name)
+			change_inspector(ConditionaInspectorScn.instance(), input_name, input_data)
+			_input_name_edit.clear()
+
+
+func _on_InputNameEdit_text_changed(new_text: String):
 	if new_text.empty():
 		_add_input_button.disabled = true
-	elif _input_map.has_input(new_text):
+	elif _global.fray_config.has_input(new_text):
 		_add_input_button.disabled = true
 		_error_label.text = "Input '%s' already exists." % new_text
 		_error_label.show()
@@ -61,38 +122,63 @@ func _on_InputNameEdit_text_changed(new_text: String) -> void:
 		_error_label.hide()
 
 
-func _on_AddInputButton_pressed() -> void:
-	match _input_type_selection.selected:
-		InputType.BIND:
-			_select_bind_dialog.popup_centered_minsize()
-		InputType.COMBINATION:
-			_input_name_edit.clear()
-		InputType.CONDITIONAL:
-			_input_name_edit.clear()
+func _on_InputNameEdit_text_entered(new_text: String):
+	if not new_text.empty() and not _global.fray_config.has_input(new_text):
+		_add_input(new_text, _input_type_selector.selected)
 
 
-func _on_SelectBindDialog_bind_selected(id: int) -> void:
-	var new_item := _input_list.create_item(_input_bind_item)
+func _on_AddInputButton_pressed():
+	_add_input(_input_name_edit.text, _input_type_selector.selected)
+
+
+func _on_SelectBindPopup_id_pressed(id: int):
 	var input_name := _input_name_edit.text
+	var input_data: FrayInputNS.FrayInputData
+
 	match id:
 		BindOption.ACTION:
-			_input_map.add_action_input(input_name)
-		BindOption.JOYSTICK_AXIS:
-			_input_map.add_joystick_axis_input(input_name)
-		BindOption.JOYSTICK_BUTTON:
-			_input_map.add_joystick_button_input(input_name)
-		BindOption.KEYBOARD:
-			_input_map.add_keyboard_input(input_name)
+			input_data = FrayInputNS.ActionInputBind.new()
+		BindOption.JOY_AXIS:
+			input_data = FrayInputNS.JoyAxisInputBind.new()
+		BindOption.JOY_BUTTON:
+			input_data = FrayInputNS.JoyButtonInputBind.new()
+		BindOption.KEY:
+			input_data = FrayInputNS.KeyInputBind.new()
 		BindOption.MOUSE_BUTTON:
-			_input_map.add_mouse_button_input(input_name)
-	var TEST = _input_map.get_input_bind(input_name)
-	new_item.set_metadata(0, input_name)
-	new_item.set_text(0, input_name)
+			input_data = FrayInputNS.MouseInputBind.new()
+		_:
+			push_error("Unexpected id '%d' selected" % id)
+			return
+
+	_global.fray_config.save_input(input_name, input_data)
+	_input_list.add_bind(input_name)
 	_input_name_edit.clear()
 
+func _on_InputList_input_selected(input_name: String):
+	var input_data = _global.fray_config.get_input(input_name)
 
-func _on_InputList_item_selected() -> void:
-	var selected_item := _input_list.get_selected()
-	var input_name = selected_item.get_metadata(0)
-	
-	_input_editor.set_input_data(_input_map.get_input(input_name))
+	if input_data is FrayInputNS.ActionInputBind:
+		change_inspector(ActionInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.JoyAxisInputBind:
+		change_inspector(JoyAxisInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.JoyButtonInputBind:
+		change_inspector(JoyButtonInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.KeyInputBind:
+		change_inspector(KeyInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.MouseInputBind:
+		change_inspector(MouseButtonInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.CombinationInput:
+		change_inspector(CombinationInspectorScn.instance(), input_name, input_data)
+	elif input_data is FrayInputNS.ConditionalInput:
+		change_inspector(ConditionaInspectorScn.instance(), input_name, input_data)
+
+
+func _on_InputList_delete_input_request(input_name: String):
+	_input_list.remove_input(input_name)
+	_global.fray_config.delete_input(input_name)
+	if is_instance_valid(_current_inspector) and _current_inspector.get_input_name() == input_name:
+		_current_inspector.queue_free()
+
+
+func _on_InputInspector_save_request() -> void:
+	save()

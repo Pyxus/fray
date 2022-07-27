@@ -1,3 +1,4 @@
+tool
 extends "input_bind.gd"
 ## Mouse input bind
 

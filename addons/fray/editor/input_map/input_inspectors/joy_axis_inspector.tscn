@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/fray/editor/input_map/input_inspectors/input_inspector.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/fray/editor/input_map/input_inspectors/joy_axis_inspector.gd" type="Script" id=2]
+[ext_resource path="res://addons/fray/assets/styles/editor_property.tres" type="StyleBox" id=3]
+
+[sub_resource type="Theme" id=1]
+LineEdit/styles/normal = ExtResource( 3 )
+
+[node name="JoyAxisInspector" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+
+[node name="AxisProperty" type="HBoxContainer" parent="ScrollContainer/PropertyContainer" index="0"]
+margin_right = 1024.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="ScrollContainer/PropertyContainer/AxisProperty" index="0"]
+margin_top = 5.0
+margin_right = 510.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Axis"
+
+[node name="AxisSelector" type="OptionButton" parent="ScrollContainer/PropertyContainer/AxisProperty" index="1"]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+custom_styles/normal = ExtResource( 3 )
+
+[node name="CheckPositiveProperty" type="HBoxContainer" parent="ScrollContainer/PropertyContainer" index="1"]
+margin_top = 28.0
+margin_right = 1024.0
+margin_bottom = 54.0
+
+[node name="Label" type="Label" parent="ScrollContainer/PropertyContainer/CheckPositiveProperty" index="0"]
+margin_top = 6.0
+margin_right = 510.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Check Positive"
+
+[node name="PositiveCheckBox" type="CheckBox" parent="ScrollContainer/PropertyContainer/CheckPositiveProperty" index="1"]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+custom_styles/pressed = ExtResource( 3 )
+custom_styles/focus = ExtResource( 3 )
+custom_styles/normal = ExtResource( 3 )
+
+[node name="DeadzoneProperty" type="HBoxContainer" parent="ScrollContainer/PropertyContainer" index="2"]
+margin_top = 58.0
+margin_right = 1024.0
+margin_bottom = 82.0
+
+[node name="Label" type="Label" parent="ScrollContainer/PropertyContainer/DeadzoneProperty" index="0"]
+margin_top = 5.0
+margin_right = 510.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "DeadZone"
+
+[node name="DeadzoneSpinBox" type="SpinBox" parent="ScrollContainer/PropertyContainer/DeadzoneProperty" index="1"]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+theme = SubResource( 1 )
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[connection signal="pressed" from="ScrollContainer/PropertyContainer/CheckPositiveProperty/PositiveCheckBox" to="." method="_on_PositiveCheckBox_pressed"]
+[connection signal="value_changed" from="ScrollContainer/PropertyContainer/DeadzoneProperty/DeadzoneSpinBox" to="." method="_on_DeadzoneSpinBox_value_changed"]

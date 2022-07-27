@@ -1,0 +1,50 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/fray/editor/input_map/input_inspectors/input_inspector.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/fray/editor/input_map/input_inspectors/action_inspector.gd" type="Script" id=2]
+[ext_resource path="res://addons/fray/assets/styles/editor_property.tres" type="StyleBox" id=3]
+[ext_resource path="res://addons/fray/assets/icons/warning.svg" type="Texture" id=4]
+
+[node name="ActionInspector" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+
+[node name="ActionProperty" type="HBoxContainer" parent="ScrollContainer/PropertyContainer" index="0"]
+margin_right = 1024.0
+margin_bottom = 24.0
+custom_constants/separation = 0
+
+[node name="Label" type="Label" parent="ScrollContainer/PropertyContainer/ActionProperty" index="0"]
+margin_top = 5.0
+margin_right = 504.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Action"
+
+[node name="ActionNameEdit" type="LineEdit" parent="ScrollContainer/PropertyContainer/ActionProperty" index="1"]
+margin_left = 504.0
+margin_right = 1008.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+custom_styles/normal = ExtResource( 3 )
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/PropertyContainer/ActionProperty" index="2"]
+margin_left = 1008.0
+margin_right = 1024.0
+margin_bottom = 24.0
+
+[node name="Panel" type="Panel" parent="ScrollContainer/PropertyContainer/ActionProperty/MarginContainer" index="0"]
+margin_right = 16.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 16, 0 )
+mouse_filter = 2
+custom_styles/panel = ExtResource( 3 )
+
+[node name="Warning" type="TextureRect" parent="ScrollContainer/PropertyContainer/ActionProperty/MarginContainer" index="1"]
+margin_right = 16.0
+margin_bottom = 24.0
+hint_tooltip = "Warning:
+An action with the name '' does not exist"
+texture = ExtResource( 4 )
+stretch_mode = 4
+
+[connection signal="text_changed" from="ScrollContainer/PropertyContainer/ActionProperty/ActionNameEdit" to="." method="_on_ActionNameEdit_text_changed"]

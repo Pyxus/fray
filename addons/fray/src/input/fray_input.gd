@@ -11,7 +11,7 @@ const FrayInputEventCombination = preload("events/fray_input_event_combination.g
 const FrayInputEventConditional = preload("events/fray_input_event_conditional.gd")
 const InputBind = preload("input_data/input_bind.gd")
 const ActionInputBind = preload("input_data/action_input_bind.gd")
-const JoystickAxisInputBind = preload("input_data/joystick_axis_input_bind.gd")
+const JoyAxisInputBind = preload("input_data/joy_axis_input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
 
 const DEVICE_ALL = -1
@@ -39,14 +39,14 @@ onready var _input_map: FrayInputMap_ = get_node("/root/FrayInputMap")
 
 func _ready() -> void:
 	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
-	
+
 	for device in Input.get_connected_joypads():
 		_connect_device(device)
 	
 	_connect_device(DEVICE_KBM_JOY1)
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var connected_devices := get_connected_devices()
 	
 	for device in connected_devices:
@@ -173,7 +173,7 @@ func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	
 	if input_bind is ActionInputBind:
 		return Input.get_action_strength(input_bind.action)
-	elif input_bind is JoystickAxisInputBind:
+	elif input_bind is JoyAxisInputBind:
 		return Input.get_joy_axis(device, input_bind.axis)
 	
 	return float(is_pressed(input, device))
@@ -288,23 +288,23 @@ func _is_combination_in_order(device: int, components: PoolStringArray, toleranc
 	
 
 func _is_combination_pressed(combination: CombinationInput, device: int) -> bool:
-	match combination.type:
-		CombinationInput.Type.SYNC:
+	match combination.mode:
+		CombinationInput.Mode.SYNC:
 			return _is_combination_quick_enough(device, combination.components)
-		CombinationInput.Type.ASYNC:
+		CombinationInput.Mode.ASYNC:
 			for component in combination.components:
 				if not is_pressed(component):
 					return false
 			return true
-		CombinationInput.Type.ORDERED:
+		CombinationInput.Mode.ORDERED:
 			return _is_combination_quick_enough(device, combination.components)
-		CombinationInput.Type.GROUP:
+		CombinationInput.Mode.GROUPED:
 			for component in combination.components:
 				if is_pressed(component):
 					return true
 			return false
-		var type:
-			push_error("Failed to check combination input. Unknown combination type '%d'" % type)
+		var mode:
+			push_error("Failed to check combination input. Unknown combination mode '%d'" % mode)
 
 	return false
 

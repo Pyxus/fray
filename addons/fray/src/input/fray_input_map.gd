@@ -4,9 +4,9 @@ extends Node
 const FrayInputData = preload("input_data/fray_input_data.gd")
 const InputBind = preload("input_data/input_bind.gd")
 const ActionInputBind = preload("input_data/action_input_bind.gd")
-const JoystickButtonInputBind = preload("input_data/joystick_button_input_bind.gd")
-const JoystickAxisInputBind = preload("input_data/joystick_axis_input_bind.gd")
-const KeyboardInputBind = preload("input_data/keyboard_input_bind.gd")
+const JoyButtonInputBind = preload("input_data/joy_button_input_bind.gd")
+const JoyAxisInputBind = preload("input_data/joy_axis_input_bind.gd")
+const KeyInputBind = preload("input_data/key_input_bind.gd")
 const MouseButtonInputBind = preload("input_data/mouse_button_input_bind.gd")
 const CombinationInput = preload("input_data/combination_input.gd")
 const ConditionalInput = preload("input_data/conditional_input.gd")
@@ -20,43 +20,82 @@ var _combination_input_by_name: Dictionary
 ## Type: Dictionary<String, ConditionalInput>
 var _conditional_input_by_name: Dictionary
 
-## Adds input to set with given name.
-func add_input(name: String, input_bind: InputBind) -> void:
+
+func _ready() -> void:
+	var fray_config = load("res://addons/fray/fray_config.gd").new()
+	
+	var binds := {}
+	var combinations := {}
+	var conditionals := {}
+	for input_name in fray_config.get_input_names():
+		var input_data = fray_config.get_input(input_name)
+		
+		if input_data is InputBind:
+			binds[input_name] = input_data
+		elif input_data is CombinationInput:
+			combinations[input_name] = input_data
+		elif input_data is ConditionalInput:
+			conditionals[input_name] = input_data
+	
+	for bind_name in binds:
+		bind_input(bind_name, binds[bind_name])
+	
+	for combination_name in combinations:
+		var combination: CombinationInput = combinations[combination_name]
+		add_combination_input(
+			combination_name, 
+			combination.components,
+			combination.press_held_components_on_release,
+			combination.mode)
+
+	for conditional_name in conditionals:
+		var conditional: ConditionalInput = conditionals[conditional_name]
+		add_conditional_input(
+			conditional_name, 
+			conditional.default_input, 
+			conditional.input_by_condition)
+
+## Binds input to set with given name.
+func bind_input(name: String, input_bind: InputBind) -> void:
 	if _err_input_already_exists(name, "Failed to add input bind. "):
 		return
 	_input_bind_by_name[name] = input_bind
 
-## Adds action input
-func add_action_input(name: String, action: String = "") -> void:
+## Binds action input
+func bind_action(name: String, action: String) -> void:
 	var action_input := ActionInputBind.new()
 	action_input.action = action
-	add_input(name, action_input)
+	
+	if not InputMap.has_action(action):
+		push_warning("Action '%s' does not exist." % action)
 
-## Adds joystick button input
-func add_joystick_button_input(name: String, button: int = -1) -> void:
-	var joystick_input := JoystickButtonInputBind.new()
+	bind_input(name, action_input)
+
+## Binds joystick button input
+func bind_joy_button(name: String, button: int) -> void:
+	var joystick_input := JoyButtonInputBind.new()
 	joystick_input.button = button
-	add_input(name, joystick_input)
+	bind_input(name, joystick_input)
 
-## Adds joystick axis input
-func add_joystick_axis_input(name: String, axis: int = -1, check_positive: bool = true, deadzone: float = 0.5) -> void:
-	var joystick_axis_input := JoystickAxisInputBind.new()
+## Binds joystick axis input
+func bind_joy_axis(name: String, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
+	var joystick_axis_input := JoyAxisInputBind.new()
 	joystick_axis_input.axis = axis
 	joystick_axis_input.deadzone = deadzone
 	joystick_axis_input.check_positive = check_positive
-	add_input(name, joystick_axis_input)
+	bind_input(name, joystick_axis_input)
 
-## Adds keyboard key input
-func add_keyboard_input(name: String, key: int = -1) -> void:
-	var keyboard_input := KeyboardInputBind.new()
+## Binds key input
+func bind_key(name: String, key: int) -> void:
+	var keyboard_input := KeyInputBind.new()
 	keyboard_input.key = key
-	add_input(name, keyboard_input)
+	bind_input(name, keyboard_input)
 
-## Adds mouse button input
-func add_mouse_button_input(name: String, button: int = -1) -> void:
+## Binds mouse button input
+func bind_mouse_button(name: String, button: int) -> void:
 	var mouse_input := MouseButtonInputBind.new()
 	mouse_input.button = button
-	add_input(name, mouse_input)
+	bind_input(name, mouse_input)
 
 ## Add combination input using other inputs as components.
 ##
@@ -74,37 +113,35 @@ func add_combination_input(
 	name: String, 
 	components: PoolStringArray, 
 	press_held_components_on_release: bool = false, 
-	type: int = CombinationInput.Type.SYNC
+	mode: int = CombinationInput.Mode.SYNC
 	) -> void:
 	
 	if _err_input_already_exists(name, "Failed to add combination input. "):
 		return
 
 	if name in components:
-		push_error("Failed to add combination input. Combination name can not be included in components")
+		push_error("Failed to add combination input. Combination can not include it self as component")
 		return
 	
-	if components.size() <= 1:
-		push_error("Failed to add combination input. Combination must contain 2 or more components.")
-		return
-
-	for cid in components:
-		if not has_input_bind(cid):
-			push_error("Failed to add combination input. Combined inputs contain unbound input '%d'" % cid)
-			return
-		
-		if has_conditional_input(cid):
+	for input in components:
+		if not has_input_bind(input):
+			push_warning("Components contain unknown input '%s'." % input)
+		elif has_conditional_input(input):
 			push_error("Failed to add combination input. Combination components can not include a conditional input.")
 			return
 
 #		Disabled to support the experimental 'Group' feature of combination inputs
-#		if _combination_input_by_name.has(cid):
+#		if _combination_input_by_name.has(input):
 #			push_error("Failed to add combination input. Combination components can not include a combination input.")
 #			return
 
+	if components.size() <= 1:
+		push_warning("Combination contains less than 2 or more components.")
+
+
 	var combination_input := CombinationInput.new()
 	combination_input.components = components
-	combination_input.type = type
+	combination_input.mode = mode
 	combination_input.press_held_components_on_release = press_held_components_on_release
 
 	_combination_input_by_name[name] = combination_input
@@ -113,48 +150,42 @@ func add_combination_input(
 ##
 ## The input_by_condition must be a string : int dictionary where the string represents the condition and the int is a valid input name.
 ## For example, {"is_on_left_side" : InputEnum.FORWARD, "is_on_right_side" : InputEnum.BACKWARD}
-func add_conditional_input(name: String, default_input: String, input_by_condition: Dictionary) -> void:
-	for cid in input_by_condition.values():
-		if not _input_bind_by_name.has(cid) and not _combination_input_by_name.has(cid):
-			push_error("Failed to add conditional input. Input dictionary contains unknown input '%s'" % cid)
-			return
-		
-		if cid == name:
-			push_error("Failed to add conditional input. Conditional input name can not be included in dictioanry.")
-			return
-	
-	if not _input_bind_by_name.has(default_input) and not _combination_input_by_name.has(default_input):
-		push_error("Failed to add conditional input. Default input '%s' does not exist" % default_input)
+func add_conditional_input(name: String, default_input: String = "", input_by_condition: Dictionary = {}) -> void:
+	if _err_input_already_exists(name, "Failed to add conditional input. "):
 		return
 
 	if default_input == name:
-		push_error("Failed to add conditional input. Conditional input name can not be used as a default input.")
+		push_error("Failed to add conditional input. Conditional input can not use it self as default input.")
 		return
+
+	for input in input_by_condition.values():
+		if not has_input(input):
+			push_warning("Input dictionary contains unknown input '%s'" % input)
+		elif input == name:
+			push_error("Failed to add conditional input. Conditional input can not include it self in dictionary.")
+			return
+
+	if not has_input(default_input):
+		push_warning("Default input '%s' does not exist." % default_input)
 
 	var conditional_input := ConditionalInput.new()
 	conditional_input.default_input = default_input
 	conditional_input.input_by_condition = input_by_condition
 	_conditional_input_by_name[name] = conditional_input
 
-
-## Remove input bind along with any combination input or conditional input using it as a component.
-func remove_input_bind(input: String) -> void:
+## Removes input with given name
+func remove_input(input: String) -> void:
 	if _input_bind_by_name.has(input):
 		_input_bind_by_name.erase(input)
-		_remove_dependent_inputs(input)
-
-
-## Remove combination input along with any conditional input using it as a component.
-func remove_combination_input(input: String) -> void:
-	if _combination_input_by_name.has(input):
+	elif _combination_input_by_name.has(input):
 		_combination_input_by_name.erase(input)
-		_remove_dependent_inputs(input)
-
-
-## Remove conditional input.
-func remove_conditional_input(input: String) -> void:
-	if _conditional_input_by_name.has(input):
-		_conditional_input_by_name.erase(input)
+	elif _combination_input_by_name.has(input):
+		_combination_input_by_name.erase(input)
+	else:
+		push_warning("Input '%s' does not exist" % input)
+		return
+	
+	_remove_dependent_inputs(input)
 
 
 func get_input(input: String) -> FrayInputData:
@@ -229,12 +260,12 @@ func _err_input_already_exists(input: String, failed_to_add: String) -> bool:
 
 
 func _remove_dependent_inputs(input: String) -> void:
-	for cid in _conditional_input_by_name:
-		var conditional_input: ConditionalInput = _conditional_input_by_name[cid]
+	for input in _conditional_input_by_name:
+		var conditional_input: ConditionalInput = _conditional_input_by_name[input]
 		if input == conditional_input.default_input or input in conditional_input.input_by_condition.values():
-			remove_conditional_input(cid)
+			remove_input(input)
 			
-	for cid in _combination_input_by_name:
-		var combination_input: CombinationInput = _combination_input_by_name[cid]
+	for input in _combination_input_by_name:
+		var combination_input: CombinationInput = _combination_input_by_name[input]
 		if input in combination_input.components:
-			remove_combination_input(cid)
+			remove_input(input)
