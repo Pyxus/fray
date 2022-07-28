@@ -28,13 +28,13 @@ export var active: bool
 export var allow_transitions: bool
 
 ## The max number of detected inputs that can be buffered.
-export var input_buffer_capacity: int = 10
+export var input_buffer_capacity: int = 20
 
 ## The max time a detected input can exist in the buffer before it is ignored.
 export var input_max_time_in_buffer: float = 0.1
 
 ## The process mode of this graph.
-export(ProcessMode) var process_mode: int setget set_process_mode
+export(ProcessMode) var process_mode: int = ProcessMode.PHYSICS setget set_process_mode
 
 ## The current CombatSituation used by this graph.
 var combat_situation: CombatSituation setget set_combat_situation
@@ -45,7 +45,7 @@ var _conditions: Dictionary
 ## Type: CircularBuffer<BufferedInput>
 var _input_buffer := CircularBuffer.new()
 
-## func(String) -> bool
+## Type: func(String) -> bool
 var _external_condition_evaluator: FuncRef
 
 var _buffered_state: String

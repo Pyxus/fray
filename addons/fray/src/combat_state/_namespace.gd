@@ -13,3 +13,4 @@ const EvaluatedCondition = preload("transitions/conditions/evaluated_condition.g
 const InputCondition = preload("transitions/conditions/input_condition.gd")
 const InputSequenceCondition = preload("transitions/conditions/input_sequence_condition.gd")
 const InputButtonCondition = preload("transitions/conditions/input_button_condition.gd")
+const CombatSituationBuilder = preload("combat_situation_builder.gd")

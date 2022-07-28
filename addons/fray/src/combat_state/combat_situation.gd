@@ -25,9 +25,14 @@ const CombatState = preload("combat_state.gd")
 ## Time since the last detected input in seconds
 var time_since_last_input: float
 
-var _global_transitions: Dictionary # Dictionary<String, Transition>
-var _global_transition_rules: Dictionary # Dictionary<String, String[]>
-var _condition_evaluator_func: FuncRef # func(string) -> bool
+## Type: Dictionary<String, Transition>
+var _global_transitions: Dictionary
+
+## Type: Dictionary<String, String[]>
+var _global_transition_rules: Dictionary
+
+## Type: func(string) -> bool
+var _condition_evaluator_func: FuncRef
 
 
 func add_combat_state(name: String, tags: PoolStringArray = []) -> void:
@@ -58,21 +63,21 @@ func delete_global_transition_rule(from_tag: String) -> void:
 	if _global_transition_rules.has(from_tag):
 		_global_transition_rules.erase(from_tag)
 
-## Adds global transition to a state
-func add_global_transition(to_state: String, input_transition: InputTransition) -> void:
+## Adds global input transition to a state
+func add_global_input_transition(to_state: String, input_condition: InputCondition, prereqs: Array = [], min_input_delay: float = 0) -> void:
 	if not has_state(to_state):
 		push_warning("Failed to add global transition. State '%s' does not exist." % to_state)
 		return
 	
-	_global_transitions[to_state] = input_transition
+	_global_transitions[to_state] = InputTransition.new(input_condition, prereqs, min_input_delay)
 
 ## Adds transition from state to state based on input
-func add_input_transition(from: String, to: String, 
-	input_condition: InputCondition, 
-	prerequisites: Array = [], min_input_delay: float = 0) -> void:
-	add_transition(from, to, 
-		InputTransition.new(input_condition, prerequisites, min_input_delay))
-	
+func add_input_transition(from: String, to: String, input_condition: InputCondition, prereqs: Array = [], min_input_delay: float = 0) -> void:
+	add_transition(
+		from, 
+		to, 
+		InputTransition.new(input_condition, prereqs, min_input_delay))
+
 ## Returns true if a state has a global transition
 func has_global_transition(to_state: String) -> bool:
 	return _global_transitions.has(to_state)
@@ -104,7 +109,7 @@ func rename_state(name: String, new_name: String) -> bool:
 	if has_global_transition(name):
 		var transition: InputTransition = _global_transitions[name]
 		remove_global_transition(name)
-		add_global_transition(new_name, transition)
+		_global_transitions[new_name] = transition
 
 	return true
 
