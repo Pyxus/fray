@@ -36,7 +36,15 @@ func _init() -> void:
 	_func_new_button = funcref(self, "_new_button")
 	_func_new_sequence = funcref(self, "_new_sequence")
 
-
+## Constructs a CombatSituation using current build configuration.
+## After building the CombatSituationBuilder is reset and can be used to build
+## Another CombatSiutation.
+##
+## initial_state sets the initial state of the CombatSituation.
+## The initial state must have previously already been used in a transition
+## Or else the builder will fail to set it.
+##
+## Returns a newly constructed CombatSituation
 func build(initial_state: String) -> CombatSituation:
 	var cs := CombatSituation.new()
 	for state_name in _state_by_name:
@@ -48,13 +56,30 @@ func build(initial_state: String) -> CombatSituation:
 
 	for state_tuple in _builder_by_state_tuple:
 		var builder: TransitionBuilder = _builder_by_state_tuple[state_tuple]
+		var transition := _get_transition(builder)
 		var from: String = state_tuple[0]
 		var to: String = state_tuple[1]
-		cs.add_transition(from, to, _get_transition(builder))
+
+		if not is_instance_valid(transition):
+			push_error(
+				"Failed to add transition. "+
+				"No input defined for transition from state '%s' to state '%s'. " % [from, to]+
+				"Use either 'on_button' or 'on_sequence' method to define input"
+			)
+			continue
+
+		cs.add_transition(from, to, transition)
 
 	for state in _global_builder_by_state:
 		var builder: TransitionBuilder = _global_builder_by_state[state]
-		var transition := _get_transition(builder) 
+		var transition := _get_transition(builder)
+		if not is_instance_valid(transition):
+			push_error(
+				"Failed to add transition. " +
+				"No input defined for transition to global state '%s'. " % state +
+				"Use either 'on_button' or 'on_sequence' method to define input"
+			)
+			continue
 		cs.add_global_input_transition(state, transition.input_condition, transition.prerequisites, transition.min_input_delay)
 
 	cs.initialize(initial_state)
@@ -66,38 +91,52 @@ func build(initial_state: String) -> CombatSituation:
 	return cs
 
 
+## Creates a new transition from one state to another
+##
+## Returns a TransitionBuilder which can be used to further configure transition
 func transition(from: String, to: String) -> TransitionBuilder:
 	_add_state(from)
 	_add_state(to)
-	var tb := TransitionBuilder.new(_func_new_button, _func_new_sequence)
+	var tb := TransitionBuilder.new(_func_new_button, _func_new_sequence, weakref(self))
 	_builder_by_state_tuple[[from, to]] = tb
 	return tb
 
-
+## Creates a new global transition to specified state.
+##
+## Returns a TransitionBuilder which can be used to further configure transition.
 func global_transition(to: String) -> TransitionBuilder:
 	_add_state(to)
-	var tb = TransitionBuilder.new(_func_new_button, _func_new_sequence)
+	var tb = TransitionBuilder.new(_func_new_button, _func_new_sequence, weakref(self))
 	_global_builder_by_state[to] = tb
 	return tb
 
-
-func add_rule(from_tag: String, to_tag: String) -> void:
+## Adds a new transition rule to be used by global transitions.
+##
+## Returns a reference to this builder
+func add_rule(from_tag: String, to_tag: String) -> Reference:
 	if not _transition_rules.has(from_tag):
 		_transition_rules[from_tag] = []
 	_transition_rules[from_tag].append(to_tag)
+	return self
 
-
-func set_tags(state: String, tags: PoolStringArray) -> void:
+## Set the tags of a specified state.
+##
+## Returns a reference to this builder
+func set_tags(state: String, tags: PoolStringArray) -> Reference:
 	_add_state(state)
 	_state_by_name[state].tags = tags
+	return self
 
-
-func tag(states: PoolStringArray, tags: PoolStringArray) -> void:
+## Appends given tags onto all given states.
+##
+## Returns a reference to this builder
+func tag(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 	for state in states:
 		_add_state(state)
 
 		for tag in tags:
 			_state_by_name[state].tags.append(tag)
+	return self
 
 
 func _add_state(name: String) -> void:
@@ -107,8 +146,9 @@ func _add_state(name: String) -> void:
 
 func _get_transition(t_builder: TransitionBuilder) -> InputTransition:
 	var transition := t_builder.transition
-	transition.prerequisites = t_builder.prerequisites
-	transition.min_input_delay = t_builder.min_input_delay
+	if not is_instance_valid(transition):
+		transition.prerequisites = t_builder.prerequisites
+		transition.min_input_delay = t_builder.min_input_delay
 	return transition
 
 
@@ -141,32 +181,43 @@ class TransitionBuilder:
 
 	var min_input_delay: float = 0
 	var prerequisites: Array
-	var transition := InputTransition.new()
+	var transition: InputTransition
 
 	var _func_new_button: FuncRef
 	var _func_new_sequence: FuncRef
+	var _situation_builder: WeakRef
 
 
-	func _init(func_new_button: FuncRef, func_new_sequence: FuncRef) -> void:
+	func _init(func_new_button: FuncRef, func_new_sequence: FuncRef, situation_builder: WeakRef) -> void:
 		_func_new_button = func_new_button
 		_func_new_sequence = func_new_sequence
+		_situation_builder = situation_builder
 
-
-	func on_button(input: String, is_triggered_on_release: bool = false) -> TransitionBuilder:
+	## Configures the input that will trigger this transition
+	##
+	## Returns a reference to the CombatSiutionatBuilder that created this TransitionBuilder
+	func on_button(input: String, is_triggered_on_release: bool = false) -> Reference:
 		transition = InputTransition.new(_func_new_button.call_func(input, is_triggered_on_release))
-		return self
+		return _situation_builder.get_ref()
 
-	
-	func on_sequence(sequence_name: String) -> TransitionBuilder:
+
+	## Configures the sequence that will trigger this transition
+	##
+	## Returns a reference to the CombatSiutionatBuilder that created this TransitionBuilder
+	func on_sequence(sequence_name: String) -> Reference:
 		transition = InputTransition.new(_func_new_sequence.call_func(sequence_name))
-		return self
+		return _situation_builder.get_ref()
 
-	
-	func set_min_input_delay(delay: float) -> TransitionBuilder:
+	## Configures the minimum input delay of this transition.
+	##
+	## Returns a reference to this TransitionBuilder
+	func with_min_input_delay(delay: float) -> TransitionBuilder:
 		min_input_delay = delay
 		return self
 
-	
-	func set_prereq(prereqs: Array) -> TransitionBuilder:
+	## Configures the prerequisites of this transition.
+	##
+	## Returns a reference to this TransitionBuilder
+	func with_prereqs(prereqs: Array) -> TransitionBuilder:
 		prerequisites = prereqs
 		return self

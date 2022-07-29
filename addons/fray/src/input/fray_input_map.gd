@@ -119,22 +119,11 @@ func add_combination_input(
 	if _err_input_already_exists(name, "Failed to add combination input. "):
 		return
 
-	if name in components:
-		push_error("Failed to add combination input. Combination can not include it self as component")
-		return
-	
 	for input in components:
 		if not has_input_bind(input):
 			push_warning("Components contain unknown input '%s'." % input)
-		elif has_conditional_input(input):
-			push_error("Failed to add combination input. Combination components can not include a conditional input.")
+		elif _err_cyclic_reference(name, input, "Failed to add combination input. "):
 			return
-
-#		Disabled to support the experimental 'Group' feature of combination inputs
-#		if _combination_input_by_name.has(input):
-#			push_error("Failed to add combination input. Combination components can not include a combination input.")
-#			return
-
 	if components.size() <= 1:
 		push_warning("Combination contains less than 2 or more components.")
 
@@ -154,15 +143,10 @@ func add_conditional_input(name: String, default_input: String = "", input_by_co
 	if _err_input_already_exists(name, "Failed to add conditional input. "):
 		return
 
-	if default_input == name:
-		push_error("Failed to add conditional input. Conditional input can not use it self as default input.")
-		return
-
-	for input in input_by_condition.values():
+	for input in input_by_condition.values() + [default_input]:
 		if not has_input(input):
-			push_warning("Input dictionary contains unknown input '%s'" % input)
-		elif input == name:
-			push_error("Failed to add conditional input. Conditional input can not include it self in dictionary.")
+			push_warning("Default input or input dictionary contains unknown input '%s'" % input)
+		elif _err_cyclic_reference(name, input, "Failed to add conditional input. "):
 			return
 
 	if not has_input(default_input):
@@ -246,16 +230,50 @@ func has_conditional_input(name: String) -> bool:
 	return _conditional_input_by_name.has(name)
 	
 
-func _err_input_already_exists(input: String, failed_to_add: String) -> bool:
+func _err_input_already_exists(input: String, err_msg: String) -> bool:
 	if has_input_bind(input):
-		push_error("%sA input bind with name '%s' already exists" % [failed_to_add, input])
+		push_error("%sA input bind with name '%s' already exists" % [err_msg, input])
 		return true
 	elif has_combination_input(input):
-		push_error("%sA combination input with name '%s' already exists" % [failed_to_add, input])
+		push_error("%sA combination input with name '%s' already exists" % [err_msg, input])
 		return true
 	elif has_conditional_input(input):
-		push_error("%sA conditional input with name '%s' already exists" % [failed_to_add, input])
+		push_error("%sA conditional input with name '%s' already exists" % [err_msg, input])
 		return true
+	return false
+
+
+func _err_cyclic_reference(input: String, component_input: String, err_msg: String) -> bool:
+	if input == component_input:
+		push_error(
+			err_msg +
+			"Input components can not contain it self "
+			)
+		return true
+	elif has_combination_input(component_input):
+		var combination_input := get_combination_input(component_input)
+
+		for component in combination_input.components:
+			if input == component:
+				push_error(
+					err_msg +
+					"Inputs can not contain cyclic refferences."
+					)
+				return true
+			elif _err_cyclic_reference(input, component, err_msg):
+				return true
+	elif has_conditional_input(component_input):
+		var conditional_input := get_conditional_input(component_input)
+		for con_input in conditional_input.input_by_condition.values() + [conditional_input.default_input]:
+			if input == con_input:
+				push_error(
+					err_msg +
+					"Inputs can not contain cyclic refferences."
+					)
+				return true
+			elif _err_cyclic_reference(input, con_input, err_msg):
+				return true
+			return true
 	return false
 
 

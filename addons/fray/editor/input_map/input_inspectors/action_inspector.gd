@@ -15,9 +15,10 @@ func _ready() -> void:
 
 func _setup() -> void:
 	_action_name_edit.text = _input_data.action
+	_handle_warnings()
 
 
-func _process(delta: float) -> void:
+func _handle_warnings() -> void:
 	if _godot_config.has_section("input"):
 		var action_name = _action_name_edit.text
 		if not _godot_config.has_section_key("input", action_name):
@@ -30,3 +31,4 @@ func _process(delta: float) -> void:
 func _on_ActionNameEdit_text_changed(new_text: String):
 	_input_data.action = new_text
 	emit_signal("save_request")
+	_handle_warnings()

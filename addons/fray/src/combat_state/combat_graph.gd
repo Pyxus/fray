@@ -10,6 +10,7 @@ const BufferedInput = preload("buffered_input/buffered_input.gd")
 const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
 const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
 const CombatSituation = preload("combat_situation.gd")
+const CombatGraphData = preload("combat_graph_data.gd")
 
 enum ProcessMode {
 	IDLE,
@@ -17,6 +18,7 @@ enum ProcessMode {
 	MANUAL,
 }
 
+signal state_changed(situation, from, to)
 
 ## If true the combat graph will be processing.
 export var active: bool
@@ -36,8 +38,11 @@ export var input_max_time_in_buffer: float = 0.1
 ## The process mode of this graph.
 export(ProcessMode) var process_mode: int = ProcessMode.PHYSICS setget set_process_mode
 
+## Collection of named combat situations known to graph
+var graph_data: CombatGraphData setget set_graph_data
+
 ## The current CombatSituation used by this graph.
-var combat_situation: CombatSituation setget set_combat_situation
+var _current_situation: String
 
 ## Type: Dictionary<String, bool>
 var _conditions: Dictionary
@@ -56,9 +61,8 @@ func _ready() -> void:
 		return
 
 	_input_buffer.capacity = input_buffer_capacity
-	set_combat_situation(combat_situation)
+	
 	set_process_mode(process_mode)
-	_update_evaluator_functions()
 
 
 func _process(delta: float) -> void:
@@ -80,16 +84,17 @@ func _physics_process(delta: float) -> void:
 func advance(delta: float) -> void:
 	if not active:
 		return
-
-	if combat_situation == null:
-		push_warning("Failed to advance, no state machine set.")
+	
+	if _current_situation.empty():
+		push_warning("Failed to advance, no situation set.")
 		return
 	
+	var situation: CombatSituation = graph_data.get_situation(_current_situation)
 	var current_time := OS.get_ticks_msec()
 	
 	if allow_transitions:
 		for buffered_input in _input_buffer:
-			var next_state: String = combat_situation.get_next_state(buffered_input)
+			var next_state: String = situation.get_next_state(buffered_input)
 			var time_since_inputted: int = current_time - buffered_input.time_stamp
 			
 			if not next_state.empty() and time_since_inputted <= input_max_time_in_buffer * 1000:
@@ -97,21 +102,22 @@ func advance(delta: float) -> void:
 				break
 
 		if  not _buffered_state.empty():
-			var previous_state: String = combat_situation.current_state
-			combat_situation.advance_to(_buffered_state)
-			combat_situation.time_since_last_input = current_time / 1000.0
+			var previous_state: String = situation.current_state
+			situation.advance_to(_buffered_state)
+			situation.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
 
 ## Returns the current state machine to it's initial state if available
 func goto_initial_state(ignore_buffer: bool = false) -> void:
-	if combat_situation == null or not ignore_buffer and not _buffered_state.empty():
+	if _current_situation.empty() or not ignore_buffer and not _buffered_state.empty():
 		return
 
-	if combat_situation.initial_state.empty():
-		push_warning("Failed to to go to initial combat state. Current CombatSituation '%s' does not have an initial state set." % combat_situation)
+	var situation: CombatSituation = graph_data.get_situation(_current_situation)
+	if situation.initial_state.empty():
+		push_warning("Failed to to go to initial combat state. Current situation '%s' does not have an initial state set." % situation)
 		return
 	
-	combat_situation.advance_to(combat_situation.initial_state)
+	situation.advance_to(situation.initial_state)
 
 ## Buffers an input button to be processed by the graph
 func buffer_button(input: String, is_released: bool = false) -> void:
@@ -126,16 +132,40 @@ func clear_buffer() -> void:
 	_buffered_state = ""
 	_input_buffer.clear()
 
+func change_situation(situation: String) -> void:
+	if not is_instance_valid(graph_data):
+		push_error("Failed to change situation. Graph data is not set.")
+		return
 
-func set_combat_situation(new_situation: CombatSituation) -> void:
-	if new_situation != combat_situation:
-		
-		combat_situation = new_situation
-		if combat_situation != null:
-			combat_situation.initialize()
-			clear_buffer()
+	if not graph_data.has_situation(situation):
+		push_error("Failed to change situation. Graph data does not contain situation named '%s'." % situation) 
+		return
+
+	if situation != _current_situation:
+		_current_situation = situation
+		graph_data.get_situation(situation).initialize()
+
+
+func get_current_situation() -> String:
+	return _current_situation
+
+
+func get_current_state() -> String:
+	if not is_instance_valid(graph_data):
+		return ""
 	
-	
+	return graph_data.get_situation(_current_situation).current_state
+##
+func set_graph_data(new_graph_data: CombatGraphData) -> void:
+	graph_data = new_graph_data
+
+	for situation in graph_data.get_all_situations():
+		situation.connect("state_changed", self, "_on_Situation_state_changed")
+
+	_current_situation = ""
+	_update_evaluator_functions()
+
+
 func set_process_mode(value: int) -> void:
 	process_mode = value
 
@@ -181,6 +211,10 @@ func _update_evaluator_functions() -> void:
 	if _external_condition_evaluator != null and not _conditions.empty():
 		push_warning("Combat tree has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
 
-	if combat_situation != null:
+	for situation in graph_data.get_all_situations():
 		var evaluation_func: FuncRef = _external_condition_evaluator if _external_condition_evaluator != null else funcref(self, "is_condition_true")
-		combat_situation.set_condition_evaluator(evaluation_func)
+		situation.set_condition_evaluator(evaluation_func)
+
+
+func _on_Situation_state_changed(from: String, to: String) -> void:
+	emit_signal("state_changed", _current_situation, from, to)

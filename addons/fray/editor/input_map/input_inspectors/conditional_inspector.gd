@@ -4,7 +4,6 @@ extends "input_inspector.gd"
 const ReordableList = preload("res://addons/fray/editor/ui/reordable_list/reordable_list.gd")
 const WarningLineEdit = preload("res://addons/fray/editor/ui/warning_line_edit/warning_line_edit.gd")
 const WarningLineEditorScn = preload("res://addons/fray/editor/ui/warning_line_edit/warning_line_edit.tscn")
-const FrayConfig = preload("res://addons/fray/fray_config.gd")
 
 var _global = load("res://addons/fray/editor/global.tres")
 
@@ -13,7 +12,32 @@ onready var _conditional_list_container: Container = $"ScrollContainer/PropertyC
 onready var _conditional_list: ReordableList = $"ScrollContainer/PropertyContainer/InputByConditionProperty/PanelContainer/VBoxContainer/ConditionalListContainer/ConditionalList"
 onready var _default_input_warning: TextureRect = $ScrollContainer/PropertyContainer/DefaultInputProperty/MarginContainer/Warning
 
-func _process(delta: float) -> void:
+
+func _setup() -> void:
+	_default_input_edit.text = _input_data.default_input
+
+	for condition in _input_data.input_by_condition:
+		_add_condition_input_edit(condition, _input_data.input_by_condition[condition])
+	_handle_warnings()
+
+func _add_condition_input_edit(condition: String = "", input: String = "") -> void:
+		var h_box := HBoxContainer.new()
+		var key_edit := LineEdit.new()
+		var value_edit: WarningLineEdit = WarningLineEditorScn.instance()
+
+		for line_edit in [key_edit, value_edit]:
+			line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			line_edit.connect("text_changed", self, "_on_ConditionInput_text_changed")
+
+		h_box.add_child(key_edit)
+		h_box.add_child(value_edit)
+		_conditional_list.add_item(h_box)
+
+		key_edit.text = condition
+		value_edit.set_text(input)
+
+
+func _handle_warnings() -> void:
 	var inputs = _global.fray_config.get_input_names()
 	var default_input := _default_input_edit.text
 	
@@ -34,31 +58,11 @@ func _process(delta: float) -> void:
 		elif component == _input_name:
 			value_edit.set_warning("A conditional input can not include it self as a component")
 		else:
-			value_edit.set_warning("")
-	
-
-func _setup() -> void:
-	_default_input_edit.text = _input_data.default_input
-
-	for condition in _input_data.input_by_condition:
-		_add_condition_input_edit(condition, _input_data.input_by_condition[condition])
-
-
-func _add_condition_input_edit(condition: String = "", input: String = "") -> void:
-		var h_box := HBoxContainer.new()
-		var key_edit := LineEdit.new()
-		var value_edit: WarningLineEdit = WarningLineEditorScn.instance()
-
-		for line_edit in [key_edit, value_edit]:
-			line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			line_edit.connect("text_changed", self, "_on_ConditionInput_text_changed")
-
-		h_box.add_child(key_edit)
-		h_box.add_child(value_edit)
-		_conditional_list.add_item(h_box)
-
-		key_edit.text = condition
-		value_edit.set_text(input)
+			var warning := _get_cyclic_ref_warning(component)
+			if not warning.empty():
+				value_edit.set_warning("Conditional includes cyclic reference: %s" % warning)
+			else:
+				value_edit.set_warning("")
 
 
 func _on_ConditionInput_text_changed(new_text: String) -> void:
@@ -72,6 +76,7 @@ func _on_ConditionInput_text_changed(new_text: String) -> void:
 			input_by_condition[key] = value
 	_input_data.input_by_condition = input_by_condition
 	emit_signal("save_request")
+	_handle_warnings()
 
 
 func _on_ConditionalList_item_removed(item_content: Control):
@@ -82,6 +87,7 @@ func _on_ConditionalList_item_removed(item_content: Control):
 func _on_DefaultInputEdit_text_changed(new_text: String):
 	_input_data.default_input = new_text
 	emit_signal("save_request")
+	_handle_warnings()
 
 
 func _on_AddConditionalButton_pressed():
