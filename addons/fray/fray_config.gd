@@ -7,12 +7,15 @@ const SAVE_PATH = "res://addons/fray/fray.cfg"
 var _config := ConfigFile.new()
 
 func _init() -> void:
+	"""
 	var error := _config.load(SAVE_PATH)
 	
 	if error == ERR_FILE_NOT_FOUND:
 		_config.save(SAVE_PATH)
 	elif error != OK:
 		push_error("Failed to load fray.cfg. Error '%d'" % error)
+	"""
+	pass
 
 
 func save_input(input_name: String, input: FrayInputNS.FrayInputData) -> void:
