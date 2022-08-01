@@ -33,6 +33,23 @@ func set_virtual(value: bool) -> void:
         push_warning("Conditionals by design always overlap with their components. A conditional will never trigger a virtual press.")
 
 
+func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+    # Returns the first component with a true condition. Defaults to component at index 0
+
+    if _components.empty():
+        return PoolStringArray()
+
+    var component: Resource = _components[0]
+    for component_index in _conditions_by_component:
+        var comp: Resource = _components[component_index]
+        var condition: String = _conditions_by_component[component_index]
+
+        if input_interface.is_condition_true(condition, device):
+            component = comp
+            break
+    return component.decompose(device, input_interface)
+
+
 func _is_pressed(device: int, input_interface: InputInterface) -> bool:
     if _components.empty():
         push_warning("Conditional input has no components")

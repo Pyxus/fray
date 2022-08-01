@@ -11,10 +11,6 @@ extends "complex_input.gd"
 var binds: PoolStringArray
 
 
-func get_binds() -> PoolStringArray:
-    return binds
-
-
 func _is_pressed(device: int, input_interface: InputInterface) -> bool:
     for bind in binds:
         var bind_state: InputState = input_interface.get_bind_state(bind, device)
@@ -24,5 +20,15 @@ func _is_pressed(device: int, input_interface: InputInterface) -> bool:
 
 
 func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
-    push_error("Method not implemented.")
-    return PoolStringArray()
+    # Returns the most recently pressed bind
+    var most_recent_bind: InputState
+    for bind in binds:
+        var bind_state: InputState = input_interface.get_bind_state(bind, device)
+
+        if most_recent_bind != null:
+            if most_recent_bind.time_pressed < bind_state.time_pressed:
+                most_recent_bind = bind_state
+        else:
+            most_recent_bind = bind_state
+    
+    return PoolStringArray([most_recent_bind.input])

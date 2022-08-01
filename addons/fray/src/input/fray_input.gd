@@ -51,13 +51,13 @@ func _physics_process(_delta: float) -> void:
 			if complex_input.is_pressed(device, _input_interface):
 				if not input_state.pressed:
 					input_state.press()
-					device_state.filter(complex_input.get_binds())
+					device_state.filter(complex_input.decompose(device, _input_interface))
 			elif input_state.pressed:
 				input_state.unpress()
-				device_state.unfilter(complex_input.get_binds())
+				device_state.unfilter(complex_input.decompose(device, _input_interface))
 
 				if complex_input.is_virtual:
-					for bind in complex_input.get_binds():
+					for bind in complex_input.decompose(device, _input_interface):
 						var bind_state := _get_input_state(bind, device)
 						if bind_state.pressed:
 							bind_state.press(true)

@@ -30,23 +30,18 @@ func _is_pressed(device: int, input_interface: InputInterface) -> bool:
 	return false
 
 
-func _decompose_components(device: int, input_interface: InputInterface) -> Array:
-	var decomposed_states := []
+func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+	# Returns all components decomposed and joined
+	var binds: PoolStringArray
 	for component in _components:
-		var binds: PoolStringArray = component.get_binds()
-		var most_recent_bind: InputState
+		binds += component.decompose(device, input_interface)
+	return binds
 
-		for bind in binds:
-			var bind_state: InputState = input_interface.get_bind_state(bind, device)
-
-			if most_recent_bind != null:
-				if most_recent_bind.time_pressed < bind_state.time_pressed:
-					most_recent_bind = bind_state
-			else:
-				most_recent_bind = bind_state
-		
-		if most_recent_bind != null:
-			decomposed_states.append(most_recent_bind)
+# Returns: InputState[]
+func _get_decomposed_states(device: int, input_interface: InputInterface) -> Array:
+	var decomposed_states := []
+	for bind in decompose(device, input_interface):
+		decomposed_states.append(input_interface.get_bind_state(bind, device))
 	return decomposed_states
 
 
@@ -58,7 +53,7 @@ func _is_all_components_pressed(device: int, input_interface: InputInterface) ->
 
 
 func _is_combination_quick_enough(device: int, input_interface: InputInterface, tolerance: float = 10) -> bool:
-	var decomposed_states := _decompose_components(device, input_interface)
+	var decomposed_states := _get_decomposed_states(device, input_interface)
 	var avg_difference := 0
 
 	for i in len(decomposed_states):
@@ -76,7 +71,7 @@ func _is_combination_quick_enough(device: int, input_interface: InputInterface, 
 
 
 func _is_combination_in_order(device: int, input_interface: InputInterface, tolerance: float = 10) -> bool:
-	var decomposed_states := _decompose_components(device, input_interface)
+	var decomposed_states := _get_decomposed_states(device, input_interface)
 
 	for i in len(decomposed_states):
 		if i > 0:
