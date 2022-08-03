@@ -4,11 +4,11 @@ extends Reference
 ## @desc:
 ## 		Conceptually similiar to a godot's built-in InputEvent.
 
-## Time in miliseconds that the input was initially detected
+## Time in miliseconds that the input was initially pressed
 var time_pressed: int
 
-## Time in miliseconds that the input was held
-var time_held: int
+## Time in miliseconds that the input was detected. This is recorded when the signal is emitted
+var time_detected: int
 
 ## The physics frame when the input was first pressed
 var physics_frame: int
@@ -40,8 +40,19 @@ func _to_string() -> String:
 
 
 ## Returns the time in miliseconds between two input events.
-func get_time_between(fray_input_event: Reference) -> int:
-	return int(abs(fray_input_event.time_pressed - time_pressed))
+func get_time_between_ms(fray_input_event: Reference, use_time_pressed: bool = false) -> int:
+	var t1: int = fray_input_event.time_pressed if use_time_pressed else fray_input_event.time_detected
+	var t2: int = time_pressed if use_time_pressed else time_detected
+	return int(abs(t1 - t2))
+
+func get_time_between_sec(fray_input_event: Reference, use_time_pressed: bool = false) -> float:
+	return get_time_between_ms(fray_input_event, use_time_pressed) / 1000.0
+
+func get_time_held_ms() -> int:
+	return time_detected - time_pressed
+
+func get_time_held_sec() -> float:
+	return get_time_held_ms() / 1000.0
 
 ## Returns true if input was pressed with no echo
 func is_just_pressed() -> bool:

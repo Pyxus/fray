@@ -34,28 +34,27 @@ func initialize(sequence_list: SequenceList) -> void:
 		var path_index := 0
 		for sequence_path in sequence_list.get_sequence_paths(name):
 			var next_node := _root
-			var depth := 0
 
 			for req in sequence_path.input_requirements:
 				var parent := next_node
-				next_node = parent.get_next(req.input, req.is_charge_input())
+				next_node = parent.get_next(req.input, not req.is_charge_input())
 
-				if depth > 0 and req.is_charge_input():
+				if parent != _root and req.is_charge_input():
 					push_warning("Charge inputs should only be the first input of any path. Sequence: '%s', Path Index: '%d'" % [name, path_index] )
 
 				if next_node == null:
-					next_node = InputNode.new()
+					next_node = InputNode.new() 
 					next_node.input = req.input
 					next_node.is_press_input = not req.is_charge_input()
 					parent.add_node(next_node)
-				depth += 1
 			
-			if next_node.sequence_name.empty():
+			if not next_node.has_sequence():
 				next_node.sequence_name = name
+				next_node.sequence_path = sequence_path
 				next_node.allow_negative_edge = sequence_path.allow_negative_edge
 			else:
 				push_error(
-					"Collision for sequence '%s' at path index '%d'. " % [name, path_index] +
+					"Collision for sequence '%s' at path index '%d' at input '%s'. " % [name, path_index, next_node.input] +
 					"There can only be 1 sequence per path. " +
 					"This sequence will be ignored"
 					)
@@ -68,36 +67,37 @@ func read(input_event: FrayInputEvent) -> void:
 		push_error("Sequence analyzer is not initialized.")
 		return
 
-	if _ignore_released_input(input_event):
-		print("IGNORED: ", input_event.input)
-		return
-
 	var next_node := _current_node.get_next(input_event.input, input_event.pressed)
-
 	if next_node != null:
 		_current_node = next_node
 		_match_path.append(input_event)
-	
+
 	if _current_frame == null:
 		_current_frame = _create_frame(input_event)
-
-	if _current_frame.physics_frame == input_event.physics_frame:
-		_current_frame.inputs.append(input_event)
+	elif _current_frame.physics_frame == input_event.physics_frame:
+		_current_frame.add(input_event)
 	else:
+		# Interesting note: If the first input in a frame is a release input then even if
+		# the following input would break the sequence it gets ignored if its within the newly created frame.
+		# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
+		# Im keeping it for now as it may build input leniancy into the analyzer.
+		# Previously the approach to leniancy was to create sort of 'alias' branches that accepted bad inputs.
+		# If problems accur while testing let this note serve as a reminder of possible source.
+		# This accidently feature should be easy to remove just replace the else with
+		# I think just move the resolve check outside of this else
 		_current_frame = _create_frame(input_event)
 
-		if next_node == null:
-			_handle_sequence_break()
-			pass
+		if next_node == null and input_event.pressed:
+			_resolve_sequence_break()
 	
 	if _current_node.has_sequence():
-		var string: String
-		for input in _match_path:
-			string += input.input + ", "
-		print(string)
-		_reset()
+		if is_match(_match_path, _current_node.sequence_path.input_requirements):
+			print(_current_node.sequence_name)
+			_reset()
+			emit_signal("match_found", _current_node.sequence_name, _match_path)
+		else:
+			_resolve_sequence_break()
 
-			
 ## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
 static func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
 	if fray_input_events.size() != input_requirements.size():
@@ -109,60 +109,65 @@ static func is_match(fray_input_events: Array, input_requirements: Array) -> boo
 		
 		if input_event.input != input_requirement.input:
 			return false
-
-		if input_event.pressed == input_requirement.trigger_on_release:
-			return false
-
-		if not input_event.pressed and input_event.time_held < input_requirement.min_time_held:
+		
+		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
 			return false
 		
-		if i > 0:
-			var time_since_last_input := input_event.get_time_between(fray_input_events[i - 1])
-			if input_requirement.max_delay >= 0 and time_since_last_input > input_requirement.max_delay:
+		if i > 1:
+			var sec_since_last_input := input_event.get_time_between_sec(fray_input_events[i - 1])
+			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
 				return false
 
 	return true
 
 
-func _ignore_released_input(input_event: FrayInputEvent) -> bool:
-	return (
-		not _match_path.empty() 
-		and not input_event.pressed 
-		and not _current_node.child_has_sequence())
+func _resolve_sequence_break() -> void:
+	var successful_retrace := false
+	var next_node := _root
+	var new_current_node := _root
+
+	while not successful_retrace and not _input_queue.empty():
+		var first_frame: InputFrame = _input_queue.get_head().data
+		var can_remove_first_frame: bool = (
+			_match_path.empty()
+			or not first_frame.try_remove(_match_path.front())
+			or first_frame.empty()
+			)
+
+		if can_remove_first_frame:
+			_input_queue.remove_first()
+		
+		_match_path.clear()
+
+		var has_break := false
+		for frame in _input_queue:
+			var node: InputNode = frame.trace(next_node, _match_path)
+			
+			if node != null:
+				next_node = node
+				new_current_node = node
+			elif not frame.only_has_release():
+				has_break = true
+				next_node = _root
+				break
+
+		successful_retrace = not has_break
+
+	_current_node = new_current_node
+
 
 func _reset() -> void:
 	_current_frame = null
 	_current_node = _root
+	_input_queue.clear()
 	_match_path.clear()
 
-
-func _handle_sequence_break() -> void:
-	var next_node := _root
-	while not _input_queue.empty() and next_node != null:
-		var start_frame: InputFrame = _input_queue.get_head().data
-
-		if not _match_path.empty() and start_frame.inputs.has(_match_path[0]):
-			start_frame.inputs.remove(_match_path[0])
-		else:
-			_input_queue.remove_first()
-		_match_path.clear()
-
-		for frame in _input_queue:
-			next_node = frame.trace(next_node, _match_path)
-			_current_frame = frame
-
-			if next_node == null:
-				_current_frame = null
-				break
-
-	_current_node = next_node if next_node else _root
 
 func _create_frame(input_event: FrayInputEvent) -> InputFrame:
 	var frame = InputFrame.new()
 	frame.physics_frame = input_event.physics_frame
-	frame.inputs.append(input_event)
+	frame.add(input_event)
 	_input_queue.add(frame)
-	_input_queue.print_list()
 	return frame
 
 
@@ -176,7 +181,7 @@ class InputFrame:
 	var physics_frame: int
 
 	func _to_string() -> String:
-		var string := "[%d| " % physics_frame
+		var string := "%d| " % physics_frame
 		for i in len(inputs):
 			var input: FrayInputEvent = inputs[i]
 
@@ -186,22 +191,43 @@ class InputFrame:
 			
 			if i != inputs.size() - 1:
 				string += ", "
-			
-		string += "]"
 		return string
 
-	func trace(start_node: InputNode, match_path: Array) -> InputNode:
-		var end_node: InputNode
-		var next_node := start_node
-		for input in inputs:
-			next_node = next_node.get_next(input.input, input.pressed)
-			if next_node != null:
-				match_path.append(input)
-				end_node = next_node
-		return end_node
 
+	func add(input_event: FrayInputEvent) -> void:
+		inputs.append(input_event)
+	
+
+	func try_remove(input_event: FrayInputEvent) -> bool:
+		if inputs.has(input_event):
+			inputs.erase(input_event)
+			return true
+		return false
+
+
+	func empty() -> bool:
+		return inputs.empty()
+
+
+	func only_has_release() -> bool:
+		for input in inputs:
+			if input.pressed:
+				return false
+		return inputs.empty()
+
+
+	func trace(start_node: InputNode, match_path: Array) -> InputNode:
+		var match_node: InputNode
+		for input in inputs:
+			var node = start_node.get_next(input.input, input.pressed)
+			if node != null:
+				match_path.append(input)
+				match_node = node
+		return match_node
 class InputNode:
 	extends Reference
+
+	const SequencePath = preload("sequence/sequence_path.gd")
 
 	const CROSS = " ┠╴";
 	const CORNER = " ┖ ";
@@ -212,6 +238,7 @@ class InputNode:
 	var is_press_input: bool
 	var allow_negative_edge: bool
 	var sequence_name: String
+	var sequence_path: SequencePath
 	var input: String
 
 	## Type: InputNode[]
@@ -231,11 +258,13 @@ class InputNode:
 			string += ".r"
 		return string
 
-	func child_has_sequence() -> bool:
+
+	func is_next_accepting_release(input: String) -> bool:
 		for node in _next_nodes:
-			if not node.sequence_name.empty():
+			if node.input == input and not node.sequence_name.empty() and (not node.is_press_input or node.allow_negative_edge):
 				return true
-		return false
+		return false		
+
 
 	func add_node(node: InputNode) -> void:
 		if not sequence_name.empty():
@@ -243,9 +272,9 @@ class InputNode:
 		_next_nodes.append(node)
 
 
-	func get_next(input: String, is_pressed: bool) -> InputNode:
+	func get_next(next_input: String, is_pressed: bool) -> InputNode:
 		for node in _next_nodes:
-			if node.input == input and is_press_input == is_pressed or allow_negative_edge:
+			if node.input == next_input and (node.is_press_input == is_pressed or node.allow_negative_edge):
 				return node
 		return null
 
@@ -258,8 +287,14 @@ class InputNode:
 		return get_next(input, released) != null
 	
 
+	func has_node(node: InputNode) -> bool:
+		for next in _next_nodes:
+			if next == node:
+				return true
+		return false
+
 	func has_sequence() -> bool:
-		return not sequence_name.empty()
+		return not sequence_name.empty() and sequence_path != null
 
 
 	func get_child_count() -> int:
@@ -293,12 +328,7 @@ X>	Inputs should be processed in bundles.
 	X>	Attempt to match all inputs in a frame in the order they appear but don't trigger
 		a sequence break if one does not match.
 
-?> 	Release inputs are ignored after depth 1
-	except released inputs that end a sequence
-	>	This lets us support negative edge
-	>	depth 1 inputs can be released inputs to support charged inputs
-
-?>	When an input breaks a sequence the top of the queue will be popped and the whole queue re-evaluated
+X>	When an input breaks a sequence the top of the queue will be popped and the whole queue re-evaluated
 	>	This is to support 'path switching' where a player changes from one
 		path to another. We assume the sequence may have broke because they
 		were switched to enter a different sequence.

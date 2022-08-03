@@ -73,7 +73,7 @@ func _physics_process(_delta: float) -> void:
 			input_event.time_pressed = input_state.time_pressed
 			input_event.physics_frame = input_state.physics_frame
 			input_event.idle_frame = input_state.idle_frame
-			input_event.time_held = OS.get_ticks_msec() - input_state.time_pressed
+			input_event.time_detected = OS.get_ticks_msec()
 			input_event.pressed = input_state.pressed
 			input_event.virtually_pressed = input_state.virtually_pressed
 			input_event.filtered = not device_state.is_filtered(input)

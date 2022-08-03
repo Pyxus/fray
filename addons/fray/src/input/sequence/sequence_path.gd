@@ -19,7 +19,7 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 ## Depending on the SequenceAnalyzer implementation the max_delay of the first requirement does nothing.
 ##
 ## min_time_held is the minimum time in seconds that the input is required to be held.
-func add(input: String, max_delay := 0.13, min_time_held := 0.0) -> Reference:
+func add(input: String, min_time_held := 0.0, max_delay := .15) -> Reference:
 	var input_requirement := InputRequirement.new()
 	input_requirement.input = input
 	input_requirement.max_delay = max_delay

@@ -12,19 +12,23 @@ func add(data) -> void:
 		var next_node := _head
 		while next_node._next != null:
 			next_node = next_node._next
-		_head._next = ListNode.new(data)
+		next_node._next = ListNode.new(data)
 		_count += 1
 
 func print_list() -> void:
+	if _head == null:
+		print("[]")
+		return
+
 	var string := ""
 	var next_node := _head
-	
 	while next_node != null:
-		string += next_node.data.to_string()
+		string += "[" + next_node.data.to_string() + "]"
 		next_node = next_node.get_next()
 		if next_node != null:
-			string += " --> " 
+			string += " --> "
 	print(string)
+
 
 func remove_first() -> void:
 	if _head != null:
@@ -42,6 +46,10 @@ func get_count() -> int:
 
 func empty() -> bool:
 	return _head == null
+
+
+func clear() -> void:
+	_head = null
 
 
 func _iter_init(arg):
