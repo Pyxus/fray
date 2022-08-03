@@ -20,7 +20,7 @@ var _root: Resource
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
 func is_pressed(device: int, input_interface: InputInterface) -> bool:
-    return _is_pressed(device, input_interface)
+    return _is_pressed_impl(device, input_interface)
 
 ## Adds a component to this input
 func add_component(component: Resource) -> void:
@@ -42,7 +42,7 @@ func add_component(component: Resource) -> void:
 
 ## Decomposes complex input into binds
 func decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
-    return _decompose(device, input_interface)
+    return _decompose_impl(device, input_interface)
 
 ## is_virtual setter
 func set_virtual(value: bool) -> void:
@@ -53,12 +53,12 @@ func set_virtual(value: bool) -> void:
 func get_root() -> Resource:
     return _root if _root else self
 
-## Virtual method used to define press check procedure
-func _is_pressed(device: int, input_interface: InputInterface) -> bool:
+## Abstract method used to define press check procedure
+func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
     push_error("Method not implemented.")
     return false
 
-## Virtual method used to define decomposition procedure
-func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+## Abstract method used to define decomposition procedure
+func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
     push_error("Method not implemented.")
     return PoolStringArray()

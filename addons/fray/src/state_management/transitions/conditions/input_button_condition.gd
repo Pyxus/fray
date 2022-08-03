@@ -15,7 +15,7 @@ func _init(input_name: String = "", is_triggered_on_release: bool = false) -> vo
 	self.is_triggered_on_release = is_triggered_on_release
 
 
-func is_satisfied_by(buffered_input: BufferedInput) -> bool:
+func _is_satisfied_by_impl(buffered_input: BufferedInput) -> bool:
 	if buffered_input is BufferedInputButton:
 		return buffered_input.input == input and buffered_input.is_pressed != is_triggered_on_release
 

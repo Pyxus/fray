@@ -10,5 +10,5 @@ func _init(joystick_button: int = -1) -> void:
 	button = joystick_button
 
 
-func is_pressed(device: int = 0) -> bool:
+func _is_pressed_impl(device: int = 0) -> bool:
 	return Input.is_joy_button_pressed(device, button)

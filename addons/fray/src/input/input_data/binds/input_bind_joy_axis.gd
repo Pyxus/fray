@@ -18,7 +18,7 @@ func _init(joys_axis: int = -1, joy_use_positive_axis: bool = true, joy_deadzone
 	use_positive_axis = joy_use_positive_axis
 
 
-func is_pressed(device: int = 0) -> bool:
+func _is_pressed_impl(device: int = 0) -> bool:
 	var joy_axis := Input.get_joy_axis(device, axis)
 	var is_positive_dir := sign(joy_axis) == 1
 	

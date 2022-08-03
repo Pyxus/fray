@@ -13,7 +13,7 @@ func _init(action_name: String = "") -> void:
 	action = action_name
 
 
-func is_pressed(device: int = 0) -> bool:
+func _is_pressed_impl(device: int = 0) -> bool:
 	if not InputMap.has_action(action):
 		push_warning("Action '%s' does not exist in Godot InputMap" % action)
 		return false

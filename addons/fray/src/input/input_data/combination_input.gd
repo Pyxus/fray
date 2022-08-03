@@ -16,7 +16,7 @@ enum Mode {
 var mode: int = Mode.SYNC
 
 
-func _is_pressed(device: int, input_interface: InputInterface) -> bool:
+func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	match mode:
 		Mode.SYNC: 
 			return _is_combination_quick_enough(device, input_interface)
@@ -30,7 +30,7 @@ func _is_pressed(device: int, input_interface: InputInterface) -> bool:
 	return false
 
 
-func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
 	# Returns all components decomposed and joined
 	var binds: PoolStringArray
 	for component in _components:

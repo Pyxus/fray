@@ -11,7 +11,7 @@ extends "complex_input.gd"
 var binds: PoolStringArray
 
 
-func _is_pressed(device: int, input_interface: InputInterface) -> bool:
+func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
     for bind in binds:
         var bind_state: InputState = input_interface.get_bind_state(bind, device)
         if bind_state.pressed:
@@ -24,7 +24,7 @@ func set_virtual(value: bool) -> void:
         push_warning("Conditionals by design always overlap with their components. A conditional will never trigger a virtual press.")
 
         
-func _decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
     # Returns the most recently pressed bind
     var most_recent_bind: InputState
     for bind in binds:
