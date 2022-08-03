@@ -15,20 +15,42 @@ signal match_found(sequence_name, inputs)
 
 var _root: InputNode
 var _current_node: InputNode
-var _sequence_list: SequenceList
 var _input_queue: LinkedList ## Type: LinkedList<InputFrame>
 var _match_path: Array ## Type: InputEvent[]
 var _current_frame: InputFrame
 
 var _scan_start_index: int = 0
 
+## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
+static func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
+	if fray_input_events.size() != input_requirements.size():
+		return false
+	
+	for i in len(input_requirements):
+		var input_event: FrayInputEvent = fray_input_events[i]
+		var input_requirement: InputRequirement = input_requirements[i]
+		
+		if input_event.input != input_requirement.input:
+			return false
+		
+		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
+			return false
+		
+		if i > 1:
+			var sec_since_last_input := input_event.get_time_between_sec(fray_input_events[i - 1])
+			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
+				return false
 
+	return true
+
+## Initialzes analyzer
+##
+## sequence list is used to register the sequences recognized by this analyzer
 func initialize(sequence_list: SequenceList) -> void:
 	_root = InputNode.new()
 	_root.is_root = true
 	_input_queue = LinkedList.new()
 	_current_node = _root
-	_sequence_list = sequence_list
 
 	for name in sequence_list.get_sequence_names():
 		var path_index := 0
@@ -92,33 +114,10 @@ func read(input_event: FrayInputEvent) -> void:
 	
 	if _current_node.has_sequence():
 		if is_match(_match_path, _current_node.sequence_path.input_requirements):
-			print(_current_node.sequence_name)
-			_reset()
 			emit_signal("match_found", _current_node.sequence_name, _match_path)
+			_reset()
 		else:
 			_resolve_sequence_break()
-
-## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
-static func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
-	if fray_input_events.size() != input_requirements.size():
-		return false
-	
-	for i in len(input_requirements):
-		var input_event: FrayInputEvent = fray_input_events[i]
-		var input_requirement: InputRequirement = input_requirements[i]
-		
-		if input_event.input != input_requirement.input:
-			return false
-		
-		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
-			return false
-		
-		if i > 1:
-			var sec_since_last_input := input_event.get_time_between_sec(fray_input_events[i - 1])
-			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
-				return false
-
-	return true
 
 
 func _resolve_sequence_break() -> void:
@@ -224,6 +223,7 @@ class InputFrame:
 				match_path.append(input)
 				match_node = node
 		return match_node
+
 class InputNode:
 	extends Reference
 
@@ -317,27 +317,3 @@ class InputNode:
 			var node = _next_nodes[i]
 			new_prefix = SPACE if is_last else VERTICAL
 			node._print_tree(prefix + new_prefix, i == _next_nodes.size() - 1)
-
-"""
-- Design Notes -
-X>	Inputs should be processed in bundles.
-	X> 	Inputs that occur at the same time should be packed into the same bundle.
-		If an input needed for a sequence and one that is not needed
-		is received at the same time we can just ignore the uneeded input.
-		This is to make inputs more lenient.
-	X>	Attempt to match all inputs in a frame in the order they appear but don't trigger
-		a sequence break if one does not match.
-
-X>	When an input breaks a sequence the top of the queue will be popped and the whole queue re-evaluated
-	>	This is to support 'path switching' where a player changes from one
-		path to another. We assume the sequence may have broke because they
-		were switched to enter a different sequence.
-
->	Ignore the max_delay of the first input in a sequence
-	>	The delay is between inputs so it should do nothing for the first one
-
-X> 	All paths must end with a leaf that contains a sequence
-
-X> 	There can be no more paths added after a node with a sequence
-
-"""

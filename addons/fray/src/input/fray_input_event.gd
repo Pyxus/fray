@@ -39,18 +39,21 @@ func _to_string() -> String:
 	return input if pressed else "(%s)" % input
 
 
-## Returns the time in miliseconds between two input events.
+## Returns the time between two input events in miliseconds.
 func get_time_between_ms(fray_input_event: Reference, use_time_pressed: bool = false) -> int:
 	var t1: int = fray_input_event.time_pressed if use_time_pressed else fray_input_event.time_detected
 	var t2: int = time_pressed if use_time_pressed else time_detected
 	return int(abs(t1 - t2))
 
+## Returns the time between two input events in seconds
 func get_time_between_sec(fray_input_event: Reference, use_time_pressed: bool = false) -> float:
 	return get_time_between_ms(fray_input_event, use_time_pressed) / 1000.0
 
+## returns how long this input was held in miliseconds
 func get_time_held_ms() -> int:
 	return time_detected - time_pressed
 
+## returns how long this input was held in seconds
 func get_time_held_sec() -> float:
 	return get_time_held_ms() / 1000.0
 
