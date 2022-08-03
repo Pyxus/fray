@@ -35,6 +35,9 @@ var device: int
 ## The input's name
 var input: String
 
+func _to_string() -> String:
+	return input if pressed else "(%s)" % input
+
 
 ## Returns the time in miliseconds between two input events.
 func get_time_between(fray_input_event: Reference) -> int:

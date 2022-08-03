@@ -52,6 +52,8 @@ func _physics_process(_delta: float) -> void:
 				if not input_state.pressed:
 					input_state.press()
 					device_state.filter(complex_input.decompose(device, _input_interface))
+					#TODO: Rethink filter system
+					# It doesn't really work with component realeases and it be nice if it did.
 			elif input_state.pressed:
 				input_state.unpress()
 				device_state.unfilter(complex_input.decompose(device, _input_interface))
@@ -62,26 +64,26 @@ func _physics_process(_delta: float) -> void:
 						if bind_state.pressed:
 							bind_state.press(true)
 		
-		for pressed_input in device_state.get_pressed_inputs():
-			var input_state := _get_input_state(pressed_input, device)
+		for input in device_state.get_all_inputs():
+			var input_state := _get_input_state(input, device)
 			var input_event := FrayInputEvent.new()
 			
 			input_event.device = device
-			input_event.input = pressed_input
+			input_event.input = input
 			input_event.time_pressed = input_state.time_pressed
 			input_event.physics_frame = input_state.physics_frame
 			input_event.idle_frame = input_state.idle_frame
 			input_event.time_held = OS.get_ticks_msec() - input_state.time_pressed
 			input_event.pressed = input_state.pressed
 			input_event.virtually_pressed = input_state.virtually_pressed
-			input_event.filtered = not device_state.is_filtered(pressed_input)
+			input_event.filtered = not device_state.is_filtered(input)
 
-			if is_just_pressed(pressed_input, device):
+			if is_just_pressed(input, device) or is_just_released(input, device):
 				input_event.echo = false
-			else:
+				emit_signal("input_detected", input_event)
+			elif is_pressed(input, device):
 				input_event.echo = true
-			
-			emit_signal("input_detected", input_event)
+				emit_signal("input_detected", input_event)
 
 ## Returns true if an input is being pressed.
 func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
@@ -257,6 +259,19 @@ class DeviceState:
 			if input_state_by_name[input].pressed:
 				pressed_inputs.append(input)
 		return pressed_inputs
+
+
+	func get_unpressed_inputs() -> PoolStringArray:
+		var unpressed_inputs: PoolStringArray
+		for input in input_state_by_name:
+			if not input_state_by_name[input].pressed:
+				unpressed_inputs.append(input)
+		return unpressed_inputs
+
+
+	func get_all_inputs() -> PoolStringArray:
+		return PoolStringArray(input_state_by_name.keys())
+
 
 	func get_input_state(input_name: String) -> InputState:
 		if input_state_by_name.has(input_name):
