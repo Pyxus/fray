@@ -1,13 +1,13 @@
 extends Node
 ## Contains a list of all inputs recognized by the FrayInput singleton
 
-const InputBind = preload("input_data/binds/input_bind.gd")
-const InputBindAction = preload("input_data/binds/input_bind_action.gd")
-const InputBindJoyButton = preload("input_data/binds/input_bind_joy_button.gd")
-const InputBindJoyAxis = preload("input_data/binds/input_bind_joy_axis.gd")
-const InputBindKey = preload("input_data/binds/input_bind_key.gd")
-const InputBindMouseButton = preload("input_data/binds/input_bind_mouse_button.gd")
-const ComplexInput = preload("input_data/complex_input.gd")
+const InputBind = preload("../input_data/binds/input_bind.gd")
+const InputBindAction = preload("../input_data/binds/input_bind_action.gd")
+const InputBindJoyButton = preload("../input_data/binds/input_bind_joy_button.gd")
+const InputBindJoyAxis = preload("../input_data/binds/input_bind_joy_axis.gd")
+const InputBindKey = preload("../input_data/binds/input_bind_key.gd")
+const InputBindMouseButton = preload("../input_data/binds/input_bind_mouse_button.gd")
+const ComplexInput = preload("../input_data/complex_input.gd")
 
 ## Type: Dictionary<String, InputBind>
 var _input_bind_by_name: Dictionary

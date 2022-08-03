@@ -3,11 +3,11 @@ extends Node
 signal input_detected(input_event)
 
 const FrayInputList = preload("fray_input_list.gd")
-const InputState = preload("input_data/state/input_state.gd")
-const InputInterface = preload("input_data/state/input_interface.gd")
-const InputBindAction = preload("input_data/binds/input_bind_action.gd")
-const InputBindJoyAxis = preload("input_data/binds/input_bind_joy_axis.gd")
-const FrayInputEvent = preload("fray_input_event.gd")
+const InputState = preload("../input_data/state/input_state.gd")
+const InputInterface = preload("../input_data/state/input_interface.gd")
+const InputBindAction = preload("../input_data/binds/input_bind_action.gd")
+const InputBindJoyAxis = preload("../input_data/binds/input_bind_joy_axis.gd")
+const FrayInputEvent = preload("../fray_input_event.gd")
 
 const DEVICE_ALL = -1
 const DEVICE_KBM_JOY1 = 0
@@ -228,7 +228,7 @@ func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
 class DeviceState:
 	extends Reference
 
-	const InputState = preload("input_data/state/input_state.gd")
+	const InputState = preload("../input_data/state/input_state.gd")
 
 	## Type: Dictionary<string, InputState>
 	var input_state_by_name: Dictionary
