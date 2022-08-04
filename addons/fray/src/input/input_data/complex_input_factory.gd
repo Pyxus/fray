@@ -31,6 +31,11 @@ class ComponentBuilder:
 		return _complex_input
 
 
+	func virtual(is_virtual: bool = true) -> ComponentBuilder:
+		_complex_input.is_virtual = is_virtual
+		return self
+
+
 class CombinationBuilder:
 	extends ComponentBuilder
 
@@ -47,11 +52,6 @@ class CombinationBuilder:
 
 	func mode(combination_mode: int) -> CombinationBuilder:
 		_complex_input.mode = combination_mode
-		return self
-	
-
-	func virtual(is_virtual: bool = true) -> CombinationBuilder:
-		_complex_input.is_virtual = is_virtual
 		return self
 	
 

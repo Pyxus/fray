@@ -48,19 +48,44 @@ func _physics_process(_delta: float) -> void:
 
 			if complex_input.is_pressed(device, _input_interface):
 				if not input_state.pressed:
+					var my_components := complex_input.decompose(device, _input_interface)
 					input_state.press()
-					device_state.filter(complex_input.decompose(device, _input_interface))
-					#TODO: Rethink filter system
-					# It doesn't really work with component realeases and it be nice if it did.
+					if device_state.has_all_filtered(my_components):
+						device_state.filter([complex_input_name])
+					else:
+						device_state.filter(my_components)
 			elif input_state.pressed:
+				var my_components := complex_input.decompose(device, _input_interface)
 				input_state.unpress()
-				device_state.unfilter(complex_input.decompose(device, _input_interface))
+				device_state.unfilter(my_components)
+				device_state.unfilter([complex_input_name])
 
 				if complex_input.is_virtual:
-					for bind in complex_input.decompose(device, _input_interface):
+					var held_components: Array
+					for bind in my_components:
+						if is_pressed(bind, device):
+							held_components.append(bind)
+
+					var virtually_pressed_complex := false
+					for com_input_name in _input_list.get_complex_input_names():
+						var com_input_state := _get_input_state(com_input_name, device)
+						var com_input := _input_list.get_complex_input(com_input_name)
+						var has_binds := com_input.decomposes_into_binds(held_components, device, _input_interface)
+
+						if com_input_state.pressed and has_binds:
+							com_input_state.press(true)
+							device_state.unfilter([com_input_name])
+							virtually_pressed_complex = true
+							break
+
+					for bind in held_components:
 						var bind_state := _get_input_state(bind, device)
 						if bind_state.pressed:
 							bind_state.press(true)
+
+							if virtually_pressed_complex:
+								device_state.filter([bind])
+							break
 		
 		for input in device_state.get_all_inputs():
 			var input_state := _get_input_state(input, device)
@@ -74,7 +99,7 @@ func _physics_process(_delta: float) -> void:
 			input_event.time_detected = OS.get_ticks_msec()
 			input_event.pressed = input_state.pressed
 			input_event.virtually_pressed = input_state.virtually_pressed
-			input_event.filtered = not device_state.is_filtered(input)
+			input_event.filtered = not device_state.has_filtered(input)
 
 			if is_just_pressed(input, device) or is_just_released(input, device):
 				input_event.echo = false
@@ -247,8 +272,12 @@ class DeviceState:
 			if filtered_inputs.has(input):
 				filtered_inputs.erase(input)
 
-	func is_filtered(input: String) -> bool:
+	func has_filtered(input: String) -> bool:
 		return filtered_inputs.has(input)
+
+
+	func has_all_filtered(components: PoolStringArray) -> bool:
+		return filtered_inputs.has_all(components)
 
 
 	func get_pressed_inputs() -> PoolStringArray:

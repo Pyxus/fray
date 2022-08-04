@@ -119,7 +119,6 @@ func read(input_event: FrayInputEvent) -> void:
 				_reset()
 			else:
 				_resolve_sequence_break()
-		_input_queue.print_list()
 
 func _resolve_sequence_break() -> void:
 	var successful_retrace := false
