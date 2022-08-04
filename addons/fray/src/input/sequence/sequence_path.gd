@@ -6,6 +6,9 @@ const InputRequirement = preload("input_requirement.gd")
 
 ## Array holding the InputRequirements used to detect a sequence.
 var input_requirements: Array # InputRequirement[]
+
+## If true the final input in the sequence is allowed to be triggered with a button release
+## Search 'fighting game negative edge' for more info on the concept
 var allow_negative_edge: bool
 
 func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
@@ -29,9 +32,9 @@ func add(input: String, min_time_held := 0.0, max_delay := .13) -> Reference:
 	input_requirements.append(input_requirement)
 	return self
 
-## Setter for 'allow_negative_edge'
+## Setter for 'allow_negative_edge. 
 ##
 ## Returns a reference to this path to be used in builder-like pattern
-func negative_edge(allow: bool = true) -> Reference:
+func enable_negative_edge(allow: bool = true) -> Reference:
 	allow_negative_edge = allow
 	return self
