@@ -19,10 +19,19 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 ## Depending on the SequenceAnalyzer implementation the max_delay of the first requirement does nothing.
 ##
 ## min_time_held is the minimum time in seconds that the input is required to be held.
-func add(input: String, min_time_held := 0.0, max_delay := .15) -> Reference:
+##
+## Returns a reference to this path to be used in builder-like pattern
+func add(input: String, min_time_held := 0.0, max_delay := .13) -> Reference:
 	var input_requirement := InputRequirement.new()
 	input_requirement.input = input
 	input_requirement.max_delay = max_delay
 	input_requirement.min_time_held = min_time_held
 	input_requirements.append(input_requirement)
+	return self
+
+## Setter for 'allow_negative_edge'
+##
+## Returns a reference to this path to be used in builder-like pattern
+func negative_edge(allow: bool = true) -> Reference:
+	allow_negative_edge = allow
 	return self
