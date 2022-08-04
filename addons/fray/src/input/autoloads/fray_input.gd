@@ -15,7 +15,7 @@ const DEVICE_KBM_JOY1 = 0
 ## Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-onready var _input_list: FrayInputList = get_node("./root/FrayInput")
+onready var _input_list: FrayInputList = get_node("../FrayInputList")
 onready var _input_interface := InputInterface.new(weakref(self))
 
 
