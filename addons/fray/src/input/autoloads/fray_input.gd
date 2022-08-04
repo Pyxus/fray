@@ -12,12 +12,10 @@ const FrayInputEvent = preload("../fray_input_event.gd")
 const DEVICE_ALL = -1
 const DEVICE_KBM_JOY1 = 0
 
-var _input_list := FrayInputList.new()
-
 ## Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-
+onready var _input_list: FrayInputList = get_node("./root/FrayInput")
 onready var _input_interface := InputInterface.new(weakref(self))
 
 
