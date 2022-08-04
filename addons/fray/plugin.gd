@@ -14,10 +14,9 @@ extends EditorPlugin
 #public variables
 
 var _added_types: Array
-var _added_project_settings: Array
+var _added_singletons: Array
 var _editor_interface := get_editor_interface()
 var _editor_settings := _editor_interface.get_editor_settings()
-var _global = load("res://addons/fray/editor/global.tres")
 
 #onready variables
 
@@ -30,13 +29,8 @@ var _global = load("res://addons/fray/editor/global.tres")
 func _ready() -> void:
 	pass
 
-
-func _process(delta: float) -> void:
-	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
-	
 	
 func _enter_tree() -> void:
-	_global.base_color = _editor_settings.get_setting("interface/theme/base_color")
 	add_autoload_singleton("FrayInputList", "res://addons/fray/src/input/autoloads/fray_input_list.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/autoloads/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)
@@ -51,29 +45,17 @@ func _enter_tree() -> void:
 
 
 func _exit_tree():
-	remove_autoload_singleton("FrayInput")
-	remove_autoload_singleton("FrayInputList")
-	_input_map_editor.queue_free()
+	for singleton in _added_singletons:
+		remove_autoload_singleton(singleton)
+
 	for type in _added_types:
 		remove_custom_type(type)
 
 
-func save_external_data():
-	pass
+func add_autoload_singleton(name: String, path: String) -> void:
+	.add_autoload_singleton(name, path)
+	_added_singletons.append(name)
 
-
-func enable_plugin() -> void:
-	#add_project_setting("fray_settings/show_color_change_dialog", TYPE_BOOL, PROPERTY_HINT_NONE, "", true)
-	pass
-	
-func disable_plugin() -> void:	
-	"""
-	for setting in _added_project_settings:
-		ProjectSettings.clear(setting)
-	ProjectSettings.save()
-	"""
-	pass
-	
 
 func add_custom_type(type: String, base: String, script: Script, icon: Texture) -> void:
 	.add_custom_type(type, base, script, icon)

@@ -89,36 +89,37 @@ func read(input_event: FrayInputEvent) -> void:
 		push_error("Sequence analyzer is not initialized.")
 		return
 
-	var next_node := _current_node.get_next(input_event.input, input_event.pressed)
-	if next_node != null:
-		_current_node = next_node
-		_match_path.append(input_event)
+	if input_event.filtered and not input_event.echo:
+		var next_node := _current_node.get_next(input_event.input, input_event.pressed)
+		if next_node != null:
+			_current_node = next_node
+			_match_path.append(input_event)
 
-	if _current_frame == null:
-		_current_frame = _create_frame(input_event)
-	elif _current_frame.physics_frame == input_event.physics_frame:
-		_current_frame.add(input_event)
-	else:
-		# Interesting note: If the first input in a frame is a release input then even if
-		# the following input would break the sequence it gets ignored if its within the newly created frame.
-		# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
-		# Im keeping it for now as it may build input leniancy into the analyzer.
-		# Previously the approach to leniancy was to create sort of 'alias' branches that accepted bad inputs.
-		# If problems accur while testing let this note serve as a reminder of possible source.
-		# This accidently feature should be easy to remove just replace the else with
-		# I think just move the resolve check outside of this else
-		_current_frame = _create_frame(input_event)
-
-		if next_node == null and input_event.pressed:
-			_resolve_sequence_break()
-	
-	if _current_node.has_sequence():
-		if is_match(_match_path, _current_node.sequence_path.input_requirements):
-			emit_signal("match_found", _current_node.sequence_name, _match_path)
-			_reset()
+		if _current_frame == null:
+			_current_frame = _create_frame(input_event)
+		elif _current_frame.physics_frame == input_event.physics_frame:
+			_current_frame.add(input_event)
 		else:
-			_resolve_sequence_break()
+			# Interesting note: If the first input in a frame is a release input then even if
+			# the following input would break the sequence it gets ignored if its within the newly created frame.
+			# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
+			# Im keeping it for now as it may build input leniancy into the analyzer.
+			# Previously the approach to leniancy was to create sort of 'alias' branches that accepted bad inputs.
+			# If problems accur while testing let this note serve as a reminder of possible source.
+			# This accidently feature should be easy to remove just replace the else with
+			# I think just move the resolve check outside of this else
+			_current_frame = _create_frame(input_event)
 
+			if next_node == null and input_event.pressed:
+				_resolve_sequence_break()
+		
+		if _current_node.has_sequence():
+			if is_match(_match_path, _current_node.sequence_path.input_requirements):
+				emit_signal("match_found", _current_node.sequence_name, _match_path)
+				_reset()
+			else:
+				_resolve_sequence_break()
+		_input_queue.print_list()
 
 func _resolve_sequence_break() -> void:
 	var successful_retrace := false
