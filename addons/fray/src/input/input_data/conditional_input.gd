@@ -25,13 +25,7 @@ func set_condition(component_index: int, condition: String) -> void:
         _conditions_by_component[component_index] = condition
     else:
         push_warning("Failed to set condition on input. Given index out of range")
-
-
-func set_virtual(value: bool) -> void:
-    .set_virtual(value)
-    if is_virtual:
-        push_warning("Conditionals by design always overlap with their components. A conditional will never trigger a virtual press.")
-
+        
 
 func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
     if _components.empty():

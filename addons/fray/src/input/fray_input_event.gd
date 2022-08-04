@@ -20,7 +20,7 @@ var idle_frame: int
 var virtually_pressed: bool
 
 ## Returns true if this input was filtered when inputs were polled.
-## Used to ignore component presses when checking for complex inputs.
+## Used to ignore overlapping component presses when checking for complex inputs.
 var filtered: bool
 
 ## Returns true if the input has already been detected
