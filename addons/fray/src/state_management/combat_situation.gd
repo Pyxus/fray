@@ -157,8 +157,8 @@ func _get_next_state(input: Object = null) -> String:
 				continue
 
 			if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.min_input_delay:
-				for transition_condition in transition.prerequisites:
-					if not _is_condition_true(transition_condition):
+				for prereq in transition.prerequisites:
+					if not _is_condition_true(prereq.condition):
 						return ""
 
 				return transition_data.to

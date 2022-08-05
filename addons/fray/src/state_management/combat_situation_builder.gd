@@ -178,6 +178,7 @@ class TransitionBuilder:
 	const InputTransition = preload("transitions/input_transition.gd")
 	const InputButtonCondition = preload("transitions/conditions/input_button_condition.gd")
 	const InputSequenceCondition = preload("transitions/conditions/input_sequence_condition.gd")
+	const EvaluatedCondition = preload("transitions/conditions/evaluated_condition.gd")
 
 	var min_input_delay: float = 0
 	var prerequisites: Array
@@ -217,7 +218,19 @@ class TransitionBuilder:
 
 	## Configures the prerequisites of this transition.
 	##
+	## prereqs is an array of type EvaluatedCondition
+	##
 	## Returns a reference to this TransitionBuilder
 	func with_prereqs(prereqs: Array) -> TransitionBuilder:
 		prerequisites = prereqs
 		return self
+
+	## Configures the prerequisites of this transition using string conditions.
+	##
+	##
+	## Returns a reference to this TransitionBuilder
+	func with_prereqs_str(prereqs: PoolStringArray) -> TransitionBuilder:
+		var arr := []
+		for prereq in prereqs:
+			arr.append(EvaluatedCondition.new(prereq))
+		return with_prereqs(arr)

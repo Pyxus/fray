@@ -30,6 +30,7 @@ var _cc_detector: ChildChangeDetector
 
 func _init() -> void:
 	FrayInterface.assert_implements(self, "IHitDetector")
+	push_warning("Deprecated Class")
 
 #built-in virtual _ready method
 

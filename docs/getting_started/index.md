@@ -1,9 +1,7 @@
 # Getting Started
 
-Fray is a godot combat framework for developing fighting / action style games. If your game requires changes in combatant state corresponding to specific button presses, detecting combination button presses or sequence presses, or hitboxes and hit state manamagent then you may benefit from the tools Fray provides. The framework is divided into 3 modules that can be used independent of one another, they communicate through integer and string ids. Meaning you to run your own solutions alongside Fray you just need to interpret these values in your current setup.
-
-Below you can find breif tutorials on getting started with each module.
+Somewhere down the line I hope to make editors which will make working with Fray more intuative. However, for now everything must be done through the API which i've attempted to make as user-friendly as I can.
 
 - [Combat State Management](./combat_state_management.md)
-- [Input Detection](./input_detection.md)
+- [Input](./input.md)
 - [Hit Detection](./hit_detection.md)

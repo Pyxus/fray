@@ -34,6 +34,7 @@ var _current_hitbox: Object
 func _init() -> void:
 	FrayInterface.assert_implements(self, "IHitbox")
 	FrayInterface.assert_implements(self, "IHitDetector")
+	push_warning("Deprecated Class")
 
 #built-in virtual _ready method
 

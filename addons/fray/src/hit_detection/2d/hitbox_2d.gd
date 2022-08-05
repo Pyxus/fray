@@ -27,7 +27,7 @@ var _detection_exceptions: Array
 func _init() -> void:
 	FrayInterface.assert_implements(self, "IHitbox")
 	FrayInterface.assert_implements(self, "IHitDetector")
-
+	push_warning("Deprecated Class")
 
 func _ready() -> void:
 	set_is_active(is_active)

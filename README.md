@@ -11,7 +11,7 @@
 
 ## 📖 About
 
-Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org). It features tools for implementing action / fighting game style combat such as hit detection, input buffering, and fighter state management.
+Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org). It features tools for implementing action/fighting game style combat such as hit detection, input buffering, and state management. If your game requires changes in combatant state corresponding to specific button presses, detecting combination or sequence button presses, or hitbox and hit state management then you may benefit from using Fray!
 
 ## ⚠️ IMPORTANT
 
@@ -27,15 +27,19 @@ Fray provides tools for setting up and managing a fighter's hitbox / attackbox.
 
 Fray features a state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a user defined "combat graph".
 
-Through this system Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
+Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
 ### Input Buffering
 
-Inputs fed to fray's combat state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action games as without it players would need frame perfect inputs to perform their actions.
+Inputs fed to fray's combat state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action/fighting games as without it players would need frame perfect inputs to perform their actions.
 
 ### Complex Input Detection
 
 Fray provides tools for detecting the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
+
+### Modular Design
+
+Fray's tooling is divided into 3 modules: State Management, Input, and Hit Detection. None of which are dependent on one another as they only communicate through strings. This means you can easily run your own solutions alongside Fray by intepreting these strings in your current setup.
 
 ## ⚙ Installation
 
