@@ -19,8 +19,6 @@ var _input_queue: LinkedList ## Type: LinkedList<InputFrame>
 var _match_path: Array ## Type: InputEvent[]
 var _current_frame: InputFrame
 
-var _scan_start_index: int = 0
-
 ## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
 static func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
 	if fray_input_events.size() != input_requirements.size():
@@ -96,18 +94,19 @@ func read(input_event: FrayInputEvent) -> void:
 			_match_path.append(input_event)
 
 		if _current_frame == null:
-			_current_frame = _create_frame(input_event)
+			if next_node != null:
+				_current_frame = _create_frame(input_event)
 		elif _current_frame.physics_frame == input_event.physics_frame:
 			_current_frame.add(input_event)
 		else:
-			# Interesting note: If the first input in a frame is a release input then even if
+			# NOTE: Unexpected behavior discovered
+			# If the first input in a new frame is a release input then even if
 			# the following input would break the sequence it gets ignored if its within the newly created frame.
 			# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
-			# Im keeping it for now as it may build input leniancy into the analyzer.
-			# Previously the approach to leniancy was to create sort of 'alias' branches that accepted bad inputs.
-			# If problems accur while testing let this note serve as a reminder of possible source.
-			# This accidently feature should be easy to remove just replace the else with
-			# I think just move the resolve check outside of this else
+			# Im keeping it for now as this result is somewhat desireable as a sort of input leniancy.
+			# In an older itteration the approach to leniancy was to create sort of 'alias' branches that accepted 'bad' inputs.
+			# If problems occur while testing let this note serve as a reminder of a possible source.
+			# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
 			_current_frame = _create_frame(input_event)
 
 			if next_node == null and input_event.pressed:
@@ -116,9 +115,12 @@ func read(input_event: FrayInputEvent) -> void:
 		if _current_node.has_sequence():
 			if is_match(_match_path, _current_node.sequence_path.input_requirements):
 				emit_signal("match_found", _current_node.sequence_name, _match_path)
+				_input_queue.print_list()
 				_reset()
+				print()
 			else:
 				_resolve_sequence_break()
+
 
 func _resolve_sequence_break() -> void:
 	var successful_retrace := false

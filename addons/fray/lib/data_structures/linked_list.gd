@@ -50,6 +50,7 @@ func empty() -> bool:
 
 func clear() -> void:
 	_head = null
+	_count = 0
 
 
 func _iter_init(arg):
