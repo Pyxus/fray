@@ -34,7 +34,7 @@ static func is_match(fray_input_events: Array, input_requirements: Array) -> boo
 		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
 			return false
 		
-		if i > 1:
+		if i > 0:
 			var sec_since_last_input := input_event.get_time_between_sec(fray_input_events[i - 1])
 			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
 				return false
@@ -115,11 +115,7 @@ func read(input_event: FrayInputEvent) -> void:
 		if _current_node.has_sequence():
 			if is_match(_match_path, _current_node.sequence_path.input_requirements):
 				emit_signal("match_found", _current_node.sequence_name, _match_path)
-				_input_queue.print_list()
-				_reset()
-				print()
-			else:
-				_resolve_sequence_break()
+			_reset()
 
 
 func _resolve_sequence_break() -> void:
