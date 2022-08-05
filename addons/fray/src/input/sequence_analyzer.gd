@@ -79,7 +79,6 @@ func initialize(sequence_list: SequenceList) -> void:
 					"This sequence will be ignored"
 					)
 			path_index += 1
-	_root.print_tree()
 
 ## Used to feed next inputs to analyzer.
 func read(input_event: FrayInputEvent) -> void:
