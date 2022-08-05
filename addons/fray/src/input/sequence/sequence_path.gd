@@ -24,7 +24,7 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 ## min_time_held is the minimum time in seconds that the input is required to be held.
 ##
 ## Returns a reference to this path to be used in builder-like pattern
-func add(input: String, min_time_held := 0.0, max_delay := .13) -> Reference:
+func add(input: String, min_time_held := 0.0, max_delay := .18) -> Reference:
 	var input_requirement := InputRequirement.new()
 	input_requirement.input = input
 	input_requirement.max_delay = max_delay
