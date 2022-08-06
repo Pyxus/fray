@@ -25,13 +25,18 @@ class ComponentBuilder:
 	var _complex_input: ComplexInput
 	var _builders: Array ## ComponentBuilder[]
 
+	## Builds the complex input
+	##
+	## Returns a reference to the newly build ComplexInput
 	func build() -> ComplexInput:
 		for builder in _builders:
 			_complex_input.add_component(builder.build())
 		return _complex_input
 
-
-	func virtual(is_virtual: bool = true) -> ComponentBuilder:
+	## Sets whether the input will be virtual or not
+	##
+	## Returns a reference to this ComponentBuilder
+	func virtual(is_virtual: bool = true) -> Reference:
 		_complex_input.is_virtual = is_virtual
 		return self
 
@@ -43,14 +48,19 @@ class CombinationBuilder:
 
 	func _init() -> void:
 		_complex_input = CombinationInput.new()
+		pass
 
-
-	func add_component(component_builder: ComponentBuilder) -> CombinationBuilder:
+	## Adds a complex input as a component of this combination
+	##
+	## Returns a reference to this ComponentBuilder
+	func add_component(component_builder: Reference) -> Reference:
 		_builders.append(component_builder)
 		return self
 
-
-	func mode(combination_mode: int) -> CombinationBuilder:
+	## Sets the combination mode
+	##
+	## Returns a reference to this ComponentBuilder
+	func mode(combination_mode: int) -> Reference:
 		_complex_input.mode = combination_mode
 		return self
 	
@@ -65,8 +75,10 @@ class ConditionalBuilder:
 	func _init() -> void:
 		_complex_input = ConditionalInput.new()
 
-
-	func add_component(condition: String, component_builder: ComponentBuilder):
+	## Adds a complex input as a component of this conditional input
+	##
+	## Returns a reference to this ComponentBuilder
+	func add_component(condition: String, component_builder: Reference):
 		_conditions.append(condition)
 		_builders.append(component_builder)
 		return self 
@@ -89,13 +101,17 @@ class SimpleBuilder:
 	func _init() -> void:
 		_complex_input = SimpleInput.new()
 
-
-	func bind(bind_name: String) -> SimpleBuilder:
+	## Adds a bind to this simple input
+	##
+	## Returns a reference to this ComponentBuilder
+	func bind(bind_name: String) -> Reference:
 		_complex_input.binds.append(bind_name)
 		return self
 	
-
-	func set_binds(bind_names: PoolStringArray) -> SimpleBuilder:
+	## Sets an array of binds to this simple input
+	##
+	## Returns a reference to this ComponentBuilder
+	func set_binds(bind_names: PoolStringArray) -> Reference:
 		_complex_input.binds = bind_names
 		return self
 

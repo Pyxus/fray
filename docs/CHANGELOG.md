@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0-alpha.2
+
+### Fixed
+
+- Memory leaks related to inner class cyclic dependency and cyclic references in complex input.
+
 ## v1.0.0-alpha
 
 ### Added

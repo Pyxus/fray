@@ -70,12 +70,15 @@ func _iter_get(arg):
 class ListNode:
 	extends Reference
 
+	## Type: Variant
 	var data
-	var _next: ListNode
+
+	## Type: ListNode
+	var _next: Reference
 
 	func _init(node_data) -> void:
 		data = node_data
 
-	
-	func get_next() -> ListNode:
+	## Returns: ListNode
+	func get_next() -> Reference:
 		return _next

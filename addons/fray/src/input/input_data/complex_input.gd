@@ -16,7 +16,7 @@ var is_virtual: bool setget set_virtual
 var _components: Array 
 
 ## Type: ComplexInput
-var _root: Resource
+var _root_wf: WeakRef
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
 func is_pressed(device: int, input_interface: InputInterface) -> bool:
@@ -24,20 +24,19 @@ func is_pressed(device: int, input_interface: InputInterface) -> bool:
 
 ## Adds a component to this input
 func add_component(component: Resource) -> void:
-	if component._root != null:
-		if component._root == get_root():
-			push_warning("Component '%s' already belongs to this system." % component)
-			return
-		else:
-			push_error("Failed to add component. Component already belongs to another system.")
-			return
+	if component.get_root() == self:
+		push_warning("Component '%s' already belongs to this system." % component)
+		return
+	elif component.get_root() != null:
+		push_error("Failed to add component. Component already belongs to another system.")
+		return
 
 	for comp in _components:
 		if comp == component:
 			push_warning("Component '%s' has already been added." % comp)
 			return
 
-	component._root = get_root()
+	component._root_wf = weakref(get_root())
 	_components.append(component)
 
 ## Decomposes complex input into binds
@@ -72,13 +71,14 @@ func decomposes_into_binds(binds: PoolStringArray, device: int, input_interface:
 func set_virtual(value: bool) -> void:
 	is_virtual = value
 
-	if get_root() != self:
+	if get_root() != null:
 		push_warning("Virtual on a non-root component has no affect.") 
 
 ## Returns the root of this complex input
 ## Returns: ComplexInput
 func get_root() -> Resource:
-	return _root if _root else self
+	var ref = _root_wf.get_ref() if _root_wf else null
+	return ref
 
 ## Abstract method used to define press check procedure
 func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:

@@ -212,7 +212,7 @@ class TransitionBuilder:
 	## Configures the minimum input delay of this transition.
 	##
 	## Returns a reference to this TransitionBuilder
-	func with_min_input_delay(delay: float) -> TransitionBuilder:
+	func with_min_input_delay(delay: float) -> Reference:
 		min_input_delay = delay
 		return self
 
@@ -221,7 +221,7 @@ class TransitionBuilder:
 	## prereqs is an array of type EvaluatedCondition
 	##
 	## Returns a reference to this TransitionBuilder
-	func with_prereqs(prereqs: Array) -> TransitionBuilder:
+	func with_prereqs(prereqs: Array) -> Reference:
 		prerequisites = prereqs
 		return self
 
@@ -229,7 +229,7 @@ class TransitionBuilder:
 	##
 	##
 	## Returns a reference to this TransitionBuilder
-	func with_prereqs_str(prereqs: PoolStringArray) -> TransitionBuilder:
+	func with_prereqs_str(prereqs: PoolStringArray) -> Reference:
 		var arr := []
 		for prereq in prereqs:
 			arr.append(EvaluatedCondition.new(prereq))
