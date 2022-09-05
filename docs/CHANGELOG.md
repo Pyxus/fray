@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0-alpha.3
+
+### Added
+
+- Added new builders to `ComplexInputFactory` class.
+
 ## v1.0.0-alpha.2
 
 ### Fixed

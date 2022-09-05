@@ -1,11 +1,30 @@
 extends Reference
 
 const ComplexInput = preload("complex_input.gd")
+const CombinationInput = preload("combination_input.gd")
 
 ## Returns a new combination input builder
 static func new_combination() -> CombinationBuilder:
 	return CombinationBuilder.new()
 
+## Returns a new combination input builder with mode set to sync
+static func new_combination_sync() -> CombinationBuilder:
+	var builder := CombinationBuilder.new()
+	builder.mode(CombinationInput.Mode.SYNC)
+	return builder
+
+## Returns a new combination input builder with mode set to async
+static func new_combination_async() -> CombinationBuilder:
+	var builder := CombinationBuilder.new()
+	builder.mode(CombinationInput.Mode.ASYNC)
+	return builder
+
+## Returns a new combination input builder with mode set to ordered
+static func new_combination_ordered() -> CombinationBuilder:
+	var builder := CombinationBuilder.new()
+	builder.mode(CombinationInput.Mode.ORDERED)
+	return builder
+	
 ## Returns a new conditional input builder
 static func new_conditional():
 	return ConditionalBuilder.new()
