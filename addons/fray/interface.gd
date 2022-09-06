@@ -6,10 +6,6 @@ const _interfaces = {
 		"methods" : ["activate", "deactivate", "set_source"],
 		"signals" : [],
 	},
-	"IHitDetector" : {
-		"methods" : [],
-		"signals" : ["hit_detected"],
-	}
 }
 
 func _init() -> void:
