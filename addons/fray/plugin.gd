@@ -33,15 +33,14 @@ func _ready() -> void:
 func _enter_tree() -> void:
 	add_autoload_singleton("FrayInputList", "res://addons/fray/src/input/autoloads/fray_input_list.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/autoloads/fray_input.gd")
-	add_custom_type("SequenceAnalyzer", "Resource", FrayInputNS.SequenceAnalyzer, null)
-	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInputNS.SequenceAnalyzerTree, null)
-	add_custom_type("CombatGraph", "Node", FrayStateMgmt.CombatGraph, preload("assets/icons/combat_graph.svg"))
-	add_custom_type("CombatSituation", "Resource", FrayStateMgmt.CombatSituation, null)
-	#add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
-	#add_custom_type("HitboxSwitcher2D", "Node2D", FrayHitDetection.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
-	#add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))
-	#add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
-	#add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
+	add_custom_type("SequenceAnalyzer", "Resource", Fray.Input.SequenceAnalyzer, null)
+	add_custom_type("CombatGraph", "Node", Fray.StateMgmt.CombatGraph, preload("assets/icons/combat_graph.svg"))
+	add_custom_type("CombatSituation", "Resource", Fray.StateMgmt.CombatSituation, null)
+	add_custom_type("Pushbox2D", "KinematicBody2D", Fray.Collision.Pushbox2D, preload("assets/icons/push_box_2d.svg"))
+	add_custom_type("HitBox2D", "Area2D", Fray.Collision.Hitbox2D, preload("assets/icons/hitbox_2d.svg"))
+	add_custom_type("HitboxSwitcher2D", "Node2D", Fray.Collision.HitStateSwitcher2D, preload("assets/icons/hit_state_switcher_2d.svg"))
+	add_custom_type("HitState2D", "Node2D", Fray.Collision.HitState2D, preload("assets/icons/hit_state_2d.svg"))
+	add_custom_type("HitAttributes", "Resource", Fray.Collision.HitboxAttributes, null)
 
 
 func _exit_tree():

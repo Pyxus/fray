@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
-## Source of the hitbox. 
-## Can be used to prevent hitboxes produced by the same object from interacting
+## Source of the pushbox. 
+## Can be used to prevent pushboxes produced by the same object from interacting
 var source: Object setget set_source
 
 func _init() -> void:

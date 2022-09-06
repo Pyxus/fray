@@ -5,7 +5,7 @@ func _init() -> void:
 	free()
 
 const HitboxAttributes = preload("hitbox_attributes.gd")
-const CollisionBox2D = preload("2d/collision_box_2d.gd")
+const Pushbox2D = preload("2d/pushbox_2d.gd")
 const Hitbox2D = preload("2d/hitbox_2d.gd")
 const HitState2D = preload("2d/hit_state_2d.gd")
 const HitStateSwitcher2D = preload("2d/hit_state_switcher_2d.gd")

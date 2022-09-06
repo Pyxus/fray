@@ -9,7 +9,7 @@ const _interfaces = {
 }
 
 func _init() -> void:
-	push_warning("The 'FrayInterface' class only provides pseudo-interface membership test and is not intended to be instanced")
+	assert(false, "The 'FrayInterface' class only provides pseudo-interface membership test and is not intended to be instanced")
 	free()
 
 
