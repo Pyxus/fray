@@ -18,13 +18,14 @@ func _ready() -> void:
 		if child is Hitbox2D:
 			child.connect("hitbox_entered", self, "_on_Hitbox_hitbox_entered", [child])
 
-
-func update_hitbox_source(source: Object) -> void:
+## Sets the source of all Ihitbox children.
+## IHitbox is a pseudo interface, see fray_interface.gd script.
+func set_hitbox_source(source: Object) -> void:
 	for child in get_children():
 		if FrayInterface.implements(child, "IHitbox"):
 			child.source = source
 
-## Activates all IHitbox nodes belonging to this state.
+## Activates all IHitbox children belonging to this state.
 ## IHitbox is a pseudo interface, see fray_interface.gd script.
 func activate() -> void:
 	show()
@@ -32,7 +33,7 @@ func activate() -> void:
 		if FrayInterface.implements(child, "IHitbox"):
 			child.activate()
 
-## Deactivates all IHitbox nodes belonging to this state.
+## Deactivates all IHitbox children belonging to this state.
 ## IHitbox is a pseudo interface, see fray_interface.gd script.
 func deactivate() -> void:
 	hide()

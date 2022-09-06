@@ -28,9 +28,6 @@ func _ready() -> void:
 	connect("area_entered", self, "_on_area_entered")
 
 
-func set_source(value: Object) -> void:
-	source = source
-
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
 func add_detection_exception_with(hitbox: Area2D) -> void:
 	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
@@ -50,6 +47,10 @@ func activate() -> void:
 func deactivate() -> void:
 	monitorable = false
 	monitoring = false
+
+
+func set_source(value: Object) -> void:
+	source = value
 
 
 func _hitbox_entered_impl(hitbox: Area2D) -> void:
