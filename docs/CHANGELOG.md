@@ -4,7 +4,13 @@
 
 ### Added
 
-- Added new builders to `ComplexInputFactory` class.
+- Added new combination builders to `ComplexInputFactory` class.
+
+### Changed
+
+- Updated hit detection system.
+- Renamed 'hit_detection' folder to more general 'collision'.
+- Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`
 
 ## v1.0.0-alpha.2
 
