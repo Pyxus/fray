@@ -17,7 +17,7 @@ signal activated()
 
 #enums
 
-const NONE = ":None:"
+const NONE = " None "
 
 #preloaded scripts and scenes
 
