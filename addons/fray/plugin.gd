@@ -37,11 +37,11 @@ func _enter_tree() -> void:
 	add_custom_type("SequenceAnalyzerTree", "Resource", FrayInputNS.SequenceAnalyzerTree, null)
 	add_custom_type("CombatGraph", "Node", FrayStateMgmt.CombatGraph, preload("assets/icons/combat_graph.svg"))
 	add_custom_type("CombatSituation", "Resource", FrayStateMgmt.CombatSituation, null)
-	add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
-	add_custom_type("HitboxSwitcher2D", "Node2D", FrayHitDetection.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
-	add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))
-	add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
-	add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
+	#add_custom_type("HitBox2D", "Area2D", FrayHitDetection.HitBox2D, preload("assets/icons/hitbox_2d.svg"))
+	#add_custom_type("HitboxSwitcher2D", "Node2D", FrayHitDetection.HitboxSwitcher2D, preload("assets/icons/hitbox_switcher_2d.svg"))
+	#add_custom_type("HitState2D", "Node2D", FrayHitDetection.HitState2D, preload("assets/icons/hit_state_2d.svg"))
+	#add_custom_type("HitStateCoordinator2D", "Node2D", FrayHitDetection.HitStateCoordinator2D, preload("assets/icons/hit_state_coordinator_2d.svg"))
+	#add_custom_type("HitAttributes", "Resource", FrayHitDetection.HitAttributes, null)
 
 
 func _exit_tree():

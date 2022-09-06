@@ -4,7 +4,7 @@ extends Area2D
 
 signal hitbox_entered(hitbox)
 
-var Hitbox2D = load("res://addons/fray/src/hit_detection/2d/hitbox_2d.gd") # Cyclic depedencies... >:[
+var Hitbox2D = load("res://addons/fray/src/collision_detection/2d/hitbox_2d.gd") # Cyclic depedencies... >:[
 
 ## If true then hitboxes that share the same source as this one will still be detected
 export var ignore_source_hitboxes: bool = false

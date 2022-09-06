@@ -23,10 +23,10 @@ var _cc_detector: ChildChangeDetector
 
 
 func _ready() -> void:
-	_source = get_node(source)
+	_source = get_node_or_null(source)
 	for child in get_children():
 		if child is HitState2D:
-			child.set_hitbox_source(source)
+			child.set_hitbox_source(_source)
 			child.connect("hitbox_overlapped", self, "_on_Hitstate_hitbox_overlapped")
 	
 	
