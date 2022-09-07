@@ -12,6 +12,10 @@
 - Renamed 'hit_detection' folder to more general 'collision'.
 - Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`
 
+### Removed
+
+- Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
+
 ## v1.0.0-alpha.2
 
 ### Fixed

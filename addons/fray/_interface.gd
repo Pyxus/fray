@@ -4,7 +4,7 @@ extends Object
 const _interfaces = {
 	"IHitbox" : {
 		"methods" : ["activate", "deactivate", "set_source"],
-		"signals" : [],
+		"signals" : ["hitbox_entered"],
 	},
 }
 
