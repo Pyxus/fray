@@ -37,7 +37,7 @@ func _enter_tree() -> void:
 	add_custom_type("CombatGraph", "Node", Fray.StateMgmt.CombatGraph, preload("assets/icons/combat_graph.svg"))
 	add_custom_type("CombatSituation", "Resource", Fray.StateMgmt.CombatSituation, null)
 	add_custom_type("HitBox2D", "Area2D", Fray.Collision.Hitbox2D, preload("assets/icons/hitbox_2d.svg"))
-	add_custom_type("HitboxSwitcher2D", "Node2D", Fray.Collision.HitStateSwitcher2D, preload("assets/icons/hit_state_switcher_2d.svg"))
+	add_custom_type("HitStateSwitcher2D", "Node2D", Fray.Collision.HitStateSwitcher2D, preload("assets/icons/hit_state_switcher_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", Fray.Collision.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("HitAttributes", "Resource", Fray.Collision.HitboxAttributes, null)
 
