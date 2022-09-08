@@ -7,7 +7,7 @@ const BufferedInput = preload("../../buffered_input/buffered_input.gd")
 func is_satisfied_by(buffered_input: BufferedInput) -> bool:
 	return _is_satisfied_by_impl(buffered_input)
 
-## Abstract method which returns trie if the detected input satisfied this condition
+## Abstract method used to implement 'is_satisfied_by()'
 func _is_satisfied_by_impl(buffered_input: BufferedInput) -> bool:
 	push_error("Method not implemented.")
 	return false

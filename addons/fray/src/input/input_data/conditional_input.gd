@@ -17,46 +17,46 @@ var _conditions_by_component: Dictionary
 
 
 func set_condition(component_index: int, condition: String) -> void:
-    if component_index == 0:
-        push_warning("The first component is treated as the default input. Condition will be ignored")
-        return
+	if component_index == 0:
+		push_warning("The first component is treated as the default input. Condition will be ignored")
+		return
 
-    if component_index >= 1 and component_index < _components.size():
-        _conditions_by_component[component_index] = condition
-    else:
-        push_warning("Failed to set condition on input. Given index out of range")
-        
+	if component_index >= 1 and component_index < _components.size():
+		_conditions_by_component[component_index] = condition
+	else:
+		push_warning("Failed to set condition on input. Given index out of range")
+		
 
 func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
-    if _components.empty():
-        push_warning("Conditional input has no components")
-        return false
+	if _components.empty():
+		push_warning("Conditional input has no components")
+		return false
 
-    var comp: Resource = _components[0]
+	var comp: Resource = _components[0]
 
-    for component_index in _conditions_by_component:
-        var component: Resource = _components[component_index]
-        var condition: String = _conditions_by_component[component_index]
+	for component_index in _conditions_by_component:
+		var component: Resource = _components[component_index]
+		var condition: String = _conditions_by_component[component_index]
 
-        if input_interface.is_condition_true(condition, device):
-            comp = component
-            break
+		if input_interface.is_condition_true(condition, device):
+			comp = component
+			break
 
-    return comp.is_pressed(device, input_interface)
+	return comp.is_pressed(device, input_interface)
 
 
 func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
-    # Returns the first component with a true condition. Defaults to component at index 0
+	# Returns the first component with a true condition. Defaults to component at index 0
 
-    if _components.empty():
-        return PoolStringArray()
+	if _components.empty():
+		return PoolStringArray()
 
-    var component: Resource = _components[0]
-    for component_index in _conditions_by_component:
-        var comp: Resource = _components[component_index]
-        var condition: String = _conditions_by_component[component_index]
+	var component: Resource = _components[0]
+	for component_index in _conditions_by_component:
+		var comp: Resource = _components[component_index]
+		var condition: String = _conditions_by_component[component_index]
 
-        if input_interface.is_condition_true(condition, device):
-            component = comp
-            break
-    return component.decompose(device, input_interface)
+		if input_interface.is_condition_true(condition, device):
+			component = comp
+			break
+	return component.decompose(device, input_interface)
