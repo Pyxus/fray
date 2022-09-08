@@ -65,6 +65,17 @@ func _get_property_list() -> Array:
 	return properties
 
 
+## Returns a reference to the hit state with the given name if it exists.
+func get_state_obj(state: String) -> HitState2D:
+	var hit_state := get_node_or_null(current_state) as HitState2D
+	return hit_state
+
+## Returns a reference to the current state. Returns null if no state is set.
+## Shorthand for switcher.get_state_obj(switcher.current_state)
+func get_current_state_obj() -> HitState2D:
+	return get_state_obj(current_state)
+
+
 func set_current_state(value: String) -> void:
 	current_state = value
 
@@ -73,7 +84,7 @@ func set_current_state(value: String) -> void:
 			child.deactivate()
 
 	if current_state != NONE and is_inside_tree():
-		var hit_state: HitState2D = get_node_or_null(current_state)
+		var hit_state: HitState2D = get_current_state_obj()
 		hit_state.activate()
 
 

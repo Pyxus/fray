@@ -18,6 +18,17 @@ func _ready() -> void:
 			child.connect("hitbox_seperated", self, "_on_Hitbox_hitbox_seperated", [child])
 
 
+## Returns a list of all hitboxes children
+func get_hitboxes() -> Array:
+	var array: Array
+
+	for child in get_children():
+		if child is Hitbox2D:
+			array.append(child)
+
+	return array
+
+
 ## Sets the source of all hitbox children.
 func set_hitbox_source(source: Object) -> void:
 	for child in get_children():
