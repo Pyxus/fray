@@ -30,7 +30,14 @@ func _ready() -> void:
 			child.connect("hitbox_overlapped", self, "_on_Hitstate_hitbox_overlapped")
 			child.connect("hitbox_seperated", self, "_on_Hitstate_hitbox_seperated")
 	
+func _get_configuration_warning() -> String:
+	for child in get_children():
+		if child is HitState2D:
+			return ""
 	
+	return "This node has no hit states so there is nothing to switch between. Consider adding a HitState2D as a child."
+	
+
 func _enter_tree() -> void:
 	if Engine.editor_hint:
 		_cc_detector = ChildChangeDetector.new(self)
