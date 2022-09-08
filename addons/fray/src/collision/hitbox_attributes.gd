@@ -7,8 +7,8 @@ func get_color() -> Color:
 	return _get_color_impl()
 
 ## Returns true if a hitbox with this attribute can interact with given hitbox.
-func can_interact_with(hitbox: Area2D) -> bool:
-	return can_interact_with_impl(hitbox)
+func can_detect(hitbox: Area2D) -> bool:
+	return can_detect_impl(hitbox)
 
 ## Virtual method used to define hitbox color.
 ## Currently this does nothing as godot does not provide
@@ -16,6 +16,6 @@ func can_interact_with(hitbox: Area2D) -> bool:
 func _get_color_impl() -> Color:
 	return Color.black
 
-## Virtual method used to define what hitboxes a hitbox with this attribute can interact with.
-func can_interact_with_impl(hitbox: Area2D) -> bool:
+## Virtual method used to define what hitboxes a hitbox with this attribute can detect with.
+func can_detect_impl(hitbox: Area2D) -> bool:
 	return true
