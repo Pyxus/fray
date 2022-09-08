@@ -28,6 +28,7 @@ func _ready() -> void:
 		if child is HitState2D:
 			child.set_hitbox_source(_source)
 			child.connect("hitbox_overlapped", self, "_on_Hitstate_hitbox_overlapped")
+			child.connect("hitbox_seperated", self, "_on_Hitstate_hitbox_seperated")
 	
 	
 func _enter_tree() -> void:
@@ -73,3 +74,7 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 
 func _on_Hitstate_hitbox_overlapped(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
 	emit_signal("hitbox_overlapped", detector_hitbox, detected_hitbox)
+
+
+func _on_Hitstate_hitbox_seperated(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
+	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)

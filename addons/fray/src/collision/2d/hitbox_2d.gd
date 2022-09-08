@@ -3,6 +3,7 @@ extends Area2D
 ## 2D area intended to detect combat interactions.
 
 signal hitbox_entered(hitbox)
+signal hitbox_exited(hitbox)
 
 var Hitbox2D = load("res://addons/fray/src/collision/2d/hitbox_2d.gd") # Cyclic depedencies... >:[
 
@@ -20,12 +21,10 @@ var source: Object setget set_source
 ## Type: Hitbox2D[]
 var _detection_exceptions: Array
 
-func _init() -> void:
-	FrayInterface.assert_implements(self, "IHitbox")
-
 
 func _ready() -> void:
 	connect("area_entered", self, "_on_area_entered")
+	connect("area_exited", self, "_on_area_exited")
 
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
@@ -57,7 +56,17 @@ func _hitbox_entered_impl(hitbox: Area2D) -> void:
 	emit_signal("hitbox_entered", hitbox)
 
 
+func _hitbox_exited_impl(hitbox: Area2D) -> void:
+	emit_signal("hitbox_exited", hitbox)
+
+
 func _on_area_entered(hitbox: Area2D) -> void:
 	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
 		if ignore_source_hitboxes or hitbox.source != source:
 			_hitbox_entered_impl(hitbox)
+
+
+func _on_area_exited(hitbox: Area2D) -> void:
+	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
+		if ignore_source_hitboxes or hitbox.source != source:
+			_hitbox_exited_impl(hitbox)

@@ -1,15 +1,14 @@
-class_name FrayInterface
 extends Object
 
 const _interfaces = {
 	"IHitbox" : {
 		"methods" : ["activate", "deactivate", "set_source"],
-		"signals" : ["hitbox_entered"],
+		"signals" : ["hitbox_entered", "hitbox_exited"],
 	},
 }
 
 func _init() -> void:
-	assert(false, "The 'FrayInterface' class only provides pseudo-interface membership test and is not intended to be instanced")
+	assert(false, "Thiss class only provides pseudo-interface membership test and is not intended to be instantiated")
 	free()
 
 
