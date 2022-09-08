@@ -29,7 +29,8 @@ func _ready() -> void:
 			child.set_hitbox_source(_source)
 			child.connect("hitbox_overlapped", self, "_on_Hitstate_hitbox_overlapped")
 			child.connect("hitbox_seperated", self, "_on_Hitstate_hitbox_seperated")
-	
+
+
 func _get_configuration_warning() -> String:
 	for child in get_children():
 		if child is HitState2D:
