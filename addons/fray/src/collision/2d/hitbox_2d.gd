@@ -19,7 +19,10 @@ export var attributes: Resource
 var source: Object setget set_source
 
 ## Type: Hitbox2D[]
-var _detection_exceptions: Array
+var _hitbox_exceptions: Array
+
+## Type: Object[]
+var _source_exceptions: Array
 
 
 func _ready() -> void:
@@ -28,15 +31,25 @@ func _ready() -> void:
 
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
-func add_detection_exception_with(hitbox: Area2D) -> void:
-	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
-		_detection_exceptions.append(hitbox)
+func add_hitbox_exception_with(hitbox: Area2D) -> void:
+	if hitbox is Hitbox2D and not _hitbox_exceptions.has(hitbox):
+		_hitbox_exceptions.append(hitbox)
 	
 ## Removes a hitbox to a list of hitboxes this hitbox can't detect
-func remove_detection_exception_with(hitbox: Area2D) -> void:
-	if _detection_exceptions.has(hitbox):
-		_detection_exceptions.erase(hitbox)
+func remove_hitbox_exception_with(hitbox: Area2D) -> void:
+	if _hitbox_exceptions.has(hitbox):
+		_hitbox_exceptions.erase(hitbox)
 
+## Adds a source to a list of sources whose hitboxes this hitbox can't detect
+func add_source_exception_with(source: Object) -> void:
+	if not _source_exceptions.has(source):
+		_source_exceptions.append(source)
+	
+## Removes a source to a list of sources whose hitboxes this hitbox can't detect
+func remove_source_exception_with(source: Object) -> void:
+	if _source_exceptions.has(source):
+		_source_exceptions.erase(source)
+		
 ## Activates this hitbox allowing it to monitor and be monitored.
 func activate() -> void:
 	monitorable = true
@@ -47,6 +60,19 @@ func deactivate() -> void:
 	monitorable = false
 	monitoring = false
 
+## Returns true if this hitbox is able to detect the given hitbox.
+## A hitbox can not detect another hitbox if there is a source or hitbox exception
+## or if the set hitbox attribute does not allow interaction with the given hitbox. 
+func can_detect(hitbox: Area2D) -> bool:
+	return (
+		hitbox is Hitbox2D
+		and not _hitbox_exceptions.has(hitbox)
+		and not _source_exceptions.has(hitbox.source)
+		and ignore_source_hitboxes or hitbox.source != source
+		and attributes.can_interact_with(hitbox) 
+			if attributes != null else true
+		)
+	
 
 func set_source(value: Object) -> void:
 	source = value
@@ -61,12 +87,10 @@ func _hitbox_exited_impl(hitbox: Area2D) -> void:
 
 
 func _on_area_entered(hitbox: Area2D) -> void:
-	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
-		if ignore_source_hitboxes or hitbox.source != source:
-			_hitbox_entered_impl(hitbox)
+	if can_detect(hitbox):
+		_hitbox_entered_impl(hitbox)
 
 
 func _on_area_exited(hitbox: Area2D) -> void:
-	if hitbox is Hitbox2D and not _detection_exceptions.has(hitbox):
-		if ignore_source_hitboxes or hitbox.source != source:
-			_hitbox_exited_impl(hitbox)
+	if can_detect(hitbox):
+		_hitbox_exited_impl(hitbox)
