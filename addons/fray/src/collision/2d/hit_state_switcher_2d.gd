@@ -17,6 +17,7 @@ const NONE = "None "
 
 export var source: NodePath
 
+## String name of currently active state
 var current_state: String = NONE setget set_current_state
 
 onready var _source: Node
@@ -25,11 +26,14 @@ var _cc_detector: ChildChangeDetector
 
 func _ready() -> void:
 	_source = get_node_or_null(source)
+	
 	for child in get_children():
 		if child is HitState2D:
 			child.set_hitbox_source(_source)
 			child.connect("hitbox_intersected", self, "_on_Hitstate_hitbox_intersected")
 			child.connect("hitbox_seperated", self, "_on_Hitstate_hitbox_seperated")
+			
+	set_current_state(current_state)
 
 
 func _get_configuration_warning() -> String:
@@ -64,7 +68,6 @@ func _get_property_list() -> Array:
 	
 	return properties
 
-
 ## Returns a reference to the hit state with the given name if it exists.
 func get_state_obj(state: String) -> HitState2D:
 	var hit_state := get_node_or_null(current_state) as HitState2D
@@ -75,7 +78,7 @@ func get_state_obj(state: String) -> HitState2D:
 func get_current_state_obj() -> HitState2D:
 	return get_state_obj(current_state)
 
-
+## Setter for 'current_state' property
 func set_current_state(value: String) -> void:
 	current_state = value
 
