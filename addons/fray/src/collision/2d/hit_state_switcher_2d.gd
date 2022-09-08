@@ -11,6 +11,7 @@ const HitState2D = preload("hit_state_2d.gd")
 const Hitbox2D = preload("hitbox_2d.gd")
 
 signal hitbox_overlapped(detector_hitbox, detected_hitbox)
+signal hitbox_seperated(detector_hitbox, detected_hitbox)
 
 const NONE = "None "
 
