@@ -8,7 +8,7 @@ func get_color() -> Color:
 
 ## Returns true if a hitbox with this attribute should allow detection of a given hitbox.
 func allows_detection_of(hitbox: Area2D) -> bool:
-	return allows_detection_of(hitbox)
+	return _allows_detection_of_impl(hitbox)
 
 ## Virtual method used implement 'get_color'.
 ## Currently this does nothing as godot does not provide
@@ -17,5 +17,5 @@ func _get_color_impl() -> Color:
 	return Color.black
 
 ## Virtual method used to implement 'allows_detection_of'.
-func allows_detection_of_impl(hitbox: Area2D) -> bool:
+func _allows_detection_of_impl(hitbox: Area2D) -> bool:
 	return true
