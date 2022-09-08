@@ -2,8 +2,8 @@ tool
 extends Area2D
 ## 2D area intended to detect combat interactions.
 
-signal hitbox_entered(hitbox)
-signal hitbox_exited(hitbox)
+signal hitbox_intersected(hitbox)
+signal hitbox_seperated(hitbox)
 
 var Hitbox2D = load("res://addons/fray/src/collision/2d/hitbox_2d.gd") # Cyclic depedencies... >:[
 
@@ -29,6 +29,14 @@ func _ready() -> void:
 	connect("area_entered", self, "_on_area_entered")
 	connect("area_exited", self, "_on_area_exited")
 
+
+## Returns all list of all interesecting hitboxes that thix hitbox can detect.
+func get_overlapping_hitboxes() -> Array:
+	var hitboxes: Array
+	for area in get_overlapping_areas():
+		if can_detect(area):
+			hitboxes.append(area)
+	return hitboxes
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
 func add_hitbox_exception_with(hitbox: Area2D) -> void:
@@ -78,19 +86,11 @@ func set_source(value: Object) -> void:
 	source = value
 
 
-func _hitbox_entered_impl(hitbox: Area2D) -> void:
-	emit_signal("hitbox_entered", hitbox)
-
-
-func _hitbox_exited_impl(hitbox: Area2D) -> void:
-	emit_signal("hitbox_exited", hitbox)
-
-
 func _on_area_entered(hitbox: Area2D) -> void:
 	if can_detect(hitbox):
-		_hitbox_entered_impl(hitbox)
+		emit_signal("hitbox_intersected", hitbox)
 
 
 func _on_area_exited(hitbox: Area2D) -> void:
 	if can_detect(hitbox):
-		_hitbox_exited_impl(hitbox)
+		emit_signal("hitbox_seperated", hitbox)

@@ -8,14 +8,14 @@ extends Node2D
 
 const Hitbox2D = preload("hitbox_2d.gd")
 
-signal hitbox_overlapped(detector_hitbox, detected_hitbox)
+signal hitbox_intersected(detector_hitbox, detected_hitbox)
 signal hitbox_seperated(detector_hitbox, detected_hitbox)
 
 func _ready() -> void:
 	for child in get_children():
 		if child is Hitbox2D:
-			child.connect("hitbox_entered", self, "_on_Hitbox_hitbox_entered", [child])
-			child.connect("hitbox_exited", self, "_on_Hitbox_hitbox_exited", [child])
+			child.connect("hitbox_intersected", self, "_on_Hitbox_hitbox_intersected", [child])
+			child.connect("hitbox_seperated", self, "_on_Hitbox_hitbox_seperated", [child])
 
 
 ## Sets the source of all hitbox children.
@@ -39,9 +39,9 @@ func deactivate() -> void:
 			child.deactivate()
 
 
-func _on_Hitbox_hitbox_entered(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
-	emit_signal("hitbox_overlapped", detector_hitbox, detected_hitbox)
+func _on_Hitbox_hitbox_intersected(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
+	emit_signal("hitbox_intersected", detector_hitbox, detected_hitbox)
 
 
-func _on_Hitbox_hitbox_exited(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
+func _on_Hitbox_hitbox_seperated(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
 	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)

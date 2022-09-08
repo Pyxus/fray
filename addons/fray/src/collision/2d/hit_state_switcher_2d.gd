@@ -10,7 +10,7 @@ const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_
 const HitState2D = preload("hit_state_2d.gd")
 const Hitbox2D = preload("hitbox_2d.gd")
 
-signal hitbox_overlapped(detector_hitbox, detected_hitbox)
+signal hitbox_intersected(detector_hitbox, detected_hitbox)
 signal hitbox_seperated(detector_hitbox, detected_hitbox)
 
 const NONE = "None "
@@ -28,7 +28,7 @@ func _ready() -> void:
 	for child in get_children():
 		if child is HitState2D:
 			child.set_hitbox_source(_source)
-			child.connect("hitbox_overlapped", self, "_on_Hitstate_hitbox_overlapped")
+			child.connect("hitbox_intersected", self, "_on_Hitstate_hitbox_intersected")
 			child.connect("hitbox_seperated", self, "_on_Hitstate_hitbox_seperated")
 
 
@@ -81,8 +81,8 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
 	property_list_changed_notify()
 
 
-func _on_Hitstate_hitbox_overlapped(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
-	emit_signal("hitbox_overlapped", detector_hitbox, detected_hitbox)
+func _on_Hitstate_hitbox_intersected(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
+	emit_signal("hitbox_intersected", detector_hitbox, detected_hitbox)
 
 
 func _on_Hitstate_hitbox_seperated(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
