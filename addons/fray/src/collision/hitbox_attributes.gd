@@ -6,7 +6,7 @@ extends Resource
 func get_color() -> Color:
 	return _get_color_impl()
 
-## Returns true if a hitbox with this attribute can interact with given hitbox.
+## Returns true if a hitbox with this attribute can detect a given hitbox.
 func can_detect(hitbox: Area2D) -> bool:
 	return can_detect_impl(hitbox)
 
