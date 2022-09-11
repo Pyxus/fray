@@ -1,5 +1,5 @@
 tool
-extends "input_bind.gd"
+extends "input_bind_simple.gd"
 ## Joy axis input bind
 
 ## Joy axis identifier. See JoyStickList
@@ -27,6 +27,13 @@ func _is_pressed_impl(device: int = 0) -> bool:
 		
 	return abs(joy_axis) >= deadzone
 
+
+func _equals_impl(input_bind: Resource) -> bool:
+	return (
+		._equals_impl(input_bind)
+		and axis == input_bind.axis
+		and use_positive_axis == input_bind.use_positive_axis)
+		
 
 func set_deadzone(value: float) -> void:
 	deadzone = clamp(value, 0, 1)

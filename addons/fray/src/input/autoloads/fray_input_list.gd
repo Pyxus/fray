@@ -2,6 +2,7 @@ extends Node
 ## Contains a list of all inputs recognized by the FrayInput singleton
 
 const InputBind = preload("../input_data/binds/input_bind.gd")
+const InputBindFrayAction = preload("../input_data/binds/input_bind_fray_action.gd")
 const InputBindAction = preload("../input_data/binds/input_bind_action.gd")
 const InputBindJoyButton = preload("../input_data/binds/input_bind_joy_button.gd")
 const InputBindJoyAxis = preload("../input_data/binds/input_bind_joy_axis.gd")
@@ -34,6 +35,15 @@ func add_bind_action(name: String, action: String) -> void:
 	if not InputMap.has_action(action):
 		push_warning("Action '%s' does not exist." % action)
 
+	add_bind_input(name, bind)
+
+## Binds a fray action
+## 'simple_binds' is an array of InputBindSimple
+func add_bind_fray_action(name: String, simple_binds: Array) -> void:
+	var bind := InputBindFrayAction.new()
+	for s_bind in simple_binds:
+		bind.add_bind(s_bind)
+	
 	add_bind_input(name, bind)
 
 ## Binds joystick button input

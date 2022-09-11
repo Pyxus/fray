@@ -1,5 +1,5 @@
 tool
-extends "input_bind.gd"
+extends "input_bind_simple.gd"
 ## Action input bind
 ##
 ## @desc:
@@ -18,3 +18,9 @@ func _is_pressed_impl(device: int = 0) -> bool:
 		push_warning("Action '%s' does not exist in Godot InputMap" % action)
 		return false
 	return Input.is_action_pressed(action)
+
+
+func _equals_impl(input_bind: Resource) -> bool:
+	return (
+		._equals_impl(input_bind)
+		and action == input_bind.action)

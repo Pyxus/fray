@@ -1,5 +1,5 @@
 tool
-extends "input_bind.gd"
+extends "input_bind_simple.gd"
 ## Joystick input bind
 
 
@@ -12,3 +12,8 @@ func _init(joystick_button: int = -1) -> void:
 
 func _is_pressed_impl(device: int = 0) -> bool:
 	return Input.is_joy_button_pressed(device, button)
+
+func _equals_impl(input_bind: Resource) -> bool:
+	return (
+		._equals_impl(input_bind)
+		and button == input_bind.button)

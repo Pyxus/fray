@@ -5,12 +5,14 @@
 ### Added
 
 - Added new combination builders to `ComplexInputFactory` class.
+- Added new InputBindFrayAction. This allows you to create a bind using simple binds in a way that mimic's Godot's actions.
 
 ### Changed
 
 - Updated hit detection system.
 - Renamed 'hit_detection' folder to more general 'collision'.
 - Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`
+- Most input binds now inherit from new InputBindSimple type.
 
 ### Removed
 
