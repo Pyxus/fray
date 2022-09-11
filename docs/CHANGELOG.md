@@ -18,6 +18,10 @@
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
 
+### Fixed
+
+- InputBindJoyAxis not reading axis correctly.
+
 ## v1.0.0-alpha.2
 
 ### Fixed

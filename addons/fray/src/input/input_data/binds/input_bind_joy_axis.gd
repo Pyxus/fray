@@ -22,7 +22,7 @@ func _is_pressed_impl(device: int = 0) -> bool:
 	var joy_axis := Input.get_joy_axis(device, axis)
 	var is_positive_dir := sign(joy_axis) == 1
 	
-	if use_positive_axis and not is_positive_dir:
+	if use_positive_axis != is_positive_dir:
 		return false
 		
 	return abs(joy_axis) >= deadzone
