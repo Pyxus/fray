@@ -111,7 +111,11 @@ func _physics_process(_delta: float) -> void:
 ## Returns true if an input is being pressed.
 func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	var input_state := _get_input_state(input, device)
-	return input_state.pressed if input_state != null else false
+	
+	if input_state == null:
+		return false
+	
+	return input_state.pressed
 
 ## Returns true when a user starts pressing the input, 
 ## meaning it's true only on the frame the user pressed down the input.
@@ -155,6 +159,10 @@ func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
 func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	var input_state := _get_input_state(input, device)
+	
+	if input_state == null:
+		return 0.0
+	
 	if _input_list.has_bind(input):
 		var bind := _input_list.get_bind(input)
 

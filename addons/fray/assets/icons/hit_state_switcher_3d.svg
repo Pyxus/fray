@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(1,0,0,1,-0.395715,-1.01958)">
+        <g id="box_switcher_2d">
+            <g transform="matrix(1.76575,0,0,1.73994,-12.0053,-6.23401)">
+                <rect x="7.306" y="4.456" width="7.52" height="7.52" style="fill:none;stroke:rgb(250,155,155);stroke-width:0.57px;"/>
+            </g>
+            <g transform="matrix(1.08038,0,0,1.08038,-0.491741,-1.33265)">
+                <g transform="matrix(0.652078,0,0,0.652078,0.0913278,1.94175)">
+                    <path d="M7.95,2.05L9.364,3.464L6.828,6L15.197,6L15.197,8L6.828,8L9.364,10.536L7.95,11.95L3,7L7.95,2.05Z" style="fill:rgb(250,155,155);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(-0.652078,-7.98565e-17,7.98565e-17,-0.652078,14.7668,15.4484)">
+                    <path d="M7.95,2.05L9.364,3.464L6.828,6L15.197,6L15.197,8L6.828,8L9.364,10.536L7.95,11.95L3,7L7.95,2.05Z" style="fill:rgb(250,155,155);fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
