@@ -1,5 +1,5 @@
 tool
-extends Node2D
+extends Spatial
 ## Node used to contain a configuration of Hitboxe3Ds
 ##
 ## @desc:

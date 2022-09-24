@@ -1,5 +1,5 @@
 tool
-extends Node2D
+extends Spatial
 ## Node used to switch between HitState3D children
 ## 
 ## @desc:
