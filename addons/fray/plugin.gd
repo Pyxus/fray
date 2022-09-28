@@ -37,10 +37,10 @@ func _enter_tree() -> void:
 	add_custom_type("CombatStateMachine", "Node", Fray.StateMgmt.CombatStateMachine, preload("assets/icons/combat_state_machine.svg"))
 	add_custom_type("CombatSituation", "Resource", Fray.StateMgmt.CombatSituation, preload("assets/icons/combat_situation.svg"))
 	add_custom_type("Hitbox2D", "Area2D", Fray.Collision.Hitbox2D, preload("assets/icons/hitbox_2d.svg"))
-	add_custom_type("HitStateSwitcher2D", "Node2D", Fray.Collision.HitStateSwitcher2D, preload("assets/icons/hit_state_switcher_2d.svg"))
+	add_custom_type("HitStateManager2D", "Node2D", Fray.Collision.HitStateManager2D, preload("assets/icons/hit_state_manager_2d.svg"))
 	add_custom_type("HitState2D", "Node2D", Fray.Collision.HitState2D, preload("assets/icons/hit_state_2d.svg"))
 	add_custom_type("Hitbox3D", "Area", Fray.Collision.Hitbox3D, preload("assets/icons/hitbox_3d.svg"))
-	add_custom_type("HitStateSwitcher3D", "Spatial", Fray.Collision.HitStateSwitcher3D, preload("assets/icons/hit_state_switcher_3d.svg"))
+	add_custom_type("HitStateManager3D", "Spatial", Fray.Collision.HitStateManager3D, preload("assets/icons/hit_state_manager_3d.svg"))
 	add_custom_type("HitState3D", "Spatial", Fray.Collision.HitState3D, preload("assets/icons/hit_state_3d.svg"))
 	add_custom_type("HitAttributes", "Resource", Fray.Collision.HitboxAttributes, preload("assets/icons/hit_attributes.svg"))
 
