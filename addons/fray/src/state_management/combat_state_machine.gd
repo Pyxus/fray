@@ -2,7 +2,7 @@ extends Node
 ## A node that navigates between states in a CombatSituation based on buffered inputs.
 ##
 ## @desc:
-##		The graph is able to buffer a combatant's next action 
+##		The state machine is able to buffer a combatant's next action 
 ##		for a smoother player experience.
 
 const CircularBuffer = preload("res://addons/fray/lib/data_structures/circular_buffer.gd")
@@ -19,10 +19,10 @@ enum ProcessMode {
 
 signal state_changed(situation, from, to)
 
-## If true the combat graph will be processing.
+## If true the combat state machine will be processing.
 export var active: bool
 
-## Allow transitions transitions to occur in the graph.
+## Allow transitions transitions to occur in the state machine.
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
 ## This can be used to control when a player is allowed to 'cancel' an attack.
@@ -34,13 +34,13 @@ export var input_buffer_capacity: int = 20
 ## The max time a detected input can exist in the buffer before it is ignored.
 export var input_max_time_in_buffer: float = 0.1
 
-## The process mode of this graph.
+## The process mode of this state machine.
 export(ProcessMode) var process_mode: int = ProcessMode.PHYSICS setget set_process_mode
 
 ## Type: Dictionary<String, CombatSituation>
 var _situation_by_name: Dictionary
 
-## The current CombatSituation used by this graph.
+## The current CombatSituation used by this state machine.
 var _current_situation: String
 
 ## Type: Dictionary<String, bool>
@@ -80,7 +80,7 @@ func _physics_process(delta: float) -> void:
 	if process_mode == ProcessMode.PHYSICS:
 		advance(delta)
 
-## Adds a combat situation to the graph.
+## Adds a combat situation to the state machine.
 func add_situation(name: String, situation: CombatSituation) -> void:
 	if has_situation(name):
 		push_warning("Combat situation named '%s' already exists. Previous instance will be overwritten." % name)
@@ -98,7 +98,7 @@ func get_situation(name: String) -> CombatSituation:
 func has_situation(name: String) -> bool:
 	return _situation_by_name.has(name)
 
-## Manually advances the the combat graph's processing.
+## Manually advances the the combat state machine's processing.
 func advance(delta: float) -> void:
 	if not active:
 		return
@@ -137,11 +137,11 @@ func goto_initial_state(ignore_buffer: bool = false) -> void:
 	
 	situation.advance_to(situation.initial_state)
 
-## Buffers an input button to be processed by the graph
+## Buffers an input button to be processed by the state machine
 func buffer_button(input: String, is_released: bool = false) -> void:
 	_input_buffer.add(BufferedInputButton.new(OS.get_ticks_msec(), input, is_released))
 
-## Buffers an input sequence to be processed by the graph
+## Buffers an input sequence to be processed by the state machine
 func buffer_sequence(sequence_name: String) -> void:
 	_input_buffer.add(BufferedInputSequence.new(OS.get_ticks_msec(), sequence_name))
 
@@ -152,11 +152,11 @@ func clear_buffer() -> void:
 
 func change_situation(situation: String) -> void:
 	if _situation_by_name.empty():
-		push_error("Failed to change situation. Graph has no situations added.")
+		push_error("Failed to change situation. State machine has no situations added.")
 		return
 
 	if not has_situation(situation):
-		push_error("Failed to change situation. Graph data does not contain situation named '%s'." % situation) 
+		push_error("Failed to change situation. State machine does not contain situation named '%s'." % situation) 
 		return
 
 	if situation != _current_situation:
@@ -174,16 +174,6 @@ func get_current_state() -> String:
 	
 	return get_situation(_current_situation).current_state
 
-"""
-func set_graph_data(new_graph_data: CombatGraphData) -> void:
-	graph_data = new_graph_data
-
-	for situation in graph_data.get_all_situations():
-		situation.connect("state_changed", self, "_on_Situation_state_changed")
-
-	_current_situation = ""
-	_update_evaluator_functions()
-"""
 
 func set_process_mode(value: int) -> void:
 	process_mode = value
@@ -208,7 +198,7 @@ func set_external_condition_evaluator(evaluation_func: FuncRef) -> void:
 	_update_evaluator_functions()
 
 
-## Sets the value of a condition on the action graph.
+## Sets the value of a condition on the action state machine.
 ## Use for checking conditions such as prerequesites and advance condition.
 func set_condition(condition: String, value: bool) -> void:
 	_conditions[condition] = value
@@ -228,7 +218,7 @@ func is_condition_true(condition: String) -> bool:
 
 func _update_evaluator_functions() -> void:
 	if _external_condition_evaluator != null and not _conditions.empty():
-		push_warning("Combat graph has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
+		push_warning("Combat state machine has internal conditions set but was given an external evaluator. Internal condition evaluation will not be used.")
 
 	for situation in _situation_by_name.values():
 		var evaluation_func: FuncRef =(

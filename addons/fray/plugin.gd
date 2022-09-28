@@ -34,7 +34,7 @@ func _enter_tree() -> void:
 	add_autoload_singleton("FrayInputList", "res://addons/fray/src/input/autoloads/fray_input_list.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/autoloads/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", Fray.Input.SequenceAnalyzer, null)
-	add_custom_type("CombatGraph", "Node", Fray.StateMgmt.CombatGraph, preload("assets/icons/combat_graph.svg"))
+	add_custom_type("CombatStateMachine", "Node", Fray.StateMgmt.CombatStateMachine, preload("assets/icons/combat_state_machine.svg"))
 	add_custom_type("CombatSituation", "Resource", Fray.StateMgmt.CombatSituation, preload("assets/icons/combat_situation.svg"))
 	add_custom_type("Hitbox2D", "Area2D", Fray.Collision.Hitbox2D, preload("assets/icons/hitbox_2d.svg"))
 	add_custom_type("HitStateSwitcher2D", "Node2D", Fray.Collision.HitStateSwitcher2D, preload("assets/icons/hit_state_switcher_2d.svg"))
