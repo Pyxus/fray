@@ -26,6 +26,7 @@
 
 - InputBindJoyAxis not reading axis correctly.
 - Fixed 3d nodes extending `Node2D` instead of `Spatial`
+- Fixed lack of null checks on `FrayInput` methods.
 
 ## v1.0.0-alpha.2
 

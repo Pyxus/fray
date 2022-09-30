@@ -9,7 +9,6 @@ const InputBindAction = preload("../input_data/binds/input_bind_action.gd")
 const InputBindJoyAxis = preload("../input_data/binds/input_bind_joy_axis.gd")
 const FrayInputEvent = preload("../fray_input_event.gd")
 
-const DEVICE_ALL = -1
 const DEVICE_KBM_JOY1 = 0
 
 ## Type: Dictionary<int, DeviceState>
@@ -161,6 +160,7 @@ func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	var input_state := _get_input_state(input, device)
 	
 	if input_state == null:
+		push_error("Failed to get input strength")
 		return 0.0
 	
 	if _input_list.has_bind(input):
@@ -191,11 +191,23 @@ func get_connected_devices() -> Array:
 
 ## Sets condition to given value. Used for checking conditional inputs.
 func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1) -> void:
-	_get_device_state(device).set_condition(condition, value)
+	var device_state := _get_device_state(device)
+
+	if device_state == null:
+		push_error("Failed to set condition. Unrecognized device '%d'" % device)
+		return
+
+	device_state.set_condition(condition, value)
 
 ## Returns the value of a condition set with set_condition.
 func is_condition_true(condition: String, device: int = DEVICE_KBM_JOY1) -> bool:
-	return _get_device_state(device).is_condition_true(condition)
+	var device_state := _get_device_state(device)
+
+	if device_state == null:
+		push_error("Failed to check condition. Unrecognized device '%d'" % device)
+		return false
+
+	return device_state.is_condition_true(condition)
 
 ## Clears the condition dict
 func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
