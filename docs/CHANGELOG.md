@@ -6,6 +6,7 @@
 
 - Added new combination builders to `ComplexInputFactory` class.
 - Added new InputBindFrayAction. This allows you to create a bind using simple binds in a way that mimic's Godot's actions.
+- Added new class icons.
 
 ### Changed
 
@@ -13,14 +14,18 @@
 - Renamed 'hit_detection' folder to more general 'collision'.
 - Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`
 - Most input binds now inherit from new InputBindSimple type.
+- Renamed `CombatGraph` to `CombatStateMachine`
+- Renamed `HitStateSwitcher` to `HitStateManager`
 
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
+- Removed `CombatGraphData` class.
 
 ### Fixed
 
 - InputBindJoyAxis not reading axis correctly.
+- Fixed 3d nodes extending `Node2D` instead of `Spatial`
 
 ## v1.0.0-alpha.2
 
