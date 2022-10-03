@@ -143,9 +143,10 @@ func tag(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 
 ## Adds a new state to the situation.
 ## Note: States will be added automatically where needed.
-func add_state(name: String) -> void:
+func add_state(name: String) -> Reference:
 	if not _state_by_name.has(name):
 		_state_by_name[name] = CombatState.new()
+	return self
 
 
 func _get_transition(t_builder: TransitionBuilder) -> InputTransition:
