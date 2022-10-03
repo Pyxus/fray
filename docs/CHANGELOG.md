@@ -8,7 +8,8 @@
 - Added new InputBindFrayAction. This allows you to create a bind using simple binds in a way that mimic's Godot's actions.
 - Added new class icons.
 - Added "situation_changed" signal on `CombatStateMachine`.
-- Added ability to set combat state instance in `CombatSituationBuilder`. 
+- Added ability to set combat state instance in `CombatSituationBuilder`.
+- Added 'behavior_state' to `CombatSituation`.
 
 ### Changed
 
