@@ -9,7 +9,8 @@
 - Added new class icons.
 - Added "situation_changed" signal on `CombatStateMachine`.
 - Added ability to set combat state instance in `CombatSituationBuilder`.
-- Added 'behavior_state' to `CombatSituation`.
+- Added 'behavior' property to `CombatSituation`.
+- Added `CombatSituationBehavior` class.
 
 ### Changed
 
