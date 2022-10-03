@@ -22,13 +22,13 @@ var _states := ReverseableDictionary.new()
 ## Type: TransitionData[]
 var _transitions: Array
 
-
+## Used to invoke current state's update procedure
 func update(delta: float) -> void:
 	var current_state := get_current_state()
 	if current_state != null:
 		current_state._update_impl(delta)
 
-
+## Used to invoke current state's physics update procedure
 func physics_update(delta: float) -> void:
 	var current_state := get_current_state()
 	if current_state != null:

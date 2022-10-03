@@ -22,6 +22,11 @@ const InputTransition = preload("transitions/input_transition.gd")
 const InputCondition = preload("transitions/conditions/input_condition.gd")
 const CombatState = preload("combat_state.gd")
 
+# NOTE: Consider switching to hiearchical state machine for 4.0 
+## Optional state that can be set to define behavior during this situation
+## If set the 'CombatStateMachine' will invoke it's exit procedures.
+var behavior_state: State
+
 ## Time since the last detected input in seconds
 var time_since_last_input: float
 
@@ -34,7 +39,26 @@ var _global_transition_rules: Dictionary
 ## Type: func(string) -> bool
 var _condition_evaluator_func: FuncRef
 
+func update(delta: float) -> void:
+	.update(delta)
 
+	if behavior_state != null:
+		behavior_state._update_impl(delta)
+
+func physics_update(delta: float) -> void:
+	.physics_update(delta)
+
+	if behavior_state != null:
+		behavior_state._physics_update_impl(delta)
+
+func initialize(state: String = "") -> void:
+	.initialize(state)
+
+	if behavior_state != null:
+		behavior_state._enter_impl()
+
+
+## Adds combat state to situation
 func add_combat_state(name: String, tags: PoolStringArray = []) -> void:
 	add_state(name, CombatState.new(tags))
 	
