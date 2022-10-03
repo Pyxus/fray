@@ -89,6 +89,22 @@ func build(initial_state: String) -> CombatSituation:
 	_transition_rules.clear()
 	return cs
 
+## Adds a new state to the situation.
+##
+## Note: States are added automatically when making transitions.
+func add_state(name: String, state := CombatState.new()) -> Reference:
+	if not _state_by_name.has(name):
+		_state_by_name[name] = state
+	return self
+
+## Sets the state instance of a given state.
+## Note: State must already have been added in order to be set.
+func set_state(state_name: String, state: CombatState) -> Reference:
+	if _state_by_name.has(state_name):
+		_state_by_name[state_name] = state
+	else:
+		push_warning("Failed to set state. State with name '%s' does not exist." % state_name)
+	return self
 
 ## Creates a new transition from one state to another.
 ## If states does not already exist they will be created.
@@ -139,13 +155,6 @@ func tag(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 
 		for tag in tags:
 			_state_by_name[state].tags.append(tag)
-	return self
-
-## Adds a new state to the situation.
-## Note: States will be added automatically where needed.
-func add_state(name: String) -> Reference:
-	if not _state_by_name.has(name):
-		_state_by_name[name] = CombatState.new()
 	return self
 
 

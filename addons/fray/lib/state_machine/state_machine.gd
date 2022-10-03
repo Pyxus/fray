@@ -1,52 +1,38 @@
 extends Resource
-## docstring
+## Generic state machine class
 
 signal state_changed(from, to)
 signal state_added(state)
 signal state_removed(state)
 signal state_renamed(old_name, new_name)
 
-#enums
-
-#constants
 const ReverseableDictionary = preload("res://addons/fray/lib/data_structures/reversable_dictionary.gd")
 
 const State = preload("state.gd")
 const Transition = preload("transition.gd")
 const TransitionData = preload("transition_data.gd")
 
-#exported variables
-
 var initial_state: String setget set_initial_state
-var current_state: String setget set_current_state
 
-var _states := ReverseableDictionary.new() # Dictionary<String, State>
-var _transitions: Array # TransitionData[]
+var _current_state: String
 
-#onready variables
+## Type: Dictionary<String, State>
+var _states := ReverseableDictionary.new()
+
+## Type: TransitionData[]
+var _transitions: Array
 
 
-#optional built-in virtual _init method
+func update(delta: float) -> void:
+	var current_state := get_current_state()
+	if current_state != null:
+		current_state._update_impl(delta)
 
-#built-in virtual _ready method
 
-#remaining built-in virtual methods
-
-func set_current_state(name: String) -> void:
-	if not has_state(name):
-		push_warning("Failed to set current state. State '%s' does not exist." % name)
-		return
-	
-	current_state = name
-	
-
-func set_initial_state(name: String) -> void:
-	if not has_state(name):
-		push_warning("Failed to set initial state. State '%s' does not exist." % name)
-		initial_state = ""
-		return
-
-	initial_state = name
+func physics_update(delta: float) -> void:
+	var current_state := get_current_state()
+	if current_state != null:
+		current_state._physics_update_impl(delta)
 
 
 func add_state(name: String, state: State) -> void:
@@ -61,7 +47,6 @@ func add_state(name: String, state: State) -> void:
 	if _states.has_value(state):
 		push_warning("Failed to add state. State already added with name %s" % _states.get_key(state))
 		return
-	
 	
 	_states.add(name, state)
 	
@@ -128,12 +113,12 @@ func replace_state(name: String, state: State) -> void:
 	_states.add(name, state)
 
 
-func get_all_states() -> Array: # String[]
-	return _states.keys()
-
-
-func get_all_states_obj() -> Array: # State[]
+func get_all_states() -> Array: # State[]
 	return _states.values()
+
+
+func get_all_state_names() -> Array: # String[]
+	return _states.keys()
 
 	
 func get_state(name: String) -> State:
@@ -143,31 +128,28 @@ func get_state(name: String) -> State:
 	return _states.get_value(name)
 
 
-func get_current_state_obj() -> State:
-	if not current_state.empty():
-		return _states.get_value(current_state)
+func set_initial_state(name: String) -> void:
+	if not has_state(name):
+		push_warning("Failed to set initial state. State '%s' does not exist." % name)
+		initial_state = ""
+		return
+
+	initial_state = name
+
+
+func get_current_state_name() -> String:
+	return _current_state
+
+
+func get_current_state() -> State:
+	if not _current_state.empty():
+		return _states.get_value(_current_state)
 	
 	return null
 
 
 func has_state(name: String) -> bool:
 	return _states.has_key(name)
-
-
-func set_state_position(name: String, position: Vector2) -> void:
-	if not _states.has_key(name):
-		push_error("Failed to set state position. State %s does not exist" % name)
-		return
-		
-	_states.get_value(name).position = position
-
-
-func get_state_position(name: String) -> Vector2:
-	if not _states.has_key(name):
-		push_error("Failed to get state position. State %s does not exist" % name)
-		return Vector2.ZERO
-
-	return _states.get_value(name).position
 
 
 func add_transition(from: String, to: String, transition: Transition) -> void:
@@ -223,7 +205,7 @@ func has_transition(from: String, to: String) -> bool:
 
 
 func has_next_transition(input: Object = null) -> bool:
-	return not _get_next_state(input).empty()
+	return not get_next_state(input).empty()
 
 
 func get_transition(from: String, to: String) -> Transition:
@@ -245,37 +227,47 @@ func get_next_transitions(from: String) -> Array: # TransitionData[]
 
 	return transitions
 
-
+## Initializes the state machine
 func initialize(state: String = "") -> void:
 	if not state.empty():
 		set_initial_state(state)
 
-	current_state = initial_state
+	_current_state = initial_state
+	
+	if has_state(_current_state):
+		get_state(_current_state)._enter_impl()
 
 
-func advance(input: Object = null) -> bool:
-	var next_state: String = _get_next_state(input)
+## Advances to next state reachable based on given input.
+## The '_get_next_state_impl' virtual method determines if the input is accept or not.
+##
+## Returns true if the input was accepted and state advanced.
+func advance(input = null, arg = null) -> bool:
+	var next_state: String = get_next_state(input)
 	if not next_state.empty():
-		advance_to(next_state)
+		go_to(next_state, arg)
 		return true
 	return false
 
-
-func advance_to(to_state: String) -> void:
+## Goes to the given state if it exists.
+func go_to(to_state: String, arg = null) -> void:
 	if not has_state(to_state):
 		push_warning("Failed advance to state. Given state '%s' does not exist")
 		return
+	var prev_state = _current_state
 
-	var prev_state = current_state
-	set_current_state(to_state)
-	emit_signal("state_changed", prev_state, current_state)
-
-
-func get_next_state(input: Object = null) -> String:
-	return _get_next_state(input)
+	get_state(prev_state)._exit_impl()
+	get_state(to_state)._enter_impl(arg)
 	
-	
-func _get_next_state(input: Object = null) -> String:
+	_current_state = to_state
+	emit_signal("state_changed", prev_state, _current_state)
+
+## Returns the next state reachable with the given input
+func get_next_state(input = null) -> String:
+	return _get_next_state_impl(input)
+
+## Virtual method used to determine the next reachable using given input
+func _get_next_state_impl(input = null) -> String:
 	return "";
 	
 #signal methods

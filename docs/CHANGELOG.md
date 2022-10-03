@@ -7,6 +7,8 @@
 - Added new combination builders to `ComplexInputFactory` class.
 - Added new InputBindFrayAction. This allows you to create a bind using simple binds in a way that mimic's Godot's actions.
 - Added new class icons.
+- Added "situation_changed" signal on `CombatStateMachine`.
+- Added ability to set combat state instance in `CombatSituationBuilder`. 
 
 ### Changed
 
@@ -17,11 +19,13 @@
 - Renamed `CombatGraph` to `CombatStateMachine`.
 - Renamed `HitStateSwitcher` to `HitStateManager`.
 - Exposed "add_state" method in `CombatSituationBuilder`.
+- Updated state machine library to be more flexible. States now have new virtual methods that are invokved by the state machine.
 
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
 - Removed `CombatGraphData` class.
+- Removed "state_changed" signal on `CombatStateMachine`.
 
 ### Fixed
 

@@ -11,13 +11,14 @@ const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
 const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
 const CombatSituation = preload("combat_situation.gd")
 
+signal situation_changed(from, to)
+
 enum ProcessMode {
 	IDLE,
 	PHYSICS,
 	MANUAL,
 }
 
-signal state_changed(situation, from, to)
 
 ## If true the combat state machine will be processing.
 export var active: bool
@@ -69,6 +70,10 @@ func _process(delta: float) -> void:
 	if Engine.editor_hint:
 		return
 
+	var current_situation := get_situation(get_current_situation())
+	if current_situation != null:
+		current_situation.update(delta)
+
 	if process_mode == ProcessMode.IDLE:
 		advance(delta)
 		
@@ -76,6 +81,10 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.editor_hint:
 		return
+
+	var current_situation := get_situation(get_current_situation())
+	if current_situation != null:
+		current_situation.physics_update(delta)
 
 	if process_mode == ProcessMode.PHYSICS:
 		advance(delta)
@@ -86,7 +95,6 @@ func add_situation(name: String, situation: CombatSituation) -> void:
 		push_warning("Combat situation named '%s' already exists. Previous instance will be overwritten." % name)
 
 	_situation_by_name[name] = situation
-	situation.connect("state_changed", self, "_on_Situation_state_changed")
 
 ## Returns a situation with the given name if it exists.
 func get_situation(name: String) -> CombatSituation:
@@ -120,8 +128,7 @@ func advance(delta: float) -> void:
 				break
 
 		if  not _buffered_state.empty():
-			var previous_state: String = situation.current_state
-			situation.advance_to(_buffered_state)
+			situation.go_to(_buffered_state)
 			situation.time_since_last_input = current_time / 1000.0
 			_buffered_state = ""
 
@@ -135,7 +142,7 @@ func goto_initial_state(ignore_buffer: bool = false) -> void:
 		push_warning("Failed to to go to initial combat state. Current situation '%s' does not have an initial state set." % situation)
 		return
 	
-	situation.advance_to(situation.initial_state)
+	situation.go_to(situation.initial_state)
 
 ## Buffers an input button to be processed by the state machine
 func buffer_button(input: String, is_released: bool = false) -> void:
@@ -150,6 +157,7 @@ func clear_buffer() -> void:
 	_buffered_state = ""
 	_input_buffer.clear()
 
+## Changes the currently activate situation
 func change_situation(situation: String) -> void:
 	if _situation_by_name.empty():
 		push_error("Failed to change situation. State machine has no situations added.")
@@ -160,8 +168,10 @@ func change_situation(situation: String) -> void:
 		return
 
 	if situation != _current_situation:
+		var prev_situation := _current_situation
 		_current_situation = situation
 		get_situation(situation).initialize()
+		emit_signal("situation_changed", prev_situation, _current_situation)
 
 
 func get_current_situation() -> String:
@@ -172,7 +182,9 @@ func get_current_state() -> String:
 	if _situation_by_name.empty():
 		return ""
 	
-	return get_situation(_current_situation).current_state
+	var current_situation := get_situation(_current_situation)
+
+	return current_situation.get_current_state_name() if current_situation else null
 
 
 func set_process_mode(value: int) -> void:
@@ -225,7 +237,3 @@ func _update_evaluator_functions() -> void:
 			_external_condition_evaluator if _external_condition_evaluator != null 
 			else funcref(self, "is_condition_true"))
 		situation.set_condition_evaluator(evaluation_func)
-
-
-func _on_Situation_state_changed(from: String, to: String) -> void:
-	emit_signal("state_changed", _current_situation, from, to)

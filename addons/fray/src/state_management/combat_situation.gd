@@ -146,10 +146,10 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 	return transitions
 
 
-func _get_next_state(input: Object = null) -> String:
+func _get_next_state_impl(input = null) -> String:
 	if input is BufferedInput:
-		var next_global_transitions := get_next_global_transitions(current_state)
-		var next_transitions := get_next_transitions(current_state)
+		var next_global_transitions := get_next_global_transitions(get_current_state_name())
+		var next_transitions := get_next_transitions(get_current_state_name())
 		
 		for transition_data in next_global_transitions + next_transitions:
 			var transition := transition_data.transition as InputTransition
@@ -162,6 +162,8 @@ func _get_next_state(input: Object = null) -> String:
 						return ""
 
 				return transition_data.to
+	else:
+		push_error("Failed to get next input. Expect input of type 'BufferedInput' instead got '%s'" % input)
 
 	return "";
 
