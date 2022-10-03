@@ -21,11 +21,12 @@ const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const InputCondition = preload("transitions/conditions/input_condition.gd")
 const CombatState = preload("combat_state.gd")
+const CombatSituationBehavior = preload("combat_situation_behavior.gd")
 
 # NOTE: Consider switching to hiearchical state machine for 4.0 
-## Optional state that can be set to define behavior during this situation
-## If set the 'CombatStateMachine' will invoke it's exit procedures.
-var behavior_state: State
+## Optional class that can be set to define behavior during this situation
+## using the state pattern.
+var behavior: CombatSituationBehavior setget set_behavior
 
 ## Time since the last detected input in seconds
 var time_since_last_input: float
@@ -39,23 +40,14 @@ var _global_transition_rules: Dictionary
 ## Type: func(string) -> bool
 var _condition_evaluator_func: FuncRef
 
-func update(delta: float) -> void:
-	.update(delta)
 
-	if behavior_state != null:
-		behavior_state._update_impl(delta)
+func _init() -> void:
+	connect("state_changed", self, "_on_state_changed")
+func set_behavior(value: CombatSituationBehavior) -> void:
+	behavior = value
 
-func physics_update(delta: float) -> void:
-	.physics_update(delta)
-
-	if behavior_state != null:
-		behavior_state._physics_update_impl(delta)
-
-func initialize(state: String = "") -> void:
-	.initialize(state)
-
-	if behavior_state != null:
-		behavior_state._enter_impl()
+	if behavior != null:
+		connect("state_changed", behavior, "_on_Situation_state_changed")
 
 
 ## Adds combat state to situation
@@ -198,6 +190,8 @@ func _is_condition_true(condition: String) -> bool:
 		return false
 		
 	return _condition_evaluator_func.call_func(condition)
-#signal methods
 
-#inner classes
+
+func _on_state_changed(_from: String, to: String) -> void:
+	if behavior != null:
+		behavior.current_state = to

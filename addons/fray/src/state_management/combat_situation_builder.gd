@@ -1,13 +1,12 @@
 extends Reference
 
-const State = preload("res://addons/fray/lib/state_machine/state.gd")
+const CombatSituationBehavior = preload("combat_situation_behavior.gd")
 const CombatSituation = preload("combat_situation.gd")
 const CombatState = preload("combat_state.gd")
 const InputCondition = preload("transitions/conditions/input_condition.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const InputButtonCondition = preload("transitions/conditions/input_button_condition.gd")
 const InputSequenceCondition = preload("transitions/conditions/input_sequence_condition.gd")
-
 
 ## If true then input conditions will be cached to prevent identical conditions from being instantiated.
 var enable_condition_caching: bool = true
@@ -30,7 +29,7 @@ var _global_builder_by_state: Dictionary
 ## Type: Dictionary<String, String[]>
 var _transition_rules: Dictionary
 
-var _behavior_state: State
+var _behavior: CombatSituationBehavior
 var _func_new_button: FuncRef
 var _func_new_sequence: FuncRef
 
@@ -49,7 +48,7 @@ func _init() -> void:
 func build(initial_state: String) -> CombatSituation:
 	var cs := CombatSituation.new()
 
-	cs.behavior_state = _behavior_state
+	cs.behavior = _behavior
 
 	for state_name in _state_by_name:
 		cs.add_state(state_name, _state_by_name[state_name])
@@ -92,7 +91,7 @@ func build(initial_state: String) -> CombatSituation:
 	_builder_by_state_tuple.clear()
 	_global_builder_by_state.clear()
 	_transition_rules.clear()
-	_behavior_state = null
+	_behavior = null
 	return cs
 
 ## Adds a new state to the situation.
@@ -114,8 +113,8 @@ func set_state(state_name: String, state: CombatState) -> Reference:
 
 ## Sets behavior state used by situation
 ## This is a completely optional configuration.
-func set_behavior(behavior_state: State) -> Reference:
-	_behavior_state = behavior_state
+func set_behavior(behavior: CombatSituationBehavior) -> Reference:
+	_behavior = behavior
 	return self
 
 

@@ -172,12 +172,6 @@ func change_situation(situation: String) -> void:
 	if situation != _current_situation:
 		var prev_situation := _current_situation
 		var prev_sitch := get_situation(prev_situation)
-		
-		# I don't really like this but it will be tweaked for the 4.0 version
-		if prev_sitch:
-			var prev_behavior := get_situation(prev_situation).behavior_state
-			if prev_behavior != null:
-				prev_behavior._exit_impl()
 
 		_current_situation = situation
 		get_situation(situation).initialize()
