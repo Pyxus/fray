@@ -12,10 +12,11 @@
 
 - Updated hit detection system.
 - Renamed 'hit_detection' folder to more general 'collision'.
-- Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`
+- Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`.
 - Most input binds now inherit from new InputBindSimple type.
-- Renamed `CombatGraph` to `CombatStateMachine`
-- Renamed `HitStateSwitcher` to `HitStateManager`
+- Renamed `CombatGraph` to `CombatStateMachine`.
+- Renamed `HitStateSwitcher` to `HitStateManager`.
+- Exposed "add_state" method in `CombatSituationBuilder`.
 
 ### Removed
 
@@ -25,7 +26,7 @@
 ### Fixed
 
 - InputBindJoyAxis not reading axis correctly.
-- Fixed 3d nodes extending `Node2D` instead of `Spatial`
+- Fixed 3d nodes extending `Node2D` instead of `Spatial`.
 - Fixed lack of null checks on `FrayInput` methods.
 
 ## v1.0.0-alpha.2

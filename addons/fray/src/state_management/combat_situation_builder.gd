@@ -41,8 +41,7 @@ func _init() -> void:
 ## Another CombatSiutation.
 ##
 ## initial_state sets the initial state of the CombatSituation.
-## The initial state must have previously already been used in a transition
-## Or else the builder will fail to set it.
+## The initial state must have already been added to the builder.
 ##
 ## Returns a newly constructed CombatSituation
 func build(initial_state: String) -> CombatSituation:
@@ -91,21 +90,23 @@ func build(initial_state: String) -> CombatSituation:
 	return cs
 
 
-## Creates a new transition from one state to another
+## Creates a new transition from one state to another.
+## If states does not already exist they will be created.
 ##
 ## Returns a TransitionBuilder which can be used to further configure transition
 func transition(from: String, to: String) -> TransitionBuilder:
-	_add_state(from)
-	_add_state(to)
+	add_state(from)
+	add_state(to)
 	var tb := TransitionBuilder.new(_func_new_button, _func_new_sequence, weakref(self))
 	_builder_by_state_tuple[[from, to]] = tb
 	return tb
 
 ## Creates a new global transition to specified state.
+## If the states does not already exist it will be created.
 ##
 ## Returns a TransitionBuilder which can be used to further configure transition.
 func global_transition(to: String) -> TransitionBuilder:
-	_add_state(to)
+	add_state(to)
 	var tb = TransitionBuilder.new(_func_new_button, _func_new_sequence, weakref(self))
 	_global_builder_by_state[to] = tb
 	return tb
@@ -120,26 +121,29 @@ func add_rule(from_tag: String, to_tag: String) -> Reference:
 	return self
 
 ## Set the tags of a specified state.
+## If the states does not already exist it will be created.
 ##
 ## Returns a reference to this builder
 func set_tags(state: String, tags: PoolStringArray) -> Reference:
-	_add_state(state)
+	add_state(state)
 	_state_by_name[state].tags = tags
 	return self
 
 ## Appends given tags onto all given states.
+## If the states does not already exist it will be created.
 ##
 ## Returns a reference to this builder
 func tag(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 	for state in states:
-		_add_state(state)
+		add_state(state)
 
 		for tag in tags:
 			_state_by_name[state].tags.append(tag)
 	return self
 
-
-func _add_state(name: String) -> void:
+## Adds a new state to the situation.
+## Note: States will be added automatically where needed.
+func add_state(name: String) -> void:
 	if not _state_by_name.has(name):
 		_state_by_name[name] = CombatState.new()
 
