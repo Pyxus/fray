@@ -147,24 +147,23 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 	return transitions
 
 
-func _get_next_state_impl(input = null) -> String:
-	if input is BufferedInput:
-		var next_global_transitions := get_next_global_transitions(get_current_state_name())
-		var next_transitions := get_next_transitions(get_current_state_name())
-		
-		for transition_data in next_global_transitions + next_transitions:
-			var transition := transition_data.transition as InputTransition
-			if transition == null:
-				continue
+func _get_next_state_impl(input) -> String:
+	assert(input is BufferedInput, "Expected input of type 'BufferedInput' instead got '%s'" % input)
+	
+	var next_global_transitions := get_next_global_transitions(get_current_state_name())
+	var next_transitions := get_next_transitions(get_current_state_name())
+	
+	for transition_data in next_global_transitions + next_transitions:
+		var transition := transition_data.transition as InputTransition
+		if transition == null:
+			continue
 
-			if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.min_input_delay:
-				for prereq in transition.prerequisites:
-					if not _is_condition_true(prereq.condition):
-						return ""
+		if transition.input_condition.is_satisfied_by(input) and time_since_last_input >= transition.min_input_delay:
+			for prereq in transition.prerequisites:
+				if not _is_condition_true(prereq.condition):
+					return ""
 
-				return transition_data.to
-	else:
-		push_error("Failed to get next input. Expect input of type 'BufferedInput' instead got '%s'" % input)
+			return transition_data.to
 
 	return "";
 

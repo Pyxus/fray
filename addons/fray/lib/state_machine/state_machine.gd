@@ -203,7 +203,7 @@ func has_transition(from: String, to: String) -> bool:
 	return false
 
 
-func has_next_transition(input: Object = null) -> bool:
+func has_next_transition(input = null) -> bool:
 	return not get_next_state(input).empty()
 
 
@@ -239,7 +239,7 @@ func initialize(state: String = "", arg = null) -> void:
 ## The '_get_next_state_impl' virtual method determines if the input is accept or not.
 ##
 ## Returns true if the input was accepted and state advanced.
-func advance(input = null, arg = null) -> bool:
+func advance(input, arg = null) -> bool:
 	var next_state: String = get_next_state(input)
 	if not next_state.empty():
 		go_to(next_state, arg)
@@ -263,11 +263,11 @@ func go_to(to_state: String, arg = null) -> void:
 	emit_signal("state_changed", prev_state_name, _current_state)
 
 ## Returns the next state reachable with the given input
-func get_next_state(input = null) -> String:
+func get_next_state(input) -> String:
 	return _get_next_state_impl(input)
 
 ## Virtual method used to determine the next reachable using given input
-func _get_next_state_impl(input = null) -> String:
+func _get_next_state_impl(input) -> String:
 	return "";
 	
 #signal methods
