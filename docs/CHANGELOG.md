@@ -21,7 +21,7 @@
 - Renamed `CombatGraph` to `CombatStateMachine`.
 - Renamed `HitStateSwitcher` to `HitStateManager`.
 - Exposed "add_state" method in `CombatSituationBuilder`.
-- Updated state machine library to be more flexible. States now have new virtual methods that are invokved by the state machine.
+- Updated state machine library to be more flexible. States now have new 'enter', 'process', and 'exit' virtual methods that are invokved by the state machine.
 
 ### Removed
 

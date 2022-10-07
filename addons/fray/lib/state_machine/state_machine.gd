@@ -227,15 +227,13 @@ func get_next_transitions(from: String) -> Array: # TransitionData[]
 
 	return transitions
 
-## Initializes the state machine
-func initialize(state: String = "") -> void:
+## Initializes the state machine.
+## 'state' is an optional parameter which will set the initial state if an empty string is not passed.
+func initialize(state: String = "", arg = null) -> void:
 	if not state.empty():
 		set_initial_state(state)
 
-	_current_state = initial_state
-	
-	if has_state(_current_state):
-		get_state(_current_state)._enter_impl()
+	go_to(initial_state, arg)
 
 
 ## Advances to next state reachable based on given input.
@@ -254,13 +252,16 @@ func go_to(to_state: String, arg = null) -> void:
 	if not has_state(to_state):
 		push_warning("Failed advance to state. Given state '%s' does not exist")
 		return
-	var prev_state = _current_state
-
-	get_state(prev_state)._exit_impl()
+	
+	var prev_state_name := _current_state
+	var prev_state := get_state(prev_state_name)
+	if prev_state != null:
+		prev_state._exit_impl()
+		
 	get_state(to_state)._enter_impl(arg)
 	
 	_current_state = to_state
-	emit_signal("state_changed", prev_state, _current_state)
+	emit_signal("state_changed", prev_state_name, _current_state)
 
 ## Returns the next state reachable with the given input
 func get_next_state(input = null) -> String:
