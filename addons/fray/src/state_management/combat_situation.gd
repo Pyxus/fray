@@ -21,7 +21,6 @@ const BufferedInput = preload("buffered_input/buffered_input.gd")
 const InputTransition = preload("transitions/input_transition.gd")
 const InputCondition = preload("transitions/conditions/input_condition.gd")
 const CombatState = preload("combat_state.gd")
-const CombatSituationBehavior = preload("combat_situation_behavior.gd")
 
 ## Time since the last detected input in seconds
 var time_since_last_input: float
