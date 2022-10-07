@@ -123,7 +123,6 @@ func get_all_state_names() -> Array: # String[]
 	
 func get_state(name: String) -> State:
 	if not _states.has_key(name):
-		push_warning("Failed to get state. State '%s' does not exist" % name)
 		return null
 	return _states.get_value(name)
 
