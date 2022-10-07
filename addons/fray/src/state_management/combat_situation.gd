@@ -35,11 +35,6 @@ var _global_transition_rules: Dictionary
 var _condition_evaluator_func: FuncRef
 
 
-func _init() -> void:
-	connect("state_changed", self, "_on_state_changed")
-
-
-
 ## Adds combat state to situation
 func add_combat_state(name: String, tags: PoolStringArray = []) -> void:
 	add_state(name, CombatState.new(tags))
