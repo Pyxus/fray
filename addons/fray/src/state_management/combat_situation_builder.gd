@@ -29,7 +29,6 @@ var _global_builder_by_state: Dictionary
 ## Type: Dictionary<String, String[]>
 var _transition_rules: Dictionary
 
-var _behavior: CombatSituationBehavior
 var _func_new_button: FuncRef
 var _func_new_sequence: FuncRef
 
@@ -47,8 +46,6 @@ func _init() -> void:
 ## Returns a newly constructed CombatSituation
 func build(initial_state: String) -> CombatSituation:
 	var cs := CombatSituation.new()
-
-	cs.behavior = _behavior
 
 	for state_name in _state_by_name:
 		cs.add_state(state_name, _state_by_name[state_name])
@@ -91,7 +88,6 @@ func build(initial_state: String) -> CombatSituation:
 	_builder_by_state_tuple.clear()
 	_global_builder_by_state.clear()
 	_transition_rules.clear()
-	_behavior = null
 	return cs
 
 ## Adds a new state to the situation.
@@ -109,12 +105,6 @@ func set_state(state_name: String, state: CombatState) -> Reference:
 		_state_by_name[state_name] = state
 	else:
 		push_warning("Failed to set state. State with name '%s' does not exist." % state_name)
-	return self
-
-## Sets behavior state used by situation
-## This is a completely optional configuration.
-func set_behavior(behavior: CombatSituationBehavior) -> Reference:
-	_behavior = behavior
 	return self
 
 

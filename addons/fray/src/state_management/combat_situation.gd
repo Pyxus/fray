@@ -23,11 +23,6 @@ const InputCondition = preload("transitions/conditions/input_condition.gd")
 const CombatState = preload("combat_state.gd")
 const CombatSituationBehavior = preload("combat_situation_behavior.gd")
 
-# NOTE: Consider switching to hiearchical state machine for 4.0 
-## Optional class that can be set to define behavior during this situation
-## using the state pattern.
-var behavior: CombatSituationBehavior setget set_behavior
-
 ## Time since the last detected input in seconds
 var time_since_last_input: float
 
@@ -43,11 +38,7 @@ var _condition_evaluator_func: FuncRef
 
 func _init() -> void:
 	connect("state_changed", self, "_on_state_changed")
-func set_behavior(value: CombatSituationBehavior) -> void:
-	behavior = value
 
-	if behavior != null:
-		connect("state_changed", behavior, "_on_Situation_state_changed")
 
 
 ## Adds combat state to situation
@@ -190,8 +181,3 @@ func _is_condition_true(condition: String) -> bool:
 		return false
 		
 	return _condition_evaluator_func.call_func(condition)
-
-
-func _on_state_changed(_from: String, to: String) -> void:
-	if behavior != null:
-		behavior.current_state = to

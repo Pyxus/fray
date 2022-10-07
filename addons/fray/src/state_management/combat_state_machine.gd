@@ -36,7 +36,7 @@ export var input_buffer_capacity: int = 20
 export var input_max_time_in_buffer: float = 0.1
 
 ## The process mode of this state machine.
-export(ProcessMode) var process_mode: int = ProcessMode.PHYSICS setget set_process_mode
+export(ProcessMode) var process_mode: int = ProcessMode.PHYSICS
 
 ## Type: Dictionary<String, CombatSituation>
 var _situation_by_name: Dictionary
@@ -62,18 +62,14 @@ func _ready() -> void:
 
 	_input_buffer.capacity = input_buffer_capacity
 	_update_evaluator_functions()
-	
-	set_process_mode(process_mode)
 
 
 func _process(delta: float) -> void:
 	if Engine.editor_hint:
 		return
 
-	var current_situation := get_situation(get_current_situation())
+	var current_situation := get_current_situation()
 	if current_situation != null:
-		if current_situation.behavior_state != null:
-			current_situation.behavior_state._update_impl(delta)
 		current_situation.update(delta)
 
 	if process_mode == ProcessMode.IDLE:
@@ -84,7 +80,7 @@ func _physics_process(delta: float) -> void:
 	if Engine.editor_hint:
 		return
 
-	var current_situation := get_situation(get_current_situation())
+	var current_situation := get_current_situation()
 	if current_situation != null:
 		current_situation.physics_update(delta)
 
@@ -178,11 +174,15 @@ func change_situation(situation: String) -> void:
 		emit_signal("situation_changed", prev_situation, _current_situation)
 
 
-func get_current_situation() -> String:
+func get_current_situation_name() -> String:
 	return _current_situation
 
 
-func get_current_state() -> String:
+func get_current_situation() -> CombatSituation:
+	return get_situation(_current_situation)
+
+
+func get_current_state_name() -> String:
 	if _situation_by_name.empty():
 		return ""
 	
@@ -190,20 +190,6 @@ func get_current_state() -> String:
 
 	return current_situation.get_current_state_name() if current_situation else null
 
-
-func set_process_mode(value: int) -> void:
-	process_mode = value
-
-	match process_mode:
-		ProcessMode.IDLE:
-			set_process(true)
-			set_physics_process(false)
-		ProcessMode.PHYSICS:
-			set_process(false)
-			set_physics_process(true)
-		ProcessMode.MANUAL:
-			set_process(false)
-			set_physics_process(false)
 
 ## By default the ActionGraph uses an interal dictionary to keep track
 ## of conditions with set_condition(). However this can be overridden by
