@@ -28,7 +28,10 @@ var _global_builder_by_state: Dictionary
 ## Type: Dictionary<String, String[]>
 var _transition_rules: Dictionary
 
+## Type: (String, bool) -> InputButtonCondition
 var _func_new_button: FuncRef
+
+## Type: (String) -> InputSequenceCondition
 var _func_new_sequence: FuncRef
 
 func _init() -> void:
@@ -90,7 +93,6 @@ func build(initial_state: String) -> CombatSituation:
 	return cs
 
 ## Adds a new state to the situation if it doesn't already exist.
-## If the state does exist then it's CombatState object will be updated.
 ##
 ## Note: 
 ##		States are added automatically when making transitions.
@@ -98,11 +100,21 @@ func build(initial_state: String) -> CombatSituation:
 ## 		method is unncessary.
 ##
 ## Returns a reference to this CombatSituiatonBuilder
-func add_state(name: String, state := CombatState.new()) -> Reference:
+func add_state(name: String) -> Reference:
 	if not _state_by_name.has(name):
+		_state_by_name[name] = CombatState.new()
+	return self
+
+## Sets the state object associated with the given state name.
+## The state must have already been added.
+##
+## Returns a reference to this CombatSituiatonBuilder
+func set_state(name: String, state: CombatState) -> Reference:
+	if _state_by_name.has(name):
+		state.tags = _state_by_name[name].tags
 		_state_by_name[name] = state
 	else:
-		_state_by_name[name] = state
+		push_warning("Failed to set state. State '%s' does not exist. Please add the state before attempting to set it." % name)
 	return self
 
 ## Creates a new transition from one state to another.
@@ -151,7 +163,7 @@ func set_tags(state: String, tags: PoolStringArray) -> Reference:
 func tag(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 	for state in states:
 		add_state(state)
-
+		
 		for tag in tags:
 			_state_by_name[state].tags.append(tag)
 	return self

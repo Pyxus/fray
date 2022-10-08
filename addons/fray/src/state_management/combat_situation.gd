@@ -142,17 +142,17 @@ func get_next_global_transitions(from: String) -> Array: # TransitionData[]
 						td.from = from
 						td.to = to_state_name
 						td.transition = _global_transitions[to_state_name]
-						transitions.append(td)					
+						transitions.append(td)		
 						break
 	return transitions
 
 
 func _get_next_state_impl(input) -> String:
 	assert(input is BufferedInput, "Expected input of type 'BufferedInput' instead got '%s'" % input)
-	
+
 	var next_global_transitions := get_next_global_transitions(get_current_state_name())
 	var next_transitions := get_next_transitions(get_current_state_name())
-	
+
 	for transition_data in next_global_transitions + next_transitions:
 		var transition := transition_data.transition as InputTransition
 		if transition == null:
@@ -162,7 +162,6 @@ func _get_next_state_impl(input) -> String:
 			for prereq in transition.prerequisites:
 				if not _is_condition_true(prereq.condition):
 					return ""
-
 			return transition_data.to
 
 	return "";
