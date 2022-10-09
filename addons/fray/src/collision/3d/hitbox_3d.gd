@@ -79,7 +79,7 @@ func can_detect(hitbox: Area) -> bool:
 		and not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
 		and detect_source_hitboxes or hitbox.source != source
-		and attributes.allows_detection_of(hitbox) 
+		and attributes.allows_detection_of(hitbox.attributes)
 			if attributes != null else true
 		)
 	

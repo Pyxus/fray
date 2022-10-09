@@ -19,15 +19,16 @@
 - Most input binds now inherit from new InputBindSimple type.
 - Renamed `CombatGraph` to `CombatStateMachine`.
 - Renamed `HitStateSwitcher` to `HitStateManager`.
-- Exposed "add_state" method in `CombatSituationBuilder`.
+- Exposed `add_state` method in `CombatSituationBuilder`.
 - Updated state machine library to be more flexible. States now have new 'enter', 'process', and 'exit' virtual methods that are invokved by the state machine.
+- HitboxAttributes' `can_detect` method now takes attribute instead of hitbox.
 
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
 - Removed `CombatGraphData` class.
-- Removed "state_changed" signal on `CombatStateMachine`.
-- Removed "current_state" proprety from `HitStateManager2D` and `HitStateManager3D`. State will now be activated when active hitboxes are set.
+- Removed `state_changed` signal on `CombatStateMachine`.
+- Removed `current_state` proprety from `HitStateManager2D` and `HitStateManager3D`. State will now be activated when active hitboxes are set.
 
 ### Fixed
 
@@ -65,7 +66,7 @@
 
 - Replaced combination and conditional inputs with component based alternative reffered to as a `ComplexInput`. The previous system allowed for inputs to reference other inputs which could result in cyclic dependencies. Complex inputs only make reference to input binds which are atomic.
 
-- Removed 'expression' and 'node_path' property from `EvaluatedCondition` class. They will be reimplemented in a later version.
+- Removed `expression` and `node_path` property from `EvaluatedCondition` class. They will be reimplemented in a later version.
 
 - Renamed all input binds classes from `(NameHere)InputBind` to `InputBind(NameHere)`.
 
