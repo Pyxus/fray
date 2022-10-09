@@ -39,12 +39,12 @@ func get_overlapping_hitboxes() -> Array:
 	return hitboxes
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
-func add_hitbox_exception_with(hitbox: Area2D) -> void:
+func add_hitbox_exception_with(hitbox: Area) -> void:
 	if hitbox is Hitbox3D and not _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.append(hitbox)
 	
 ## Removes a hitbox to a list of hitboxes this hitbox can't detect
-func remove_hitbox_exception_with(hitbox: Area2D) -> void:
+func remove_hitbox_exception_with(hitbox: Area) -> void:
 	if _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.erase(hitbox)
 
@@ -73,7 +73,7 @@ func deactivate() -> void:
 ## Returns true if this hitbox is able to detect the given hitbox.
 ## A hitbox can not detect another hitbox if there is a source or hitbox exception
 ## or if the set hitbox attribute does not allow interaction with the given hitbox. 
-func can_detect(hitbox: Area2D) -> bool:
+func can_detect(hitbox: Area) -> bool:
 	return (
 		hitbox is Hitbox3D
 		and not _hitbox_exceptions.has(hitbox)
@@ -88,11 +88,11 @@ func set_source(value: Object) -> void:
 	source = value
 
 
-func _on_area_entered(hitbox: Area2D) -> void:
+func _on_area_entered(hitbox: Area) -> void:
 	if can_detect(hitbox):
 		emit_signal("hitbox_intersected", hitbox)
 
 
-func _on_area_exited(hitbox: Area2D) -> void:
+func _on_area_exited(hitbox: Area) -> void:
 	if can_detect(hitbox):
 		emit_signal("hitbox_seperated", hitbox)
