@@ -8,7 +8,7 @@ signal hitbox_seperated(hitbox)
 var Hitbox2D = load("res://addons/fray/src/collision/3d/hitbox_3d.gd") # Cyclic depedencies... >:[
 
 ## If true then hitboxes that share the same source as this one will still be detected
-export var ignore_source_hitboxes: bool = false
+export var detect_source_hitboxes: bool = false
 
 ## The HitboxAttributes resource containing the attributes of this hitbox
 ## Type: HitboxAttributes
@@ -76,7 +76,7 @@ func can_detect(hitbox: Area2D) -> bool:
 		hitbox is Hitbox2D
 		and not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
-		and ignore_source_hitboxes or hitbox.source != source
+		and detect_source_hitboxes or hitbox.source != source
 		and attributes.allows_detection_of(hitbox) 
 			if attributes != null else true
 		)

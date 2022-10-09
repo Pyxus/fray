@@ -9,6 +9,7 @@
 - Added new class icons.
 - Added "situation_changed" signal on `CombatStateMachine`.
 - Added ability to set combat state instance in `CombatSituationBuilder`.
+- Added 'active_hitboxes' flag to `HitState2D` and `HitState3D`
 
 ### Changed
 

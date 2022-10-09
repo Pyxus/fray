@@ -83,7 +83,7 @@ func set_current_state(value: String) -> void:
 	current_state = value
 
 	for child in get_children():
-		if child is HitState2D:
+		if child is HitState2D and child.name != current_state:
 			child.deactivate()
 
 	if current_state != NONE and is_inside_tree():
@@ -92,6 +92,9 @@ func set_current_state(value: String) -> void:
 
 
 func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+	if node is HitState2D and change != ChildChangeDetector.Change.REMOVED:
+		if not node.is_connected("activated", self, "_on_HitState_activated"):
+			node.connect("activated", self, "_on_HitState_activated", [node])
 	property_list_changed_notify()
 
 
@@ -101,3 +104,7 @@ func _on_Hitstate_hitbox_intersected(detector_hitbox: Hitbox2D, detected_hitbox:
 
 func _on_Hitstate_hitbox_seperated(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D) -> void:
 	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)
+
+
+func _on_HitState_activated(activated_hitstate: HitState2D) -> void:
+	set_current_state(activated_hitstate.name)

@@ -92,6 +92,9 @@ func set_current_state(value: String) -> void:
 
 
 func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+	if node is HitState3D and change != ChildChangeDetector.Change.REMOVED:
+		if not node.is_connected("activated", self, "_on_HitState_activated"):
+			node.connect("activated", self, "_on_HitState_activated", [node])
 	property_list_changed_notify()
 
 
@@ -101,3 +104,7 @@ func _on_Hitstate_hitbox_intersected(detector_hitbox: Hitbox3D, detected_hitbox:
 
 func _on_Hitstate_hitbox_seperated(detector_hitbox: Hitbox3D, detected_hitbox: Hitbox3D) -> void:
 	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)
+
+
+func _on_HitState_activated(activated_hitstate: HitState3D) -> void:
+	set_current_state(activated_hitstate.name)
