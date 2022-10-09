@@ -62,11 +62,13 @@ func remove_source_exception_with(source: Object) -> void:
 func activate() -> void:
 	monitorable = true
 	monitoring = true
+	show()
 
 ## Deactivates this hitobx preventing it from monitoring and being monitored.
 func deactivate() -> void:
 	monitorable = false
 	monitoring = false
+	hide()
 
 ## Returns true if this hitbox is able to detect the given hitbox.
 ## A hitbox can not detect another hitbox if there is a source or hitbox exception

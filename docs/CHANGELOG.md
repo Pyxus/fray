@@ -27,6 +27,7 @@
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
 - Removed `CombatGraphData` class.
 - Removed "state_changed" signal on `CombatStateMachine`.
+- Removed "current_state" proprety from `HitStateManager2D` and `HitStateManager3D`. State will now be activated when active hitboxes are set.
 
 ### Fixed
 

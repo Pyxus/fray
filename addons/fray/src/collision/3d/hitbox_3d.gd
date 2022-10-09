@@ -5,7 +5,7 @@ extends Area
 signal hitbox_intersected(hitbox)
 signal hitbox_seperated(hitbox)
 
-var Hitbox2D = load("res://addons/fray/src/collision/3d/hitbox_3d.gd") # Cyclic depedencies... >:[
+var Hitbox3D = load("res://addons/fray/src/collision/3d/hitbox_3d.gd") # Cyclic depedencies... >:[
 
 ## If true then hitboxes that share the same source as this one will still be detected
 export var detect_source_hitboxes: bool = false
@@ -40,7 +40,7 @@ func get_overlapping_hitboxes() -> Array:
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
 func add_hitbox_exception_with(hitbox: Area2D) -> void:
-	if hitbox is Hitbox2D and not _hitbox_exceptions.has(hitbox):
+	if hitbox is Hitbox3D and not _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.append(hitbox)
 	
 ## Removes a hitbox to a list of hitboxes this hitbox can't detect
@@ -62,18 +62,20 @@ func remove_source_exception_with(source: Object) -> void:
 func activate() -> void:
 	monitorable = true
 	monitoring = true
+	show()
 
 ## Deactivates this hitobx preventing it from monitoring and being monitored.
 func deactivate() -> void:
 	monitorable = false
 	monitoring = false
+	hide()
 
 ## Returns true if this hitbox is able to detect the given hitbox.
 ## A hitbox can not detect another hitbox if there is a source or hitbox exception
 ## or if the set hitbox attribute does not allow interaction with the given hitbox. 
 func can_detect(hitbox: Area2D) -> bool:
 	return (
-		hitbox is Hitbox2D
+		hitbox is Hitbox3D
 		and not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
 		and detect_source_hitboxes or hitbox.source != source
