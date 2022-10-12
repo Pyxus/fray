@@ -5,35 +5,56 @@
 ### Added
 
 - Added new combination builders to `ComplexInputFactory` class.
+
 - Added new InputBindFrayAction. This allows you to create a bind using simple binds in a way that mimic's Godot's actions.
+
 - Added new class icons.
+
 - Added "situation_changed" signal on `CombatStateMachine`.
+
 - Added ability to set combat state instance in `CombatSituationBuilder`.
-- Added 'active_hitboxes' flag to `HitState2D` and `HitState3D`
+
+- Added `active_hitboxes` flag to `HitState2D` and `HitState3D`.
+
+- Added ability to create virtual devices in `FrayInput` singleton.
+
+- Added `is_any_pressed()` method to `FrayInput` singleton.
 
 ### Changed
 
 - Updated hit detection system.
+
 - Renamed 'hit_detection' folder to more general 'collision'.
+
 - Replaced individual module pseudo-namespaces with 1 namespace. Now instead of `FrayInputNS` you would type `Fray.Input`.
+
 - Most input binds now inherit from new InputBindSimple type.
+
 - Renamed `CombatGraph` to `CombatStateMachine`.
+
 - Renamed `HitStateSwitcher` to `HitStateManager`.
+
 - Exposed `add_state` method in `CombatSituationBuilder`.
+
 - Updated state machine library to be more flexible. States now have new 'enter', 'process', and 'exit' virtual methods that are invokved by the state machine.
+
 - HitboxAttributes' `can_detect` method now takes attribute instead of hitbox.
 
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
 - Removed `CombatGraphData` class.
+
 - Removed `state_changed` signal on `CombatStateMachine`.
+
 - Removed `current_state` proprety from `HitStateManager2D` and `HitStateManager3D`. State will now be activated when active hitboxes are set.
 
 ### Fixed
 
 - InputBindJoyAxis not reading axis correctly.
+
 - Fixed 3d nodes extending `Node2D` instead of `Spatial`.
+
 - Fixed lack of null checks on `FrayInput` methods.
 
 ## v1.0.0-alpha.2
