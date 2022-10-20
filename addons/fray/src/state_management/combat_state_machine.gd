@@ -90,8 +90,12 @@ func _physics_process(delta: float) -> void:
 ## Adds a combat situation to the state machine.
 func add_situation(name: String, situation: CombatSituation) -> void:
 	if has_situation(name):
-		push_warning("Combat situation named '%s' already exists. Previous instance will be overwritten." % name)
+		push_warning("Combat situation named '%s' already exists. Previous occurance will be overwritten." % name)
 
+	if _situation_by_name.empty():
+		_current_situation = name
+		situation.initialize()
+	
 	_situation_by_name[name] = situation
 
 ## Returns a situation with the given name if it exists.

@@ -40,6 +40,8 @@
 
 - HitboxAttributes' `can_detect` method now takes attribute instead of hitbox.
 
+- The `CombatStateMachine` will now default to using the first added situation.
+
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.
