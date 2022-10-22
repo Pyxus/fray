@@ -46,6 +46,8 @@
 
 - The `CombatStateMachine` will now default to using the first added situation.
 
+- Renamed `FrayInputList` back to `FrayInputMap` to mirror Godot's naming 
+
 ### Removed
 
 - Removed push box. There will no longer be a default push box implementation, users can create their own depending on their collision set up.

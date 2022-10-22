@@ -16,14 +16,14 @@ const InputInterface = preload("../device/input_data/state/input_interface.gd")
 const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
 const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
 const FrayInputEvent = preload("../fray_input_event.gd")
-const FrayInputList = preload("fray_input_list.gd")
+const FrayInputMap = preload("fray_input_map.gd")
 
 const DEVICE_KBM_JOY1 = 0
 
 ## Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-onready var _input_list: FrayInputList = get_node("../FrayInputList")
+onready var _input_map: FrayInputList = get_node("../FrayInputMap")
 onready var _input_interface := InputInterface.new(weakref(self))
 
 
@@ -40,8 +40,8 @@ func _physics_process(_delta: float) -> void:
 	for device in get_connected_devices():
 		var device_state := _get_device_state(device)
 
-		for bind_name in _input_list.get_bind_names():
-			var bind := _input_list.get_bind(bind_name)
+		for bind_name in _input_map.get_bind_names():
+			var bind := _input_map.get_bind(bind_name)
 			var input_state := device_state.get_input_state(bind_name)
 
 			if bind.is_pressed(device):
@@ -50,8 +50,8 @@ func _physics_process(_delta: float) -> void:
 			elif input_state.pressed:
 				input_state.unpress()
 		
-		for complex_input_name in _input_list.get_complex_input_names():
-			var complex_input := _input_list.get_complex_input(complex_input_name)
+		for complex_input_name in _input_map.get_complex_input_names():
+			var complex_input := _input_map.get_complex_input(complex_input_name)
 			var input_state := device_state.get_input_state(complex_input_name)
 
 			if complex_input.is_pressed(device, _input_interface):
@@ -75,9 +75,9 @@ func _physics_process(_delta: float) -> void:
 							held_components.append(bind)
 
 					var virtually_pressed_complex := false
-					for com_input_name in _input_list.get_complex_input_names():
+					for com_input_name in _input_map.get_complex_input_names():
 						var com_input_state := _get_input_state(com_input_name, device)
-						var com_input := _input_list.get_complex_input(com_input_name)
+						var com_input := _input_map.get_complex_input(com_input_name)
 						var has_binds := com_input.decomposes_into_binds(held_components, device, _input_interface)
 
 						if com_input_state.pressed and has_binds:
@@ -173,8 +173,8 @@ func is_device_connected(device: int) -> bool:
 func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	match _get_input_state(input, device):
 		var input_state:
-			if _input_list.has_bind(input):
-				var bind := _input_list.get_bind(input)
+			if _input_map.has_bind(input):
+				var bind := _input_map.get_bind(input)
 		
 				if bind is InputBindAction:
 					return Input.get_action_strength(bind.action)
@@ -237,7 +237,7 @@ func create_virtual_device() -> VirtualDevice:
 func _connect_device(device: int) -> DeviceState:
 	var device_state := DeviceState.new()
 	var all_input_names :=\
-		(_input_list.get_bind_names() + _input_list.get_complex_input_names())
+		(_input_map.get_bind_names() + _input_map.get_complex_input_names())
 		
 	for input_name in all_input_names:
 		device_state.register_input_state(input_name)
@@ -262,7 +262,7 @@ func _get_device_state(device: int) -> DeviceState:
 func _get_input_state(input: String, device: int) -> InputState:
 	match _get_device_state(device):
 		var device_state:
-			if not _input_list.has_input(input):
+			if not _input_map.has_input(input):
 				push_error("Failed to get input state. Unrecognized input '%s'" % input)
 			return device_state.get_input_state(input)
 		null:
@@ -271,7 +271,7 @@ func _get_input_state(input: String, device: int) -> InputState:
 
 
 func _get_bind_state(input: String, device: int) -> InputState:
-	if _input_list.has_bind(input):
+	if _input_map.has_bind(input):
 		return _get_input_state(input, device)
 	return null
 

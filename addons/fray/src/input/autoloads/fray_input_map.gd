@@ -1,9 +1,10 @@
 extends Node
-## List of all inputs recognized by the FrayInput singleton.
+## Singleton that manages inputs recognized by FrayInput singleton
 ##
 ## @desc:
 ##		Used to register new inputs to be detected by the FrayInput singleton.
-##		Input names can not be shared by both binds and complex inputs.
+##		Inputs in fray are either binds or complex inputs mapped to a string name.
+##		These names can not be shared between binds and complex inputs.
 
 const InputBind = preload("../device/input_data/binds/input_bind.gd")
 const InputBindFrayAction = preload("../device/input_data/binds/input_bind_fray_action.gd")
@@ -20,13 +21,13 @@ var _input_bind_by_name: Dictionary
 ## Type: Dictionary<String, ComplexInput>
 var _complex_input_by_name: Dictionary
 
-## Adds a new complex input to the input list.
+## Adds a new complex input to the input map.
 ##
 ## To build a complex input the ComplexInputFactory can be used:
 ##
 ## var CIF := Fray.Input.ComplexInputFactory
 ## var ComboMode := Fray.Input.CombinationInput.Mode
-## FrayInputList.add_complex_input("down_right", CIF.new_combination()\
+## FrayInputMap.add_complex_input("down_right", CIF.new_combination()\
 ## 		.add_component(CIF.new_simple(["down"]))\
 ## 		.add_component(CIF.new_simple(["right"]))\
 ## 		.mode(ComboMode.ASYNC))

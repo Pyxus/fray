@@ -31,7 +31,7 @@ func _ready() -> void:
 
 	
 func _enter_tree() -> void:
-	add_autoload_singleton("FrayInputList", "res://addons/fray/src/input/autoloads/fray_input_list.gd")
+	add_autoload_singleton("FrayInputMap", "res://addons/fray/src/input/autoloads/fray_input_map.gd")
 	add_autoload_singleton("FrayInput", "res://addons/fray/src/input/autoloads/fray_input.gd")
 	add_custom_type("SequenceAnalyzer", "Resource", Fray.Input.SequenceAnalyzer, null)
 	add_custom_type("CombatStateMachine", "Node", Fray.StateMgmt.CombatStateMachine, preload("assets/icons/combat_state_machine.svg"))
