@@ -2,12 +2,12 @@ extends Node
 
 signal input_detected(input_event)
 
-const DeviceState = preload("../device_state.gd")
-const VirtualDevice = preload("../virtual_device.gd")
-const InputState = preload("../input_data/state/input_state.gd")
-const InputInterface = preload("../input_data/state/input_interface.gd")
-const InputBindAction = preload("../input_data/binds/input_bind_action.gd")
-const InputBindJoyAxis = preload("../input_data/binds/input_bind_joy_axis.gd")
+const DeviceState = preload("../device/device_state.gd")
+const VirtualDevice = preload("../device/virtual_device.gd")
+const InputState = preload("../device/input_data/state/input_state.gd")
+const InputInterface = preload("../device/input_data/state/input_interface.gd")
+const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
+const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
 const FrayInputEvent = preload("../fray_input_event.gd")
 const FrayInputList = preload("fray_input_list.gd")
 
