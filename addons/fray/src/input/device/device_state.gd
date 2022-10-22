@@ -1,4 +1,5 @@
 extends Reference
+## Used by FrayInput to track device state
 
 const InputState = preload("input_data/state/input_state.gd")
 

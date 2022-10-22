@@ -20,6 +20,10 @@
 
 - Added `is_any_pressed()` method to `FrayInput` singleton.
 
+- Added `is_device_connected()` method to `FrayInput` singleton.
+
+- Added ability to remove binds and complex inputs from `FrayInputList`.
+
 ### Changed
 
 - Updated hit detection system.

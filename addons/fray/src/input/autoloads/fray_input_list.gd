@@ -1,5 +1,8 @@
 extends Node
-## Contains a list of all inputs recognized by the FrayInput singleton
+## List of all inputs recognized by the FrayInput singleton.
+##
+## @desc:
+##		Used to register new inputs to be detected by the FrayInput singleton.
 
 const InputBind = preload("../device/input_data/binds/input_bind.gd")
 const InputBindFrayAction = preload("../device/input_data/binds/input_bind_fray_action.gd")
@@ -16,6 +19,16 @@ var _input_bind_by_name: Dictionary
 ## Type: Dictionary<String, ComplexInput>
 var _complex_input_by_name: Dictionary
 
+## Adds a new complex input to the input list.
+##
+## To build a complex input the ComplexInputFactory can be used:
+##
+## var CIF := Fray.Input.ComplexInputFactory
+## var ComboMode := Fray.Input.CombinationInput.Mode
+## FrayInputList.add_complex_input("down_right", CIF.new_combination()\
+## 		.add_component(CIF.new_simple(["down"]))\
+## 		.add_component(CIF.new_simple(["right"]))\
+## 		.mode(ComboMode.ASYNC))
 func add_complex_input(name: String, complex_input: ComplexInput) -> void:
 	if _err_input_already_exists(name, "Failed to add complex input."):
 		return
@@ -27,7 +40,7 @@ func add_bind_input(name: String, input_bind: InputBind) -> void:
 		return
 	_input_bind_by_name[name] = input_bind
 
-## Binds action input
+## Binds action input.
 func add_bind_action(name: String, action: String) -> void:
 	var bind := InputBindAction.new()
 	bind.action = action
@@ -38,7 +51,7 @@ func add_bind_action(name: String, action: String) -> void:
 	add_bind_input(name, bind)
 
 ## Binds a fray action
-## 'simple_binds' is an array of InputBindSimple
+## 'simple_binds' is an array of InputBindSimple.
 func add_bind_fray_action(name: String, simple_binds: Array) -> void:
 	var bind := InputBindFrayAction.new()
 	for s_bind in simple_binds:
@@ -46,13 +59,13 @@ func add_bind_fray_action(name: String, simple_binds: Array) -> void:
 	
 	add_bind_input(name, bind)
 
-## Binds joystick button input
+## Binds joystick button input.
 func add_bind_joy_button(name: String, button: int) -> void:
 	var bind := InputBindJoyButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
 
-## Binds joystick axis input
+## Binds joystick axis input.
 func add_bind_joy_axis(name: String, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
 	var bind := InputBindJoyAxis.new()
 	bind.axis = axis
@@ -60,17 +73,31 @@ func add_bind_joy_axis(name: String, axis: int, check_positive: bool = true, dea
 	bind.check_positive = check_positive
 	add_bind_input(name, bind)
 
-## Binds key input
+## Binds key input.
 func add_bind_key(name: String, key: int) -> void:
 	var bind := InputBindKey.new()
 	bind.key = key
 	add_bind_input(name, bind)
 
-## Binds mouse button input
+## Binds mouse button input.
 func add_bind_mouse_button(name: String, button: int) -> void:
 	var bind := InputBindMouseButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
+
+## Removes bind from input list.
+func remove_bind(name: String) -> void:
+	if not has_bind(name):
+		push_error("Failed to remove bind '%s'. Bind does not exist," % name)
+		return
+	_input_bind_by_name.erase(name)
+
+## Removes complex input from list.
+func remove_complex_input(name: String) -> void:
+	if not has_complex_input(name):
+		push_error("Failed to remove complex input '%s'. Complex input does not exist." % name)
+		return
+	_complex_input_by_name.erase(name)
 
 ## Returns true if the given bind exists in the list.
 func has_bind(bind_name: String) -> bool:
@@ -100,7 +127,7 @@ func get_complex_input(input_name: String) -> ComplexInput:
 		return _complex_input_by_name[input_name]
 	return null
 
-## Returns true if the given input exists within the list
+## Returns true if the given input exists within the list.
 func has_input(input_name: String) -> bool:
 	return has_complex_input(input_name) or has_bind(input_name)
 

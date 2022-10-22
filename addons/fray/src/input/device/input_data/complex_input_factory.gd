@@ -1,4 +1,5 @@
 extends Reference
+## Static helper class used to construct complex inputs
 
 const ComplexInput = preload("complex_input.gd")
 const CombinationInput = preload("combination_input.gd")

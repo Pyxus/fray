@@ -1,5 +1,12 @@
 extends Node
+## Fray input manager singleton
+##
+## @desc:
+## 		Functionally similar to Godot's built in `Input` singleton.
 
+## Emitted when an input is detected
+##
+## input_event is a `FrayInputEvent` object containing information about the event
 signal input_detected(input_event)
 
 const DeviceState = preload("../device/device_state.gd")
@@ -157,6 +164,10 @@ func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 		null:
 			return false
 
+## Returns true if device with given id is connected
+func is_device_connected(device: int) -> bool:
+	 return _device_state_by_id.has(device)
+
 ## Returns a value between 0 and 1 representing the intensity of an input.
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
 func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
@@ -216,19 +227,17 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 			push_error("Failed to clear conditions. Unrecognized device '%d'" % device)
 
 ## Retruns a newly created virtual device
+## By convention all virtual devices are assigned a negative number
 func create_virtual_device() -> VirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
-	var virtual_device := VirtualDevice.new(_connect_device(id), id)
-	virtual_device.connect("disconnection_request", self, "_on_VirtualDevice_disconnection_request")
-	return virtual_device
+	return VirtualDevice.new(_connect_device(id), id)
 
 
 func _connect_device(device: int) -> DeviceState:
 	var device_state := DeviceState.new()
 	var all_input_names :=\
-		(_input_list.get_bind_names() +
-		_input_list.get_complex_input_names()) #I just learned this trick, we coding in GD Lisp boys  
+		(_input_list.get_bind_names() + _input_list.get_complex_input_names())
 		
 	for input_name in all_input_names:
 		device_state.register_input_state(input_name)

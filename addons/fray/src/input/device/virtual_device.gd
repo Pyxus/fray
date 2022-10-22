@@ -1,8 +1,10 @@
 extends Reference
+## Manually controlled virtual device
+##
+## @desc:
+## 		A virtual device's whos inputs must be manually controlled through code.
 
 const DeviceState = preload("device_state.gd")
-
-signal disconnection_request(id)
 
 var _device_state: DeviceState
 var _id: int
@@ -10,6 +12,10 @@ var _id: int
 func _init(device_state: DeviceState, id: int):
     _device_state = device_state
     _id = id
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_PREDELETE:
+        unplug()
 
 ## presses given input on virtual device
 func press(input: String) -> void:
@@ -36,6 +42,9 @@ func unpress(input: String) -> void:
 func get_id() -> int:
     return _id
 
-## 
-func request_disconnect() -> void:
-    emit_signal("disconnection_request", _id)
+## Disconnects the virtual device by removing it from the FrayInput singleton.
+##
+## Is automatically called when the virtual device is no longer being referenced.
+func unplug() -> void:
+    if FrayInput.is_device_connected(_id):
+        FrayInput._disconnect_device(_id)

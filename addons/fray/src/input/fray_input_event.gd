@@ -36,7 +36,7 @@ var device: int
 var input: String
 
 func _to_string() -> String:
-	return input if pressed else "(%s)" % input
+	return "{input:%s, pressed:%s, device:%d}" % [input, pressed, device]
 
 
 ## Returns the time between two input events in miliseconds.

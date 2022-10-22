@@ -1,4 +1,5 @@
 extends Reference
+## Used by FrayInput to track state of individual inputs
 
 func _init(input_name: String) -> void:
     input = input_name

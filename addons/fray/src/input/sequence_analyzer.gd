@@ -1,9 +1,20 @@
 extends Reference
-
-const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
-const FrayInputEvent = preload("fray_input_event.gd")
-const InputRequirement = preload("sequence/input_requirement.gd")
-const SequenceList = preload("sequence/sequence_list.gd")
+## Used to detect input sequences
+##
+## @desc:
+## 		The sequence analyzer can be used to detect input sequences such as
+##		motion inputs which are common to many fighting games.
+##		Search 'fighting game motion inputs' for more info on the concept.
+##
+##		To use you must first initialize the analyzer with a sequence list:
+##
+##		var sequence_analyzer := SequenceAnalyzer.new()
+##		var sequence_list := SequenceList.new()
+##
+##		sequence_list.add("236p", SequencePath.new()\
+##			.add("down").add("down_forward").add("backward").add("punch"))
+##
+##		sequence_analyzer.initialize(sequence_list)		
 
 ## Emmited when a sequence match is found.
 ##
@@ -12,11 +23,19 @@ const SequenceList = preload("sequence/sequence_list.gd")
 ## inputs is an array of input ids that was used to match the sequence.
 signal match_found(sequence_name, inputs)
 
+const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
+const FrayInputEvent = preload("fray_input_event.gd")
+const InputRequirement = preload("sequence/input_requirement.gd")
+const SequenceList = preload("sequence/sequence_list.gd")
+
+## Type: LinkedList<InputFrame>
+var _input_queue: LinkedList
+
+## Type: InputEvent[]
+var _match_path: Array
 
 var _root: InputNode
 var _current_node: InputNode
-var _input_queue: LinkedList ## Type: LinkedList<InputFrame>
-var _match_path: Array ## Type: InputEvent[]
 var _current_frame: InputFrame
 
 ## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
@@ -41,7 +60,7 @@ static func is_match(fray_input_events: Array, input_requirements: Array) -> boo
 
 	return true
 
-## Initialzes analyzer
+## Initialzes the analyzer
 ##
 ## sequence list is used to register the sequences recognized by this analyzer
 func initialize(sequence_list: SequenceList) -> void:
