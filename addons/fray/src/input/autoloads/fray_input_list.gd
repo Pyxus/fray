@@ -3,6 +3,7 @@ extends Node
 ##
 ## @desc:
 ##		Used to register new inputs to be detected by the FrayInput singleton.
+##		Input names can not be shared by both binds and complex inputs.
 
 const InputBind = preload("../device/input_data/binds/input_bind.gd")
 const InputBindFrayAction = preload("../device/input_data/binds/input_bind_fray_action.gd")
@@ -85,19 +86,16 @@ func add_bind_mouse_button(name: String, button: int) -> void:
 	bind.button = button
 	add_bind_input(name, bind)
 
-## Removes bind from input list.
-func remove_bind(name: String) -> void:
-	if not has_bind(name):
-		push_error("Failed to remove bind '%s'. Bind does not exist," % name)
-		return
-	_input_bind_by_name.erase(name)
 
 ## Removes complex input from list.
-func remove_complex_input(name: String) -> void:
-	if not has_complex_input(name):
-		push_error("Failed to remove complex input '%s'. Complex input does not exist." % name)
+func remove_input(name: String) -> void:
+	if _err_input_does_not_exist(name, "Failed to remove input."):
 		return
-	_complex_input_by_name.erase(name)
+
+	if has_bind(name):
+		_input_bind_by_name.erase(name)
+	else:
+		_complex_input_by_name.erase(name)
 
 ## Returns true if the given bind exists in the list.
 func has_bind(bind_name: String) -> bool:
@@ -138,6 +136,14 @@ func _err_input_already_exists(input: String, err_msg: String) -> bool:
 		return true
 	elif has_complex_input(input):
 		push_error(err_msg + " Complex input with name '%s' already exists." % input)
+		return true
+	
+	return false
+
+
+func _err_input_does_not_exist(input: String, err_msg: String) -> bool:
+	if not has_bind(input) and not has_complex_input(input):
+		push_error(err_msg + " Input bind or complex input with name '%s' does not exist." % input)
 		return true
 	
 	return false
