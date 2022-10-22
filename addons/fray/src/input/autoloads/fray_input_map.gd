@@ -27,10 +27,9 @@ var _complex_input_by_name: Dictionary
 ##
 ## var CIF := Fray.Input.ComplexInputFactory
 ## var ComboMode := Fray.Input.CombinationInput.Mode
-## FrayInputMap.add_complex_input("down_right", CIF.new_combination()\
+## FrayInputMap.add_complex_input("down_right", CIF.new_combination_async()\
 ## 		.add_component(CIF.new_simple(["down"]))\
-## 		.add_component(CIF.new_simple(["right"]))\
-## 		.mode(ComboMode.ASYNC))
+## 		.add_component(CIF.new_simple(["right"]))
 func add_complex_input(name: String, complex_input: ComplexInput) -> void:
 	if _err_input_already_exists(name, "Failed to add complex input."):
 		return
