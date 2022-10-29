@@ -33,16 +33,16 @@ func _physics_process(delta: float) -> void:
         root.advance()
 
 
-func advance(input: Dictionary = {}) -> void:
+func advance() -> void:
     if _can_process() and process_mode == ProcessMode.MANUAL:
-        _advance_impl(input)
+        _advance_impl()
         
 
 func _can_process() -> bool:
     return root != null and active
 
 
-func _advance_impl(input: Dictionary) -> void:
+func _advance_impl() -> void:
     pass
 
 

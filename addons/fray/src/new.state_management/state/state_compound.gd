@@ -2,7 +2,7 @@ extends "state.gd"
 ## Generic compound state class
 ##
 ## @desc:
-##		This state is it self a state machine capable of housing multiple sub states.
+##		This state is it self a state machine containing multiple sub states.
 
 ## Emitted when a state is added to the state machine
 ##
@@ -47,8 +47,11 @@ signal transition_removed(from, to)
 ## `to: String` is the current state
 signal transitioned(from, to)
 
-const Transition = preload("../transition/transition.gd")
-const TransitionConfig = preload("../transition/transition_config.gd")
+const Transition = preload("transition/transition.gd")
+
+## Type: Dictionary<String, bool>
+## Hint: <condition name, condition status>
+var _conditions: Dictionary
 
 var start_state: String setget set_start_state
 var end_state: String setget set_end_state
@@ -85,7 +88,7 @@ func start(args: Dictionary = {}) -> void:
 		return
 	go_to(start_state, args)
 
-
+## Adds a child state to this compound state
 func add_state(name: String, state: Reference) -> void:
 	if name.empty():
 		push_error("failed to add state. State name can not be empty.")
@@ -106,7 +109,7 @@ func add_state(name: String, state: Reference) -> void:
 	
 	emit_signal("state_added", name)
 
-
+## Remove child state from this compound state if it exists.
 func remove_state(name: String) -> void:
 	if _err_state_does_not_exist(name, "Failed to remove state. "):
 		return
@@ -121,7 +124,7 @@ func remove_state(name: String) -> void:
 	_states_by_name.erase(name)
 	emit_signal("state_removed", name)
 
-
+## Rename child state if it exists.
 func rename_state(name: String, new_name: String) -> void:
 	if new_name.empty():
 		push_warning("failed to rename state. State's new name can not be empty.")
@@ -146,7 +149,7 @@ func rename_state(name: String, new_name: String) -> void:
 	_states_by_name[new_name] = state
 	emit_signal("state_renamed", name, new_name)
 
-
+## Replaces a child state's state instance.
 func replace_state(name: String, state: Reference) -> void:
 	if _err_state_does_not_exist(name, "Failed to replace state. "):
 		return
@@ -158,22 +161,22 @@ func replace_state(name: String, state: Reference) -> void:
 	_states_by_name[name] = state
 	emit_signal("state_replaced", name)
 
-
-func add_transition(from: String, to: String, transition_config: TransitionConfig) -> void:
-	if (_err_state_does_not_exist(from, "Failed to add transition. ") 
-		or _err_state_does_not_exist(to, "Failed to add transition. ")):
+## Adds a transition from one child state to another.
+func add_transition(transition: Transition) -> void:
+	if (_err_state_does_not_exist(transition.from, "Failed to add transition. ") 
+		or _err_state_does_not_exist(transition.to, "Failed to add transition. ")):
 		return
 	
-	var transition := Transition.new()
-	transition.from = from
-	transition.to = to
-	transition.config = transition_config
-
 	_transitions.append(transition)
 	_transitions.sort_custom(self, "_sort_transitions")
-	emit_signal("transition_added", from, to)
 
+	for condition in transition.prereqs + transition.advance_conditions:
+		if not has_condition(condition.name):
+			_conditions[condition.name] = false
+	
+	emit_signal("transition_added", transition.from, transition.to)
 
+## Remove transition between two child states.
 func remove_transition(from: String, to: String) -> void:
 	if (_err_state_does_not_exist(from, "Failed to remove transition. ") 
 		or _err_state_does_not_exist(to, "Failed to remove transition. ")):
@@ -182,8 +185,20 @@ func remove_transition(from: String, to: String) -> void:
 	if not has_transition(from, to):
 		push_warning("Failed to remove transition. Transition from '%s' to '%s' does not exist" % [from, to])
 		return
+	
+	var transition := get_transition(from, to)
+	_transitions.erase(transition)
 
-	_transitions.erase(get_transition(from, to))
+	for condition in transition.prereqs + transition.advance_conditions:
+		var is_condition_still_used := false
+		for t in _transitions:
+			if condition.name in (t.prereqs + t.advance_conditions):
+				is_condition_still_used = true
+				break
+		
+		if not is_condition_still_used and has_condition(condition.name):
+			_conditions.erase(condition.name)
+
 	emit_signal("transition_removed", from, to)
 
 ## Returns true if a transtion from state to state exists
@@ -220,8 +235,8 @@ func get_next_transitions(from: String) -> Array:
 ## The '_get_next_state_impl' virtual method determines if the input is accept or not.
 ##
 ## Returns true if the input was accepted and state advanced.
-func advance(args: Dictionary = {}) -> bool:
-	var next_state := get_next_state()
+func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
+	var next_state := get_next_state(input)
 	if not next_state.empty():
 		var current_state := _current_state
 		go_to(next_state, args)
@@ -229,11 +244,10 @@ func advance(args: Dictionary = {}) -> bool:
 	return false
 
 ## Returns the next state reachable
-func get_next_state() -> String:
-	for transition in get_next_transitions(_current_state):
-		if end_state != "" and _current_state != end_state and transition.config.switch_mode == TransitionConfig.SwitchMode.AT_END:
-			return ""
-		if transition.can_transition():
+func get_next_state(input: Dictionary = {}) -> String:
+	for obj in get_next_transitions(_current_state):
+		var transition := obj as Transition
+		if _can_switch(transition) and _can_transition(transition) and _accept_input_impl(transition, input):
 			return transition.to 
 	return ""
 
@@ -251,6 +265,24 @@ func go_to(to_state: String, args: Dictionary = {}) -> void:
 	_current_state = to_state
 	get_state(to_state)._enter_impl(args)
 
+## Returns true if a condition exists in this compound state.
+func has_condition(name: String) -> bool:
+	return _conditions.has(name)
+
+## Returns the status of a condition in this compound state if it exists.
+func check_condition(name: String) -> bool:
+	if not has_condition(name):
+		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
+		return false
+	return _conditions[name]
+
+## Sets the value of a condition if it exists.
+func set_condition(name: String, value: bool) -> void:
+	if not has_condition(name):
+		push_warning("Failed to set condition. Condition with name '%s' does not exist" % name)
+		return
+	_conditions[name] = value
+	
 ## Prints this state machine in adjacency list form.
 ## '| c--' indicates the current state.
 ## '| -s-' indicates the start state.
@@ -325,10 +357,35 @@ func set_end_state(name: String) -> void:
 	
 	end_state = name
 
-func _sort_transitions(a: Transition, b: Transition) -> bool:
-	if a.config.priority < b.config.priority:
+
+func _can_switch(transition: Transition) -> bool:
+	return ( 
+		transition.switch_mode == Transition.SwitchMode.IMMEDIATE
+		and end_state == ""
+		or transition.switch_mode == Transition.SwitchMode.AT_END 
+		and _current_state == end_state
+		)
+
+
+func _can_transition(transition: Transition) -> bool:
+	for prereq in transition.prereqs:
+		if not has_condition(prereq.name):
+			push_warning("Condition '%s' was never set" % prereq.name)
+			return false
+
+		if not check_condition(prereq.name) and not prereq.invert:
+			return false
+	return true
+
+
+func _sort_transitions(t1: Transition, t2: Transition) -> bool:
+	if t1.priority < t2.priority:
 		return true
 	return false
+
+
+func _accept_input_impl(transition: Transition, input: Dictionary) -> bool:
+	return true
 
 
 func _err_state_does_not_exist(state: String, err_msg: String = "") -> bool:

@@ -1,9 +1,6 @@
 tool
 extends "state_machine.gd"
 
-const BufferedInput = preload("buffered_input/buffered_input.gd")
-const BufferedInputButton = preload("buffered_input/buffered_input_button.gd")
-const BufferedInputSequence = preload("buffered_input/buffered_input_sequence.gd")
 const StateCombatSituation = preload("state/state_combat_situation.gd")
 
 ## Allow transitions transitions to occur in the state machine.
@@ -54,7 +51,7 @@ func clear_buffer() -> void:
 	_state_buffer.clear()
 	_input_buffer.clear()
 
-func _advance_impl(input: Dictionary) -> void:
+func _advance_impl() -> void:
 	if not active:
 		return
 	
@@ -67,7 +64,7 @@ func _advance_impl(input: Dictionary) -> void:
 	if allow_transitions:
 		while not _input_buffer.empty() and _state_buffer.size() <= max_buffered_transitions:
 			var buffered_input: BufferedInput = _input_buffer.pop_front()
-			var next_state: String = root.get_next_state(input)
+			var next_state: String = root.get_next_state()
 			var time_since_inputted: int = current_time - buffered_input.time_stamp
 
 			if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
@@ -76,3 +73,32 @@ func _advance_impl(input: Dictionary) -> void:
 	
 	if not _state_buffer.empty():
 		root.go_to(_state_buffer.pop_front())
+
+
+class BufferedInput:
+	extends Reference
+
+	func _init(input_time_stamp: int = 0) -> void:
+		time_stamp = input_time_stamp
+	
+	var time_stamp: int
+	
+
+class BufferedInputButton:
+	extends BufferedInput
+
+	func _init(input_time_stamp: int = 0, input_name: String = "", input_is_pressed: bool = true).(input_time_stamp) -> void:
+		input = input_name
+		is_pressed = input_is_pressed
+	
+	var input: String
+	var is_pressed: bool
+
+
+class BufferedInputSequence:
+	extends BufferedInput
+
+	func _init(input_time_stamp: int = 0, input_sequence_name: String = "").(input_time_stamp) -> void:
+		sequence_name = input_sequence_name
+	
+	var sequence_name: String
