@@ -40,7 +40,6 @@ func _init() -> void:
 
 func _accept_input_impl(transition: Transition, input: Dictionary) -> bool:
 	var input_name: String = input.get("input", "")
-	var input_is_pressed: bool = input.get("input_is_pressed", false)
 	var time_since_last_input: float = input.get("time_since_last_input", 0.0)
 
 	if transition is TransitionInput:
@@ -48,6 +47,7 @@ func _accept_input_impl(transition: Transition, input: Dictionary) -> bool:
 			return false
 			
 		if transition is TransitionInputButton:
+			var input_is_pressed: bool = input.get("input_is_pressed", false)
 			if transition.input != input_name:
 				return false
 

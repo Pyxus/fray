@@ -25,8 +25,6 @@ var _input_buffer: Array
 ## Type: String[]
 var _state_buffer: Array
 
-func _init() -> void:
-	root = StateCombatSituation.new()
 
 ## Setter for 'input_max_buffer_time' property
 func set_input_max_buffer_time(value: int) -> void:
@@ -64,7 +62,20 @@ func _advance_impl() -> void:
 	if allow_transitions:
 		while not _input_buffer.empty() and _state_buffer.size() <= max_buffered_transitions:
 			var buffered_input: BufferedInput = _input_buffer.pop_front()
-			var next_state: String = root.get_next_state()
+			var next_state: String 
+
+			if buffered_input is BufferedInputButton:
+				next_state = root.get_next_state({
+					input = buffered_input.input,
+					input_is_pressed = buffered_input.is_pressed,
+					time_since_last_input = 0
+				})
+			elif buffered_input is BufferedInputSequence:
+				next_state = root.get_next_state({
+					input = buffered_input.sequence_name,
+					time_since_last_input = 0,
+				})
+
 			var time_since_inputted: int = current_time - buffered_input.time_stamp
 
 			if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:

@@ -335,7 +335,7 @@ func get_state(name: String) -> Reference:
 func get_current_state_name() -> String:
 	return _current_state
 
-## Returns the state object of the current state
+## Returns the state instance of the current state
 func get_current_state() -> Reference:
 	return get_state(_current_state)
 
