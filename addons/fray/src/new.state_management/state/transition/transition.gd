@@ -6,9 +6,6 @@ enum SwitchMode{
     AT_END,
 }
 
-## State being transitioned from.
-var from: String
-
 ## State being transitioned to.
 var to: String
 
@@ -28,8 +25,3 @@ var priority: int
 
 ## Transition type
 var switch_mode: int = SwitchMode.IMMEDIATE
-
-## Returns true if this transition's 'from' and 'to' match
-## the given 'from_state' and 'to_state'.
-func is_transition_of(from_state: String, to_state: String) -> bool:
-    return from == from_state and to == to_state

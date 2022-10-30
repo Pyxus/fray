@@ -12,12 +12,13 @@ var enable_condition_caching: bool = true
 ## Type: Condition[]
 var _condition_cache: Array
 
-## Dictionary<String, State>
+## Type: Dictionary<String, State>
 ## Hint: <state name, >
 var _state_by_name: Dictionary
 
-## Type: Transition
-var _transitions: Array 
+## Type: Dictionary<String, Transition[]>
+## Hint: <state name>
+var _adjacency_by_state: Dictionary 
 
 ## Constructs a state machine, represented by a StateCommpound, using the current build configuration.
 ## After building the builder is reset and can be used again. 
@@ -43,6 +44,10 @@ func build(start_state: String = ""):
 ## Returns a reference to this StateMachineBuilder
 func add_state(name: String, state := State.new()) -> Reference:
 	_state_by_name[name] = state
+
+	if not _adjacency_by_state.has(name):
+		_adjacency_by_state[name] = []
+
 	return self
 
 ## Creates a new transition from one state to another.
@@ -54,8 +59,8 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 	add_state(to)
 
 	var transition := Transition.new()
-	_configure_transition(transition, from, to, config)
-	_transitions.append(transition)
+	_configure_transition(to, transition, config)
+	_adjacency_by_state[from].append(transition)
 	return self
 
 ## Helper method to create new condition
@@ -69,13 +74,12 @@ func clear_cache() -> void:
 ## Clears builder state not including cache
 func clear() -> void:
 	_state_by_name.clear()
-	_transitions.clear()
+	_adjacency_by_state.clear()
 
 
-func _configure_transition(transition: Transition, from: String, to: String, config: Dictionary) -> void:
-	add_state(from)
+func _configure_transition(to: String, transition: Transition, config: Dictionary) -> void:
 	add_state(to)
-	transition.from = from
+
 	transition.to = to
 	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
 	transition.prereqs = _cache_conditions(config.get("prereqs", []))
@@ -88,8 +92,9 @@ func _configure_state_machine(start_state: String, root: StateCommpound) -> void
 	for state_name in _state_by_name:
 		root.add_state(state_name, _state_by_name[state_name])
 
-	for t in _transitions:
-		root.add_transition(t)
+	for state in _adjacency_by_state:
+		for transition in _adjacency_by_state[state]:
+			root.add_transition(state, transition)
 	
 	if not start_state.empty():
 		if root.has_state(start_state):

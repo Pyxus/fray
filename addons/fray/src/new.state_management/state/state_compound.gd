@@ -49,19 +49,17 @@ signal transitioned(from, to)
 
 const Transition = preload("transition/transition.gd")
 
-## Type: Dictionary<String, bool>
-## Hint: <condition name, condition status>
-var _conditions: Dictionary
 
 var start_state: String setget set_start_state
 var end_state: String setget set_end_state
 
-## Type: Dictionary<String, State>
-## Hint: <state name, state obj>
-var _states_by_name: Dictionary
+## Type: Dictionary<String, bool>
+## Hint: <condition name, condition status>
+var _conditions: Dictionary
 
-## Type: Transition[]
-var _transitions: Array
+## Type: Dictionary<String, StateData>
+## Hint: <state name, >
+var _states_data_by_state: Dictionary
 
 var _current_state: String
 
@@ -94,17 +92,17 @@ func add_state(name: String, state: Reference) -> void:
 		push_error("failed to add state. State name can not be empty.")
 		return
 
-	if _states_by_name.has(name):
+	if has_state(name):
 		push_error("Failed to add state. State with name %s already exists" % name)
 		return
 	
 	if state.has_parent():
-		push_error("Failed to add state. State object already belongs to parent state %s" % _states_by_name._parent_ref.get_ref())
+		push_error("Failed to add state. State object already belongs to parent state %s" % state.get_parent())
 		return
 	
-	_states_by_name[name] = state
+	_states_data_by_state[name] = StateData.new(state)
 
-	if _states_by_name.size() == 1:
+	if _states_data_by_state.size() == 1:
 		start_state = name
 	
 	emit_signal("state_added", name)
@@ -117,37 +115,39 @@ func remove_state(name: String) -> void:
 	if name == start_state:
 		start_state = ""
 	
-	for transition in _transitions:
-		if transition.from == name or transition.to == name:
-			_transitions.erase(transition)
-	
-	_states_by_name.erase(name)
+	if name == end_state:
+		end_state = ""
+
+	_states_data_by_state.erase(name)
+
+	for state in _states_data_by_state:
+		if has_transition(state, name):
+			remove_transition(state, name)
+			
 	emit_signal("state_removed", name)
 
 ## Rename child state if it exists.
-func rename_state(name: String, new_name: String) -> void:
+func rename_state(old_name: String, new_name: String) -> void:
 	if new_name.empty():
 		push_warning("failed to rename state. State's new name can not be empty.")
 		return
 
-	if _err_state_does_not_exist(name, "Failed to rename state. "):
+	if _err_state_does_not_exist(old_name, "Failed to rename state. "):
 		return
 	
-	if has_state(name):
-		push_warning("Failed to rename state. State with name %s already exists." % new_name)
+	if has_state(old_name):
+		push_warning("Failed to rename state. State with name %s already exists." % old_name)
 		return
 
-	for transition in _transitions:
-		if transition.from == name:
-			transition.from == new_name
-		
-		if transition.to == name:
-			transition.to == new_name
+	for state in _states_data_by_state:
+		var data: StateData = _states_data_by_state[state]
+		data.rename_transition_to(old_name, new_name)
 
-	var state: Reference = _states_by_name[name]
-	_states_by_name.erase(name)
-	_states_by_name[new_name] = state
-	emit_signal("state_renamed", name, new_name)
+	var state: Reference = _states_data_by_state[old_name].inst
+	_states_data_by_state.erase(old_name)
+	
+	add_state(new_name, state)
+	emit_signal("state_renamed", old_name, new_name)
 
 ## Replaces a child state's state instance.
 func replace_state(name: String, state: Reference) -> void:
@@ -158,23 +158,22 @@ func replace_state(name: String, state: Reference) -> void:
 		push_error("Failed to replace state. Replacement state already belongs to parent state %s" % state.get_parent())
 		return
 	
-	_states_by_name[name] = state
+	_states_data_by_state[name].inst = state
 	emit_signal("state_replaced", name)
 
 ## Adds a transition from one child state to another.
-func add_transition(transition: Transition) -> void:
-	if (_err_state_does_not_exist(transition.from, "Failed to add transition. ") 
+func add_transition(from: String, transition: Transition) -> void:
+	if (_err_state_does_not_exist(from, "Failed to add transition. ") 
 		or _err_state_does_not_exist(transition.to, "Failed to add transition. ")):
 		return
 	
-	_transitions.append(transition)
-	_transitions.sort_custom(self, "_sort_transitions")
-
 	for condition in transition.prereqs + transition.advance_conditions:
 		if not has_condition(condition.name):
 			_conditions[condition.name] = false
+
+	_states_data_by_state[from].add_transition(transition)
 	
-	emit_signal("transition_added", transition.from, transition.to)
+	emit_signal("transition_added", from, transition.to)
 
 ## Remove transition between two child states.
 func remove_transition(from: String, to: String) -> void:
@@ -186,12 +185,14 @@ func remove_transition(from: String, to: String) -> void:
 		push_warning("Failed to remove transition. Transition from '%s' to '%s' does not exist" % [from, to])
 		return
 	
-	var transition := get_transition(from, to)
-	_transitions.erase(transition)
+	var data: StateData = _states_data_by_state[from] 
+	var transition := data.get_transition(to)
+
+	data.remove_transition_to(to)
 
 	for condition in transition.prereqs + transition.advance_conditions:
 		var is_condition_still_used := false
-		for t in _transitions:
+		for t in data.adjacency_list:
 			if condition.name in (t.prereqs + t.advance_conditions):
 				is_condition_still_used = true
 				break
@@ -205,31 +206,16 @@ func remove_transition(from: String, to: String) -> void:
 func has_transition(from: String, to: String) -> bool:
 	if _err_state_does_not_exist(from) or _err_state_does_not_exist(to):
 		return false
-	
-	for transition in _transitions:
-		if transition.is_transition_of(from, to):
-			return true
 
-	return false
+	return _states_data_by_state[from].get_transition(to) != null
 
 ## Returns transition from state to state if it exists
 func get_transition(from: String, to: String) -> Transition:
-	if not has_transition(from, to):
-		return null
-
-	for transition in _transitions:
-		if transition.is_transition_of(from, to):
-			return transition
-
-	return null
+	return _states_data_by_state[from].get_transition(to)
 
 ## Returns Transition[]
 func get_next_transitions(from: String) -> Array:
-	var transitions: Array
-	for transition in _transitions:
-		if transition.from == from:
-			transitions.append(transition)
-	return transitions
+	return _states_data_by_state[from].adjacency_list
 
 ## Advances to next state reachable.
 ## The '_get_next_state_impl' virtual method determines if the input is accept or not.
@@ -319,17 +305,16 @@ func print_adj() -> void:
 
 ## Returns true if given state exists.
 func has_state(name: String) -> bool:
-	return _states_by_name.has(name)
+	return _states_data_by_state.has(name)
 
 ## Returns an array containing the names of all states beloning to this state machine.
 func get_state_names() -> PoolStringArray:
-	return PoolStringArray(_states_by_name.keys())
+	return PoolStringArray(_states_data_by_state.keys())
 
 ## Returns state object based on name if it exists
 func get_state(name: String) -> Reference:
-	if not _states_by_name.has(name):
-		return null
-	return _states_by_name[name]
+	var data: StateData = _states_data_by_state.get(name, null)
+	return data.inst if data else null
 
 ## Returns the name of the current state
 func get_current_state_name() -> String:
@@ -393,3 +378,51 @@ func _err_state_does_not_exist(state: String, err_msg: String = "") -> bool:
 		push_error(err_msg + "State %s does not exist." % state)
 		return true
 	return false
+
+
+class StateData:
+	extends Reference
+
+	const Transition = preload("transition/transition.gd")
+
+	var id: int
+	var inst: Reference
+	var adjacency_list: Array
+
+	func _init(state_inst: Reference) -> void:
+		inst = state_inst
+
+	func remove_tranisitons_to(to: String) -> void:
+		for transition in adjacency_list:
+			if transition.to == to:
+				adjacency_list.erase(transition)
+	
+
+	func rename_transition_to(old_name: String, new_name: String) -> void:
+		for transition in adjacency_list:
+			if transition.to == old_name:
+				transition.to = new_name
+	
+
+	func add_transition(transition: Transition) -> void:
+		adjacency_list.append(transition)
+		adjacency_list.sort_custom(self, "_sort_transition")
+	
+
+	func get_transition(to: String) -> Transition:
+		for transition in adjacency_list:
+			if transition.to == to:
+				return transition
+		return null
+	
+
+	func remove_transition_to(to: String) -> void:
+		for transition in adjacency_list:
+			if transition.to == to:
+				adjacency_list.erase(transition)
+
+	func _sort_transitions(t1: Transition, t2: Transition) -> bool:
+		if t1.priority < t2.priority:
+			return true
+		return false
+

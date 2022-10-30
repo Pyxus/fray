@@ -59,8 +59,8 @@ func tag(state: String, tags: PoolStringArray) -> Reference:
 ## Returns a reference to this CombatStateMachineBuilder
 func transition_button(from: String, to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputButton.new()
-	_configure_transition_input_button(transition, from, to, input, config)
-	_transitions.append(transition)
+	_configure_transition_input_button(to, transition, input, config)
+	_adjacency_by_state[from].append(transition)
 	return self
 
 ## Creates a new inupt sequence transition from one state to another.
@@ -69,8 +69,8 @@ func transition_button(from: String, to: String, input: String, config: Dictiona
 ## Returns a reference to this CombatStateMachineBuilder
 func transition_sequence(from: String, to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputSequence.new()
-	_configure_transition_input_sequence(transition, from, to, input, config)
-	_transitions.append(transition)
+	_configure_transition_input_sequence(to, transition, input, config)
+	_adjacency_by_state[from].append(transition)
 	return self
 
 ## Creates a new global input button transition from one state to another.
@@ -79,7 +79,7 @@ func transition_sequence(from: String, to: String, input: String, config: Dictio
 ## Returns a reference to this CombatStateMachineBuilder
 func transition_button_global(to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputButton.new()
-	_configure_transition_input_button(transition, "", to, input, config)
+	_configure_transition_input_button(to, transition, input, config)
 	_global_transitions.append(transition)
 	return self
 
@@ -89,7 +89,7 @@ func transition_button_global(to: String, input: String, config: Dictionary = {}
 ## Returns a reference to this CombatStateMachineBuilder
 func transition_sequence_global(to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputSequence.new()
-	_configure_transition_input_sequence(transition, "", to, input, config)
+	_configure_transition_input_sequence(to, transition, input, config)
 	_global_transitions.append(transition)
 	return self
 
@@ -116,21 +116,21 @@ func _configure_state_machine(start_state: String, root: StateCommpound) -> void
 			root.add_global_transition(global_transition)
 
 
-func _configure_transition_input(transition: TransitionInput, from: String, to: String, config: Dictionary) -> void:
-	_configure_transition(transition, from, to, config)
+func _configure_transition_input( to: String, transition: TransitionInput, config: Dictionary) -> void:
+	_configure_transition(to, transition, config)
 	transition.min_input_delay = config.get("min_input_delay", 0)
 
 
 func _configure_transition_input_button(
-	transition: TransitionInputButton, from: String, to: String, input: String, config: Dictionary) -> void:
-	_configure_transition_input(transition, from, to, config)
+	to: String, transition: TransitionInputButton, input: String, config: Dictionary) -> void:
+	_configure_transition_input(to, transition, config)
 	transition.input = input
 	transition.is_triggered_on_release = config.get("is_triggered_on_release", false)
 
 
 func _configure_transition_input_sequence(
-	transition: TransitionInputSequence, from: String, to: String, input: String, config: Dictionary) -> void:
-	_configure_transition_input(transition, from, to, config)
+	to: String, transition: TransitionInputSequence, input: String, config: Dictionary) -> void:
+	_configure_transition_input(to, transition, config)
 	transition.sequence_name = input
 	transition.min_input_delay = config.get("min_input_delay", 0)
 	
