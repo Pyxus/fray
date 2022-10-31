@@ -12,10 +12,14 @@ var _point_id_by_state: Dictionary
 ## Hint: <point id, state name>
 var _state_by_point_id: Dictionary
 
-var _astar := AStar.new()
+var _astar: CustomAStar
 var _astar_point_id := 0
 var _travel_path: PoolStringArray
 var _travel_index: int
+
+
+func _init(func_get_transition: FuncRef) -> void:
+	_astar = CustomAStar.new(func_get_transition, funcref(self, "_get_state_from_id"))
 
 func add_point(state_name: String) -> void:
 	_point_id_by_state[state_name] = _astar_point_id
@@ -68,3 +72,25 @@ func get_next_travel_state() -> String:
 	var next_state := _travel_path[_travel_index]
 	_travel_index += 1
 	return next_state
+
+
+func _get_state_from_id(id: int) -> String:
+	return _state_by_point_id[id]
+
+
+class CustomAStar:
+	extends AStar
+
+	## Type: (String, String) -> int
+	var _func_get_transition: FuncRef
+
+	## Type: (int) -> String
+	var _func_get_state_from_id: FuncRef
+
+	func _init(func_get_transition: FuncRef, func_get_state_from_id: FuncRef) -> void:
+		_func_get_transition = func_get_transition
+		_func_get_state_from_id = func_get_state_from_id
+
+	func _compute_cost(from_id: int, to_id: int) -> float:
+		var transition = _func_get_transition.call_func(_func_get_state_from_id.call_func(from_id), _func_get_state_from_id.call_func(to_id))
+		return transition.priority

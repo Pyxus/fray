@@ -68,7 +68,7 @@ var _point_id_by_state: Dictionary
 
 var _travel_args: Dictionary
 var _current_state: String
-var _astar := AStarGraph.new()
+var _astar := AStarGraph.new(funcref(self, "get_transition"))
 
 
 func _enter_impl(args: Dictionary) -> void:
@@ -245,7 +245,7 @@ func travel(to: String, args: Dictionary = {}) -> void:
 	if not _current_state.empty():
 		_astar.compute_travel_path(_current_state, to)
 		_travel_args = args
-		print(_astar.get_computed_travel_path())
+
 		if not _astar.has_next_travel_state():
 			go_to(to, _travel_args)
 
