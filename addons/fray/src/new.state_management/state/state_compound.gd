@@ -48,6 +48,7 @@ signal transition_removed(from, to)
 signal transitioned(from, to)
 
 const Transition = preload("transition/transition.gd")
+const AStarGraph = preload("a_star_graph.gd")
 
 
 var start_state: String setget set_start_state
@@ -61,12 +62,21 @@ var _conditions: Dictionary
 ## Hint: <state name, >
 var _states_data_by_state: Dictionary
 
+## Type: Dictionary<String, int>
+## Hint: <state name, point id>
+var _point_id_by_state: Dictionary
+
+var _travel_args: Dictionary
 var _current_state: String
+var _astar := AStarGraph.new()
 
 
 func _enter_impl(args: Dictionary) -> void:
 	start(args)
 
+
+func _is_done_processing_impl() -> bool:
+	return _current_state == end_state or end_state.empty()
 
 ## Adds a child state to this compound state
 ##
@@ -87,6 +97,7 @@ func add_state(name: String, state: Reference) -> void:
 		return
 	
 	_states_data_by_state[name] = StateData.new(state)
+	_astar.add_point(name)
 
 	if _states_data_by_state.size() == 1:
 		start_state = name
@@ -103,13 +114,15 @@ func remove_state(name: String) -> void:
 	
 	if name == end_state:
 		end_state = ""
-
+	
 	_states_data_by_state.erase(name)
 
 	for state in _states_data_by_state:
 		if has_transition(state, name):
 			remove_transition(state, name)
-			
+	
+	_astar.remove_point(name)
+	
 	emit_signal("state_removed", name)
 
 ## Rename child state if it exists.
@@ -131,8 +144,8 @@ func rename_state(old_name: String, new_name: String) -> void:
 
 	var state: Reference = _states_data_by_state[old_name].inst
 	_states_data_by_state.erase(old_name)
+	_states_data_by_state[new_name] = StateData
 	
-	add_state(new_name, state)
 	emit_signal("state_renamed", old_name, new_name)
 
 ## Replaces a child state's state instance.
@@ -168,7 +181,8 @@ func add_transition(from: String, transition: Transition) -> void:
 			_conditions[condition.name] = false
 
 	_states_data_by_state[from].add_transition(transition)
-	
+
+	_astar.connect_points(from, transition.to, has_transition(transition.to, from))
 	emit_signal("transition_added", from, transition.to)
 
 ## Remove transition between two child states.
@@ -181,14 +195,15 @@ func remove_transition(from: String, to: String) -> void:
 		push_warning("Failed to remove transition. Transition from '%s' to '%s' does not exist" % [from, to])
 		return
 	
-	var data: StateData = _states_data_by_state[from] 
-	var transition := data.get_transition(to)
+	var from_data: StateData = _states_data_by_state[from]
+	
+	from_data.remove_transition_to(to)
+	_astar.disconnect_points(from, to, not has_transition(to, from))
 
-	data.remove_transition_to(to)
-
+	var transition := from_data.get_transition(to)
 	for condition in transition.prereqs + transition.advance_conditions:
 		var is_condition_still_used := false
-		for t in data.adjacency_list:
+		for t in from_data.adjacency_list:
 			if condition.name in (t.prereqs + t.advance_conditions):
 				is_condition_still_used = true
 				break
@@ -207,12 +222,33 @@ func has_transition(from: String, to: String) -> bool:
 
 ## Returns transition from state to state if it exists.
 func get_transition(from: String, to: String) -> Transition:
+	if _err_state_does_not_exist(from, "Failed to get transition.") or _err_state_does_not_exist(to, "Failed to get transition."):
+		return null
+
 	return _states_data_by_state[from].get_transition(to)
 
 ##  Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
+	if _err_state_does_not_exist(from, "Failed to get next trantions."):
+		return []
+
 	return _states_data_by_state[from].adjacency_list
+
+## Transitions from the current state to another one, following the shortest path.
+## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
+## If no travel path can be formed then the `to` state will be visted directly.
+func travel(to: String, args: Dictionary = {}) -> void:
+	if _err_state_does_not_exist(to, "Failed to travel."):
+		return
+	
+	if not _current_state.empty():
+		_astar.compute_travel_path(_current_state, to)
+		_travel_args = args
+		print(_astar.get_computed_travel_path())
+		if not _astar.has_next_travel_state():
+			go_to(to, _travel_args)
+
 
 ## Advances to next reachable state.
 ##
@@ -221,14 +257,21 @@ func get_next_transitions(from: String) -> Array:
 ## `input` is optional user-defined data used to determine if a transition can occur.
 ##	The `_accept_input_impl()` virtual method can be overidden to determine what input is accepted.
 ##
-## `args` is user-defined data which is passed to the advanced state on enter. 
+## `args` is user-defined data which is passed to the advanced state on enter.
+##	If a state advances due to traveling the args provided to the initial travel call will be used instead.
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(auto_only: bool = true, input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var next_state := get_next_state(auto_only, input)
-	if not next_state.empty():
-		go_to(next_state, args)
-	return false
+	var current_state := get_current_state()
+	if current_state != null and current_state.is_done_processing() and _astar.has_next_travel_state():
+		while current_state.is_done_processing() and _astar.has_next_travel_state():
+			_go_to(_astar.get_next_travel_state(), _travel_args)
+	else:
+		var next_state := get_next_state(auto_only, input)
+		if not next_state.empty():
+			go_to(next_state, args)
+
+	return current_state != null and current_state != get_current_state()
 
 ## Returns the next state reachable
 func get_next_state(auto_only: bool = true, input: Dictionary = {}) -> String:
@@ -245,22 +288,17 @@ func get_next_state(auto_only: bool = true, input: Dictionary = {}) -> String:
 
 ## Goes directly to the given state if it exists.
 ##
+## If a travel is still being performed it will be interupted
+##
 ## `to_state` is the name of the state to transition to
 ##
 ## `args` is user-defined data which is passed to the advanced state on enter. 
 func go_to(to_state: String, args: Dictionary = {}) -> void:
-	if not has_state(to_state):
-		push_warning("Failed advance to state. Given state '%s' does not exist")
-		return
+	if _astar.has_next_travel_state():
+		_astar.clear_travel_path()
+		_travel_args.clear()
+	_go_to(to_state, args)
 
-	var prev_state_name := _current_state
-	var prev_state := get_state(prev_state_name)
-	if prev_state != null:
-		prev_state._exit_impl()
-	
-	_current_state = to_state
-	get_state(to_state)._enter_impl(args)
-	emit_signal("transitioned", prev_state_name, _current_state)
 
 ## Alias for 'go_to(start_state, args)'
 func start(args: Dictionary = {}) -> void:
@@ -378,14 +416,27 @@ func physics_process(delta: float) -> void:
 	_physics_process_impl(delta)
 
 
+func _go_to(to_state: String, args: Dictionary) -> void:
+	if not has_state(to_state):
+		push_warning("Failed advance to state. Given state '%s' does not exist")
+		return
+
+	var prev_state_name := _current_state
+	var prev_state := get_state(prev_state_name)
+	if prev_state != null:
+		prev_state._exit_impl()
+	
+	_current_state = to_state
+	get_state(to_state)._enter_impl(args)
+	emit_signal("transitioned", prev_state_name, _current_state)
+
+
 func _can_switch(transition: Transition) -> bool:
 	return ( 
 		transition.switch_mode == Transition.SwitchMode.IMMEDIATE
-		and end_state == ""
 		or transition.switch_mode == Transition.SwitchMode.AT_END 
-		and _current_state == end_state
+		and is_done_processing()
 		)
-
 
 func _is_conditions_satisfied(conditions: Array) -> bool:
 	for condition in conditions:
@@ -429,7 +480,6 @@ class StateData:
 
 	const Transition = preload("transition/transition.gd")
 
-	var id: int
 	var inst: Reference
 	var adjacency_list: Array
 
