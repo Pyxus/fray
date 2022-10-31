@@ -68,25 +68,11 @@ func _enter_impl(args: Dictionary) -> void:
 	start(args)
 
 
-func _process_impl(delta: float) -> void:
-	var current_state := get_current_state()
-	if current_state != null:
-		current_state._process_impl(delta)
-
-
-func _physics_process_impl(delta: float):
-	var current_state := get_current_state()
-	if current_state != null:
-		current_state._physics_process_impl(delta)
-
-## Alias for 'go_to(start_state, args)'
-func start(args: Dictionary = {}) -> void:
-	if start_state.empty():
-		push_error("Failed to start. No start state set")
-		return
-	go_to(start_state, args)
-
 ## Adds a child state to this compound state
+##
+## `name` is the name of the state
+##
+## `state: State` is the state instance associated with this state name.
 func add_state(name: String, state: Reference) -> void:
 	if name.empty():
 		push_error("failed to add state. State name can not be empty.")
@@ -150,6 +136,8 @@ func rename_state(old_name: String, new_name: String) -> void:
 	emit_signal("state_renamed", old_name, new_name)
 
 ## Replaces a child state's state instance.
+##
+## `state: State` is the new state instance to replace the previous instance.
 func replace_state(name: String, state: Reference) -> void:
 	if _err_state_does_not_exist(name, "Failed to replace state. "):
 		return
@@ -162,9 +150,17 @@ func replace_state(name: String, state: Reference) -> void:
 	emit_signal("state_replaced", name)
 
 ## Adds a transition from one child state to another.
+##
+## `from` name of the state the transition stems from.
+##
+## `transition` transition object cotaning information on the transition such as where it goes too.
 func add_transition(from: String, transition: Transition) -> void:
 	if (_err_state_does_not_exist(from, "Failed to add transition. ") 
 		or _err_state_does_not_exist(transition.to, "Failed to add transition. ")):
+		return
+	
+	if has_transition(from, transition.to):
+		push_warning("A transition already exists from '%s to '%s'" % [from, transition.to])
 		return
 	
 	for condition in transition.prereqs + transition.advance_conditions:
@@ -202,42 +198,56 @@ func remove_transition(from: String, to: String) -> void:
 
 	emit_signal("transition_removed", from, to)
 
-## Returns true if a transtion from state to state exists
+## Returns true if a given transiton exists.
 func has_transition(from: String, to: String) -> bool:
 	if _err_state_does_not_exist(from) or _err_state_does_not_exist(to):
 		return false
 
 	return _states_data_by_state[from].get_transition(to) != null
 
-## Returns transition from state to state if it exists
+## Returns transition from state to state if it exists.
 func get_transition(from: String, to: String) -> Transition:
 	return _states_data_by_state[from].get_transition(to)
 
-## Returns Transition[]
+##  Returns an array of transitions traversable from the given state.
+## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
 	return _states_data_by_state[from].adjacency_list
 
-## Advances to next state reachable.
-## The '_get_next_state_impl' virtual method determines if the input is accept or not.
+## Advances to next reachable state.
+##
+## If `auto_only` is true then only transitions with auto_advance enabled will be considered. 
+##
+## `input` is optional user-defined data used to determine if a transition can occur.
+##	The `_accept_input_impl()` virtual method can be overidden to determine what input is accepted.
+##
+## `args` is user-defined data which is passed to the advanced state on enter. 
 ##
 ## Returns true if the input was accepted and state advanced.
-func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var next_state := get_next_state(input)
+func advance(auto_only: bool = true, input: Dictionary = {}, args: Dictionary = {}) -> bool:
+	var next_state := get_next_state(auto_only, input)
 	if not next_state.empty():
-		var current_state := _current_state
 		go_to(next_state, args)
-		emit_signal("transitioned", current_state, _current_state)
 	return false
 
 ## Returns the next state reachable
-func get_next_state(input: Dictionary = {}) -> String:
+func get_next_state(auto_only: bool = true, input: Dictionary = {}) -> String:
 	for obj in get_next_transitions(_current_state):
 		var transition := obj as Transition
-		if _can_switch(transition) and _can_transition(transition) and _accept_input_impl(transition, input):
+
+		if auto_only:
+			if _can_transition(transition, input) and _can_auto_advance(transition):
+				return transition.to
+		elif _can_transition(transition, input):
 			return transition.to 
 	return ""
 
+
 ## Goes directly to the given state if it exists.
+##
+## `to_state` is the name of the state to transition to
+##
+## `args` is user-defined data which is passed to the advanced state on enter. 
 func go_to(to_state: String, args: Dictionary = {}) -> void:
 	if not has_state(to_state):
 		push_warning("Failed advance to state. Given state '%s' does not exist")
@@ -250,6 +260,14 @@ func go_to(to_state: String, args: Dictionary = {}) -> void:
 	
 	_current_state = to_state
 	get_state(to_state)._enter_impl(args)
+	emit_signal("transitioned", prev_state_name, _current_state)
+
+## Alias for 'go_to(start_state, args)'
+func start(args: Dictionary = {}) -> void:
+	if start_state.empty():
+		push_error("Failed to start. No start state set")
+		return
+	go_to(start_state, args)
 
 ## Returns true if a condition exists in this compound state.
 func has_condition(name: String) -> bool:
@@ -273,6 +291,7 @@ func set_condition(name: String, value: bool) -> void:
 ## '| c--' indicates the current state.
 ## '| -s-' indicates the start state.
 ## '| --e' indicates the end state.
+## ... -> [state_name : state_priority, ...] indicates the adjacent states
 func print_adj() -> void:
 	var string := ""
 
@@ -294,7 +313,7 @@ func print_adj() -> void:
 		string += " -> ["
 		
 		for transition in next_transitions:
-			string += transition.to
+			string += "%s:%s" % [transition.to, transition.priority]
 
 			if next_transitions.back() != transition:
 				string += ", "
@@ -342,6 +361,22 @@ func set_end_state(name: String) -> void:
 	
 	end_state = name
 
+## Process child states then this state.
+## Intended to be called by `StateMachine` node 
+func process(delta: float) -> void:
+	var current_state := get_current_state()
+	if current_state != null:
+		current_state._process_impl(delta)
+	_process_impl(delta)
+
+## Physics process child states then this state.
+## Intended to be called by `StateMachine` node 
+func physics_process(delta: float) -> void:
+	var current_state := get_current_state()
+	if current_state != null:
+		current_state._physics_process_impl(delta)
+	_physics_process_impl(delta)
+
 
 func _can_switch(transition: Transition) -> bool:
 	return ( 
@@ -352,21 +387,30 @@ func _can_switch(transition: Transition) -> bool:
 		)
 
 
-func _can_transition(transition: Transition) -> bool:
-	for prereq in transition.prereqs:
-		if not has_condition(prereq.name):
-			push_warning("Condition '%s' was never set" % prereq.name)
+func _is_conditions_satisfied(conditions: Array) -> bool:
+	for condition in conditions:
+		if not has_condition(condition.name):
+			push_warning("Condition '%s' was never set" % condition.name)
 			return false
 
-		if not check_condition(prereq.name) and not prereq.invert:
+		if not check_condition(condition.name) and not condition.invert:
 			return false
 	return true
 
 
-func _sort_transitions(t1: Transition, t2: Transition) -> bool:
-	if t1.priority < t2.priority:
-		return true
-	return false
+func _can_transition(transition: Transition, input: Dictionary) -> bool:
+	return (
+		_is_conditions_satisfied(transition.prereqs) 
+		and _can_switch(transition) 
+		and _accept_input_impl(transition, input)
+		)
+
+
+func _can_auto_advance(transition: Transition) -> bool:
+	if not transition.auto_advance:
+		return false
+
+	return _is_conditions_satisfied(transition.advance_conditions)
 
 
 func _accept_input_impl(transition: Transition, input: Dictionary) -> bool:
@@ -406,7 +450,7 @@ class StateData:
 
 	func add_transition(transition: Transition) -> void:
 		adjacency_list.append(transition)
-		adjacency_list.sort_custom(self, "_sort_transition")
+		adjacency_list.sort_custom(self, "_sort_transitions")
 	
 
 	func get_transition(to: String) -> Transition:

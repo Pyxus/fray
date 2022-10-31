@@ -20,8 +20,8 @@ var prereqs: Array
 ## If true then the transition can advance automatically
 var auto_advance: bool
 
-## Transition priority
+## A lower priotiy transitions are be preffered when determining next transitions
 var priority: int
 
-## Transition type
+## The transition type
 var switch_mode: int = SwitchMode.IMMEDIATE

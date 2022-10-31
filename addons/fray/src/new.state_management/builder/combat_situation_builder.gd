@@ -1,4 +1,4 @@
-extends "state_machine_builder.gd"
+extends "state_compound_builder.gd"
 
 const StateCombatSituation = preload("../state/state_combat_situation.gd")
 const TransitionInput = preload("../state/transition/transition_input.gd")
@@ -15,7 +15,8 @@ var _tags_by_state: Dictionary
 ## Type: TransitionInput[]
 var _global_transitions: Array
 
-func build(start_state: String = "") -> StateCombatSituation:
+
+func _build_impl(start_state: String = "") -> StateCompound:
 	var root := StateCombatSituation.new()
 	_configure_state_machine(start_state, root)
 	return root
@@ -56,7 +57,15 @@ func tag(state: String, tags: PoolStringArray) -> Reference:
 ## Creates a new input button transition from one state to another.
 ## States used will automatically be added.
 ##
-## Returns a reference to this CombatStateMachineBuilder
+## `config` is a dictionary used to configure transition options:
+##		`min_input_delay: float`
+##		`advance_conditions: Condition[]`
+##		`prereqs: Condition[]`
+##		`auto_advance: bool`
+##		`priority: int`
+##		`switch_mode: int`
+##
+## Returns a reference to this builder
 func transition_button(from: String, to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputButton.new()
 	_configure_transition_input_button(to, transition, input, config)
@@ -66,7 +75,16 @@ func transition_button(from: String, to: String, input: String, config: Dictiona
 ## Creates a new inupt sequence transition from one state to another.
 ## States used will automatically be added.
 ##
-## Returns a reference to this CombatStateMachineBuilder
+## `config` is a dictionary used to configure transition options:
+##		`min_input_delay: float`
+##		`is_triggered_on_release: bool`
+##		`advance_conditions: Condition[]`
+##		`prereqs: Condition[]`
+##		`auto_advance: bool`
+##		`priority: int`
+##		`switch_mode: int`
+##
+## Returns a reference to this builder
 func transition_sequence(from: String, to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputSequence.new()
 	_configure_transition_input_sequence(to, transition, input, config)
@@ -76,7 +94,7 @@ func transition_sequence(from: String, to: String, input: String, config: Dictio
 ## Creates a new global input button transition from one state to another.
 ## States used will automatically be added.
 ##
-## Returns a reference to this CombatStateMachineBuilder
+## Returns a reference to this builder
 func transition_button_global(to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputButton.new()
 	_configure_transition_input_button(to, transition, input, config)
@@ -86,7 +104,7 @@ func transition_button_global(to: String, input: String, config: Dictionary = {}
 ## Creates a new global input sequence transition from one state to another.
 ## States used will automatically be added.
 ##
-## Returns a reference to this CombatStateMachineBuilder
+## Returns a reference to this builder
 func transition_sequence_global(to: String, input: String, config: Dictionary = {}) -> Reference:
 	var transition := TransitionInputSequence.new()
 	_configure_transition_input_sequence(to, transition, input, config)
@@ -101,7 +119,7 @@ func clear() -> void:
 	_global_transitions.clear()
 
 
-func _configure_state_machine(start_state: String, root: StateCommpound) -> void:
+func _configure_state_machine(start_state: String, root: StateCompound) -> void:
 	._configure_state_machine(start_state, root)
 
 	if root is StateCombatSituation:
@@ -132,5 +150,4 @@ func _configure_transition_input_sequence(
 	to: String, transition: TransitionInputSequence, input: String, config: Dictionary) -> void:
 	_configure_transition_input(to, transition, config)
 	transition.sequence_name = input
-	transition.min_input_delay = config.get("min_input_delay", 0)
 	

@@ -2,7 +2,7 @@ extends Reference
 ## Base transition builder
 
 const State = preload("../state/state.gd")
-const StateCommpound = preload("../state/state_compound.gd")
+const StateCompound = preload("../state/state_compound.gd")
 const Condition = preload("../state/transition/condition.gd")
 const Transition = preload("../state/transition/transition.gd")
 
@@ -28,20 +28,17 @@ var _adjacency_by_state: Dictionary
 ## The initial state must have already been added to the builder.
 ##
 ## Returns a newly constructed CombatSituation
-func build(start_state: String = ""):
-	var root := StateCommpound.new()
-	_configure_state_machine(start_state, root)
-	clear()
-	return root
+func build(start_state: String = "") -> StateCompound:
+	return _build_impl(start_state)
 
 ## Adds a new state to the state machine if it doesn't already exist.
 ##
 ## Note: 
 ##		States are added automatically when making transitions.
-## 		So unless you need to provide a specific state object calling this
-## 		method is unncessary.
+## 		So unless you need to provide a specific state object,
+##		calling this method is unncessary.
 ##
-## Returns a reference to this StateMachineBuilder
+## Returns a reference to this builder
 func add_state(name: String, state := State.new()) -> Reference:
 	_state_by_name[name] = state
 
@@ -53,7 +50,14 @@ func add_state(name: String, state := State.new()) -> Reference:
 ## Creates a new transition from one state to another.
 ## States used will automatically be added.
 ##
-## Returns a reference to this StateMachineBuilder
+## `config` is a dictionary used to configure transition options:
+##		`advance_conditions: Condition[]`
+##		`prereqs: Condition[]`
+##		`auto_advance: bool`
+##		`priority: int`
+##		`switch_mode: int`
+##
+## Returns a reference to this builder
 func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 	add_state(from)
 	add_state(to)
@@ -63,9 +67,6 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 	_adjacency_by_state[from].append(transition)
 	return self
 
-## Helper method to create new condition
-func new_condition(name: String, invert: bool = false) -> Condition:
-	return _cache_condition(Condition.new(name, invert))
 
 ## Clears the condition cache
 func clear_cache() -> void:
@@ -88,7 +89,7 @@ func _configure_transition(to: String, transition: Transition, config: Dictionar
 	transition.switch_mode = config.get("switch_mode", Transition.SwitchMode.IMMEDIATE)
 
 
-func _configure_state_machine(start_state: String, root: StateCommpound) -> void:
+func _configure_state_machine(start_state: String, root: StateCompound) -> void:
 	for state_name in _state_by_name:
 		root.add_state(state_name, _state_by_name[state_name])
 
@@ -118,3 +119,10 @@ func _cache_conditions(conditions: Array) -> Array:
 	for condition in conditions:
 		c.append(_cache_condition(condition))
 	return c
+
+
+func _build_impl(start_state: String) -> StateCompound:
+	var root := StateCompound.new()
+	_configure_state_machine(start_state, root)
+	clear()
+	return root

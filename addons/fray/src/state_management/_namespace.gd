@@ -1,7 +1,7 @@
 extends Object
 
 func _init() -> void:
-	assert(false, "The class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
+	assert(false, "This class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
 	free()
 
 const CombatStateMachine = preload("combat_state_machine.gd")
