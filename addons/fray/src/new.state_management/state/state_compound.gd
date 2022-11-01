@@ -252,8 +252,6 @@ func travel(to: String, args: Dictionary = {}) -> void:
 
 ## Advances to next reachable state.
 ##
-## If `auto_only` is true then only transitions with auto_advance enabled will be considered. 
-##
 ## `input` is optional user-defined data used to determine if a transition can occur.
 ##	The `_accept_input_impl()` virtual method can be overidden to determine what input is accepted.
 ##
@@ -261,20 +259,32 @@ func travel(to: String, args: Dictionary = {}) -> void:
 ##	If a state advances due to traveling the args provided to the initial travel call will be used instead.
 ##
 ## Returns true if the input was accepted and state advanced.
-func advance(auto_only: bool = true, input: Dictionary = {}, args: Dictionary = {}) -> bool:
+func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var current_state := get_current_state()
-	if current_state != null and current_state.is_done_processing() and _astar.has_next_travel_state():
-		while current_state.is_done_processing() and _astar.has_next_travel_state():
-			_go_to(_astar.get_next_travel_state(), _travel_args)
-	else:
-		var next_state := get_next_state(auto_only, input)
-		if not next_state.empty():
-			go_to(next_state, args)
+	if current_state != null:
+		if current_state is get_script():
+			current_state.advance(input, args)
+
+		if current_state.is_done_processing() and _astar.has_next_travel_state():
+			while current_state.is_done_processing() and _astar.has_next_travel_state():
+				_go_to(_astar.get_next_travel_state(), _travel_args)
+		else:
+			var next_state := get_next_state(input, true)
+			if not next_state.empty():
+				go_to(next_state, args)
 
 	return current_state != null and current_state != get_current_state()
 
 ## Returns the next state reachable
-func get_next_state(auto_only: bool = true, input: Dictionary = {}) -> String:
+##
+## If `auto_only` is true then only transitions with auto_advance enabled will be considered. 
+##
+## Returns the name of the next state
+func get_next_state(input: Dictionary = {}, auto_only: bool = false) -> String:
+	if _current_state.empty():
+		push_warning("No current state set. This compound state may have never been started.")
+		return ""
+	
 	for obj in get_next_transitions(_current_state):
 		var transition := obj as Transition
 

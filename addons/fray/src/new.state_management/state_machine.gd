@@ -4,7 +4,7 @@ extends Node
 const State = preload("state/state.gd")
 const StateCompound = preload("state/state_compound.gd")
 
-enum ProcessMode{
+enum AdvanceMode{
 	IDLE,
 	PHYSICS,
 	MANUAL,
@@ -14,27 +14,34 @@ enum ProcessMode{
 export var active: bool
 
 ## The process mode of this state machine.
-export(ProcessMode) var process_mode: int = ProcessMode.IDLE
+export(AdvanceMode) var advance_mode: int = AdvanceMode.IDLE
 
-var root := StateCompound.new()
+var root := StateCompound.new() setget set_root
 
 
 func _process(delta: float) -> void:
-    if _can_process() and process_mode == ProcessMode.IDLE:
-        _physics_mode_impl(delta)
+    if _can_process():
         root.process(delta)
-        root.advance()
+        
+        if advance_mode == AdvanceMode.IDLE:
+            root.advance()
 
 
 func _physics_process(delta: float) -> void:
-    if _can_process() and process_mode == ProcessMode.IDLE:
-        _idle_mode_impl(delta)
+    if _can_process():
         root.physics_process(delta)
-        root.advance()
+
+        if advance_mode == AdvanceMode.PHYSICS:
+            root.advance()
 
 
-func advance() -> void:
-    if _can_process() and process_mode == ProcessMode.MANUAL:
+func set_root(root_state: StateCompound) -> void:
+    root = root_state
+    root.start()
+
+
+func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
+    if _can_process() and advance_mode == AdvanceMode.MANUAL:
         _advance_impl()
         
 
@@ -42,13 +49,5 @@ func _can_process() -> bool:
     return root != null and active
 
 
-func _advance_impl() -> void:
-    pass
-
-
-func _physics_mode_impl(_delta: float) -> void:
-    pass
-
-
-func _idle_mode_impl(_delta: float) -> void:
-    pass
+func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
+    root.advance(input, args)

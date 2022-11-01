@@ -49,7 +49,7 @@ func clear_buffer() -> void:
 	_state_buffer.clear()
 	_input_buffer.clear()
 
-func _advance_impl() -> void:
+func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 	if not active:
 		return
 	
