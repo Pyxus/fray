@@ -1,4 +1,4 @@
-extends "state.gd"
+extends "graph_node.gd"
 ## Generic compound state class
 ##
 ## @desc:
@@ -47,7 +47,7 @@ signal transition_removed(from, to)
 ## `to: String` is the current state
 signal transitioned(from, to)
 
-const Transition = preload("transition/transition.gd")
+const Transition = preload("../transition/transition.gd")
 const StateData = preload("state_data.gd")
 const AStarGraph = preload("a_star_graph.gd")
 
@@ -61,10 +61,6 @@ var _conditions: Dictionary
 ## Type: Dictionary<String, StateData>
 ## Hint: <state name, >
 var _states_data_by_state: Dictionary
-
-## Type: Dictionary<String, int>
-## Hint: <state name, point id>
-var _point_id_by_state: Dictionary
 
 var _travel_args: Dictionary
 var _current_state: String

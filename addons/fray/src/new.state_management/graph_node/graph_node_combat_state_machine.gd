@@ -1,4 +1,4 @@
-extends "state_compound.gd"
+extends "graph_node_state_machine.gd"
 ## State machine whose states represent the set of actions available to a combatant
 ## In a given situation.
 ##
@@ -17,12 +17,12 @@ extends "state_compound.gd"
 ##		For example, in many fighting games all moves tagged as "normal" may 
 ##		transition into moves tagged as "special".
 
-const TransitionInput = preload("transition/transition_input.gd")
-const TransitionInputButton = preload("transition/transition_input_button.gd")
-const TransitionInputSequence = preload("transition/transition_input_sequence.gd")
+const InputTransition = preload("transition/input_transition.gd")
+const InputTransitionButton = preload("transition/input_transition_button.gd")
+const InputTransitionSequence = preload("transition/input_transition_sequence.gd")
 
 
-## Type: TransitionInput[]
+## Type: InputTransition[]
 var _global_transitions: Array
 
 ## Type: Dictionary<String, String[]>
@@ -30,58 +30,35 @@ var _global_transitions: Array
 var _global_transition_rules: Dictionary
 
 ## Type: Dictionary<String, String[]>
-## Hint: <state name, tags>
-var _tags_by_state: Dictionary
+## Hint: <node name, tags>
+var _tags_by_node: Dictionary
 
 func _init() -> void:
 	connect("state_removed", self, "_on_state_removed")
 	connect("state_renamed", self, "_on_state_renamed")
 
-
-func _accept_input_impl(transition: Transition, input: Dictionary) -> bool:
-	var input_name: String = input.get("input", "")
-	var time_since_last_input: float = input.get("time_since_last_input", 0.0)
-
-	if transition is TransitionInput:
-		if time_since_last_input < transition.min_input_delay:
-			return false
-			
-		if transition is TransitionInputButton:
-			var input_is_pressed: bool = input.get("input_is_pressed", false)
-			if transition.input != input_name:
-				return false
-
-			if transition.is_triggered_on_release == input_is_pressed:
-				return false
-		elif transition is TransitionInputSequence:
-			if transition.sequence_name != input_name:
-				return false
-	return true
-
-
 ## Sets the tags associated with a state if the state exists.
-func set_state_tags(state: String, tags: PoolStringArray) -> void:
-	if _err_state_does_not_exist(state, "Failed to set tags. "):
-		return
+func set_node_tags(node: String, tags: PoolStringArray) -> void:
+	if _ERR_INVALID_NODE(node): return
 	
-	_tags_by_state[state] = tags
+	_tags_by_node[node] = tags
 
 ## Gets the tags associated with a state if the state exists.
-func get_state_tags(state: String) -> PoolStringArray:
-	if _err_state_does_not_exist(state, "Failed to get tags. "):
-		return PoolStringArray([])
-
-	if not _tags_by_state.has(state):
+func get_node_tags(node: String) -> PoolStringArray:
+	if _ERR_INVALID_NODE(node) or not _tags_by_node.has(node):
 		return PoolStringArray([])
 	
-	return _tags_by_state[state]
+	return _tags_by_node[node]
 
 ## Adds global input transition to a state
-func add_global_transition(transition: TransitionInput) -> void:
-	if not has_state(transition.to):
-		push_warning("Failed to add global transition. State '%s' does not exist." % transition.to)
-		return
-	_global_transitions.append(transition)
+func add_global_transition(to: String, transition: InputTransition) -> void:
+	if _ERR_INVALID_NODE(to): return
+	
+	var tr := Transition.new()
+	tr.to = to
+	tr.transition = transition
+
+	_global_transitions.append(tr)
 
 ## Adds global transition rule based on tags.
 func add_global_transition_rule(from_tag: String, to_tag: String) -> void:
@@ -124,12 +101,11 @@ func delete_global_transition_rule(from_tag: String) -> void:
 
 ## Returns array of next global transitions accessible from this state.
 func get_next_global_transitions(from: String) -> Array:
-	if _err_state_does_not_exist(from, "Failed to get next transition. "):
-		return []
+	if _ERR_INVALID_NODE(from): return []
 	
 	var transitions: Array
 	
-	for from_tag in get_state_tags(from):
+	for from_tag in get_node_tags(from):
 		if _global_transition_rules.has(from_tag):
 			var to_tags: Array = _global_transition_rules[from_tag]
 
@@ -144,13 +120,13 @@ func get_next_transitions(from: String) -> Array:
 	return .get_next_transitions(from) + get_next_global_transitions(from)
 
 
-func _on_state_removed(state: String) -> void:
-	if _tags_by_state.has(state):
-		_tags_by_state.erase(state)
+func _on_node_removed(name: String, _node: Reference) -> void:
+	if _tags_by_node.has(name):
+		_tags_by_node.erase(name)
 
 
-func _on_state_renamed(old_name: String, new_name: String) -> void:
-	if _tags_by_state.has(old_name):
-		var tags: PoolStringArray = _tags_by_state[old_name]
-		_tags_by_state.erase(old_name)
-		_tags_by_state[new_name] = tags
+func _on_node_renamed(old_name: String, new_name: String) -> void:
+	if _tags_by_node.has(old_name):
+		var tags: PoolStringArray = _tags_by_node[old_name]
+		_tags_by_node.erase(old_name)
+		_tags_by_node[new_name] = tags

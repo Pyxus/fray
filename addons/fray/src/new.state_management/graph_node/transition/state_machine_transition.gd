@@ -25,3 +25,11 @@ var priority: int
 
 ## The transition type
 var switch_mode: int = SwitchMode.IMMEDIATE
+
+## Returns true if the transition accepts the given input
+func accepts(input: Dictionary) -> bool:
+    return _accepts_impl(input)
+
+## Virtual method used to implement `accepts`
+func _accepts_impl(input: Dictionary) -> bool:
+    return true
