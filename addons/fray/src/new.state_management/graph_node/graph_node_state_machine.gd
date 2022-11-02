@@ -203,6 +203,19 @@ func go_to_start(args: Dictionary = {}) -> void:
 	
 	go_to(start_node)
 
+##  Returns an array of transitions traversable from the given state.
+## Return Type: Transition[].
+func get_next_transitions(from: String) -> Array:
+	if _ERR_INVALID_NODE(from): return []
+
+	var transitions: Array
+
+	for transition in _transitions:
+		if transition.from == from:
+			transitions.append(transition)
+
+	return transitions
+
 ## Setter for `start_node` property
 func set_start_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
@@ -230,6 +243,41 @@ func check_condition(name: String) -> bool:
 		return false
 
 	return _conditions[name]
+
+## Prints this state machine in adjacency list form.
+## '| c--' indicates the current state.
+## '| -s-' indicates the start state.
+## '| --e' indicates the end state.
+## ... -> [state_name : state_priority, ...] indicates the adjacent states
+func print_adj() -> void:
+	var string := ""
+
+	for state in _states.keys():
+		var next_transitions := get_next_transitions(state)
+		var modifiers := "%s%s%s" % [
+			"c" if state == current_node else "-",
+			"s" if state == start_node else "-",
+			"e" if state == end_node else "-",
+		]
+
+		if modifiers == "---":
+			modifiers = ""
+		else:
+			modifiers = " | " + modifiers
+
+		string += "[%s%s]" % [state, modifiers]
+		
+		string += " -> ["
+		
+		for transition in next_transitions:
+			string += "%s:%s" % [transition.to, transition.priority]
+
+			if next_transitions.back() != transition:
+				string += ", "
+			pass
+		string += "]\n"
+	
+	print(string)
 
 
 func _get_transition_priority(from: String, to: String) -> float:
