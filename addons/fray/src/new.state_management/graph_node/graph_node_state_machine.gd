@@ -244,6 +244,22 @@ func check_condition(name: String) -> bool:
 
 	return _conditions[name]
 
+## Process child states then this state.
+## Intended to be called by `StateMachine` node 
+func process(delta: float) -> void:
+	var cur_state: Reference = _states.get(current_node)
+	if cur_state != null:
+		cur_state._process_impl(delta)
+	_process_impl(delta)
+
+## Physics process child states then this state.
+## Intended to be called by `StateMachine` node 
+func physics_process(delta: float) -> void:
+	var cur_state: Reference = _states.get(current_node)
+	if cur_state != null:
+		cur_state._physics_process_impl(delta)
+	_physics_process_impl(delta)
+
 ## Prints this state machine in adjacency list form.
 ## '| c--' indicates the current state.
 ## '| -s-' indicates the start state.
