@@ -1,10 +1,10 @@
 extends Reference
 ## Base transition builder
 
-const State = preload("../state/state.gd")
-const StateCompound = preload("../state/state_compound.gd")
-const Condition = preload("../state/transition/condition.gd")
-const Transition = preload("../state/transition/transition.gd")
+const GraphNode = preload("../graph_node/graph_node.gd")
+const GraphNodeStateMachine = preload("../graph_node/graph_node_state_machine.gd")
+const Condition = preload("../graph_node/transition/condition.gd")
+const StateMachineTransition = preload("../graph_node/transition/state_machine_transition.gd")
 
 ## If true then conditions will be cached to prevent identical conditions from being instantiated.
 var enable_condition_caching: bool = true
@@ -12,13 +12,12 @@ var enable_condition_caching: bool = true
 ## Type: Condition[]
 var _condition_cache: Array
 
-## Type: Dictionary<String, State>
+## Type: Dictionary<String, GraphNode>
 ## Hint: <state name, >
 var _state_by_name: Dictionary
 
-## Type: Dictionary<String, Transition[]>
-## Hint: <state name>
-var _adjacency_by_state: Dictionary 
+## Type: Transition[]
+var _transitions: Array
 
 ## Constructs a state machine, represented by a StateCommpound, using the current build configuration.
 ## After building the builder is reset and can be used again. 
@@ -28,7 +27,7 @@ var _adjacency_by_state: Dictionary
 ## The initial state must have already been added to the builder.
 ##
 ## Returns a newly constructed CombatSituation
-func build(start_state: String = "") -> StateCompound:
+func build(start_state: String = "") -> GraphNodeStateMachine:
 	return _build_impl(start_state)
 
 ## Adds a new state to the state machine if it doesn't already exist.
@@ -39,12 +38,8 @@ func build(start_state: String = "") -> StateCompound:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := State.new()) -> Reference:
+func add_state(name: String, state := GraphNode.new()) -> Reference:
 	_state_by_name[name] = state
-
-	if not _adjacency_by_state.has(name):
-		_adjacency_by_state[name] = []
-
 	return self
 
 ## Creates a new transition from one state to another.
@@ -62,9 +57,8 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 	add_state(from)
 	add_state(to)
 
-	var transition := Transition.new()
-	_configure_transition(to, transition, config)
-	_adjacency_by_state[from].append(transition)
+	var tr := _create_transition(from, to, StateMachineTransition.new())
+	_configure_transition(tr.transition, config)
 	return self
 
 
@@ -75,13 +69,18 @@ func clear_cache() -> void:
 ## Clears builder state not including cache
 func clear() -> void:
 	_state_by_name.clear()
-	_adjacency_by_state.clear()
+	_transitions.clear()
 
 
-func _configure_transition(to: String, transition: Transition, config: Dictionary) -> void:
-	add_state(to)
+func _create_transition(from: String, to: String, transition: StateMachineTransition) -> Transition:
+	var tr := Transition.new()
+	tr.from = from
+	tr.to = to
+	tr.transition = transition
+	_transitions.append(tr)
+	return tr
 
-	transition.to = to
+func _configure_transition(transition: StateMachineTransition, config: Dictionary) -> void:
 	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
 	transition.prereqs = _cache_conditions(config.get("prereqs", []))
 	transition.auto_advance = config.get("auto_advance", false)
@@ -89,14 +88,13 @@ func _configure_transition(to: String, transition: Transition, config: Dictionar
 	transition.switch_mode = config.get("switch_mode", Transition.SwitchMode.IMMEDIATE)
 
 
-func _configure_state_machine(start_state: String, root: StateCompound) -> void:
+func _configure_state_machine(start_state: String, root: GraphNodeStateMachine) -> void:
 	for state_name in _state_by_name:
 		root.add_state(state_name, _state_by_name[state_name])
-
-	for state in _adjacency_by_state:
-		for transition in _adjacency_by_state[state]:
-			root.add_transition(state, transition)
 	
+	for tr in _transitions:
+		root.add_transition(tr.from, tr.to, tr.transition)
+
 	if not start_state.empty():
 		if root.has_state(start_state):
 			root.start_state = start_state
@@ -121,8 +119,18 @@ func _cache_conditions(conditions: Array) -> Array:
 	return c
 
 
-func _build_impl(start_state: String) -> StateCompound:
-	var root := StateCompound.new()
+func _build_impl(start_state: String) -> GraphNodeStateMachine:
+	var root := GraphNodeStateMachine.new()
 	_configure_state_machine(start_state, root)
 	clear()
 	return root
+
+
+class Transition:
+	extends Reference
+	
+	const StateMachineTransition = preload("../graph_node/transition/state_machine_transition.gd")
+
+	var from: String
+	var to: String
+	var transition: StateMachineTransition

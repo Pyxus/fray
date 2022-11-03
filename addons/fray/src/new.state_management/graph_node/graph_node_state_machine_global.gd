@@ -1,28 +1,16 @@
 extends "graph_node_state_machine.gd"
-## State machine whose states represent the set of actions available to a combatant
-## In a given situation.
+## A state machine featuring global transitions
 ##
 ## @desc:
-##		Contains multiple states representing a combatant's actions, and
-##		the states available to them from a given state. 
-##		State transitions occur based on user defined inputs and conditions.
+##		Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
+##		Nodes within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
+##		Nodes with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
+##		A state is considered global if it is used as the 'to' state in a global transition.
 ##
-##		Global transitions are a convinience feature that allows you to automatically 
-##		connect states based on global transition rules.
-##		Transition rules make use of the tags defined in a combat state.
-##		States with a given 'from_tag' will automatically have a transition 
-##		setup for gobal states with a given 'to_tag'.
-##		This is useful for setting up actions that need to be available from 
-##		multiple states in the state machine without needing to manually connect them.
-##		For example, in many fighting games all moves tagged as "normal" may 
-##		transition into moves tagged as "special".
+##		This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
+##		For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
-const InputTransition = preload("transition/input_transition.gd")
-const InputTransitionButton = preload("transition/input_transition_button.gd")
-const InputTransitionSequence = preload("transition/input_transition_sequence.gd")
-
-
-## Type: InputTransition[]
+## Type: StateMachineTransition[]
 var _global_transitions: Array
 
 ## Type: Dictionary<String, String[]>
@@ -50,8 +38,18 @@ func get_node_tags(node: String) -> PoolStringArray:
 	
 	return _tags_by_node[node]
 
+## Returns true if the given node is considered global
+func is_node_global(node: String) -> bool:
+	if _ERR_INVALID_NODE(node): return false
+
+	for transition in _global_transitions:
+		if transition.to == node:
+			return true
+
+	return false
+
 ## Adds global input transition to a state
-func add_global_transition(to: String, transition: InputTransition) -> void:
+func add_global_transition(to: String, transition: StateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
 	var tr := Transition.new()

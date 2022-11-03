@@ -1,8 +1,8 @@
 extends Node
-## Hierarchical State Machine
+## Base Hierarchical State Machine
 
-const State = preload("state/state.gd")
-const StateCompound = preload("state/state_compound.gd")
+const GraphNode = preload("graph_node/graph_node.gd")
+const GraphNodeStateMachine = preload("graph_node/graph_node_state_machine.gd")
 
 enum AdvanceMode{
 	IDLE,
@@ -16,11 +16,11 @@ export var active: bool
 ## The process mode of this state machine.
 export(AdvanceMode) var advance_mode: int = AdvanceMode.IDLE
 
-var root := StateCompound.new() setget set_root
-
 
 func _process(delta: float) -> void:
     if _can_process():
+        var root := _get_root_impl()
+
         root.process(delta)
         
         if advance_mode == AdvanceMode.IDLE:
@@ -29,15 +29,12 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
     if _can_process():
+        var root := _get_root_impl()
+
         root.physics_process(delta)
 
         if advance_mode == AdvanceMode.PHYSICS:
             root.advance()
-
-
-func set_root(root_state: StateCompound) -> void:
-    root = root_state
-    root.start()
 
 
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
@@ -46,8 +43,14 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
         
 
 func _can_process() -> bool:
-    return root != null and active
+    return _get_root_impl() != null and active
 
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-    root.advance(input, args)
+    if _can_process():
+        _get_root_impl().advance(input, args)
+
+
+func _get_root_impl() -> GraphNodeStateMachine:
+    push_error("Method not implemented.")
+    return null

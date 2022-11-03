@@ -1,7 +1,22 @@
 tool
 extends "state_machine.gd"
+## Combat state machine
+##
+## @desc:
+##		A state machine which can contain and switch between multiple situations.
+##		A situation is a `GraphNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
+##		For example, in many fighting games the actions a combatant can perform when situated on the ground differ
+##		from when they're in the air.
+##
+##		When adding situations it is recommended to build the graph node using the `CombatSituationBuilder`.
+##		Example:
+##			var builder := Fray.StateMgmt.CombatSituationBuilder.new()
+##			combat_sm.add_situation("on_ground", builder\
+##				.transition_button("idle", "punch1", "square")\
+##				.build()
+##			)
 
-const StateCombatSituation = preload("state/state_combat_situation.gd")
+const GraphNodeStateMachineGlobal = preload("graph_node/graph_node_state_machine_global.gd")
 
 ## Allow transitions transitions to occur in the state machine.
 ## Enabling and disabling this property allows you to control when a combatant
@@ -25,6 +40,42 @@ var _input_buffer: Array
 ## Type: String[]
 var _state_buffer: Array
 
+## Type: Dictionary<String, GraphNodeStateMachineGlobal>
+## Hint: <situation name, >
+var _situations: Dictionary
+
+var _current_situation: String
+
+func _get_root_impl() -> GraphNodeStateMachine:
+	var situation: GraphNodeStateMachineGlobal = _situations.get(_current_situation)
+	return situation.sm_node if situation else null
+
+## Adds a combat situation to the state machine.
+func add_situation(situation_name: String, node: GraphNodeStateMachineGlobal) -> void:
+	if has_situation(situation_name):
+		push_warning("Combat situation name '%s' already exists.")
+		return
+	
+	_situations[situation_name] = node
+
+## Changes the currently activate situation
+func change_situation(situation_name: String) -> void:
+	if not has_situation(situation_name):
+		push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
+		return
+	
+	if situation_name != _current_situation:
+		_current_situation = situation_name
+
+## Returns a situation with the given name if it exists.
+func get_situation(situation_name: String) -> GraphNodeStateMachineGlobal:
+	if has_situation(situation_name):
+		return _situations[situation_name]
+	return null
+
+## Returns true if a situation with the given name exists
+func has_situation(situation_name: String) -> bool:
+	return _situations.has(situation_name)
 
 ## Setter for 'input_max_buffer_time' property
 func set_input_max_buffer_time(value: int) -> void:
@@ -50,9 +101,11 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
-	if not active:
+	var root := _get_root_impl()
+
+	if root == null:
 		return
-	
+
 	if root.get_current_state() == null:
 		push_warning("Failed to advance. Current state not set.")
 		return
