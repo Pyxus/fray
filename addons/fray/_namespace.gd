@@ -10,5 +10,4 @@ const ASSETS_DIR = "res://addons/fray/assets/"
 
 const Collision = preload("src/collision/_namespace.gd")
 const State = preload("src/state/_namespace.gd")
-const StateMgmt = preload("src/state_management/_namespace.gd")
 const Input = preload("src/input/_namespace.gd")
