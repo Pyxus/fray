@@ -6,9 +6,6 @@ enum SwitchMode{
     AT_END,
 }
 
-## State being transitioned to.
-var to: String
-
 ## If 'auto_advance' is enabled then transition will occur automatically when all advance conditions are true.
 ## Type: Condition[]
 var advance_conditions: Array

@@ -10,9 +10,10 @@ extends "state_machine.gd"
 ##
 ##		When adding situations it is recommended to build the graph node using the `CombatSituationBuilder`.
 ##		Example:
-##			var builder := Fray.StateMgmt.CombatSituationBuilder.new()
+##			var builder := Fray.State.CombatSituationBuilder.new()
 ##			combat_sm.add_situation("on_ground", builder\
 ##				.transition_button("idle", "punch1", "square")\
+##				.transition_button("punch1", "punch2", "square", {prereqs = [Fray.State.Condition.new("on_hit")]})
 ##				.build()
 ##			)
 
@@ -34,6 +35,9 @@ export var input_max_buffer_time: int = 5 setget set_input_max_buffer_time
 ## The max time a detected input can exist in the buffer before it is ignored in ms.
 export var input_max_buffer_time_ms: int = 1000 setget set_input_max_buffer_time_ms
 
+
+var current_situation: String setget change_situation
+
 ## Type: BufferedInput[]
 var _input_buffer: Array
 
@@ -44,19 +48,64 @@ var _state_buffer: Array
 ## Hint: <situation name, >
 var _situations: Dictionary
 
-var _current_situation: String
+var _time_since_last_input_ms: float
 
-func _get_root_impl() -> GraphNodeStateMachine:
-	var situation: GraphNodeStateMachineGlobal = _situations.get(_current_situation)
-	return situation.sm_node if situation else null
+
+func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
+	if root == null:
+		return
+
+	if root.current_node.empty():
+		push_warning("Failed to advance. Current state not set.")
+		return
+	
+	var current_time := OS.get_ticks_msec()
+
+	while not _input_buffer.empty() and _state_buffer.size() <= max_buffered_transitions:
+		var buffered_input: BufferedInput = _input_buffer.pop_front()
+		var next_state: String 
+		var time_since_last_input = (current_time - _time_since_last_input_ms) / 1000.0
+
+		if buffered_input is BufferedInputButton:
+			next_state = root.get_next_node({
+				input = buffered_input.input,
+				input_is_pressed = buffered_input.is_pressed,
+				time_since_last_input = time_since_last_input
+			})
+		elif buffered_input is BufferedInputSequence:
+			next_state = root.get_next_node({
+				input = buffered_input.sequence_name,
+				time_since_last_input = time_since_last_input,
+			})
+
+		var time_since_inputted: int = current_time - buffered_input.time_stamp
+		if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
+			if allow_transitions:
+				_state_buffer.append(next_state)
+			else:
+				_state_buffer[_state_buffer.size() - 1] = next_state
+			break
+
+		_time_since_last_input_ms = current_time
+	
+	if allow_transitions and not _state_buffer.empty():
+		root.go_to(_state_buffer.pop_front())
+
+
+func set_root(value: GraphNodeStateMachine) -> void:
+	.set_root(value)
+	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: String, node: GraphNodeStateMachineGlobal) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
-	
+
 	_situations[situation_name] = node
+
+	if _situations.size() == 1:
+		change_situation(situation_name)
 
 ## Changes the currently activate situation
 func change_situation(situation_name: String) -> void:
@@ -64,14 +113,17 @@ func change_situation(situation_name: String) -> void:
 		push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
 		return
 	
-	if situation_name != _current_situation:
-		_current_situation = situation_name
+	if situation_name != current_situation:
+		current_situation = situation_name
+		root = get_situation(situation_name)
+		root.go_to_start()
 
 ## Returns a situation with the given name if it exists.
 func get_situation(situation_name: String) -> GraphNodeStateMachineGlobal:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null
+
 
 ## Returns true if a situation with the given name exists
 func has_situation(situation_name: String) -> bool:
@@ -88,10 +140,20 @@ func set_input_max_buffer_time_ms(value: int) -> void:
 	input_max_buffer_time = round(Engine.iterations_per_second * input_max_buffer_time_ms) * 1000
 
 ## Buffers an input button to be processed by the state machine
-func buffer_button(input: String, is_released: bool = false) -> void:
-	_input_buffer.append(BufferedInputButton.new(OS.get_ticks_msec(), input, is_released))
+##
+## `input` is the name of the input.
+## This is just an identifier used in input transitions.
+## It is not default associated with any actions in godot or inputs in fray.
+##
+## If `is_pressed` is true then a pressed input is buffered, else a released input is buffered.
+func buffer_button(input: String, is_pressed: bool = true) -> void:
+	_input_buffer.append(BufferedInputButton.new(OS.get_ticks_msec(), input, is_pressed))
 
 ## Buffers an input sequence to be processed by the state machine
+#
+## `sequence_name` is the name of the sequence.
+## This is just an identifier used in input transitions.
+## It is not default associated with any actions in godot or inputs in fray.
 func buffer_sequence(sequence_name: String) -> void:
 	_input_buffer.append(BufferedInputSequence.new(OS.get_ticks_msec(), sequence_name))
 
@@ -99,44 +161,6 @@ func buffer_sequence(sequence_name: String) -> void:
 func clear_buffer() -> void:
 	_state_buffer.clear()
 	_input_buffer.clear()
-
-func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
-	var root := _get_root_impl()
-
-	if root == null:
-		return
-
-	if root.get_current_state() == null:
-		push_warning("Failed to advance. Current state not set.")
-		return
-	
-	var current_time := OS.get_ticks_msec()
-
-	if allow_transitions:
-		while not _input_buffer.empty() and _state_buffer.size() <= max_buffered_transitions:
-			var buffered_input: BufferedInput = _input_buffer.pop_front()
-			var next_state: String 
-
-			if buffered_input is BufferedInputButton:
-				next_state = root.get_next_state({
-					input = buffered_input.input,
-					input_is_pressed = buffered_input.is_pressed,
-					time_since_last_input = 0
-				})
-			elif buffered_input is BufferedInputSequence:
-				next_state = root.get_next_state({
-					input = buffered_input.sequence_name,
-					time_since_last_input = 0,
-				})
-
-			var time_since_inputted: int = current_time - buffered_input.time_stamp
-
-			if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
-				_state_buffer.append(next_state)
-				break
-	
-	if not _state_buffer.empty():
-		root.go_to(_state_buffer.pop_front())
 
 
 class BufferedInput:

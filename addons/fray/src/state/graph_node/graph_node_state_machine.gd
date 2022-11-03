@@ -43,6 +43,9 @@ func _is_done_processing_impl() -> bool:
 func add_node(name: String, node: Reference) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
+	if _states.empty():
+		start_node = name
+
 	_states[name] = node
 	_astar.add_point(name)
 	_on_node_added(name, node)
@@ -138,6 +141,8 @@ func travel(to: String, args: Dictionary = {}) -> void:
 	pass
 
 ## Advances to next reachable state.
+## Will only transition if a travel was initiated. 
+## Or if a travel was not initiated and a reachable transition has `auto_advance` enabled
 ##
 ## `input` is optional user-defined data used to determine if a transition can occur.
 ##	The `_accept_input_impl()` virtual method can be overidden to determine what input is accepted.
@@ -155,8 +160,8 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 		
 		if _astar.has_next_travel_node():
 			var travel_node = cur_node
-			while travel_node.is_done_processing() and _astar.has_next_travel_state():
-				_go_to(_astar.get_next_travel_state(), _travel_args)
+			while travel_node.is_done_processing() and _astar.has_next_travel_node():
+				_go_to(_astar.get_next_travel_node(), _travel_args)
 				travel_node = _states[current_node]
 		else:
 			var next_node := get_next_node(input, true)
@@ -174,13 +179,14 @@ func get_next_node(input: Dictionary = {}, auto_only := false) -> String:
 		push_warning("No current state is set.")
 		return ""
 
-	for transition in _transitions:
-		var tr: StateMachineTransition = transition.transition
-		if auto_only:
-			if _can_transition(transition, input) and _can_auto_advance(transition):
-				return transition.to	
-		elif _can_transition(tr, input):
-			return transition.to
+	for tr in _transitions:
+		if tr.from == current_node:
+			var transition: StateMachineTransition = tr.transition
+			if auto_only:
+				if _can_transition(transition, input) and _can_auto_advance(transition):
+					return tr.to
+			elif _can_transition(transition, input):
+				return tr.to
 
 	return ""
 
@@ -190,7 +196,7 @@ func get_next_node(input: Dictionary = {}, auto_only := false) -> String:
 ##
 ## `args` is user-defined data which is passed to the advanced state on enter. 
 func go_to(to_node: String, args: Dictionary = {}) -> void:
-	if _astar.has_next_travel_state():
+	if _astar.has_next_travel_node():
 		_astar.clear_travel_path()
 	
 	_go_to(to_node, args)
@@ -285,10 +291,11 @@ func print_adj() -> void:
 		
 		string += " -> ["
 		
-		for transition in next_transitions:
-			string += "%s:%s" % [transition.to, transition.priority]
+		for tr in next_transitions:
+			var transition = tr.transition
+			string += "%s:%s" % [tr.to, transition.priority]
 
-			if next_transitions.back() != transition:
+			if next_transitions.back() != tr:
 				string += ", "
 			pass
 		string += "]\n"
@@ -298,7 +305,7 @@ func print_adj() -> void:
 
 func _get_transition_priority(from: String, to: String) -> float:
 	var tr := get_transition(from, to)
-	return float(tr.priority) if tr else 0.0
+	return float(tr.transition.priority) if tr else 0.0
 
 
 func _go_to(to_node: String, args: Dictionary) -> void:
@@ -306,6 +313,7 @@ func _go_to(to_node: String, args: Dictionary) -> void:
 
 	var prev_node_name := current_node
 	var prev_node: Reference = _states[to_node]
+
 	if prev_node != null:
 		prev_node._exit_impl()
 	
@@ -324,13 +332,13 @@ func _can_transition(transition: StateMachineTransition, input: Dictionary) -> b
 
 func _can_switch(transition: StateMachineTransition) -> bool:
 	return ( 
-		transition.switch_mode == Transition.SwitchMode.IMMEDIATE
-		or transition.switch_mode == Transition.SwitchMode.AT_END 
+		transition.switch_mode == StateMachineTransition.SwitchMode.IMMEDIATE
+		or transition.switch_mode == StateMachineTransition.SwitchMode.AT_END 
 		and is_done_processing()
 		)
 
 
-func _can_auto_advance(transition: Transition) -> bool:
+func _can_auto_advance(transition: StateMachineTransition) -> bool:
 	if not transition.auto_advance:
 		return false
 
@@ -400,7 +408,7 @@ func _ERR_INVALID_NODE(name: String) -> bool:
 		return true
 	
 	if not has_node(name):
-		push_error("Invalid node name, node does not exist.")
+		push_error("Invalid node name '%s', node does not exist." % name)
 		return true
 
 	return false

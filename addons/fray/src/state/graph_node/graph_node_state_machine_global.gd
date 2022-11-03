@@ -21,9 +21,6 @@ var _global_transition_rules: Dictionary
 ## Hint: <node name, tags>
 var _tags_by_node: Dictionary
 
-func _init() -> void:
-	connect("state_removed", self, "_on_state_removed")
-	connect("state_renamed", self, "_on_state_renamed")
 
 ## Sets the tags associated with a state if the state exists.
 func set_node_tags(node: String, tags: PoolStringArray) -> void:

@@ -18,6 +18,13 @@ func _build_impl(start_state: String = "") -> GraphNodeStateMachine:
 	_configure_state_machine(start_state, root)
 	return root
 
+
+func _clear_impl() -> void:
+	._clear_impl()
+	_transition_rules.clear()
+	_tags_by_state.clear()
+	_global_transitions.clear()
+
 ## Adds a new transition rule to be used by global transitions.
 ##
 ## Returns a reference to this builder
@@ -58,13 +65,6 @@ func transition_global(to: String, config: Dictionary = {}) -> Reference:
 	return self
 
 
-func clear() -> void:
-	.clear()
-	_transition_rules.clear()
-	_tags_by_state.clear()
-	_global_transitions.clear()
-
-
 func _create_global_transition(to: String, transition: StateMachineTransition) -> Transition:
 	var tr := Transition.new()
 	tr.to = to
@@ -77,11 +77,11 @@ func _configure_state_machine(start_state: String, root: GraphNodeStateMachine) 
 
 	if root is GraphNodeStateMachineGlobal:
 		for state in _tags_by_state:
-			root.set_state_tags(state, _tags_by_state[state])
+			root.set_node_tags(state, _tags_by_state[state])
 		
 		for from_tag in _transition_rules:
 			for to_tag in _transition_rules[from_tag]:
 				root.add_global_transition_rule(from_tag, to_tag)
 		
-		for global_transition in _global_transitions:
-			root.add_global_transition(global_transition)
+		for g_tr in _global_transitions:
+			root.add_global_transition(g_tr.to, g_tr.transition)

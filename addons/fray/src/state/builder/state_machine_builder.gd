@@ -54,9 +54,6 @@ func add_state(name: String, state := GraphNode.new()) -> Reference:
 ##
 ## Returns a reference to this builder
 func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
-	add_state(from)
-	add_state(to)
-
 	var tr := _create_transition(from, to, StateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -68,8 +65,7 @@ func clear_cache() -> void:
 
 ## Clears builder state not including cache
 func clear() -> void:
-	_state_by_name.clear()
-	_transitions.clear()
+	_clear_impl()
 
 
 func _create_transition(from: String, to: String, transition: StateMachineTransition) -> Transition:
@@ -77,6 +73,9 @@ func _create_transition(from: String, to: String, transition: StateMachineTransi
 	tr.from = from
 	tr.to = to
 	tr.transition = transition
+
+	add_state(from)
+	add_state(to)
 	_transitions.append(tr)
 	return tr
 
@@ -85,19 +84,19 @@ func _configure_transition(transition: StateMachineTransition, config: Dictionar
 	transition.prereqs = _cache_conditions(config.get("prereqs", []))
 	transition.auto_advance = config.get("auto_advance", false)
 	transition.priority = config.get("priority", 0)
-	transition.switch_mode = config.get("switch_mode", Transition.SwitchMode.IMMEDIATE)
+	transition.switch_mode = config.get("switch_mode", StateMachineTransition.SwitchMode.IMMEDIATE)
 
 
 func _configure_state_machine(start_state: String, root: GraphNodeStateMachine) -> void:
 	for state_name in _state_by_name:
-		root.add_state(state_name, _state_by_name[state_name])
+		root.add_node(state_name, _state_by_name[state_name])
 	
 	for tr in _transitions:
 		root.add_transition(tr.from, tr.to, tr.transition)
 
 	if not start_state.empty():
-		if root.has_state(start_state):
-			root.start_state = start_state
+		if root.has_node(start_state):
+			root.start_node = start_state
 		else:
 			push_warning("Failed to set start state. State machine does not contain state '%s'" % start_state)
 
@@ -124,6 +123,11 @@ func _build_impl(start_state: String) -> GraphNodeStateMachine:
 	_configure_state_machine(start_state, root)
 	clear()
 	return root
+
+
+func _clear_impl() -> void:
+	_state_by_name.clear()
+	_transitions.clear()
 
 
 class Transition:
