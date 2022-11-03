@@ -16,11 +16,11 @@ extends Reference
 ##
 ##		sequence_analyzer.initialize(sequence_list)		
 
-## Emmited when a sequence match is found.
+## Emmitted when a sequence match is found.
 ##
-## sequence_name is the name of the sequence.
+## `sequence_name: String` is the name of the sequence.
 ##
-## inputs is an array of input ids that was used to match the sequence.
+## `inputs: InputEvent[]` is an array of input events that was used to match the sequence.
 signal match_found(sequence_name, inputs)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
