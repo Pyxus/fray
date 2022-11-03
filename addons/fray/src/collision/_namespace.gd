@@ -1,7 +1,7 @@
 extends Object
 
 func _init() -> void:
-	assert(false, "This class provides a pseudo-namespace to other fray classes and is not intended to be instanced")
+	assert(false, "This class provides a pseudo-namespace to other fray classes and is not intended to be instantiated")
 	free()
 
 const HitboxAttributes = preload("hitbox_attributes.gd")
