@@ -54,12 +54,12 @@ func add_node(name: String, node: Reference) -> void:
 func remove_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
-	var node: Reference = _states[name]
+	var node: Reference = get_node(name)
 	_states.erase(name)
 	_astar.remove_point(name)
 	_on_node_removed(name, node)
 
-## Renames the given node.
+## Renames the specified node.
 func rename_node(old_name: String, new_name: String) -> void:
 	if _ERR_INVALID_NODE(old_name): return
 	
@@ -72,7 +72,7 @@ func rename_node(old_name: String, new_name: String) -> void:
 	_astar.rename_point(old_name, new_name)
 	_on_node_renamed(old_name, new_name)
 
-## Replaces the give node's `GraphNode` object.
+## Replaces the specified node's `GraphNode` object.
 func replace_node(name: String, replacement_node: Reference) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
@@ -82,11 +82,16 @@ func replace_node(name: String, replacement_node: Reference) -> void:
 	
 	_states[name] = replacement_node
 
-## Returns true if the graph contains the given node.
+## Returns true if the graph contains the specified node.
 func has_node(name: String) -> bool:
 	return _states.has(name)
 
-## Adds a transition between given nodes.
+## Returns the sub-node with the specified name.
+func get_node(name: String) -> Reference:
+	if _ERR_INVALID_NODE(name): return null
+	return _states[name]
+
+## Adds a transition between specified nodes.
 func add_transition(from: String, to: String, transition: StateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
@@ -162,7 +167,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 			var travel_node = cur_node
 			while travel_node.is_done_processing() and _astar.has_next_travel_node():
 				_go_to(_astar.get_next_travel_node(), _travel_args)
-				travel_node = _states[current_node]
+				travel_node = get_node(current_node)
 		else:
 			var next_node := get_next_node(input, true)
 			if not next_node.empty():
@@ -209,7 +214,7 @@ func go_to_start(args: Dictionary = {}) -> void:
 	
 	go_to(start_node)
 
-##  Returns an array of transitions traversable from the given state.
+## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
 	if _ERR_INVALID_NODE(from): return []
@@ -312,13 +317,13 @@ func _go_to(to_node: String, args: Dictionary) -> void:
 	if _ERR_INVALID_NODE(to_node): return
 
 	var prev_node_name := current_node
-	var prev_node: Reference = _states[to_node]
+	var prev_node: Reference = get_node(to_node)
 
 	if prev_node != null:
 		prev_node._exit_impl()
 	
 	current_node = to_node
-	_states[current_node]._enter_impl(args)
+	get_node(current_node)._enter_impl(args)
 	emit_signal("transitioned", prev_node_name, current_node)
 
 
