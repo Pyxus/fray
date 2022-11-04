@@ -23,7 +23,7 @@ const DEVICE_KBM_JOY1 = 0
 ## Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-onready var _input_map: FrayInputList = get_node("../FrayInputMap")
+onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
 onready var _input_interface := InputInterface.new(weakref(self))
 
 
@@ -231,7 +231,7 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 func create_virtual_device() -> VirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
-	return VirtualDevice.new(_connect_device(id), id)
+	return VirtualDevice.new(_connect_device(id), id, self)
 
 
 func _connect_device(device: int) -> DeviceState:

@@ -3,8 +3,15 @@
 ## v1.0.0-alpha.4
 
 ### Changed
+
  - Completely reworked state management. The state module now includes a generic hiearchical state machine which is accessible to the user.
+
  - Renamed module from 'state_management' to 'state'
+
+### Fixed
+
+- Fixed Inability to load plugin due to `VirtualDevice` referencing `FrayInput` singleton.
+
 
 ## v1.0.0-alpha.3
 
