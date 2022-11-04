@@ -4,6 +4,7 @@ func _init() -> void:
 	assert(false, "This class provides a pseudo-namespace to other fray classes and is not intended to be instantiated")
 	free()
 
+const Controller = preload("controller.gd")
 const FrayInputEvent = preload("fray_input_event.gd")
 const SequenceAnalyzer = preload("sequence_analyzer.gd")
 const SequenceList = preload("sequence/sequence_list.gd")

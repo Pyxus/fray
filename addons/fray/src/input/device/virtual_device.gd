@@ -4,18 +4,16 @@ extends Reference
 ## @desc:
 ## 		A virtual device's whos inputs must be manually controlled through code.
 
+signal disconnect_requested()
+
 const DeviceState = preload("device_state.gd")
 
-# I have to do this because the plugin script wont add the auto load since this script cant load... Because it references the autoload is.
-# An engine singleton that lets us get autoloads would be nice...
-var _FrayInput: Node
 var _device_state: DeviceState
 var _id: int
 
-func _init(device_state: DeviceState, id: int, fray_input: Node):
+func _init(device_state: DeviceState, id: int):
     _device_state = device_state
     _id = id
-    _FrayInput = fray_input
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_PREDELETE:
@@ -47,8 +45,6 @@ func get_id() -> int:
     return _id
 
 ## Disconnects the virtual device by removing it from the FrayInput singleton.
-##
 ## Is automatically called when the virtual device is no longer being referenced.
 func unplug() -> void:
-    if _FrayInput.is_device_connected(_id):
-        _FrayInput._disconnect_device(_id)
+    emit_signal("disconnect_requested")

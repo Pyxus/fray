@@ -9,6 +9,9 @@ extends Node
 ## input_event is a `FrayInputEvent` object containing information about the event
 signal input_detected(input_event)
 
+## Emitted when a device has been connected or disconnected
+signal device_connection_changed(device_id, connected)
+
 const DeviceState = preload("../device/device_state.gd")
 const VirtualDevice = preload("../device/virtual_device.gd")
 const InputState = preload("../device/input_data/state/input_state.gd")
@@ -231,7 +234,9 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 func create_virtual_device() -> VirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
-	return VirtualDevice.new(_connect_device(id), id, self)
+	var vd := VirtualDevice.new(_connect_device(id), id)
+	vd.connect("disconnect_requested", self, "_on_VirtualDevice_disconnect_requested", [id])
+	return vd
 
 
 func _connect_device(device: int) -> DeviceState:
@@ -243,12 +248,15 @@ func _connect_device(device: int) -> DeviceState:
 		device_state.register_input_state(input_name)
 	
 	_device_state_by_id[device] = device_state
+
+	emit_signal("device_connection_changed", device, true)
 	return device_state
 
 
 func _disconnect_device(device: int) -> void:
 	if _device_state_by_id.has(device):
 		_device_state_by_id.erase(device)
+		emit_signal("device_connection_changed", true, false)
 	else:
 		push_error("Failed to disconnect device. Unrecognized device '%d'." % device)
 
@@ -284,5 +292,5 @@ func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
 			_disconnect_device(device)
 
 
-func _on_VirtualDevice_disconnection_request(id: int) -> void:
+func _on_VirtualDevice_disconnect_requested(id: int) -> void:
 	_disconnect_device(id)
