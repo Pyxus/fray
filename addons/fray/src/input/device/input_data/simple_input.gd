@@ -1,12 +1,12 @@
 tool
-extends "complex_input.gd"
-## A complex input used as a wrapper around input binds
+extends "composite_input.gd"
+## A composite input used as a wrapper around input binds
 ##
 ## @desc:
-## 		Simple inputs will ignore their components.
+## 		Simple inputs do nothing with thier component and will ignore them.
 ##      They are similar to godot actions in that they hold an array of input binds and are
 ##      considered to be pressed when any bind in the array is pressed.
-##      Simple inputs are intended to be the 'leaf' of any composition.
+##      Simple inputs are intended to be the 'leaf' that ends any input composition.
 
 var binds: PoolStringArray
 

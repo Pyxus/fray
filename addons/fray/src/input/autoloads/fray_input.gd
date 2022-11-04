@@ -53,40 +53,40 @@ func _physics_process(_delta: float) -> void:
 			elif input_state.pressed:
 				input_state.unpress()
 		
-		for complex_input_name in _input_map.get_complex_input_names():
-			var complex_input := _input_map.get_complex_input(complex_input_name)
-			var input_state := device_state.get_input_state(complex_input_name)
+		for composite_input_name in _input_map.get_composite_input_names():
+			var composite_input := _input_map.get_composite_input(composite_input_name)
+			var input_state := device_state.get_input_state(composite_input_name)
 
-			if complex_input.is_pressed(device, _input_interface):
+			if composite_input.is_pressed(device, _input_interface):
 				if not input_state.pressed:
-					var my_components := complex_input.decompose(device, _input_interface)
+					var my_components := composite_input.decompose(device, _input_interface)
 					input_state.press()
 					if device_state.has_all_filtered(my_components):
-						device_state.filter([complex_input_name])
+						device_state.filter([composite_input_name])
 					else:
 						device_state.filter(my_components)
 			elif input_state.pressed:
-				var my_components := complex_input.decompose(device, _input_interface)
+				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
 				device_state.unfilter(my_components)
-				device_state.unfilter([complex_input_name])
+				device_state.unfilter([composite_input_name])
 
-				if complex_input.is_virtual:
+				if composite_input.is_virtual:
 					var held_components: Array
 					for bind in my_components:
 						if is_pressed(bind, device):
 							held_components.append(bind)
 
-					var virtually_pressed_complex := false
-					for com_input_name in _input_map.get_complex_input_names():
+					var virtually_pressed_composite := false
+					for com_input_name in _input_map.get_composite_input_names():
 						var com_input_state := _get_input_state(com_input_name, device)
-						var com_input := _input_map.get_complex_input(com_input_name)
+						var com_input := _input_map.get_composite_input(com_input_name)
 						var has_binds := com_input.decomposes_into_binds(held_components, device, _input_interface)
 
 						if com_input_state.pressed and has_binds:
 							com_input_state.press(true)
 							device_state.unfilter([com_input_name])
-							virtually_pressed_complex = true
+							virtually_pressed_composite = true
 							break
 
 					for bind in held_components:
@@ -94,7 +94,7 @@ func _physics_process(_delta: float) -> void:
 						if bind_state.pressed:
 							bind_state.press(true)
 
-							if virtually_pressed_complex:
+							if virtually_pressed_composite:
 								device_state.filter([bind])
 							break
 		
@@ -242,7 +242,7 @@ func create_virtual_device() -> VirtualDevice:
 func _connect_device(device: int) -> DeviceState:
 	var device_state := DeviceState.new()
 	var all_input_names :=\
-		(_input_map.get_bind_names() + _input_map.get_complex_input_names())
+		(_input_map.get_bind_names() + _input_map.get_composite_input_names())
 		
 	for input_name in all_input_names:
 		device_state.register_input_state(input_name)

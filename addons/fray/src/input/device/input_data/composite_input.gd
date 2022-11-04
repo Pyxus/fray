@@ -1,9 +1,9 @@
 tool
 extends Resource
-## Abstract base class for all complex inputs
+## Abstract base class for all composite inputs
 ##
 ## @desc:
-##      Complex inputs are inputs composed of other complex inputs.
+##      Composite inputs are inputs composed of other composite inputs.
 
 const InputInterface = preload("state/input_interface.gd")
 const InputState = preload("state/input_state.gd")
@@ -12,10 +12,10 @@ const InputState = preload("state/input_state.gd")
 ## will be treated as if they were pressed again.
 var is_virtual: bool setget set_virtual
 
-## Type: ComplexInput[]
+## Type: CompositeInput[]
 var _components: Array 
 
-## Type: ComplexInput
+## Type: CompositeInput
 var _root_wf: WeakRef
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
@@ -39,7 +39,7 @@ func add_component(component: Resource) -> void:
 	component._root_wf = weakref(get_root())
 	_components.append(component)
 
-## Decomposes complex input into binds
+## Decomposes composite input into binds
 func decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
 	return _decompose_impl(device, input_interface)
 
@@ -74,8 +74,8 @@ func set_virtual(value: bool) -> void:
 	if get_root() != null:
 		push_warning("Virtual on a non-root component has no affect.") 
 
-## Returns the root of this complex input
-## Returns: ComplexInput
+## Returns the root of this composite input
+## Returns: CompositeInput
 func get_root() -> Resource:
 	var ref = _root_wf.get_ref() if _root_wf else null
 	return ref

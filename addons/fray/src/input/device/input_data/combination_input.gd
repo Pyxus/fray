@@ -1,6 +1,6 @@
 tool
-extends "complex_input.gd"
-## A complex input used to create combination inputs
+extends "composite_input.gd"
+## A composite input used to create combination inputs
 ##
 ## @desc:
 ## 		A combination will be considered as press when

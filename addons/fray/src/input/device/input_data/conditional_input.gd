@@ -1,7 +1,7 @@
 tool
-extends "complex_input.gd"
+extends "composite_input.gd"
 
-## A complex input used to create conditional inputs
+## A composite input used to create conditional inputs
 ##
 ## @desc:
 ##      Returns whether a specific component is pressed based on a string condition.

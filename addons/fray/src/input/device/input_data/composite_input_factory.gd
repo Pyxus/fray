@@ -1,7 +1,7 @@
 extends Reference
-## Static helper class used to construct complex inputs
+## Static helper class used to construct composite inputs
 
-const ComplexInput = preload("complex_input.gd")
+const CompositeInput = preload("composite_input.gd")
 const CombinationInput = preload("combination_input.gd")
 
 ## Returns a new combination input builder
@@ -40,24 +40,24 @@ static func new_simple(binds: PoolStringArray = []):
 class ComponentBuilder:
 	extends Reference
 
-	const ComplexInput = preload("complex_input.gd")
+	const CompositeInput = preload("composite_input.gd")
 
-	var _complex_input: ComplexInput
+	var _composite_input: CompositeInput
 	var _builders: Array ## ComponentBuilder[]
 
-	## Builds the complex input
+	## Builds the composite input
 	##
-	## Returns a reference to the newly build ComplexInput
-	func build() -> ComplexInput:
+	## Returns a reference to the newly build CompositeInput
+	func build() -> CompositeInput:
 		for builder in _builders:
-			_complex_input.add_component(builder.build())
-		return _complex_input
+			_composite_input.add_component(builder.build())
+		return _composite_input
 
 	## Sets whether the input will be virtual or not
 	##
 	## Returns a reference to this ComponentBuilder
 	func virtual(is_virtual: bool = true) -> Reference:
-		_complex_input.is_virtual = is_virtual
+		_composite_input.is_virtual = is_virtual
 		return self
 
 
@@ -67,10 +67,10 @@ class CombinationBuilder:
 	const CombinationInput = preload("combination_input.gd")
 
 	func _init() -> void:
-		_complex_input = CombinationInput.new()
+		_composite_input = CombinationInput.new()
 		pass
 
-	## Adds a complex input as a component of this combination
+	## Adds a composite input as a component of this combination
 	##
 	## Returns a reference to this ComponentBuilder
 	func add_component(component_builder: Reference) -> Reference:
@@ -81,7 +81,7 @@ class CombinationBuilder:
 	##
 	## Returns a reference to this ComponentBuilder
 	func mode(combination_mode: int) -> Reference:
-		_complex_input.mode = combination_mode
+		_composite_input.mode = combination_mode
 		return self
 	
 
@@ -93,9 +93,9 @@ class ConditionalBuilder:
 	var _conditions: Array
 
 	func _init() -> void:
-		_complex_input = ConditionalInput.new()
+		_composite_input = ConditionalInput.new()
 
-	## Adds a complex input as a component of this conditional input
+	## Adds a composite input as a component of this conditional input
 	##
 	## Returns a reference to this ComponentBuilder
 	func add_component(condition: String, component_builder: Reference):
@@ -104,13 +104,13 @@ class ConditionalBuilder:
 		return self 
 	
 
-	func build() -> ComplexInput:
+	func build() -> CompositeInput:
 		for i in len(_builders):
-			_complex_input.add_component(_builders[i].build())
+			_composite_input.add_component(_builders[i].build())
 			
 			if i != 0:
-				_complex_input.set_condition(i, _conditions[i])
-		return _complex_input
+				_composite_input.set_condition(i, _conditions[i])
+		return _composite_input
 
 
 class SimpleBuilder:
@@ -119,22 +119,22 @@ class SimpleBuilder:
 	const SimpleInput = preload("simple_input.gd")
 
 	func _init() -> void:
-		_complex_input = SimpleInput.new()
+		_composite_input = SimpleInput.new()
 
 	## Adds a bind to this simple input
 	##
 	## Returns a reference to this ComponentBuilder
 	func bind(bind_name: String) -> Reference:
-		_complex_input.binds.append(bind_name)
+		_composite_input.binds.append(bind_name)
 		return self
 	
 	## Sets an array of binds to this simple input
 	##
 	## Returns a reference to this ComponentBuilder
 	func set_binds(bind_names: PoolStringArray) -> Reference:
-		_complex_input.binds = bind_names
+		_composite_input.binds = bind_names
 		return self
 
 
-	func build() -> ComplexInput:
-		return _complex_input
+	func build() -> CompositeInput:
+		return _composite_input
