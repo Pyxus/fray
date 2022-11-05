@@ -11,35 +11,34 @@
 
 ## 📖 About
 
-Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org). It features tools for implementing action/fighting game style combat such as hit detection, input buffering, and state management. If your game requires changes in combatant state corresponding to specific button presses, detecting combination or sequence button presses, or hitbox and hit state management then you may benefit from using Fray!
+Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org) that provides tools which aid in the development of action / fighting game combat. If your project requires changes in combatant state corresponding to button presses, input buffering, detecing complex player inputs, or hitbox management then you may benefit from using Fray!
 
 ## ⚠️ IMPORTANT
 
-**This addon is in alpha! Extensive testing is still required, breaking changes may still be made, and parts of the features below may not yet be fully implemented.**
+**This addon is in alpha! Breaking changes may still be made.**
 
 ## ✨ Core Features
 
-### Hit Detection
+### Modular Design
 
-Fray provides tools for setting up and managing a fighter's hitbox / attackbox.
+Fray is divided into 3 modules: State, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. This means you are not locked in to using Fray's tools and can run your own solutions along side it by interpreting these strings in your current setup.
+
+### Hitbox Management
+
+Fray provides a template hitbox which is essentially an area with an attributes property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations.
 
 ### Combat State Management
 
-Fray features a state machine that allows you to keep track of a fighter's combat state and automatically advance to new states based on the player's inputs. In other words this system lets you switch from one attack to another following a user defined "combat graph".
-
-Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
+Fray features a state machine that allows you to keep track of a fighter's combat state and automatically transition to new states based on the player's inputs.
+Transitions in the state machine can be enabled and disabled in the animation player. If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into new attack. Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
 ### Input Buffering
 
-Inputs fed to fray's combat state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action/fighting games as without it players would need frame perfect inputs to perform their actions.
+Inputs fed to fray's combat state management system can be buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to perform subsequent actions.
 
 ### Complex Input Detection
 
 Fray provides tools for detecting the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
-
-### Modular Design
-
-Fray's tooling is divided into 3 modules: State Management, Input, and Hit Detection. None of which are dependent on one another as they only communicate through strings. This means you can easily run your own solutions alongside Fray by intepreting these strings in your current setup.
 
 ## ⚙ Installation
 

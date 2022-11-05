@@ -258,6 +258,15 @@ func check_condition(name: String) -> bool:
 
 	return _conditions[name]
 
+
+## Sets the value of a condition if it exists.
+func set_condition(name: String, value: bool) -> void:
+	if not has_condition(name):
+		push_warning("Condition '%s' does not exist")
+		return
+	
+	_conditions[name] = value
+
 ## Process child states then this state.
 ## Intended to be called by `StateMachine` node 
 func process(delta: float) -> void:
