@@ -8,6 +8,8 @@
 
 - Added `Controller` node to input module.
 
+- Added animation state machine to state module
+
 ### Changed
 
  - Completely reworked state management. The state module now includes a generic hiearchical state machine which is accessible to the user.

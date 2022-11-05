@@ -1,4 +1,9 @@
 extends "state_machine_global_builder.gd"
+## Combat situation builder
+##
+## @desc:
+##		Global state machine builder that supports input transitions.
+##		Useful for creating state machines when adding situations to a `CombatStateMachine`.
 
 const InputTransition = preload("../graph_node/transition/input_transition.gd")
 const InputTransitionButton = preload("../graph_node/transition/input_transition_button.gd")
