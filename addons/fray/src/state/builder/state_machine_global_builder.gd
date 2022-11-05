@@ -1,4 +1,5 @@
 extends "state_machine_builder.gd"
+## Global state machine builder
 
 const GraphNodeStateMachineGlobal = preload("../graph_node/graph_node_state_machine_global.gd")
 

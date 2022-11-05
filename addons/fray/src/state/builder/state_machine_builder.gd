@@ -1,5 +1,17 @@
 extends Reference
-## Base transition builder
+## State machine builder
+##
+## @desc:
+##		The state machine builder can be used to create state machines programatically.
+##		The builder supports using optional method chaining for the construction.
+##		
+##		Example:
+##		var sm = builder\
+##			.transition("a", "b")\
+##			.transition("b", "c")\
+##			.build()
+##
+##		Note: '\' is necessary for GDScript to read the next line when multi-line method chaning
 
 const GraphNode = preload("../graph_node/graph_node.gd")
 const GraphNodeStateMachine = preload("../graph_node/graph_node_state_machine.gd")
@@ -30,7 +42,7 @@ var _transitions: Array
 func build(start_state: String = "") -> GraphNodeStateMachine:
 	return _build_impl(start_state)
 
-## Adds a new state to the state machine if it doesn't already exist.
+## Adds a new state to the state machine.
 ##
 ## Note: 
 ##		States are added automatically when making transitions.

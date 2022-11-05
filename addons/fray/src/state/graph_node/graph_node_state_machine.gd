@@ -1,4 +1,9 @@
 extends "graph_node.gd"
+## State machine graph node
+##
+## @desc:
+##		Contains multiple multiple graph nodes connected through `StateMachineTransitions`.
+##		It is recommended to construct this state machine with the `StateMachineBuilder`.
 
 ## Emitted when the current state is changes
 ##
@@ -142,8 +147,6 @@ func travel(to: String, args: Dictionary = {}) -> void:
 
 		if not _astar.has_next_travel_node():
 			go_to(to, args)
-
-	pass
 
 ## Advances to next reachable state.
 ## Will only transition if a travel was initiated. 
