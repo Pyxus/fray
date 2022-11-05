@@ -100,23 +100,12 @@ func _physics_process(_delta: float) -> void:
 							break
 		
 		for input in device_state.get_all_inputs():
-			var input_state := _get_input_state(input, device)
-			var input_event := FrayInputEvent.new()
-			
-			input_event.device = device
-			input_event.input = input
-			input_event.time_pressed = input_state.time_pressed
-			input_event.physics_frame = input_state.physics_frame
-			input_event.idle_frame = input_state.idle_frame
-			input_event.time_detected = OS.get_ticks_msec()
-			input_event.pressed = input_state.pressed
-			input_event.virtually_pressed = input_state.virtually_pressed
-			input_event.filtered = not device_state.has_filtered(input)
-
 			if is_just_pressed(input, device) or is_just_released(input, device):
+				var input_event := _create_input_event(input, device, device_state)
 				input_event.echo = false
 				emit_signal("input_detected", input_event)
 			elif is_pressed(input, device):
+				var input_event := _create_input_event(input, device, device_state)
 				input_event.echo = true
 				emit_signal("input_detected", input_event)
 
@@ -275,6 +264,21 @@ func _get_bind_state(input: String, device: int) -> InputState:
 		return _get_input_state(input, device)
 	return null
 
+
+func _create_input_event(input: String, device: int, device_state: DeviceState) -> FrayInputEvent:
+	var input_state := _get_input_state(input, device)
+	var input_event := FrayInputEvent.new()
+			
+	input_event.device = device
+	input_event.input = input
+	input_event.time_pressed = input_state.time_pressed
+	input_event.physics_frame = input_state.physics_frame
+	input_event.idle_frame = input_state.idle_frame
+	input_event.time_detected = OS.get_ticks_msec()
+	input_event.pressed = input_state.pressed
+	input_event.virtually_pressed = input_state.virtually_pressed
+	input_event.filtered = not device_state.has_filtered(input)
+	return input_event
 
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
 	if device != DEVICE_KBM_JOY1:
