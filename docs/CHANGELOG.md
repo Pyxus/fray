@@ -14,11 +14,17 @@
 
  - Completely reworked state management. The state module now includes a generic hiearchical state machine which is accessible to the user.
 
- - Renamed module from 'state_management' to 'state'
+ - Renamed module from 'state_management' to 'state'.
+
+ - Input binds can now implement a `get_strength()` method.
+
+ - Virtual device can now set strength in the `press()` method.
 
 ### Fixed
 
-- Fixed Inability to load plugin due to `VirtualDevice` referencing `FrayInput` singleton.
+- Fixed inability to load plugin due to `VirtualDevice` referencing `FrayInput` singleton.
+
+ - Fixed inability to use `FrayInput.get_strength()` with virtual devices. The method now checks the strength stored in input state instead of directly checking Godot's `Input` singleton.
 
 
 ## v1.0.0-alpha.3

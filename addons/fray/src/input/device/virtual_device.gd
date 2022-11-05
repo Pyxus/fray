@@ -20,9 +20,10 @@ func _notification(what: int) -> void:
         unplug()
 
 ## presses given input on virtual device
-func press(input: String) -> void:
+func press(input: String, press_strength: float = 1.0) -> void:
     match _device_state.get_input_state(input):
         var input_state:
+            input_state.strength = press_strength
             input_state.press()
         null:
             push_error("Unrecognized input '%s. Failed to press input on virtual device with id '%d'" % [input, _id])

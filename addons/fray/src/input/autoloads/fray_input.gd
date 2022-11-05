@@ -46,6 +46,7 @@ func _physics_process(_delta: float) -> void:
 		for bind_name in _input_map.get_bind_names():
 			var bind := _input_map.get_bind(bind_name)
 			var input_state := device_state.get_input_state(bind_name)
+			input_state.strength = bind.get_strength(device)
 
 			if bind.is_pressed(device):
 				if not input_state.pressed:
@@ -176,17 +177,8 @@ func is_device_connected(device: int) -> bool:
 func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	match _get_input_state(input, device):
 		var input_state:
-			if _input_map.has_bind(input):
-				var bind := _input_map.get_bind(input)
-		
-				if bind is InputBindAction:
-					return Input.get_action_strength(bind.action)
-				elif bind is InputBindJoyAxis:
-					return Input.get_joy_axis(device, bind.axis)
-		
-			return float(input_state.pressed)
+			return input_state.strength
 		null:
-			push_error("Failed to get input strength")
 			return 0.0
 
 ## Get axis input by specifiying two input ids, one negative and one positive.

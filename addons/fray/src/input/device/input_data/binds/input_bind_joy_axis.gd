@@ -33,7 +33,11 @@ func _equals_impl(input_bind: Resource) -> bool:
 		._equals_impl(input_bind)
 		and axis == input_bind.axis
 		and use_positive_axis == input_bind.use_positive_axis)
-		
+
+
+func _get_strength_impl(device: int = 0) -> float:
+	return Input.get_joy_axis(device, axis)
+
 
 func set_deadzone(value: float) -> void:
 	deadzone = clamp(value, 0, 1)
