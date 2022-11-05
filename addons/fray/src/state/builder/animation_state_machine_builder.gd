@@ -2,7 +2,7 @@ extends "state_machine_builder.gd"
 ## Animation state machine builder
 
 
-const GraphNodeAnimationState = preload("../graph_node/graph_node_animation_state.gd")
+const GraphNodeAnimation = preload("../graph_node/graph_node_animation.gd")
 const GraphNodeAnimationStateMachine = preload("../graph_node/graph_node_animation_state_machine.gd")
 
 var animation_player: AnimationPlayer
@@ -34,9 +34,9 @@ func set_player(anim_player: AnimationPlayer) -> Reference:
 ##
 ## Returns a reference to this builder
 func add_animation_state(name: String, animation: String, play_backwards := false, playback_speed := 1.0) -> Reference:
-	var anim_state := GraphNodeAnimationState.new()
-	anim_state.animation = animation
-	anim_state.play_backwards = play_backwards
-	anim_state.playback_speed = playback_speed
-	add_state(name, anim_state)
+	var anim_node := GraphNodeAnimation.new()
+	anim_node.animation = animation
+	anim_node.play_backwards = play_backwards
+	anim_node.playback_speed = playback_speed
+	add_state(name, anim_node)
 	return self

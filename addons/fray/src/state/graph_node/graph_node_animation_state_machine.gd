@@ -5,7 +5,7 @@ extends "graph_node_state_machine.gd"
 ##		A simple animation state machine 
 ##		This is an alternative to Godot's `AnimationTree` but not a replacement.
 
-const GraphNodeAnimationState = preload("graph_node_animation_state.gd")
+const GraphNodeAnimation = preload("graph_node_animation.gd")
 
 var animation_player: AnimationPlayer
 var _animation_state: Dictionary
@@ -37,12 +37,12 @@ func _on_node_added(name: String, node: Reference) -> void:
 
 	if node is get_script():
 		node._animation_state = _animation_state
-	elif node is GraphNodeAnimationState:
+	elif node is GraphNodeAnimation:
 		node.func_set_animation_state = funcref(self, "set_animation_state")
 
 
 ## Updates the state machine's animation state.
-## Used internally by `GraphNodeAnimationState`, user calls should be unecessary.
+## Used internally by `GraphNodeAnimation`, user calls should be unecessary.
 func set_animation_state(animation: String, play_backwards: bool, playback_speed: float) -> void:
 	_animation_state[animation] = animation
 	_animation_state[play_backwards] = play_backwards
