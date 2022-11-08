@@ -166,7 +166,7 @@ func travel(to: String, args: Dictionary = {}) -> void:
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var cur_node: Reference = _states.get(current_node, null)
+	var cur_node: Reference = get_node_current()
 
 	if cur_node != null:
 		if cur_node is get_script():

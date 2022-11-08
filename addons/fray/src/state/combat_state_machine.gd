@@ -19,7 +19,7 @@ extends "state_machine.gd"
 
 const GraphNodeStateMachineGlobal = preload("graph_node/graph_node_state_machine_global.gd")
 
-## Allow transitions transitions to occur in the state machine.
+## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
 ## This can be used to control when a player is allowed to 'cancel' an attack.
@@ -52,15 +52,9 @@ var _time_since_last_input_ms: float
 
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
-	if root == null:
-		return
-
-	if root.current_node.empty():
-		push_warning("Failed to advance. Current state not set.")
-		return
+	._advance_impl(input, args)
 	
 	var current_time := OS.get_ticks_msec()
-
 	while not _input_buffer.empty() and _state_buffer.size() <= max_buffered_transitions:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
 		var next_state: String 
