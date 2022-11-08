@@ -92,10 +92,16 @@ func has_node(name: String) -> bool:
 	return _states.has(name)
 
 ## Returns the sub-node with the specified name.
+## Return Type: GraphNode
 func get_node(name: String) -> Reference:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
+## Returns the current node if it is set.
+## Return Type: GraphNode
+func get_node_current() -> Reference:
+	return _states.get(current_node)
+	
 ## Adds a transition between specified nodes.
 func add_transition(from: String, to: String, transition: StateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(from): return

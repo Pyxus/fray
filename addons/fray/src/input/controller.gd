@@ -15,21 +15,21 @@ export var disabled: bool
 var _FrayInput: Node
 
 func _ready() -> void:
-    _FrayInput = get_node("/root/FrayInput")
-    _FrayInput.connect("device_connection_changed", self, "_on_FrayInput_device_connection_changed")
+	_FrayInput = get_node("/root/FrayInput")
+	_FrayInput.connect("device_connection_changed", self, "_on_FrayInput_device_connection_changed")
 
 ## Returns true if an input is being pressed.
 func is_pressed(input: String) -> bool:
-    return not disabled and is_device_connected() and _FrayInput.is_pressed(input, device)
+	return not disabled and is_device_connected() and _FrayInput.is_pressed(input, device)
 
 ## Returns true if any of the inputs given are being pressed
 func is_any_pressed(inputs: PoolStringArray) -> bool:
-    return not disabled and is_device_connected() and _FrayInput.is_any_pressed(inputs, device)
+	return not disabled and is_device_connected() and _FrayInput.is_any_pressed(inputs, device)
 
 ## Returns true when a user starts pressing the input, 
 ## meaning it's true only on the frame the user pressed down the input.
 func is_just_pressed(input: String) -> bool:
-    return not disabled and is_device_connected() and _FrayInput.is_just_pressed(input, device)
+	return not disabled and is_device_connected() and _FrayInput.is_just_pressed(input, device)
 
 ## Returns true if input was physically pressed
 ## meaning it is only true if the press was not trigerred virtually.
@@ -43,12 +43,12 @@ func is_just_released(input: String) -> bool:
 
 ## Returns true if this controller is connected
 func is_device_connected() -> bool:
-    return _FrayInput.is_device_connected(device)
+	return _FrayInput.is_device_connected(device)
 
 ## Returns a value between 0 and 1 representing the intensity of an input.
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
 func get_strength(input: String) -> float:
-    return _FrayInput.get_strength(input, device) if is_device_connected() and not disabled else 0.0
+	return _FrayInput.get_strength(input, device) if is_device_connected() and not disabled else 0.0
 
 ## Get axis input by specifiying two input ids, one negative and one positive.
 func get_axis(negative_input: String, positive_input: String) -> float:
