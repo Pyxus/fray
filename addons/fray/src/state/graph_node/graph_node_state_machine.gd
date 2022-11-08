@@ -30,14 +30,6 @@ var _states: Dictionary
 ## Type: Transition[]
 var _transitions: Array
 
-## Type: Dictionary<String, bool>
-## Hint: <condition name, condition status>
-var _conditions: Dictionary
-
-## Type: Dictionary<String, int>
-## Hint: <condition name, usage count>
-var _condition_usage_count: Dictionary
-
 
 func _enter_impl(args: Dictionary) -> void:
 	go_to_start(args)
@@ -254,26 +246,6 @@ func set_current_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
 	go_to(name)
 
-## Returns true if graph has condition with given name.
-func has_condition(name: String) -> bool:
-	return _conditions.has(name)
-
-## Returns the status of a condition in this state machine if it exists.
-func check_condition(name: String) -> bool:
-	if not has_condition(name):
-		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
-		return false
-
-	return _conditions[name]
-
-## Sets the value of a condition if it exists.
-func set_condition(name: String, value: bool) -> void:
-	if not has_condition(name):
-		push_warning("Condition '%s' does not exist")
-		return
-	
-	_conditions[name] = value
-
 ## Process child states then this state.
 ## Intended to be called by `StateMachine` node 
 func process(delta: float) -> void:
@@ -368,16 +340,6 @@ func _can_auto_advance(transition: StateMachineTransition) -> bool:
 
 	return _is_conditions_satisfied(transition.advance_conditions)
 
-
-## `conditions: Condition[]`
-func _add_conditions(conditions: Array) -> void:
-	for condition in conditions:
-		if not has_condition(condition.name):
-			_condition_usage_count[condition.name] = 1
-			_conditions[condition.name] = false
-		else:
-			_condition_usage_count[condition.name] += 1
-
 ## `conditions: Condition[]`
 func _is_conditions_satisfied(conditions: Array) -> bool:
 	for condition in conditions:
@@ -395,15 +357,6 @@ func _is_condition_true(condition: Condition) -> bool:
 			check_condition(condition.name) and not condition.invert 
 			or not check_condition(condition.name) and condition.invert
 			)
-
-## `conditions: Condition[]`
-func _remove_conditions(conditions: Array) -> void:
-	for condition in conditions:
-		_condition_usage_count[condition.name] -= 1
-
-		if _condition_usage_count[condition.name] < 1:
-			_conditions.erase(condition.name)
-			_condition_usage_count.erase(condition.name)
 
 
 func _on_node_added(name: String, node: Reference) -> void:
