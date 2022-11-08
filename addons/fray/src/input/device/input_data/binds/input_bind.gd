@@ -4,6 +4,8 @@ extends Resource
 ## @desc:
 ##		An input bind is used to map physical device presses to inputs fray input names.
 
+var InputBind: GDScript = load("res://addons/fray/src/input/device/input_data/binds/input_bind.gd")
+
 ## Returns true if the bind is pressed
 func is_pressed(device: int = 0) -> bool:
 	return _is_pressed_impl(device)
@@ -23,7 +25,7 @@ func _is_pressed_impl(device: int = 0) -> bool:
 
 ## Virtual method used to implement 'equals' method
 func _equals_impl(input_bind: Resource) -> bool:
-	return self is input_bind.get_script()
+	return input_bind is InputBind
 
 ## Virtual method used to implement `get_strength` method
 func _get_strength_impl(device: int = 0) -> float:

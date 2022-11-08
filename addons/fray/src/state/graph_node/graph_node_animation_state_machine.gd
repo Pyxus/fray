@@ -6,6 +6,7 @@ extends "graph_node_state_machine.gd"
 ##		This is an alternative to Godot's `AnimationTree` but not a replacement.
 
 const GraphNodeAnimation = preload("graph_node_animation.gd")
+var GraphNodeAnimationStateMachine: GDScript = load("res://addons/fray/src/state/graph_node/graph_node_animation_state_machine.gd")
 
 var animation_player: AnimationPlayer
 var _animation_state: Dictionary
@@ -35,7 +36,7 @@ func _process_impl(_delta: float) -> void:
 func _on_node_added(name: String, node: Reference) -> void:
 	._on_node_added(name, node)
 
-	if node is get_script():
+	if node is GraphNodeAnimationStateMachine:
 		node._animation_state = _animation_state
 	elif node is GraphNodeAnimation:
 		node.func_set_animation_state = funcref(self, "set_animation_state")

@@ -14,6 +14,7 @@ signal transitioned(from, to)
 
 const AStarGraph = preload("a_star_graph.gd")
 const StateMachineTransition = preload("transition/state_machine_transition.gd")
+var GraphNodeStateMachine: GDScript = load("res://addons/fray/src/state/graph_node/graph_node_state_machine.gd")
 
 var start_node: String setget set_start_node
 var end_node: String setget set_end_node
@@ -169,7 +170,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var cur_node: Reference = get_node_current()
 
 	if cur_node != null:
-		if cur_node is get_script():
+		if cur_node is GraphNodeStateMachine:
 			cur_node.advance(input, args)
 		
 		if _astar.has_next_travel_node():
