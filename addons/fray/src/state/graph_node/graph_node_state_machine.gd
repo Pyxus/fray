@@ -12,6 +12,7 @@ extends "graph_node.gd"
 ## `to: String` is the current state
 signal transitioned(from, to)
 
+const Condition = preload("transition/condition.gd")
 const AStarGraph = preload("a_star_graph.gd")
 const StateMachineTransition = preload("transition/state_machine_transition.gd")
 var GraphNodeStateMachine: GDScript = load("res://addons/fray/src/state/graph_node/graph_node_state_machine.gd")
@@ -265,7 +266,6 @@ func check_condition(name: String) -> bool:
 
 	return _conditions[name]
 
-
 ## Sets the value of a condition if it exists.
 func set_condition(name: String, value: bool) -> void:
 	if not has_condition(name):
@@ -384,10 +384,17 @@ func _is_conditions_satisfied(conditions: Array) -> bool:
 		if not has_condition(condition.name):
 			push_warning("Condition '%s' was never set" % condition.name)
 			return false
-
-		if check_condition(condition.name) and condition.invert or check_condition(condition.name) and condition.invert:
+		
+		if not _is_condition_true(condition):
 			return false
 	return true
+
+
+func _is_condition_true(condition: Condition) -> bool:
+	return (
+			check_condition(condition.name) and not condition.invert 
+			or not check_condition(condition.name) and condition.invert
+			)
 
 ## `conditions: Condition[]`
 func _remove_conditions(conditions: Array) -> void:
