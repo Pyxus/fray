@@ -385,7 +385,7 @@ func _is_conditions_satisfied(conditions: Array) -> bool:
 			push_warning("Condition '%s' was never set" % condition.name)
 			return false
 
-		if not check_condition(condition.name) and not condition.invert:
+		if check_condition(condition.name) and condition.invert or check_condition(condition.name) and condition.invert:
 			return false
 	return true
 
