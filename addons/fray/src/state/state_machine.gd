@@ -1,7 +1,7 @@
 extends Node
 ## Base Hierarchical State Machine
 
-const GraphNode = preload("graph_node/graph_node.gd")
+const GraphNodeBase = preload("graph_node/graph_node_base.gd")
 const GraphNodeStateMachine = preload("graph_node/graph_node_state_machine.gd")
 
 enum AdvanceMode{

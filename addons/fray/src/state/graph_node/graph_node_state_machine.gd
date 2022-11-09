@@ -1,4 +1,4 @@
-extends "graph_node.gd"
+extends "graph_node_base.gd"
 ## State machine graph node
 ##
 ## @desc:
@@ -24,7 +24,7 @@ var current_node: String setget set_current_node
 var _astar := AStarGraph.new(funcref(self, "_get_transition_priority"))
 var _travel_args: Dictionary
 
-## Type: Dictionary<String, GraphNode>
+## Type: Dictionary<String, GraphNodeBase>
 var _states: Dictionary
 
 ## Type: Transition[]
@@ -38,7 +38,7 @@ func _enter_impl(args: Dictionary) -> void:
 func _is_done_processing_impl() -> bool:
 	return end_node.empty() or current_node == end_node
 
-## Adds a new `GraphNode` under the given `name`.
+## Adds a new `GraphNodeBase` under the given `name`.
 func add_node(name: String, node: Reference) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
@@ -71,7 +71,7 @@ func rename_node(old_name: String, new_name: String) -> void:
 	_astar.rename_point(old_name, new_name)
 	_on_node_renamed(old_name, new_name)
 
-## Replaces the specified node's `GraphNode` object.
+## Replaces the specified node's `GraphNodeBase` object.
 func replace_node(name: String, replacement_node: Reference) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
@@ -86,13 +86,13 @@ func has_node(name: String) -> bool:
 	return _states.has(name)
 
 ## Returns the sub-node with the specified name.
-## Return Type: GraphNode
+## Return Type: GraphNodeBase
 func get_node(name: String) -> Reference:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
 ## Returns the current node if it is set.
-## Return Type: GraphNode
+## Return Type: GraphNodeBase
 func get_node_current() -> Reference:
 	return _states.get(current_node)
 	

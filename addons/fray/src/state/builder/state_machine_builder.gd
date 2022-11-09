@@ -13,7 +13,7 @@ extends Reference
 ##
 ##		Note: '\' is necessary for GDScript to read the next line when multi-line method chaning
 
-const GraphNode = preload("../graph_node/graph_node.gd")
+const GraphNodeBase = preload("../graph_node/graph_node_base.gd")
 const GraphNodeStateMachine = preload("../graph_node/graph_node_state_machine.gd")
 const Condition = preload("../graph_node/transition/condition.gd")
 const StateMachineTransition = preload("../graph_node/transition/state_machine_transition.gd")
@@ -24,7 +24,7 @@ var enable_condition_caching: bool = true
 ## Type: Condition[]
 var _condition_cache: Array
 
-## Type: Dictionary<String, GraphNode>
+## Type: Dictionary<String, GraphNodeBase>
 ## Hint: <state name, >
 var _state_by_name: Dictionary
 
@@ -50,7 +50,7 @@ func build(start_state: String = "") -> GraphNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := GraphNode.new()) -> Reference:
+func add_state(name: String, state := GraphNodeBase.new()) -> Reference:
 	_state_by_name[name] = state
 	return self
 

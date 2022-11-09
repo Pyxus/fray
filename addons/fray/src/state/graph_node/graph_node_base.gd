@@ -1,7 +1,7 @@
 extends Reference
-## Base state class
+## Base graph node class
 
-## Type: WeakRef<State>
+## Type: WeakRef<GraphNodeBase>
 var _parent_ref: WeakRef
 
 ## Type: Dictionary<String, bool>
@@ -16,7 +16,7 @@ var _condition_usage_count: Dictionary
 func has_condition(name: String) -> bool:
 	return _conditions.has(name)
 
-## Returns the status of a condition in this state machine if it exists.
+## Returns the status of a condition in this node if it exists.
 func check_condition(name: String) -> bool:
 	if not has_condition(name):
 		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
@@ -32,15 +32,15 @@ func set_condition(name: String, value: bool) -> void:
 	
 	_conditions[name] = value
 
-## Returns true if this state is child of another state.
+## Returns true if this node is child of another node.
 func has_parent() -> bool:
 	return _parent_ref != null
 
-## Returns the parent of this state if it exists.
+## Returns the parent of this node if it exists.
 func get_parent() -> Reference:
 	return _parent_ref.get_ref() if has_parent() else null
 
-## Returns true if the state is considered to be done processing
+## Returns true if the node is considered to be done processing
 func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
@@ -66,20 +66,20 @@ func _remove_conditions(conditions: Array) -> void:
 func _is_done_processing_impl() -> bool:
 	return true
 
-## Virtual method invoked when the state is first entered
+## Virtual method invoked when the node is first entered
 ##
-## `args` is user-defined data which is passed to the advanced state on enter. 
+## `args` is user-defined data which is passed to the advanced node on enter. 
 func _enter_impl(args: Dictionary) -> void:
 	pass
 
-## Virtual method invoked when the state is being processed
+## Virtual method invoked when the node is being processed
 func _process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the state is being physics processed
+## Virtual method invoked when the node is being physics processed
 func _physics_process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the state is existed
+## Virtual method invoked when the node is existed
 func _exit_impl() -> void:
 	pass

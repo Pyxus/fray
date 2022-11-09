@@ -7,7 +7,7 @@ func _init() -> void:
 
 const CombatStateMachine = preload("combat_state_machine.gd")
 const StateMachine = preload("state_machine.gd")
-const GraphNode = preload("graph_node/graph_node.gd")
+const GraphNodeBase = preload("graph_node/graph_node_base.gd")
 const GraphNodeStateMachine = preload("graph_node/graph_node_state_machine.gd")
 const GraphNodeStateMachineGlobal = preload("graph_node/graph_node_state_machine_global.gd")
 const Condition = preload("graph_node/transition/condition.gd")
