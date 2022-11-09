@@ -126,12 +126,15 @@ func has_situation(situation_name: String) -> bool:
 ## Setter for 'input_max_buffer_time' property
 func set_input_max_buffer_time(value: int) -> void:
 	input_max_buffer_time = value
-	input_max_buffer_time_ms = round((input_max_buffer_time / Engine.iterations_per_second) * 1000)
+	input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.iterations_per_second)) * 1000)
+	property_list_changed_notify()
+	
 
 ## Setter for 'input_max_buffer_time_ms' property
 func set_input_max_buffer_time_ms(value: int) -> void:
 	input_max_buffer_time_ms = value
-	input_max_buffer_time = round(Engine.iterations_per_second * input_max_buffer_time_ms) * 1000
+	input_max_buffer_time = ceil((Engine.iterations_per_second * input_max_buffer_time_ms) / 1000.0)
+	property_list_changed_notify()
 
 ## Buffers an input button to be processed by the state machine
 ##
