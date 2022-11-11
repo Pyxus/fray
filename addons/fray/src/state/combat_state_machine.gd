@@ -59,7 +59,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
 		var next_state: String 
 		var time_since_last_input = (current_time - _time_since_last_input_ms) / 1000.0
-
+		
 		if buffered_input is BufferedInputButton:
 			next_state = root.get_next_node({
 				input = buffered_input.input,
@@ -71,7 +71,8 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 				input = buffered_input.sequence_name,
 				time_since_last_input = time_since_last_input,
 			})
-
+		
+		print(next_state + "!")
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
 			if allow_transitions:

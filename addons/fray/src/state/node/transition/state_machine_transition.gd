@@ -2,8 +2,8 @@ extends Reference
 ## Represents transition from one state to another
 
 enum SwitchMode{
-    IMMEDIATE,
-    AT_END,
+	IMMEDIATE,
+	AT_END,
 }
 
 ## If 'auto_advance' is enabled then transition will occur automatically when all advance conditions are true.
@@ -25,8 +25,8 @@ var switch_mode: int = SwitchMode.IMMEDIATE
 
 ## Returns true if the transition accepts the given input
 func accepts(input: Dictionary) -> bool:
-    return _accepts_impl(input)
+	return _accepts_impl(input)
 
 ## Virtual method used to implement `accepts`
 func _accepts_impl(input: Dictionary) -> bool:
-    return true
+	return true

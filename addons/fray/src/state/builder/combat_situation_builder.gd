@@ -85,7 +85,7 @@ func transition_sequence_global(to: String, config: Dictionary = {}) -> Referenc
 
 func _configure_transition_input(transition: InputTransition, config: Dictionary) -> void:
 	_configure_transition(transition, config)
-	transition.auto_advance = config.get("auto_advance", true)
+	transition.auto_advance = config.get("auto_advance", false)
 	transition.min_input_delay = config.get("min_input_delay", 0)
 
 

@@ -172,17 +172,15 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 				_go_to(_astar.get_next_travel_node(), _travel_args)
 				travel_node = get_node(current_node)
 		else:
-			var next_node := get_next_node(input, true)
+			var next_node := get_next_node(input)
 			if not next_node.empty():
 				go_to(next_node, args)
 
 	return cur_node != null and cur_node != _states.get(current_node, null)
 
 
-## If `auto_only` is true then only transitions with auto_advance enabled will be considered. 
-##
 ## Returns the next reachable node
-func get_next_node(input: Dictionary = {}, auto_only := false) -> String:
+func get_next_node(input: Dictionary = {}) -> String:
 	if current_node.empty():
 		push_warning("No current state is set.")
 		return ""
@@ -190,10 +188,7 @@ func get_next_node(input: Dictionary = {}, auto_only := false) -> String:
 	for tr in _transitions:
 		if tr.from == current_node:
 			var transition: StateMachineTransition = tr.transition
-			if auto_only:
-				if _can_transition(transition, input) and _can_auto_advance(transition):
-					return tr.to
-			elif _can_transition(transition, input):
+			if _can_transition(transition) and _can_advance(transition, input):
 				return tr.to
 
 	return ""
@@ -318,11 +313,10 @@ func _go_to(to_node: String, args: Dictionary) -> void:
 	emit_signal("transitioned", prev_node_name, current_node)
 
 
-func _can_transition(transition: StateMachineTransition, input: Dictionary) -> bool:
+func _can_transition(transition: StateMachineTransition) -> bool:
 	return (
 		_is_conditions_satisfied(transition.prereqs) 
 		and _can_switch(transition) 
-		and transition.accepts(input)
 		)
 
 
@@ -334,11 +328,14 @@ func _can_switch(transition: StateMachineTransition) -> bool:
 		)
 
 
-func _can_auto_advance(transition: StateMachineTransition) -> bool:
-	if not transition.auto_advance:
-		return false
-
-	return _is_conditions_satisfied(transition.advance_conditions)
+func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool:
+	print(transition.accepts(input))
+	return (
+		transition.auto_advance
+		or _is_conditions_satisfied(transition.advance_conditions)
+			and not transition.advance_conditions.empty()
+		or transition.accepts(input)
+		)
 
 ## `conditions: Condition[]`
 func _is_conditions_satisfied(conditions: Array) -> bool:
