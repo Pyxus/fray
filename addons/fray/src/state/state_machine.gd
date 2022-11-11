@@ -1,8 +1,7 @@
 extends Node
 ## Base Hierarchical State Machine
 
-const GraphNodeBase = preload("graph_node/graph_node_base.gd")
-const GraphNodeStateMachine = preload("graph_node/graph_node_state_machine.gd")
+const StateNodeStateMachine = preload("node/state_node_state_machine.gd")
 
 enum AdvanceMode{
 	IDLE,
@@ -17,7 +16,7 @@ export(AdvanceMode) var advance_mode: int = AdvanceMode.IDLE
 export var active: bool
 
 ## The root state machine node.
-var root: GraphNodeStateMachine setget set_root
+var root: StateNodeStateMachine setget set_root
 
 func _process(delta: float) -> void:
 	if _can_process():
@@ -41,7 +40,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 		
 
 ## Setter for `root` property.
-func set_root(value: GraphNodeStateMachine) -> void:
+func set_root(value: StateNodeStateMachine) -> void:
 	root = value
 
 

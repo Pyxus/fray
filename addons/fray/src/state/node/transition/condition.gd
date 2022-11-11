@@ -1,7 +1,7 @@
 extends Reference
 ## Abstract base condition class
 
-var Condition: GDScript = load("res://addons/fray/src/state/graph_node/transition/condition.gd")
+var Condition: GDScript = load("res://addons/fray/src/state/node/transition/condition.gd")
 
 ## If true condition will be satisfied when false
 var invert: bool

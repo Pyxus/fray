@@ -1,7 +1,7 @@
 extends Reference
-## Base graph node class
+## Base state node class
 
-## Type: WeakRef<GraphNodeBase>
+## Type: WeakRef<StateNodeBase>
 var _parent_ref: WeakRef
 
 ## Type: Dictionary<String, bool>
@@ -12,7 +12,7 @@ var _conditions: Dictionary
 ## Hint: <condition name, usage count>
 var _condition_usage_count: Dictionary
 
-## Returns true if graph has condition with given name.
+## Returns true if state has condition with given name.
 func has_condition(name: String) -> bool:
 	return _conditions.has(name)
 

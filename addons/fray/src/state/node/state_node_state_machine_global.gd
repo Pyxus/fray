@@ -1,4 +1,4 @@
-extends "graph_node_state_machine.gd"
+extends "state_node_state_machine.gd"
 ## A state machine featuring global transitions
 ##
 ## @desc:

@@ -4,11 +4,11 @@ extends "state_machine.gd"
 ##
 ## @desc:
 ##		A state machine which can contain and switch between multiple situations.
-##		A situation is a `GraphNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
+##		A situation is a `StateNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
 ##		For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ##		from when they're in the air.
 ##
-##		When adding situations it is recommended to build the graph node using the `CombatSituationBuilder`.
+##		When adding situations it is recommended to build the state node using the `CombatSituationBuilder`.
 ##		Example:
 ##			var builder := Fray.State.CombatSituationBuilder.new()
 ##			combat_sm.add_situation("on_ground", builder\
@@ -17,7 +17,7 @@ extends "state_machine.gd"
 ##				.build()
 ##			)
 
-const GraphNodeStateMachineGlobal = preload("graph_node/graph_node_state_machine_global.gd")
+const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_global.gd")
 
 ## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
@@ -44,7 +44,7 @@ var _input_buffer: Array
 ## Type: String[]
 var _state_buffer: Array
 
-## Type: Dictionary<String, GraphNodeStateMachineGlobal>
+## Type: Dictionary<String, StateNodeStateMachineGlobal>
 ## Hint: <situation name, >
 var _situations: Dictionary
 
@@ -86,12 +86,12 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		root.go_to(_state_buffer.pop_front())
 
 
-func set_root(value: GraphNodeStateMachine) -> void:
+func set_root(value: StateNodeStateMachine) -> void:
 	.set_root(value)
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
 ## Adds a combat situation to the state machine.
-func add_situation(situation_name: String, node: GraphNodeStateMachineGlobal) -> void:
+func add_situation(situation_name: String, node: StateNodeStateMachineGlobal) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
@@ -113,7 +113,7 @@ func change_situation(situation_name: String) -> void:
 		root.go_to_start()
 
 ## Returns a situation with the given name if it exists.
-func get_situation(situation_name: String) -> GraphNodeStateMachineGlobal:
+func get_situation(situation_name: String) -> StateNodeStateMachineGlobal:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null

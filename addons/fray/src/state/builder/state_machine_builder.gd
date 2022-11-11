@@ -13,10 +13,10 @@ extends Reference
 ##
 ##		Note: '\' is necessary for GDScript to read the next line when multi-line method chaning
 
-const GraphNodeBase = preload("../graph_node/graph_node_base.gd")
-const GraphNodeStateMachine = preload("../graph_node/graph_node_state_machine.gd")
-const Condition = preload("../graph_node/transition/condition.gd")
-const StateMachineTransition = preload("../graph_node/transition/state_machine_transition.gd")
+const StateNode = preload("../node/state_node.gd")
+const StateNodeStateMachine = preload("../node/state_node_state_machine.gd")
+const Condition = preload("../node/transition/condition.gd")
+const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 
 ## If true then conditions will be cached to prevent identical conditions from being instantiated.
 var enable_condition_caching: bool = true
@@ -24,7 +24,7 @@ var enable_condition_caching: bool = true
 ## Type: Condition[]
 var _condition_cache: Array
 
-## Type: Dictionary<String, GraphNodeBase>
+## Type: Dictionary<String, StateNode>
 ## Hint: <state name, >
 var _state_by_name: Dictionary
 
@@ -39,7 +39,7 @@ var _transitions: Array
 ## The initial state must have already been added to the builder.
 ##
 ## Returns a newly constructed CombatSituation
-func build(start_state: String = "") -> GraphNodeStateMachine:
+func build(start_state: String = "") -> StateNodeStateMachine:
 	return _build_impl(start_state)
 
 ## Adds a new state to the state machine.
@@ -50,7 +50,7 @@ func build(start_state: String = "") -> GraphNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := GraphNodeBase.new()) -> Reference:
+func add_state(name: String, state := StateNode.new()) -> Reference:
 	_state_by_name[name] = state
 	return self
 
@@ -99,7 +99,7 @@ func _configure_transition(transition: StateMachineTransition, config: Dictionar
 	transition.switch_mode = config.get("switch_mode", StateMachineTransition.SwitchMode.IMMEDIATE)
 
 
-func _configure_state_machine(start_state: String, root: GraphNodeStateMachine) -> void:
+func _configure_state_machine(start_state: String, root: StateNodeStateMachine) -> void:
 	for state_name in _state_by_name:
 		root.add_node(state_name, _state_by_name[state_name])
 	
@@ -130,8 +130,8 @@ func _cache_conditions(conditions: Array) -> Array:
 	return c
 
 
-func _build_impl(start_state: String) -> GraphNodeStateMachine:
-	var root := GraphNodeStateMachine.new()
+func _build_impl(start_state: String) -> StateNodeStateMachine:
+	var root := StateNodeStateMachine.new()
 	_configure_state_machine(start_state, root)
 	clear()
 	return root
@@ -145,7 +145,7 @@ func _clear_impl() -> void:
 class Transition:
 	extends Reference
 	
-	const StateMachineTransition = preload("../graph_node/transition/state_machine_transition.gd")
+	const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 
 	var from: String
 	var to: String

@@ -1,8 +1,8 @@
-extends "graph_node_base.gd"
-## State machine graph node
+extends "state_node.gd"
+## State node that behaves like a state machine
 ##
 ## @desc:
-##		Contains multiple multiple graph nodes connected through `StateMachineTransitions`.
+##		Contains multiple multiple state nodes connected through `StateMachineTransitions`.
 ##		It is recommended to construct this state machine with the `StateMachineBuilder`.
 
 ## Emitted when the current state is changes
@@ -15,7 +15,7 @@ signal transitioned(from, to)
 const Condition = preload("transition/condition.gd")
 const AStarGraph = preload("a_star_graph.gd")
 const StateMachineTransition = preload("transition/state_machine_transition.gd")
-var GraphNodeStateMachine: GDScript = load("res://addons/fray/src/state/graph_node/graph_node_state_machine.gd")
+var StateNodeStateMachine: GDScript = load("res://addons/fray/src/state/node/state_node_state_machine.gd")
 
 var start_node: String setget set_start_node
 var end_node: String setget set_end_node
@@ -24,7 +24,7 @@ var current_node: String setget set_current_node
 var _astar := AStarGraph.new(funcref(self, "_get_transition_priority"))
 var _travel_args: Dictionary
 
-## Type: Dictionary<String, GraphNodeBase>
+## Type: Dictionary<String, StateNode>
 var _states: Dictionary
 
 ## Type: Transition[]
@@ -38,7 +38,7 @@ func _enter_impl(args: Dictionary) -> void:
 func _is_done_processing_impl() -> bool:
 	return end_node.empty() or current_node == end_node
 
-## Adds a new `GraphNodeBase` under the given `name`.
+## Adds a new `StateNodeBase` under the given `name`.
 func add_node(name: String, node: Reference) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
@@ -49,7 +49,7 @@ func add_node(name: String, node: Reference) -> void:
 	_astar.add_point(name)
 	_on_node_added(name, node)
 
-## Removes node from the graph.
+## Removes the specified node.
 func remove_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
@@ -71,7 +71,7 @@ func rename_node(old_name: String, new_name: String) -> void:
 	_astar.rename_point(old_name, new_name)
 	_on_node_renamed(old_name, new_name)
 
-## Replaces the specified node's `GraphNodeBase` object.
+## Replaces the specified node's `StateNodeBase` object.
 func replace_node(name: String, replacement_node: Reference) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
@@ -81,18 +81,18 @@ func replace_node(name: String, replacement_node: Reference) -> void:
 	
 	_states[name] = replacement_node
 
-## Returns true if the graph contains the specified node.
+## Returns true if the machine contains the specified node.
 func has_node(name: String) -> bool:
 	return _states.has(name)
 
 ## Returns the sub-node with the specified name.
-## Return Type: GraphNodeBase
+## Return Type: StateNodeBase
 func get_node(name: String) -> Reference:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
 ## Returns the current node if it is set.
-## Return Type: GraphNodeBase
+## Return Type: StateNodeBase
 func get_node_current() -> Reference:
 	return _states.get(current_node)
 	
@@ -163,7 +163,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var cur_node: Reference = get_node_current()
 
 	if cur_node != null:
-		if cur_node is GraphNodeStateMachine:
+		if cur_node is StateNodeStateMachine:
 			cur_node.advance(input, args)
 		
 		if _astar.has_next_travel_node():
