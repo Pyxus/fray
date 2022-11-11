@@ -3,7 +3,7 @@ extends "state_node.gd"
 ##
 ## @desc:
 ##		Contains multiple multiple state nodes connected through `StateMachineTransitions`.
-##		It is recommended to construct this state machine with the `StateMachineBuilder`.
+##		It is recommended to construct this state machine with a `StateMachineBuilder`.
 
 ## Emitted when the current state is changes
 ##
