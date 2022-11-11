@@ -204,14 +204,21 @@ func go_to(to_node: String, args: Dictionary = {}) -> void:
 	
 	_go_to(to_node, args)
 
-## Short hand for 'node.go_to(node.start_state, args)'
+## Short hand for 'node.go_to(node.start_node, args)'
 func go_to_start(args: Dictionary = {}) -> void:
 	if start_node.empty():
-		push_warning("Failed to go to start. Start state not set")
+		push_warning("Failed to go to start. Start node not set.")
 		return
 	
 	go_to(start_node)
 
+## Short hand for 'node.go_to(node.end_node, args)'
+func go_to_end(args: Dictionary = {}) -> void:
+	if end_node.empty():
+		push_warning("Failed to go to end. End node not set.")
+		return
+	
+	go_to(end_node)
 ## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
