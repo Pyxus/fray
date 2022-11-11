@@ -90,7 +90,6 @@ func end_at(state: String) -> Reference:
 	_add_state_once(state)
 	_end_state = state
 	return self
-	
 
 ## Clears the condition cache
 func clear_cache() -> void:
