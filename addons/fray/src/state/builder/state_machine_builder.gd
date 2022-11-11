@@ -31,16 +31,16 @@ var _state_by_name: Dictionary
 ## Type: Transition[]
 var _transitions: Array
 
+var _start_state: String
+var _end_state: String
+
 ## Constructs a state machine, represented by a StateCommpound, using the current build configuration.
 ## After building the builder is reset and can be used again. 
 ## Keep in mind that the condition cache does not reset autoatmically.
 ##
-## `start_state` sets the initial state of the state machine.
-## The initial state must have already been added to the builder.
-##
 ## Returns a newly constructed CombatSituation
-func build(start_state: String = "") -> StateNodeStateMachine:
-	return _build_impl(start_state)
+func build() -> StateNodeStateMachine:
+	return _build_impl()
 
 ## Adds a new state to the state machine.
 ##
@@ -51,7 +51,10 @@ func build(start_state: String = "") -> StateNodeStateMachine:
 ##
 ## Returns a reference to this builder
 func add_state(name: String, state := StateNode.new()) -> Reference:
-	_state_by_name[name] = state
+	if name.empty():
+		push_error("State name can not be empty")
+	else:
+		_state_by_name[name] = state
 	return self
 
 ## Creates a new transition from one state to another.
@@ -70,6 +73,24 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 	_configure_transition(tr.transition, config)
 	return self
 
+## Sets the starting state.
+## State used will automatically be added.
+##
+## Returns a reference to this builder
+func start_at(state: String) -> Reference:
+	_add_state_once(state)
+	_start_state = state
+	return self
+
+## Sets the end state.
+## State used will automatically be added.
+##
+## Returns a reference to this builder
+func end_at(state: String) -> Reference:
+	_add_state_once(state)
+	_end_state = state
+	return self
+	
 
 ## Clears the condition cache
 func clear_cache() -> void:
@@ -85,11 +106,17 @@ func _create_transition(from: String, to: String, transition: StateMachineTransi
 	tr.from = from
 	tr.to = to
 	tr.transition = transition
-
-	add_state(from)
-	add_state(to)
+	
+	_add_state_once(from)
+	_add_state_once(to)
 	_transitions.append(tr)
 	return tr
+
+
+func _add_state_once(state: String) -> void:
+	if not _state_by_name.has(state):
+		add_state(state)
+
 
 func _configure_transition(transition: StateMachineTransition, config: Dictionary) -> void:
 	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
@@ -99,18 +126,18 @@ func _configure_transition(transition: StateMachineTransition, config: Dictionar
 	transition.switch_mode = config.get("switch_mode", StateMachineTransition.SwitchMode.IMMEDIATE)
 
 
-func _configure_state_machine(start_state: String, root: StateNodeStateMachine) -> void:
+func _configure_state_machine(root: StateNodeStateMachine) -> void:
 	for state_name in _state_by_name:
 		root.add_node(state_name, _state_by_name[state_name])
 	
 	for tr in _transitions:
 		root.add_transition(tr.from, tr.to, tr.transition)
 
-	if not start_state.empty():
-		if root.has_node(start_state):
-			root.start_node = start_state
-		else:
-			push_warning("Failed to set start state. State machine does not contain state '%s'" % start_state)
+	if not _start_state.empty():
+		root.start_node = _start_state
+	
+	if not _end_state.empty():
+		root.end_node = _end_state
 
 
 func _cache_condition(condition: Condition) -> Condition:
@@ -130,9 +157,9 @@ func _cache_conditions(conditions: Array) -> Array:
 	return c
 
 
-func _build_impl(start_state: String) -> StateNodeStateMachine:
+func _build_impl() -> StateNodeStateMachine:
 	var root := StateNodeStateMachine.new()
-	_configure_state_machine(start_state, root)
+	_configure_state_machine(root)
 	clear()
 	return root
 
