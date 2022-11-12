@@ -72,7 +72,6 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 				time_since_last_input = time_since_last_input,
 			})
 		
-		print(next_state + "!")
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
 			if allow_transitions:
