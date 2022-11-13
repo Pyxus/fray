@@ -23,12 +23,12 @@ Fray is divided into 3 modules: State, Input, and Collision. These modules act i
 
 ### Hitbox Management
 
-Fray provides a template hitbox which is essentially an area with an attributes property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations.
+Fray provides a template hitbox which is an `Area` node with an `attributes` property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations for easy syncing.
 
 ### Combat State Management
 
 Fray features a state machine that allows you to keep track of a fighter's combat state and automatically transition to new states based on the player's inputs.
-Transitions in the state machine can be enabled and disabled in the animation player. If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into new attack. Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
+Transitions in the state machine can be enabled and disabled in the animation player. If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into a new attack. Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
 
 ### Input Buffering
 
