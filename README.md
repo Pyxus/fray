@@ -1,9 +1,7 @@
 # Fray
 
 <p align="center">
-  <a href="https://godotengine.org">
     <img src="docs/fray_banner.png" width="500" alt="Fray Logo">
-  </a>
 </p>
 
 
