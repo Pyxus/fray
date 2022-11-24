@@ -21,10 +21,6 @@ Fray is a work in progress addon for the [Godot Game Engine](https://godotengine
 
 Fray is divided into 3 modules: State, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. This means you are not locked in to using Fray's tools and can run your own solutions along side it by interpreting these strings in your current setup.
 
-### Hitbox Management
-
-Fray provides a template hitbox which is an `Area` node with an `attributes` property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations for easy syncing.
-
 ### Combat State Management
 
 Fray features a state machine that allows you to keep track of a fighter's combat state and automatically transition to new states based on the player's inputs.
@@ -37,6 +33,10 @@ Inputs fed to fray's combat state management system can be buffered allowing a p
 ### Complex Input Detection
 
 Fray provides tools for detecting the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
+
+### Hitbox Management
+
+Fray provides a template hitbox which is an `Area` node with an `attributes` property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations for easy syncing.
 
 ## ⚙ Installation
 
