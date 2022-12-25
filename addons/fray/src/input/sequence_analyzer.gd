@@ -24,7 +24,7 @@ extends Reference
 signal match_found(sequence_name, inputs)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
-const FrayInputEvent = preload("fray_input_event.gd")
+const FrayInputEvent = preload("events/fray_input_event.gd")
 const InputRequirement = preload("sequence/input_requirement.gd")
 const SequenceList = preload("sequence/sequence_list.gd")
 
@@ -191,7 +191,7 @@ func _create_frame(input_event: FrayInputEvent) -> InputFrame:
 class InputFrame:
 	extends Reference
 
-	const FrayInputEvent = preload("fray_input_event.gd")
+	const FrayInputEvent = preload("events/fray_input_event.gd")
 	
 	## FrayInputEvent[]
 	var inputs: Array

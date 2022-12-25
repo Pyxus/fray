@@ -18,7 +18,7 @@ const InputState = preload("../device/input_data/state/input_state.gd")
 const InputInterface = preload("../device/input_data/state/input_interface.gd")
 const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
 const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
-const FrayInputEvent = preload("../fray_input_event.gd")
+const FrayInputEvent = preload("../events/fray_input_event.gd")
 const FrayInputMap = preload("fray_input_map.gd")
 
 const DEVICE_KBM_JOY1 = 0
@@ -268,7 +268,14 @@ func _get_bind_state(input: String, device: int) -> InputState:
 func _create_input_event(input: String, device: int, device_state: DeviceState) -> FrayInputEvent:
 	var input_state := _get_input_state(input, device)
 	var input_event := FrayInputEvent.new()
-			
+
+	if _input_map.has_bind(input):
+		input_event
+		input_event.is_overlapping = not device_state.has_filtered(input)
+	elif _input_map.has_composite_input(input):
+		input_event
+		input_event.virtually_pressed = input_state.virtually_pressed
+
 	input_event.device = device
 	input_event.input = input
 	input_event.time_pressed = input_state.time_pressed
@@ -276,8 +283,7 @@ func _create_input_event(input: String, device: int, device_state: DeviceState) 
 	input_event.idle_frame = input_state.idle_frame
 	input_event.time_detected = OS.get_ticks_msec()
 	input_event.pressed = input_state.pressed
-	input_event.virtually_pressed = input_state.virtually_pressed
-	input_event.filtered = not device_state.has_filtered(input)
+	
 	return input_event
 
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:

@@ -16,13 +16,6 @@ var physics_frame: int
 ## The idle frame when the input was first pressed
 var idle_frame: int
 
-## Returns true if this event was triggered by a virtual press.
-var virtually_pressed: bool
-
-## Returns true if this input was filtered when inputs were polled.
-## Used to ignore overlapping component presses when checking for composite inputs.
-var filtered: bool
-
 ## Returns true if the input has already been detected
 var echo: bool
 
@@ -60,7 +53,3 @@ func get_time_held_sec() -> float:
 ## Returns true if input was pressed with no echo
 func is_just_pressed() -> bool:
 	return pressed and not echo
-
-## Returns true if input was not virtually pressed
-func is_just_pressed_real() -> bool:
-	return is_just_pressed() and not virtually_pressed
