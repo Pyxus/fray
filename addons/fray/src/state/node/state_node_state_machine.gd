@@ -336,7 +336,6 @@ func _can_switch(transition: StateMachineTransition) -> bool:
 
 
 func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool:
-	print(transition.accepts(input))
 	return (
 		transition.auto_advance
 		or _is_conditions_satisfied(transition.advance_conditions)
