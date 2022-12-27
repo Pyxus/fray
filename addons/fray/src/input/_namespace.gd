@@ -6,6 +6,8 @@ func _init() -> void:
 
 const Controller = preload("controller.gd")
 const FrayInputEvent = preload("events/fray_input_event.gd")
+const FrayInputEventBind = preload("events/fray_input_event.gd")
+const FrayInputEventComposite = preload("events/fray_input_event_composite.gd")
 const SequenceAnalyzer = preload("sequence_analyzer.gd")
 const SequenceList = preload("sequence/sequence_list.gd")
 const SequencePath = preload("sequence/sequence_path.gd")
