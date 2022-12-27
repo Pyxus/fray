@@ -25,6 +25,8 @@ signal match_found(sequence_name, inputs)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
 const FrayInputEvent = preload("events/fray_input_event.gd")
+const FrayInputEventBind = preload("events/fray_input_event_bind.gd")
+const FrayInputEventComposite = preload("events/fray_input_event_composite.gd")
 const InputRequirement = preload("sequence/input_requirement.gd")
 const SequenceList = preload("sequence/sequence_list.gd")
 
@@ -104,8 +106,11 @@ func read(input_event: FrayInputEvent) -> void:
 	if _root == null:
 		push_error("Sequence analyzer is not initialized.")
 		return
-
-	if input_event.filtered and not input_event.echo:
+	
+	if input_event is FrayInputEventBind and input_event.is_overlapping:
+		return
+	
+	if not input_event.echo:
 		var next_node := _current_node.get_next(input_event.input, input_event.pressed)
 		if next_node != null:
 			_current_node = next_node

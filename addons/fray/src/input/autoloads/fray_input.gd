@@ -19,6 +19,8 @@ const InputInterface = preload("../device/input_data/state/input_interface.gd")
 const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
 const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
 const FrayInputEvent = preload("../events/fray_input_event.gd")
+const FrayInputEventBind = preload("../events/fray_input_event_bind.gd")
+const FrayInputEventComposite = preload("../events/fray_input_event_composite.gd")
 const FrayInputMap = preload("fray_input_map.gd")
 
 const DEVICE_KBM_JOY1 = 0
@@ -270,10 +272,10 @@ func _create_input_event(input: String, device: int, device_state: DeviceState) 
 	var input_event := FrayInputEvent.new()
 
 	if _input_map.has_bind(input):
-		input_event
+		input_event = FrayInputEventBind.new()
 		input_event.is_overlapping = not device_state.has_filtered(input)
 	elif _input_map.has_composite_input(input):
-		input_event
+		input_event = FrayInputEventComposite.new()
 		input_event.virtually_pressed = input_state.virtually_pressed
 
 	input_event.device = device
