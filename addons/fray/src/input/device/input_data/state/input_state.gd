@@ -7,6 +7,7 @@ func _init(input_name: String) -> void:
 var input: String
 var pressed: bool
 var virtually_pressed: bool
+var is_used_by_composite: bool
 var physics_frame: int = -1
 var idle_frame: int = -1
 var time_pressed: int = -1
