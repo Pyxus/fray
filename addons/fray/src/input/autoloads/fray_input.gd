@@ -273,7 +273,7 @@ func _create_input_event(input: String, device: int, device_state: DeviceState) 
 
 	if _input_map.has_bind(input):
 		input_event = FrayInputEventBind.new()
-		input_event.is_overlapping = not device_state.has_filtered(input)
+		input_event.is_used_by_composite = not device_state.has_filtered(input)
 	elif _input_map.has_composite_input(input):
 		input_event = FrayInputEventComposite.new()
 		input_event.virtually_pressed = input_state.virtually_pressed
