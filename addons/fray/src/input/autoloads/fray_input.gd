@@ -48,6 +48,7 @@ func _physics_process(_delta: float) -> void:
 		for bind_name in _input_map.get_bind_names():
 			var bind := _input_map.get_bind(bind_name)
 			var input_state := device_state.get_input_state(bind_name)
+
 			input_state.strength = bind.get_strength(device)
 
 			if bind.is_pressed(device):
@@ -59,57 +60,36 @@ func _physics_process(_delta: float) -> void:
 		for composite_input_name in _input_map.get_composite_input_names():
 			var composite_input := _input_map.get_composite_input(composite_input_name)
 			var input_state := device_state.get_input_state(composite_input_name)
-
+			
 			if composite_input.is_pressed(device, _input_interface):
 				if not input_state.pressed:
 					var my_components := composite_input.decompose(device, _input_interface)
 					input_state.press()
-					if device_state.has_all_filtered(my_components):
-						device_state.filter([composite_input_name])
-					else:
-						device_state.filter(my_components)
+					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
 			elif input_state.pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
-				device_state.unfilter(my_components)
-				device_state.unfilter([composite_input_name])
+				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
 
 				if composite_input.is_virtual:
 					var held_components: Array
 					for bind in my_components:
 						if is_pressed(bind, device):
 							held_components.append(bind)
+					
+					_virtually_press(held_components, device)
 
-					var virtually_pressed_composite := false
-					for com_input_name in _input_map.get_composite_input_names():
-						var com_input_state := _get_input_state(com_input_name, device)
-						var com_input := _input_map.get_composite_input(com_input_name)
-						var has_binds := com_input.decomposes_into_binds(held_components, device, _input_interface)
-
-						if com_input_state.pressed and has_binds:
-							com_input_state.press(true)
-							device_state.unfilter([com_input_name])
-							virtually_pressed_composite = true
-							break
-
-					for bind in held_components:
-						var bind_state := _get_input_state(bind, device)
-						if bind_state.pressed:
-							bind_state.press(true)
-
-							if virtually_pressed_composite:
-								device_state.filter([bind])
-							break
 		
 		for input in device_state.get_all_inputs():
 			if is_just_pressed(input, device) or is_just_released(input, device):
-				var input_event := _create_input_event(input, device, device_state)
+				var input_event := _create_input_event(input, device)
 				input_event.echo = false
 				emit_signal("input_detected", input_event)
 			elif is_pressed(input, device):
-				var input_event := _create_input_event(input, device, device_state)
+				var input_event := _create_input_event(input, device)
 				input_event.echo = true
 				emit_signal("input_detected", input_event)
+		
 
 ## Returns true if an input is being pressed.
 func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
@@ -267,13 +247,13 @@ func _get_bind_state(input: String, device: int) -> InputState:
 	return null
 
 
-func _create_input_event(input: String, device: int, device_state: DeviceState) -> FrayInputEvent:
+func _create_input_event(input: String, device: int) -> FrayInputEvent:
 	var input_state := _get_input_state(input, device)
 	var input_event := FrayInputEvent.new()
 
 	if _input_map.has_bind(input):
 		input_event = FrayInputEventBind.new()
-		input_event.is_used_by_composite = not device_state.has_filtered(input)
+		input_event.composites_used_in = input_state.composites_used_in
 	elif _input_map.has_composite_input(input):
 		input_event = FrayInputEventComposite.new()
 		input_event.virtually_pressed = input_state.virtually_pressed
@@ -287,6 +267,27 @@ func _create_input_event(input: String, device: int, device_state: DeviceState) 
 	input_event.pressed = input_state.pressed
 	
 	return input_event
+
+func _virtually_press(inputs: PoolStringArray, device: int) -> void:
+	var device_state := _get_device_state(device)
+
+	# Virtually press held binds
+	for input in inputs:
+		var input_state := _get_input_state(input, device)
+		if input_state.pressed and not input_state.virtually_pressed:
+			input_state.press(true)
+
+	# Virtually press composite inputs that uses held binds
+	var virtually_pressed_composite := false
+	for com_input_name in _input_map.get_composite_input_names():
+		var com_input_state := _get_input_state(com_input_name, device)
+		var com_input := _input_map.get_composite_input(com_input_name)
+		var has_binds := com_input.can_decompose_into(device, _input_interface, inputs)
+
+		if com_input_state.pressed and not com_input_state.virtually_pressed and has_binds:
+			com_input_state.press(true)
+			device_state.flag_inputs_use_in_composite(com_input_name, inputs)
+
 
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
 	if device != DEVICE_KBM_JOY1:

@@ -28,9 +28,12 @@ var device: int
 ## The input's name
 var input: String
 
+## Returns true if this event was triggered by a virtual press.
+var virtually_pressed: bool
+
+
 func _to_string() -> String:
 	return "{input:%s, pressed:%s, device:%d}" % [input, pressed, device]
-
 
 ## Returns the time between two input events in miliseconds.
 func get_time_between_ms(fray_input_event: Reference, use_time_pressed: bool = false) -> int:
@@ -53,3 +56,7 @@ func get_time_held_sec() -> float:
 ## Returns true if input was pressed with no echo
 func is_just_pressed() -> bool:
 	return pressed and not echo
+
+## Returns true if input was not virtually pressed
+func is_just_pressed_real() -> bool:
+	return is_just_pressed() and not virtually_pressed

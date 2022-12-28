@@ -1,17 +1,20 @@
 extends Reference
 ## Used by FrayInput to track state of individual inputs
 
-func _init(input_name: String) -> void:
-    input = input_name
+## Type: Peudo-HashSet
+var composites_used_in: Dictionary
 
 var input: String
 var pressed: bool
 var virtually_pressed: bool
-var is_used_by_composite: bool
 var physics_frame: int = -1
 var idle_frame: int = -1
 var time_pressed: int = -1
 var strength: float
+
+
+func _init(input_name: String) -> void:
+    input = input_name
 
 
 func press(is_virtual_press: bool = false) -> void:

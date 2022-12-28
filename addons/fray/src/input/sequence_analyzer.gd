@@ -107,7 +107,7 @@ func read(input_event: FrayInputEvent) -> void:
 		push_error("Sequence analyzer is not initialized.")
 		return
 	
-	if input_event is FrayInputEventBind and input_event.is_used_by_composite:
+	if input_event is FrayInputEventBind and input_event.is_used_in_composite():
 		return
 	
 	if not input_event.echo:

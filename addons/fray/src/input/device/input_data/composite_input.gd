@@ -43,8 +43,8 @@ func add_component(component: Resource) -> void:
 func decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
 	return _decompose_impl(device, input_interface)
 
-
-func decomposes_into_binds(binds: PoolStringArray, device: int, input_interface: InputInterface)  -> bool:
+## Returns true if the composite input can decompose into the given binds
+func can_decompose_into(device: int, input_interface: InputInterface, binds: PoolStringArray)  -> bool:
 	var my_components := decompose(device, input_interface)
 
 	if binds.empty() or my_components.empty():

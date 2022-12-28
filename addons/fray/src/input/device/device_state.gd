@@ -9,25 +9,16 @@ var input_state_by_name: Dictionary
 ## Type: Dictionary<String, bool>
 var bool_by_condition: Dictionary
 
-## Type: Dictionary<String, bool>
-## Hint: Pseudo-Hashset
-var filtered_inputs: Dictionary
-
-func filter(inputs: PoolStringArray) -> void:
+func flag_inputs_use_in_composite(composite: String, inputs: PoolStringArray) -> void:
     for input in inputs:
-        filtered_inputs[input] = true
+        if input_state_by_name.has(input):
+            input_state_by_name[input].composites_used_in[composite] = true
 
-func unfilter(inputs: PoolStringArray) -> void:
+
+func unflag_inputs_use_in_composite(composite: String, inputs: PoolStringArray) -> void:
     for input in inputs:
-        if filtered_inputs.has(input):
-            filtered_inputs.erase(input)
-
-func has_filtered(input: String) -> bool:
-    return filtered_inputs.has(input)
-
-
-func has_all_filtered(components: PoolStringArray) -> bool:
-    return filtered_inputs.has_all(components)
+        if input_state_by_name.has(input):
+            input_state_by_name[input].composites_used_in.erase(composite)
 
 
 func get_pressed_inputs() -> PoolStringArray:
