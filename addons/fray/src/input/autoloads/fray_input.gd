@@ -68,14 +68,14 @@ func _physics_process(_delta: float) -> void:
 					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
 					
 					if device_state.is_all_indistinct(my_components):
-						device_state.set_inputs_distinctiveness([composite_input_name], false)
+						device_state.unflag_inputs_as_distinct([composite_input_name])
 					else:
-						device_state.set_inputs_distinctiveness(my_components, false)
+						device_state.unflag_inputs_as_distinct(my_components)
 			elif input_state.pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
 				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
-				device_state.flag_inputs_as_distinct([composite_input_name])
+				device_state.flag_inputs_as_distinct([composite_input_name], true)
 				device_state.flag_inputs_as_distinct(my_components)
 
 				if composite_input.is_virtual:
