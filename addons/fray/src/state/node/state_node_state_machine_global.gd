@@ -105,9 +105,9 @@ func get_next_global_transitions(from: String) -> Array:
 			var to_tags: Array = _global_transition_rules[from_tag]
 
 			for transition in _global_transitions:
-				if transition.to in to_tags:
-					transitions.append(transition)
-
+				for to_tag in to_tags:
+					if to_tag in get_node_tags(transition.to): 
+						transitions.append(transition)
 	return transitions
 
 

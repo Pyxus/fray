@@ -181,15 +181,15 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 
 ## Returns the next reachable node
 func get_next_node(input: Dictionary = {}) -> String:
+	
 	if current_node.empty():
 		push_warning("No current state is set.")
 		return ""
 
-	for tr in _transitions:
-		if tr.from == current_node:
-			var transition: StateMachineTransition = tr.transition
-			if _can_transition(transition) and _can_advance(transition, input):
-				return tr.to
+	for tr in get_next_transitions(current_node):
+		var transition: StateMachineTransition = tr.transition
+		if _can_transition(transition) and _can_advance(transition, input):
+			return tr.to
 
 	return ""
 
@@ -219,6 +219,7 @@ func goto_end(args: Dictionary = {}) -> void:
 		return
 	
 	goto(end_node)
+
 ## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
@@ -338,8 +339,10 @@ func _can_switch(transition: StateMachineTransition) -> bool:
 func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool:
 	return (
 		transition.auto_advance
-		or _is_conditions_satisfied(transition.advance_conditions)
-			and not transition.advance_conditions.empty()
+		or (
+			not transition.advance_conditions.empty()
+			and _is_conditions_satisfied(transition.advance_conditions)
+			)
 		or transition.accepts(input)
 		)
 
