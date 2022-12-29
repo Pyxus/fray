@@ -34,3 +34,4 @@ func unpress() -> void:
     idle_frame = Engine.get_idle_frames()
     strength = 0
     composites_used_in.clear()
+    is_distinct = true
