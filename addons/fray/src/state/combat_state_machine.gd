@@ -83,7 +83,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		_time_since_last_input_ms = current_time
 	
 	if allow_transitions and not _state_buffer.empty():
-		root.go_to(_state_buffer.pop_front())
+		root.goto(_state_buffer.pop_front())
 
 
 func set_root(value: StateNodeStateMachine) -> void:
@@ -91,10 +91,10 @@ func set_root(value: StateNodeStateMachine) -> void:
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
 ## Returns the current situation to it's start state.
-## Shorthand for root.go_to_start()
-func go_to_start_state() -> void:
+## Shorthand for root.goto_start()
+func goto_start_state() -> void:
 	if root != null:
-		root.go_to_start()
+		root.goto_start()
 
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: String, node: StateNodeStateMachineGlobal) -> void:
@@ -116,7 +116,7 @@ func change_situation(situation_name: String) -> void:
 	if situation_name != current_situation:
 		current_situation = situation_name
 		root = get_situation(situation_name)
-		root.go_to_start()
+		root.goto_start()
 
 ## Returns a situation with the given name if it exists.
 func get_situation(situation_name: String) -> StateNodeStateMachineGlobal:

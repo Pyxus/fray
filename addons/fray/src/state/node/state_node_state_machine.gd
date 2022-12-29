@@ -32,7 +32,7 @@ var _transitions: Array
 
 
 func _enter_impl(args: Dictionary) -> void:
-	go_to_start(args)
+	goto_start(args)
 
 
 func _is_done_processing_impl() -> bool:
@@ -146,7 +146,7 @@ func travel(to: String, args: Dictionary = {}) -> void:
 		_travel_args = args
 
 		if not _astar.has_next_travel_node():
-			go_to(to, args)
+			goto(to, args)
 
 ## Advances to next reachable state.
 ## Will only transition if a travel was initiated. 
@@ -169,12 +169,12 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 		if _astar.has_next_travel_node():
 			var travel_node = cur_node
 			while travel_node.is_done_processing() and _astar.has_next_travel_node():
-				_go_to(_astar.get_next_travel_node(), _travel_args)
+				_goto(_astar.get_next_travel_node(), _travel_args)
 				travel_node = get_node(current_node)
 		else:
 			var next_node := get_next_node(input)
 			if not next_node.empty():
-				go_to(next_node, args)
+				goto(next_node, args)
 
 	return cur_node != null and cur_node != _states.get(current_node, null)
 
@@ -198,27 +198,27 @@ func get_next_node(input: Dictionary = {}) -> String:
 ## If a travel is being performed it will be interupted
 ##
 ## `args` is user-defined data which is passed to the advanced state on enter. 
-func go_to(to_node: String, args: Dictionary = {}) -> void:
+func goto(to_node: String, args: Dictionary = {}) -> void:
 	if _astar.has_next_travel_node():
 		_astar.clear_travel_path()
 	
-	_go_to(to_node, args)
+	_goto(to_node, args)
 
-## Short hand for 'node.go_to(node.start_node, args)'
-func go_to_start(args: Dictionary = {}) -> void:
+## Short hand for 'node.goto(node.start_node, args)'
+func goto_start(args: Dictionary = {}) -> void:
 	if start_node.empty():
 		push_warning("Failed to go to start. Start node not set.")
 		return
 	
-	go_to(start_node)
+	goto(start_node)
 
-## Short hand for 'node.go_to(node.end_node, args)'
-func go_to_end(args: Dictionary = {}) -> void:
+## Short hand for 'node.goto(node.end_node, args)'
+func goto_end(args: Dictionary = {}) -> void:
 	if end_node.empty():
 		push_warning("Failed to go to end. End node not set.")
 		return
 	
-	go_to(end_node)
+	goto(end_node)
 ## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
 func get_next_transitions(from: String) -> Array:
@@ -243,10 +243,10 @@ func set_end_node(name: String) -> void:
 	end_node = name
 
 ## Setter for `current_node` property
-## Will call `go_to()` when changed
+## Will call `goto()` when changed
 func set_current_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
-	go_to(name)
+	goto(name)
 
 ## Process child states then this state.
 ## Intended to be called by `StateMachine` node 
@@ -306,7 +306,7 @@ func _get_transition_priority(from: String, to: String) -> float:
 	return float(tr.transition.priority) if tr else 0.0
 
 
-func _go_to(to_node: String, args: Dictionary) -> void:
+func _goto(to_node: String, args: Dictionary) -> void:
 	if _ERR_INVALID_NODE(to_node): return
 
 	var prev_node_name := current_node
