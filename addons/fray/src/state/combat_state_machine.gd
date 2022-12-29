@@ -90,6 +90,12 @@ func set_root(value: StateNodeStateMachine) -> void:
 	.set_root(value)
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
+## Returns the current situation to it's start state.
+## Shorthand for root.go_to_start()
+func go_to_start_state() -> void:
+	if root != null:
+		root.go_to_start()
+
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: String, node: StateNodeStateMachineGlobal) -> void:
 	if has_situation(situation_name):
