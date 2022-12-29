@@ -17,7 +17,7 @@ var prereqs: Array
 ## If true then the transition can advance automatically
 var auto_advance: bool
 
-## A lower priotiy transitions are be preffered when determining next transitions
+## Lower priority transitions are be preffered when determining next transitions
 var priority: int
 
 ## The transition type

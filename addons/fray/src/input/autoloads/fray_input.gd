@@ -66,10 +66,17 @@ func _physics_process(_delta: float) -> void:
 					var my_components := composite_input.decompose(device, _input_interface)
 					input_state.press()
 					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
+					
+					if device_state.is_all_indistinct(my_components):
+						device_state.set_inputs_distinctiveness([composite_input_name], false)
+					else:
+						device_state.set_inputs_distinctiveness(my_components, false)
 			elif input_state.pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
 				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
+				device_state.flag_inputs_as_distinct([composite_input_name])
+				device_state.flag_inputs_as_distinct(my_components)
 
 				if composite_input.is_virtual:
 					var held_components: Array
@@ -79,7 +86,6 @@ func _physics_process(_delta: float) -> void:
 					
 					_virtually_press(held_components, device)
 
-		
 		for input in device_state.get_all_inputs():
 			if is_just_pressed(input, device) or is_just_released(input, device):
 				var input_event := _create_input_event(input, device)
@@ -265,6 +271,7 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 	input_event.idle_frame = input_state.idle_frame
 	input_event.time_detected = OS.get_ticks_msec()
 	input_event.pressed = input_state.pressed
+	input_event.is_distinct = input_state.is_distinct
 	
 	return input_event
 
@@ -276,17 +283,25 @@ func _virtually_press(inputs: PoolStringArray, device: int) -> void:
 		var input_state := _get_input_state(input, device)
 		if input_state.pressed and not input_state.virtually_pressed:
 			input_state.press(true)
-
+			
+	device_state.flag_inputs_as_distinct(inputs, true)
+	
 	# Virtually press composite inputs that uses held binds
-	var virtually_pressed_composite := false
+	var is_atleast_one_composite_pressed := false
 	for com_input_name in _input_map.get_composite_input_names():
 		var com_input_state := _get_input_state(com_input_name, device)
 		var com_input := _input_map.get_composite_input(com_input_name)
-		var has_binds := com_input.can_decompose_into(device, _input_interface, inputs)
+		var has_binds := com_input.can_decompose_into(device, _input_interface, inputs, false)
 
 		if com_input_state.pressed and not com_input_state.virtually_pressed and has_binds:
 			com_input_state.press(true)
 			device_state.flag_inputs_use_in_composite(com_input_name, inputs)
+			device_state.flag_inputs_as_distinct([com_input_name])
+
+			if device_state.is_all_indistinct(inputs):
+				device_state.unflag_inputs_as_distinct([com_input_name])
+			else:
+				device_state.unflag_inputs_as_distinct(inputs)
 
 
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:

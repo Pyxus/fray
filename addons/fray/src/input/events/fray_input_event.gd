@@ -31,6 +31,9 @@ var input: String
 ## If true, this event was triggered by a virtual press.
 var virtually_pressed: bool
 
+## If true, this input occured before any other overlapping inputs.
+## Even if two inputs
+var is_distinct: bool
 
 func _to_string() -> String:
 	return "{input:%s, pressed:%s, device:%d}" % [input, pressed, device]

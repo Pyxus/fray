@@ -11,7 +11,7 @@ var physics_frame: int = -1
 var idle_frame: int = -1
 var time_pressed: int = -1
 var strength: float
-
+var is_distinct: bool = true
 
 func _init(input_name: String) -> void:
     input = input_name

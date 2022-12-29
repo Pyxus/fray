@@ -12,6 +12,9 @@ const InputState = preload("state/input_state.gd")
 ## will be treated as if they were just pressed again.
 var is_virtual: bool setget set_virtual
 
+## The composite input's priority. Higher priority composites are processed first.
+var priority: int
+
 ## Type: CompositeInput[]
 var _components: Array 
 
@@ -44,22 +47,31 @@ func decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
 	return _decompose_impl(device, input_interface)
 
 ## Returns true if the composite input can decompose into the given binds
-func can_decompose_into(device: int, input_interface: InputInterface, binds: PoolStringArray)  -> bool:
+## 'is_exact' If true then the given binds need to exactly match the input's decomposition
+func can_decompose_into(device: int, input_interface: InputInterface, binds: PoolStringArray, is_exact := true)  -> bool:
 	var my_components := decompose(device, input_interface)
 
 	if binds.empty() or my_components.empty():
 		return false
 
-	if binds.size() != my_components.size():
+	if binds.size() < my_components.size():
 		return false
+	
+	if is_exact:
+		if binds.size() != my_components.size():
+			return false
 
-	for bind in binds:
-		var has_bind := false
-		for component in my_components:
-			if bind == component:
-				has_bind = true
-		if not has_bind:
-			return false 
+		for bind in binds:
+			var has_bind := false
+			for component in my_components:
+				if bind == component:
+					has_bind = true
+			if not has_bind:
+				return false
+	else:
+		for bind in binds:
+			if not bind in my_components:
+				return false
 	return true
 
 	#var my_component_str := decompose(device, input_interface).join(" ")

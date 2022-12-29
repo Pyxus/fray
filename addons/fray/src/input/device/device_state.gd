@@ -21,6 +21,28 @@ func unflag_inputs_use_in_composite(composite: String, inputs: PoolStringArray) 
             input_state_by_name[input].composites_used_in.erase(composite)
 
 
+func flag_inputs_as_distinct(inputs: PoolStringArray, ignore_in_comp_check: bool = false) -> void:
+    for input in inputs:
+        if input_state_by_name.has(input) and (ignore_in_comp_check or input_state_by_name[input].composites_used_in.empty()):
+            input_state_by_name[input].is_distinct = true
+
+func unflag_inputs_as_distinct(inputs: PoolStringArray) -> void:
+    for input in inputs:
+        if input_state_by_name.has(input):
+            input_state_by_name[input].is_distinct = false
+
+func set_inputs_distinctiveness(inputs: PoolStringArray, is_distinct: bool) -> void:
+    for input in inputs:
+        if input_state_by_name.has(input):
+            input_state_by_name[input].is_distinct = is_distinct
+
+
+func is_all_indistinct(inputs: PoolStringArray) -> bool:
+    for input in inputs:
+        if input_state_by_name.has(input) and input_state_by_name[input].is_distinct:
+            return false
+    return true
+
 func get_pressed_inputs() -> PoolStringArray:
     var pressed_inputs: PoolStringArray
     for input in input_state_by_name:

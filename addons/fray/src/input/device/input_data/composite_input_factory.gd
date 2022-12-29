@@ -56,10 +56,16 @@ class ComponentBuilder:
 	## Sets whether the input will be virtual or not
 	##
 	## Returns a reference to this ComponentBuilder
-	func virtual(is_virtual: bool = true) -> Reference:
-		_composite_input.is_virtual = is_virtual
+	func is_virtual(value: bool = true) -> Reference:
+		_composite_input.is_virtual = value
 		return self
-
+	
+	## Sets wthe composite input's process priority
+	##
+	## Returns a reference to this ComponentBuilder
+	func priority(value: int) -> Reference:
+		_composite_input.priority = value
+		return self
 
 class CombinationBuilder:
 	extends ComponentBuilder

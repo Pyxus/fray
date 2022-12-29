@@ -21,6 +21,8 @@ var _input_bind_by_name: Dictionary
 ## Type: Dictionary<String, CompositeInput>
 var _composite_input_by_name: Dictionary
 
+var _composites_sorted: Array
+
 ## Adds a new composite input to the input map.
 ##
 ## To build a composite input the CompositeInputFactory can be used:
@@ -34,6 +36,8 @@ func add_composite_input(name: String, composite_input: CompositeInput) -> void:
 	if _err_input_already_exists(name, "Failed to add composite input."):
 		return
 	_composite_input_by_name[name] = composite_input
+	_composites_sorted.append(name)
+	_composites_sorted.sort_custom(Sorter.new(_composite_input_by_name), "sort")
 
 ## Binds input to set with given name.
 func add_bind_input(name: String, input_bind: InputBind) -> void:
@@ -87,7 +91,7 @@ func add_bind_mouse_button(name: String, button: int) -> void:
 	add_bind_input(name, bind)
 
 
-## Removes composite input from list.
+## Removes input from list. Both binds and composite inputs can be removed this way
 func remove_input(name: String) -> void:
 	if _err_input_does_not_exist(name, "Failed to remove input."):
 		return
@@ -96,6 +100,7 @@ func remove_input(name: String) -> void:
 		_input_bind_by_name.erase(name)
 	else:
 		_composite_input_by_name.erase(name)
+		_composites_sorted.erase(name)
 
 ## Returns true if the given bind exists in the list.
 func has_bind(bind_name: String) -> bool:
@@ -117,7 +122,7 @@ func has_composite_input(input_name: String) -> bool:
 
 ## Returns an array of all composite input names.
 func get_composite_input_names() -> PoolStringArray:
-	return PoolStringArray(_composite_input_by_name.keys())
+	return PoolStringArray(_composites_sorted)
 
 ## Returns composite input with given name if it exists.
 func get_composite_input(input_name: String) -> CompositeInput:
@@ -147,3 +152,16 @@ func _err_input_does_not_exist(input: String, err_msg: String) -> bool:
 		return true
 	
 	return false
+
+
+class Sorter:
+	
+	var _input_dict: Dictionary
+
+	func _init(input_dict: Dictionary) -> void:
+		_input_dict = input_dict
+
+	func sort(in1, in2) -> bool:
+		if _input_dict[in1].priority > _input_dict[in2].priority:
+			return true
+		return false

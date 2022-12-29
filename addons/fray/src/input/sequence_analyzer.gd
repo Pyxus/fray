@@ -28,9 +28,10 @@ const FrayInputEventComposite = preload("events/fray_input_event_composite.gd")
 const InputRequirement = preload("sequence/input_requirement.gd")
 const SequenceList = preload("sequence/sequence_list.gd")
 
-## If true then binds used in composites will be ignored.
+## If true, indistinct inputs will be ignored.
 ## Since a composite input's binds must be pressed at the same time as the composite, they will always trigger a sequence break.
-var ignore_binds_in_composites: bool = true
+## The same is true for composites which share components.
+var ignore_indistinct_inputs: bool = true
 
 ## Type: LinkedList<InputFrame>
 var _input_queue: LinkedList
@@ -210,7 +211,7 @@ func _create_frame(input_event: FrayInputEvent) -> InputFrame:
 func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 	return(
 		input_event.echo
-		or input_event is FrayInputEventBind and input_event.is_used_in_composite() and ignore_binds_in_composites
+		or ignore_indistinct_inputs and not input_event.is_distinct
 	)
 
 
