@@ -8,8 +8,8 @@ extends Resource
 const InputInterface = preload("state/input_interface.gd")
 const InputState = preload("state/input_state.gd")
 
-## If true component binds that are still held when the combination is released
-## will be treated as if they were pressed again.
+## If true, components that are still held when the composite is released
+## will be treated as if they were just pressed again.
 var is_virtual: bool setget set_virtual
 
 ## Type: CompositeInput[]

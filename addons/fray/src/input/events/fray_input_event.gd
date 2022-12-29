@@ -19,7 +19,7 @@ var idle_frame: int
 ## Returns true if the input has already been detected
 var echo: bool
 
-## Returns true if the input is being pressed false if it is released
+## If true, the input is being pressed. If false, it is released
 var pressed: bool
 
 ## The devices' ID
@@ -28,7 +28,7 @@ var device: int
 ## The input's name
 var input: String
 
-## Returns true if this event was triggered by a virtual press.
+## If true, this event was triggered by a virtual press.
 var virtually_pressed: bool
 
 
