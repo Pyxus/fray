@@ -142,8 +142,6 @@ func read(input_event: FrayInputEvent) -> void:
 			_reset()
 		else:
 			_resolve_sequence_break()
-	
-	print(_match_path)
 
 ## Returns current array of input events used to attempt to match a sequence path
 ## If called during a 'match_found' signal callback then this array contains the exact input events that triggered the match.
