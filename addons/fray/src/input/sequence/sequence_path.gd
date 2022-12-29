@@ -13,7 +13,7 @@ var allow_negative_edge: bool
 func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 	allow_negative_edge = path_allow_nedge
 	for input in inputs:
-		add(input)
+		then(input)
 
 ## Appends an input requirement to the end of the input_requirements array
 ##
@@ -23,7 +23,7 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 ## min_time_held is the minimum time in seconds that the input is required to be held.
 ##
 ## Returns a reference to this sequence path allowing for chained method calls
-func add(input: String, min_time_held := 0.0, max_delay := .2) -> Reference:
+func then(input: String, min_time_held := 0.0, max_delay := .2) -> Reference:
 	var input_requirement := InputRequirement.new()
 	input_requirement.input = input
 	input_requirement.max_delay = max_delay

@@ -22,6 +22,9 @@ var _global_transition_rules: Dictionary
 var _tags_by_node: Dictionary
 
 
+func get_next_transitions(from: String) -> Array:
+	return .get_next_transitions(from) + get_next_global_transitions(from)
+
 ## Sets the tags associated with a state if the state exists.
 func set_node_tags(node: String, tags: PoolStringArray) -> void:
 	if _ERR_INVALID_NODE(node): return
@@ -109,10 +112,6 @@ func get_next_global_transitions(from: String) -> Array:
 					if to_tag in get_node_tags(transition.to): 
 						transitions.append(transition)
 	return transitions
-
-
-func get_next_transitions(from: String) -> Array:
-	return .get_next_transitions(from) + get_next_global_transitions(from)
 
 
 func _on_node_removed(name: String, _node: Reference) -> void:

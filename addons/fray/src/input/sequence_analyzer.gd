@@ -12,16 +12,14 @@ extends Reference
 ##		var sequence_list := SequenceList.new()
 ##
 ##		sequence_list.add("236p", SequencePath.new()\
-##			.add("down").add("down_forward").add("backward").add("punch"))
+##			.then("down").then("down_forward").then("backward").then("punch"))
 ##
 ##		sequence_analyzer.initialize(sequence_list)		
 
 ## Emmitted when a sequence match is found.
 ##
 ## `sequence_name: String` is the name of the sequence.
-##
-## `inputs: InputEvent[]` is an array of input events that was used to match the sequence.
-signal match_found(sequence_name, inputs)
+signal match_found(sequence_name)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
 const FrayInputEvent = preload("events/fray_input_event.gd")
@@ -29,6 +27,10 @@ const FrayInputEventBind = preload("events/fray_input_event_bind.gd")
 const FrayInputEventComposite = preload("events/fray_input_event_composite.gd")
 const InputRequirement = preload("sequence/input_requirement.gd")
 const SequenceList = preload("sequence/sequence_list.gd")
+
+## If true then binds used in composites will be ignored.
+## Since a composite input's binds must be pressed at the same time as the composite, they will always trigger a sequence break.
+var ignore_binds_in_composites: bool = true
 
 ## Type: LinkedList<InputFrame>
 var _input_queue: LinkedList
@@ -106,41 +108,55 @@ func read(input_event: FrayInputEvent) -> void:
 	if _root == null:
 		push_error("Sequence analyzer is not initialized.")
 		return
-	
-	if input_event is FrayInputEventBind and input_event.is_used_in_composite():
+
+	if _can_ignore_input(input_event):
 		return
 	
-	if not input_event.echo:
-		var next_node := _current_node.get_next(input_event.input, input_event.pressed)
+	var next_node := _current_node.get_next(input_event.input, input_event.pressed)
+	if next_node != null:
+		_current_node = next_node
+		_match_path.append(input_event)
+
+	if _current_frame == null:
 		if next_node != null:
-			_current_node = next_node
-			_match_path.append(input_event)
-
-		if _current_frame == null:
-			if next_node != null:
-				_current_frame = _create_frame(input_event)
-		elif _current_frame.physics_frame == input_event.physics_frame:
-			_current_frame.add(input_event)
-		else:
-			# NOTE: Unexpected behavior discovered
-			# If the first input in a new frame is a release input then even if
-			# the following input would break the sequence it gets ignored if its within the newly created frame.
-			# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
-			# Im keeping it for now as this result is somewhat desireable as a sort of input leniancy.
-			# In an older itteration the approach to leniancy was to create sort of 'alias' branches that accepted 'bad' inputs.
-			# If problems occur while testing let this note serve as a reminder of a possible source.
-			# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
 			_current_frame = _create_frame(input_event)
+	elif _current_frame.physics_frame == input_event.physics_frame:
+		_current_frame.add(input_event)
+	else:
+		# NOTE: Unexpected behavior discovered
+		# If the first input in a new frame is a release input then even if
+		# the following input would break the sequence it gets ignored if its within the newly created frame.
+		# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
+		# Im keeping it for now as this result is somewhat desireable as a sort of input leniancy.
+		# In an older itteration the approach to leniancy was to create sort of 'alias' branches that accepted 'bad' inputs.
+		# If problems occur while testing let this note serve as a reminder of a possible source.
+		# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
+		_current_frame = _create_frame(input_event)
 
-			if next_node == null and input_event.pressed:
-				_resolve_sequence_break()
-		
-		if _current_node.has_sequence():
-			if is_match(_match_path, _current_node.sequence_path.input_requirements):
-				emit_signal("match_found", _current_node.sequence_name, _match_path)
-				_reset()
-			else:
-				_resolve_sequence_break()
+		if next_node == null and input_event.pressed:
+			_resolve_sequence_break()
+	
+	if _current_node.has_sequence():
+		if is_match(_match_path, _current_node.sequence_path.input_requirements):
+			emit_signal("match_found", _current_node.sequence_name)
+			_reset()
+		else:
+			_resolve_sequence_break()
+	
+	print(_match_path)
+
+## Returns current array of input events used to attempt to match a sequence path
+## If called during a 'match_found' signal callback then this array contains the exact input events that triggered the match.
+func get_match_path() -> Array:
+	return _match_path
+
+## Prints a tree visualizing the paths available on the sequence analyzer
+func print_tree() -> void:
+	if _root == null:
+		push_error("Sequence analyzer is not initialized.")
+		return
+
+	_root.print_tree()
 
 
 func _resolve_sequence_break() -> void:
@@ -191,6 +207,13 @@ func _create_frame(input_event: FrayInputEvent) -> InputFrame:
 	frame.add(input_event)
 	_input_queue.add(frame)
 	return frame
+
+
+func _can_ignore_input(input_event: FrayInputEvent) -> bool:
+	return(
+		input_event.echo
+		or input_event is FrayInputEventBind and input_event.is_used_in_composite() and ignore_binds_in_composites
+	)
 
 
 class InputFrame:
@@ -275,7 +298,7 @@ class InputNode:
 		if sequence_name.empty():
 			string = "[%s]" % input
 		else:
-			string = "[%s:%s]" % [input, sequence_name]
+			string = "[%s] -> %s" % [input, sequence_name]
 		
 		if not is_press_input:
 			string += ".r"
