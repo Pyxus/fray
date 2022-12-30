@@ -12,10 +12,8 @@
 Fray is a work in progress addon for the [Godot Game Engine](https://godotengine.org) that provides tools which aid in the development of action / fighting game combat. If your project requires changes in combatant state corresponding to button presses, input buffering, detecing complex player inputs, or hitbox management then you may benefit from using Fray!
 
 ## ✨ Core Features
-<figure>
 <img src="./docs/demo.gif" width="600" alt="Demo gif">
-<figcaption>Demo showcasing input processing and state mangaement.</figcaption>
-</figure>
+[Demo](https://github.com/Pyxus/fray/releases/download/v1.0.0/fray_demo.zip) showcasing input processing and state mangaement.
 
 ### Modular Design
 
