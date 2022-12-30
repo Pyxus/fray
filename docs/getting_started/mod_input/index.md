@@ -84,10 +84,7 @@ const SequenceAnalyzer = Fray.Input.SequenceAnalyzer
 var sequence_list := SequenceList.new()
 var sequence_analyzer := SequenceAnalyzer.new()
 sequence_list.add("236P", SequencePath.new()\
-    .then("down")
-    .then("down_right")
-    .then("right")
-    .then("punch")
+    .then("down").then("down_right").then("right").then("punch")
 )
 
 sequence_analyzer.initialize(sequence_list)
