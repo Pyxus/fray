@@ -13,6 +13,7 @@ Fray is a work in progress addon for the [Godot Game Engine](https://godotengine
 
 ## ✨ Core Features
 <img src="./docs/demo.gif" width="600" alt="Demo gif">
+
 [Demo](https://github.com/Pyxus/fray/releases/download/v1.0.0/fray_demo.zip) showcasing input processing and state mangaement.
 
 ### Modular Design
