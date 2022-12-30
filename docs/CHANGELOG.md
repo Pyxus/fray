@@ -14,11 +14,11 @@
 - Renamed `SequencePath` `add()` method to `then()`.
 - Changed `CombatStateMachine` input buffer from buffering states to only buffering inputs which go to the next state when allowed.
 
-## Removed
+### Removed
 
 - Removed `match_path` parameter from `SequenceAnalyzer` `match_found` signal.
 
-## Fixed
+### Fixed
 
 - Fixed global transitions not being reachable.
 
