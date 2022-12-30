@@ -53,7 +53,5 @@ If you would like to know more about installing plugins see the [Official Godot 
 
 ## 📃 Credits
 
-### 🎨 Assets
-
 - Controller Button Images : <https://thoseawesomeguys.com/prompts/>
-- Player Example Sprite : <https://www.spriters-resource.com/playstation_2/mbaa/sheet/28116/>
+- Demo Player Sprite : <https://www.spriters-resource.com/playstation_2/mbaa/sheet/28116/>
