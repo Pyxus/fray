@@ -53,5 +53,6 @@ If you would like to know more about installing plugins see the [Official Godot 
 
 ## 📃 Credits
 
-- Controller Button Images : <https://thoseawesomeguys.com/prompts/>
-- Demo Player Sprite : <https://www.spriters-resource.com/playstation_2/mbaa/sheet/28116/>
+- [Controller Button Images](https://thoseawesomeguys.com/prompts/)
+- [Demo Player Sprite](https://www.spriters-resource.com/playstation_2/mbaa/sheet/28116/)
+- [Demo gamepad debugger](https://gist.github.com/anthonyec/5342fce79b2b7b22ada748df0ad7f7c0)
