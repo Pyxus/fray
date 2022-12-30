@@ -1,11 +1,13 @@
 # Fray
 
 <p align="center">
-    <img src="docs/fray_banner.png" width="500" alt="Fray Logo">
+    <img src="docs/fray_banner.png" width="400" alt="Fray Logo">
 </p>
 
 
-![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v3.4-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
+![Godot version](https://img.shields.io/badge/godot-v3.5-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
+
+<img src="./docs/demo.gif" width="500" alt="Demo gif">
 
 ## 📖 About
 

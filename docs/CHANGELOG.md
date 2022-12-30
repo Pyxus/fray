@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.0.0
+
+### Added
+
+- Added `ignore_indistinct_inputs` property to `SequenceAnalyzer`.
+- Added `get_match_path()` method to `SequenceAnalyzer`.
+
+### Changed
+
+- Changed state machine 'go_to' functions to 'goto'.
+- Refactored input filtration. `FrayInputEvent` `filtered` property is now replaced by `is_distinct`.
+- Renamed `SequencePath` `add()` method to `then()`.
+
+## Removed
+
+- Removed `match_path` parameter from `SequenceAnalyzer` `match_found` signal.
+
+## Fixed
+
+- Fixed global transitions not being reachable.
+
 ## v1.0.0-alpha.4
 
 ### Added
