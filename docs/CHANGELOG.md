@@ -12,6 +12,7 @@
 - Changed state machine 'go_to' functions to 'goto'.
 - Refactored input filtration. `FrayInputEvent` `filtered` property is now replaced by `is_distinct`.
 - Renamed `SequencePath` `add()` method to `then()`.
+- Changed `CombatStateMachine` input buffer from buffering states to only buffering inputs which go to the next state when allowed.
 
 ## Removed
 
