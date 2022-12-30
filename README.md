@@ -24,11 +24,11 @@ Fray is divided into 3 modules: State, Input, and Collision. These modules act i
 ### Combat State Management
 
 Fray features a state machine that allows you to keep track of a fighter's combat state and automatically transition to new states based on the player's inputs.
-Transitions in the state machine can be enabled and disabled in the animation player. If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into a new attack. Through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain).
+Transitions in the state machine can be enabled and disabled through code or the animation player; through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain). For example, If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into a new attack. 
 
 ### Input Buffering
 
-Inputs fed to fray's combat state management system can be buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to perform subsequent actions.
+Inputs fed to fray's combat state management system are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to smoothly perform a sequence of actions.
 
 ### Complex Input Detection
 
