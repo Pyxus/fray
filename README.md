@@ -58,8 +58,8 @@ Composite inputs can be defined declaratively using the `CompositeInputFactory` 
 const CIF = Fray.Input.CompositeInputFactory
 
 # Binds are used as the 'leafs' of composite input component trees.
-FrayInputMap.add_bind_action("right", "right")
-FrayInputMap.add_bind_action("down", "down")
+FrayInputMap.add_bind_action("ui_right", "right")
+FrayInputMap.add_bind_action("ui_down", "down")
 
 # Describes a combination input which changes based on what side the player is on.
 FrayInputMap.add_composite_input("down_forward", CIF.new_conditional()\
