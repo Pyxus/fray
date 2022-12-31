@@ -67,7 +67,7 @@ FrayInputMap.add_composite_input("down_forward", CIF.new_conditional()\
 ```
 
 Sequence inputs can be defined using the `SequenceList` class, and then registered to the `SequenceAnalyzer`.
-The sequence analyzer can be fed inputs and determine if the match any sequences defined.
+The sequence analyzer can then be fed inputs and will emit a signal if any matches are found.
 
 ```gdscript
 var sequence_list := SequenceList.new()
