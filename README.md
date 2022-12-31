@@ -44,7 +44,7 @@ Inputs fed to fray's combat state machine are buffered allowing a player to queu
 
 ```gdscript
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
-	if input_event.device == 0 and input_event.is_just_pressed():
+	if input_event.is_just_pressed():
 		combat_state_machine.buffer_button(input_event.input, input_event.pressed)
 ```
 
@@ -90,17 +90,16 @@ sequence_list.add("214p", SequencePath.new()\
 
 ```gdscript
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
-	if input_event.device == 0:
-		_sequence_analyzer.read(input_event)
+	sequence_analyzer.read(input_event)
 ```
 
 ### Hitbox Management
 
 Fray provides a template hitbox which is an `Area` node with an `attributes` property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations for easy syncing.
 
-<img src="assets/hitbox_tree.png" width="300" alt="Tree view of hitbox management">
+<img src="assets/hitbox_tree.png" width="400" alt="Tree view of hitbox management">
 
-<img src="assets/hit_state_inspector.png" width="300" alt="View of hit state inspector">
+<img src="assets/hit_state_inspector.png" width="400" alt="View of hit state inspector">
 
 ## 📦 Installation
 
