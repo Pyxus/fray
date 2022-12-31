@@ -25,7 +25,7 @@ To add a new situation call the `add_situation()` method on the combat state mac
 
 Using the the situation builder the graph node can be built inline. Most builder methods return a reference to the builder allowing for chain method calls.
 
-```swift
+```gdscript
 var builder := Fray.State.CombatSituationBuilder.new()
 combat_state_machine.add_situation("on_ground", builder\
     .transition_button("idle", "attack_1", "btn_punch")\
@@ -48,7 +48,7 @@ The optional config dictioanry allows for additional custimization of the transi
 
 Below demonstates usage of the `prereqs` config. Prereqs take an array of conditions and only allow the transition to occur when all are true. To update the value of the condition the `set_condition()` method can be called on the `GraphNodeStateMachine`.
 
-```swift
+```gdscript
 var builder := Fray.State.CombatSituationBuilder.new()
 combat_state_machine.add_situation("on_ground", builder\
     .transition_button("idle", "attack_1", "btn_punch")\
@@ -69,7 +69,7 @@ The above situation could be interpreted as the follow up attack only being perf
 Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules. If a rule exists. States with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'. This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them. For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
 
-```swift
+```gdscript
 var builder := Fray.State.CombatSituationBuilder.new()
 combat_state_machine.add_situation("on_ground", builder\
     .transition_button("idle", "attack_1", "btn_punch")\

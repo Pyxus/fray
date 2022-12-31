@@ -12,7 +12,7 @@ Note: Though binds and composite input are technically different objects there c
 
 Example Usage:
 
-```swift
+```gdscript
 FrayInputMap.add_bind_action("down", "ui_down")
 FrayInputMap.add_bind_action("right", "ui_right")
 FrayInputMap.add_composite_input("down_right", ...) # More on adding composite inputs below
@@ -28,7 +28,7 @@ All builder methods returns a reference to the builder itself to allow for optio
 
 Example Usage:
 
-```swift
+```gdscript
 const CIF = Fray.Input.CompositeInputFactory
 const CombinationMode = Fray.Input.CombinationInput.Mode
 
@@ -60,7 +60,7 @@ In regards to fighting games this can be used to add inputs which change dependi
 
 The imput manager, called `FrayInput` is a singleton similar to the Input singleton provided by Godot. Once the input list is configured this manager can be used to check if inputs are pressed using their given names. Inputs can be checked per-device but by default all check device 0 which usually corresponds to keyboard/mouse and the 'player1' controller. The input manager also contains a 'input_detected' signal which can also be used to check for inputs.
     
-```swift
+```gdscript
 FrayInput.is_pressed(...)
 FrayInput.is_just_pressed(...)
 FrayInput.is_just_released(...)
@@ -76,7 +76,7 @@ To use you will first need to create a `SequenceList` which contains sequences a
 
 Example Usage:
 
-```swift
+```gdscript
 const SequenceList = Fray.Input.SequenceList
 const SequencePath = Fray.Input.SequencePath
 const SequenceAnalyzer = Fray.Input.SequenceAnalyzer
