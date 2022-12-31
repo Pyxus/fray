@@ -42,6 +42,12 @@ combat_state_machine.add_situation("on_ground", CombatSituationBuilder.new()\
 
 Inputs fed to fray's combat state machine are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to smoothly perform a sequence of actions.
 
+```gdscript
+func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
+	if input_event.device == 0 and input_event.is_just_pressed():
+		combat_state_machine.buffer_button(input_event.input, input_event.pressed)
+```
+
 ### Complex Input Detection
 
 Fray provides a component based input builder, and sequence analyzer for handling the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
@@ -78,6 +84,12 @@ sequence_list.add("236p", SequencePath.new()\
 # An alias sequence can be created by adding a new path with the same sequence name
 sequence_list.add("214p", SequencePath.new()\
     .then("down").then("forward").then("punch"))
+```
+
+```gdscript
+func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
+	if input_event.device == 0:
+		_sequence_analyzer.read(input_event)
 ```
 
 ### Hitbox Management
