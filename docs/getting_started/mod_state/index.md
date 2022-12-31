@@ -76,9 +76,9 @@ combat_state_machine.add_situation("on_ground", builder\
     .transition_button("idle", "attack_2", "btn_punch")\
     .transition_sequence_global("special_attack", "seq_236p")\
     .multi_tag(["idle", "attack_1", "attack_2"], ["normal"])\
-    .tag("special_attack", ["special"])
-    .add_rule("normal", "special")
-    .build("idle")
+    .tag("special_attack", ["special"])\
+    .add_rule("normal", "special")\
+    .build("idle")\
 )
 ```
 
