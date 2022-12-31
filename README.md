@@ -55,6 +55,8 @@ Fray provides a component based input builder, and sequence analyzer for handlin
 Composite inputs can be defined declaratively using the `CompositeInputFactory` class.
 
 ```gdscript
+const CIF = Fray.Input.CompositeInputFactory
+
 # Binds are used as the 'leafs' of composite input component trees.
 FrayInputMap.add_bind_action("right", "right")
 FrayInputMap.add_bind_action("down", "down")
