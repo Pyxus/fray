@@ -1,5 +1,3 @@
-# Collision
+# Collision Module
 
-This module contains scripts related to collision such as hitboxes.
-
-Location: `fray/src/input`
+W.I.P
