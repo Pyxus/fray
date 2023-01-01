@@ -1,7 +1,7 @@
 # Fray
 
 <p align="center">
-    <img src="assets/fray_banner.png" width="400" alt="Fray Logo">
+    <img src="assets/fray_banner.gif" alt="Fray Logo">
 </p>
 
 
@@ -10,11 +10,6 @@
 ## 📖 About
 
 Fray is an addon for the [Godot Game Engine](https://godotengine.org) that provides tools which aid in the development of action / fighting game combat. If your project requires changes in combatant state corresponding to button presses, input buffering, handling complex player inputs, or hitbox management then you may benefit from using Fray!
-
-<img src="assets/demo.gif" width="600" alt="Demo gif">
-
-[Demo](https://github.com/Pyxus/fray/releases/download/v1.0.0/fray_demo.zip) showcasing input processing and state mangaement.
-
 
 ## ✨ Core Features
 
