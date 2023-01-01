@@ -25,6 +25,9 @@ Transitions in the state machine can be enabled and disabled through code or the
 State machines can be defined declaratively using the included builder classes.
 
 ```gdscript
+# 'attack_button' is an arbitray name
+# Constructs state machine that resembles:
+# 	idle -[attack_button]> attack1 -[attack_button]> attack2
 combat_state_machine.add_situation("on_ground", CombatSituationBuilder.new()\
     .transition_button("idle", "attack1", {input = "attack_button"})\
     .transition_button("attack1", "attack2", {input = "attack_button"})\
@@ -56,7 +59,7 @@ const CIF = Fray.Input.CompositeInputFactory
 FrayInputMap.add_bind_action("ui_right", "right")
 FrayInputMap.add_bind_action("ui_down", "down")
 
-# Describes a combination input which changes based on what side the player is on.
+# This describes a combination input which changes based on what side the player is on.
 FrayInputMap.add_composite_input("down_forward", CIF.new_conditional()\
     .add_component("", CIF.new_combination_async()\
         .add_component(CIF.new_simple(["down"]))\
@@ -78,12 +81,13 @@ var sequence_list := SequenceList.new()
 sequence_list.add("236p", SequencePath.new()\
     .then("down").then("down_forward").then("forward").then("punch"))
 
-# An alias sequence can be created by adding a new path with the same sequence name
+# Input leniency can be done by adding a new path with the same sequence name
 sequence_list.add("214p", SequencePath.new()\
     .then("down").then("forward").then("punch"))
 ```
 
 ```gdscript
+# The sequence analyzer takes fray input events which are emitted by the FrayInput singleton
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
 	sequence_analyzer.read(input_event)
 ```
