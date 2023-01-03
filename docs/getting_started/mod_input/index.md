@@ -72,6 +72,8 @@ FrayInput.get_strength(...)
 
 The sequence analyzer is used for detecting sequences using a tree data structure to match inputs as they are fed to it.
 
+
+### Creating Sequences
 To use you will first need to create a `SequenceList` which contains sequences associated with a string name. Seach sequence name can be associated with multiple `SequencePath`s to allow for alternative inputs. Alternative inputs are useful for creating leniancy in a sequence by adding multiple matches for a sequence.
 
 Example Usage:
@@ -91,3 +93,16 @@ sequence_analyzer.initialize(sequence_list)
 ```
 
 Look up 'fighting game notation' if you wish to understand the numbers I used in the sequence name. This is just a naming convention, any string can be used as a name.
+
+### Detecting sequence matches
+
+The sequence analyzer uses fray input events for its match procedure. Events can be fed to the analyzer using the `FrayInput` singleton's `input_detected` signal. If a match is found the sequence analyzer will emit a `match_found` signal.
+
+```gdscript
+func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
+	sequence_analyzer.read(input_event)
+
+func _on_SequenceAnalyzer_match_found(sequence_name: String):
+	do_something_with_sequence(sequence_name)
+
+```
