@@ -13,9 +13,9 @@ The `CombatSituationBuilder` is just a helper class which makes the construction
 
 If the plugin is enabled then the CombatStateMachine should be available from the 'Create New Node' dialog.
 
-![](create_new_sm.png)
+![Image of state machine node in create new node window](images/create_new_sm.png)
 
-![](scene_tree.png)
+![Image of state machine in scene tree](images/scene_tree.png)
 
 ## Using the CombatStateMachine
 
@@ -40,7 +40,7 @@ combat_state_machine.add_situation("on_ground", builder\
 
 The above situation could be visualized like this:
 
-![](situation_visualization.svg)
+![Visulization of described situation](images/situation_visualization.svg)
 
 ### Transition configs
 
@@ -88,7 +88,7 @@ The abouve situation could be interpreted as all normal attacks can transition i
 
 To change situations you simply need to update the `current_situation` property on the combat state machine.
 
-```
+```gdscript
 combat_state_machine.current_situation = "on_ground"
 ```
 
