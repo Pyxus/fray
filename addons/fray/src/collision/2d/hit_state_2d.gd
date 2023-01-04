@@ -1,35 +1,42 @@
 @tool
+class_name HitState2D
 extends Node2D
+@icon("res://addons/fray/assets/icons/hit_state_2d.svg")
 ## Node used to contain a configuration of Hitboxe2Ds
 ##
-## @desc:
-## 		This node is intended to represent how a fighter is attacking or can be attacked
-##		at a given moment.
+## 
+## This node is intended to represent how a fighter is attacking or can be attacked
+## at a given moment.
 
-const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")
+## Emitted when the received [kbd]detected_hitbox[/kbd] enters the child [kbd]detector_hitbox[/kbd]. 
+## Requires [Hitbox2D.monitoring] to be set to [code]true[/code].
+signal hitbox_intersected(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D)
 
-signal hitbox_intersected(detector_hitbox, detected_hitbox)
-signal hitbox_seperated(detector_hitbox, detected_hitbox)
+## Emitted when the received [kbd]detected_hitbox[/kbd] enters the child [kbd]detector_hitbox[/kbd]. 
+## Requires [Hitbox2D.monitoring] to be set to [code]true[/code].
+signal hitbox_seperated(detector_hitbox: Hitbox2D, detected_hitbox: Hitbox2D)
+
+## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
 signal activated()
 
+## Flag used to determine which hitbox is and isn't active.
 var active_hitboxes: int = 0:
 	set(value):
 		active_hitboxes = value
-		
+
 		var i := 0
 		for child in get_children():
 			if child is Hitbox2D:
-				if int(pow(2, i)) & value != 0:
+				if (1 << i) & value != 0:
 					child.activate()
 				else:
 					child.deactivate()
 				i += 1
 
-		emit_signal("activated")
-	
+		activated.emit()
 
 var _is_active: bool
-var _cc_detector: ChildChangeDetector
+
 
 func _ready() -> void:
 	for child in get_children():
@@ -40,8 +47,7 @@ func _ready() -> void:
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
-		_cc_detector = ChildChangeDetector.new(self)
-		#_cc_detector.connect("child_changed", self, "_on_ChildChangeDetector_child_changed")
+		get_tree().tree_changed.connect(_on_SceneTree_tree_changed)
 
 
 func _get_configuration_warning() -> String:
@@ -50,37 +56,48 @@ func _get_configuration_warning() -> String:
 			return ""
 	
 	return "This node has no hitboxes so it can not be activated. Consider adding a Hitbox2D as a child."
-	
 
-func _get_property_list() -> Array:
-	var properties: Array = []
-	var hitboxes := ""
+
+func _get_property_list() -> Array[Dictionary]:
+	var properties: Array[Dictionary] = []
+	var hint_string := ""
+	var hint := PROPERTY_HINT_FLAGS
 	
 	for i in get_child_count():
 		var child := get_child(i)
 		if child is Hitbox2D:
-			hitboxes += "%d:%s, " % [i, child.name]
-	if hitboxes.is_empty():
-		properties.append({
-			"name": "active_hitboxes",
-			"type": TYPE_INT,
-			"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE,
-			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "NONE"
-		})
-	else:
-		properties.append({
-			"name": "active_hitboxes",
-			"type": TYPE_INT,
-			"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE,
-			"hint": PROPERTY_HINT_FLAGS,
-			"hint_string": hitboxes
-		})
+			hint_string += "(%d) %s" % [i, child.name] 
+			
+			if i != get_child_count() - 1:
+				hint_string += ","
+
+	if hint_string.is_empty():
+		hint = PROPERTY_HINT_ENUM
+		hint_string = "NONE"
+
+	properties.append({
+		"name": "active_hitboxes",
+		"type": TYPE_INT,
+		"usage": PROPERTY_USAGE_DEFAULT,
+		"hint": hint,
+		"hint_string": hint_string
+	})
 
 	return properties
 
-## Returns a list of all hitboxes children
-func get_hitboxes() -> Array:
+## Returns [code]true[/code] if the hitbox at the given [kbd]index[/kbd] is active.
+func is_hitbox_active(index: int) -> bool:
+	return active_hitboxes & (1 << index) != 0
+
+## Sets whether the hitbox at the given [kbd]index[/kbd] is active or not.
+func set_active_hitbox(index: int, is_active: bool) -> void:
+	if is_active:
+		active_hitboxes |= (1 << index)
+	else:
+		active_hitboxes &= (1 << index)
+
+## Returns a list of all hitbox children belonging to this hit state.
+func get_hitboxes() -> Array[Hitbox2D]:
 	var array: Array
 
 	for child in get_children():
@@ -89,27 +106,11 @@ func get_hitboxes() -> Array:
 
 	return array
 
-
-## Sets the source of all hitbox children.
+## Sets the [kbd]source[/kbd] of all hitbox children.
 func set_hitbox_source(source: Object) -> void:
 	for child in get_children():
 		if child is Hitbox2D:
 			child.source = source
-
-
-func set_active_hitboxes(hitboxes: int) -> void:
-	active_hitboxes = hitboxes
-	
-	var i := 0
-	for child in get_children():
-		if child is Hitbox2D:
-			if int(pow(2, i)) & hitboxes != 0:
-				child.activate()
-			else:
-				child.deactivate()
-			i += 1
-
-	emit_signal("activated")
 
 ## Activates all hitbox children belonging to this state.
 func activate() -> void:
@@ -128,13 +129,12 @@ func deactivate() -> void:
 
 
 func _on_Hitbox_hitbox_entered(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
-	emit_signal("hitbox_intersected", detector_hitbox, detected_hitbox)
+	hitbox_intersected.emit(detector_hitbox, detected_hitbox)
 
 
 func _on_Hitbox_hitbox_exited(detected_hitbox: Hitbox2D, detector_hitbox: Hitbox2D) -> void:
-	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)
+	hitbox_seperated.emit(detector_hitbox, detected_hitbox)
 
 
-func _on_ChildChangeDetector_child_changed(node: Node, change: int) -> void:
+func _on_SceneTree_tree_changed() -> void:
 	notify_property_list_changed()
-

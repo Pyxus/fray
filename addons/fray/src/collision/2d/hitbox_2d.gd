@@ -3,6 +3,9 @@ class_name Hitbox2D
 extends Area2D
 @icon("res://addons/fray/assets/icons/hitbox_2d.svg")
 ## 2D area intended to detect combat interactions.
+##
+## The hitbox node doesn't provide much functionality out of the box.
+## Instead it serves as a template you can expand upon through the use of [HitboxAttributes]
 
 ## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
 signal hitbox_entered(hitbox: Hitbox2D)

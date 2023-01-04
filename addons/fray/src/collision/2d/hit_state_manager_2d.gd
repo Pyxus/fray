@@ -1,25 +1,19 @@
-tool
+@tool
 extends Node2D
 ## Node used to switch between HitState2D children
 ## 
-## @desc:
-##		When a HitState2D child is activated all others will be deactivate.
-##		This is a convinience tool for enforcing discrete hit states.
+## When a HitState2D child is activated all others will be deactivate.
+## This is a convinience tool for enforcing discrete hit states.
 
 const ChildChangeDetector = preload("res://addons/fray/lib/helpers/child_change_detector.gd")
-const HitState2D = preload("hit_state_2d.gd")
-const Hitbox2D = preload("hitbox_2d.gd")
 
 signal hitbox_intersected(detector_hitbox, detected_hitbox)
 signal hitbox_seperated(detector_hitbox, detected_hitbox)
 
-export var source: NodePath
+@export var source: Node
 
 var _current_state: String = ""
 var _cc_detector: ChildChangeDetector
-
-onready var _source: Node
-
 
 func _ready() -> void:
 	if Engine.editor_hint: 
