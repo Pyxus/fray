@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 signal child_changed(node, change)
 

@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 static func safe_connect(obj: Object, 
 signal_name: String, 
