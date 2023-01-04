@@ -17,8 +17,7 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 
 ## Appends an input requirement to the end of the input_requirements array
 ##
-## max_delay is the maximum time in seconds between 2 inputs. 
-## Depending on the SequenceAnalyzer implementation the max_delay of the first requirement does nothing.
+## max_delay is the maximum time in seconds between two inputs. 
 ##
 ## min_time_held is the minimum time in seconds that the input is required to be held.
 ##

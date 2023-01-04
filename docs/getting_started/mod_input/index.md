@@ -74,6 +74,7 @@ The sequence analyzer is used for detecting sequences using a tree data structur
 
 
 ### Creating Sequences
+
 To use you will first need to create a `SequenceList` which contains sequences associated with a string name. Seach sequence name can be associated with multiple `SequencePath`s to allow for alternative inputs. Alternative inputs are useful for creating leniancy in a sequence by adding multiple matches for a sequence.
 
 Example Usage:
@@ -93,6 +94,32 @@ sequence_analyzer.initialize(sequence_list)
 ```
 
 Look up 'fighting game notation' if you wish to understand the numbers I used in the sequence name. This is just a naming convention, any string can be used as a name.
+
+### Negative Edge
+
+There is an input behavior featured in some fighting games known as negative edge. Ordinarily the input sequence is only considered valid when every button is pressed in succession. However, for inputs that support negative edge the last input in the sequence can be triggered by either a button press or a button release. Then means you can hold the last button down, enter the rest of the sequence, then release to trigger it.
+
+Although this is niche, Fray does support it. You just need to set `allow_negative_edge` to true or call the `enable_negative_edge()` when building your `SequencePath`s.
+
+```gdscript
+var sequence_list := SequenceList.new()
+sequence_list.add("hadouken", SequencePath.new()\
+    .then("down").then("down_right").then("right").then("punch").enable_negative_edge()
+)
+```
+
+### Charged Inputs
+
+Charged inputs are a unique kind of input featured in some fighting games. They involve holding a button down for a certain amount of time before releasing it and performing the rest of the sequence.
+
+Fray supports this, all you have to do is pass a non-zero value to the `min_time_held` parameter of the first input in a sequence.
+
+```gdscript
+var sequence_list := SequenceList.new()
+sequence_list.add("totsugeki", SequencePath.new()\
+    .then("left", .5).then("right").then("slash")
+)
+```
 
 ### Detecting sequence matches
 
