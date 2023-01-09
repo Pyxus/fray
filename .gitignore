@@ -12,6 +12,5 @@ export_presets.cfg
 !/addons/fray
 /demos
 /test
-*.import
 project.godot
 /default_env.tres
