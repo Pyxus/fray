@@ -1,4 +1,4 @@
-tool
+@tool
 extends "composite_input.gd"
 
 ## A composite input used to create conditional inputs
@@ -28,7 +28,7 @@ func set_condition(component_index: int, condition: String) -> void:
 		
 
 func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
-	if _components.empty():
+	if _components.is_empty():
 		push_warning("Conditional input has no components")
 		return false
 
@@ -45,11 +45,11 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	return comp.is_pressed(device, input_interface)
 
 
-func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
+func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
 	# Returns the first component with a true condition. Defaults to component at index 0
 
-	if _components.empty():
-		return PoolStringArray()
+	if _components.is_empty():
+		return PackedStringArray()
 
 	var component: Resource = _components[0]
 	for component_index in _conditions_by_component:

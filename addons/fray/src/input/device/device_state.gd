@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Used by FrayInput to track device state
 
 const InputState = preload("input_data/state/input_state.gd")
@@ -9,58 +9,58 @@ var input_state_by_name: Dictionary
 ## Type: Dictionary<String, bool>
 var bool_by_condition: Dictionary
 
-func flag_inputs_use_in_composite(composite: String, inputs: PoolStringArray) -> void:
+func flag_inputs_use_in_composite(composite: String, inputs: PackedStringArray) -> void:
     for input in inputs:
         if input_state_by_name.has(input):
             input_state_by_name[input].composites_used_in[composite] = true
 
 
-func unflag_inputs_use_in_composite(composite: String, inputs: PoolStringArray) -> void:
+func unflag_inputs_use_in_composite(composite: String, inputs: PackedStringArray) -> void:
     for input in inputs:
         if input_state_by_name.has(input):
             input_state_by_name[input].composites_used_in.erase(composite)
 
 
-func flag_inputs_as_distinct(inputs: PoolStringArray, ignore_in_comp_check: bool = false) -> void:
+func flag_inputs_as_distinct(inputs: PackedStringArray, ignore_in_comp_check: bool = false) -> void:
     for input in inputs:
         if input_state_by_name.has(input) and (ignore_in_comp_check or input_state_by_name[input].composites_used_in.empty()):
             input_state_by_name[input].is_distinct = true
 
-func unflag_inputs_as_distinct(inputs: PoolStringArray) -> void:
+func unflag_inputs_as_distinct(inputs: PackedStringArray) -> void:
     for input in inputs:
         if input_state_by_name.has(input):
             input_state_by_name[input].is_distinct = false
 
-func set_inputs_distinctiveness(inputs: PoolStringArray, is_distinct: bool) -> void:
+func set_inputs_distinctiveness(inputs: PackedStringArray, is_distinct: bool) -> void:
     for input in inputs:
         if input_state_by_name.has(input):
             input_state_by_name[input].is_distinct = is_distinct
 
 
-func is_all_indistinct(inputs: PoolStringArray) -> bool:
+func is_all_indistinct(inputs: PackedStringArray) -> bool:
     for input in inputs:
         if input_state_by_name.has(input) and input_state_by_name[input].is_distinct:
             return false
     return true
 
-func get_pressed_inputs() -> PoolStringArray:
-    var pressed_inputs: PoolStringArray
+func get_pressed_inputs() -> PackedStringArray:
+    var pressed_inputs: PackedStringArray
     for input in input_state_by_name:
         if input_state_by_name[input].pressed:
             pressed_inputs.append(input)
     return pressed_inputs
 
 
-func get_unpressed_inputs() -> PoolStringArray:
-    var unpressed_inputs: PoolStringArray
+func get_unpressed_inputs() -> PackedStringArray:
+    var unpressed_inputs: PackedStringArray
     for input in input_state_by_name:
         if not input_state_by_name[input].pressed:
             unpressed_inputs.append(input)
     return unpressed_inputs
 
 
-func get_all_inputs() -> PoolStringArray:
-    return PoolStringArray(input_state_by_name.keys())
+func get_all_inputs() -> PackedStringArray:
+    return PackedStringArray(input_state_by_name.keys())
 
 
 func get_input_state(input_name: String) -> InputState:

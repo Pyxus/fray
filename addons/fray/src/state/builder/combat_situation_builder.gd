@@ -22,7 +22,7 @@ const InputTransitionSequence = preload("../node/transition/input_transition_seq
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition_button(from: String, to: String, config: Dictionary = {}) -> Reference:
+func transition_button(from: String, to: String, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionButton.new()).transition
 	_configure_transition_input_button(transition, config)
 	return self
@@ -40,7 +40,7 @@ func transition_button(from: String, to: String, config: Dictionary = {}) -> Ref
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition_sequence(from: String, to: String, config: Dictionary = {}) -> Reference:
+func transition_sequence(from: String, to: String, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionSequence.new()).transition
 	_configure_transition_input_button(transition, config)
 	return self
@@ -59,7 +59,7 @@ func transition_sequence(from: String, to: String, config: Dictionary = {}) -> R
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition_button_global(to: String, config: Dictionary = {}) -> Reference:
+func transition_button_global(to: String, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionButton.new())
 	_configure_transition_input_sequence(tr.transition, config)
 	return self
@@ -77,7 +77,7 @@ func transition_button_global(to: String, config: Dictionary = {}) -> Reference:
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition_sequence_global(to: String, config: Dictionary = {}) -> Reference:
+func transition_sequence_global(to: String, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionSequence.new())
 	_configure_transition_input_sequence(tr.transition, config)
 	return self

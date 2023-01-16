@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Base state node class
 
 ## Type: WeakRef<StateNodeBase>
@@ -37,7 +37,7 @@ func has_parent() -> bool:
 	return _parent_ref != null
 
 ## Returns the parent of this node if it exists.
-func get_parent() -> Reference:
+func get_parent() -> RefCounted:
 	return _parent_ref.get_ref() if has_parent() else null
 
 ## Returns true if the node is considered to be done processing

@@ -9,21 +9,20 @@ extends Node
 
 const VirtualDevice = preload("device/virtual_device.gd")
 
-export var device: int
-export var disabled: bool
+@export var device: int
+@export var disabled: bool
 
 var _FrayInput: Node
 
 func _ready() -> void:
 	_FrayInput = get_node("/root/FrayInput")
-	_FrayInput.connect("device_connection_changed", self, "_on_FrayInput_device_connection_changed")
 
 ## Returns true if an input is being pressed.
 func is_pressed(input: String) -> bool:
 	return not disabled and is_device_connected() and _FrayInput.is_pressed(input, device)
 
 ## Returns true if any of the inputs given are being pressed
-func is_any_pressed(inputs: PoolStringArray) -> bool:
+func is_any_pressed(inputs: PackedStringArray) -> bool:
 	return not disabled and is_device_connected() and _FrayInput.is_any_pressed(inputs, device)
 
 ## Returns true when a user starts pressing the input, 

@@ -28,7 +28,7 @@ func remove_sequence_path(sequence_name: String, path_index: int) -> void:
 	if _sequence_path_by_name.has(sequence_name):
 		var sequences: Array = _sequence_path_by_name[sequence_name]
 		if sequences.size() < path_index and path_index >= 0:
-			sequences.remove(path_index)
+			sequences.remove_at(path_index)
 		else:
 			push_error("Index out of range")
 
@@ -59,5 +59,5 @@ func get_sequence_paths(sequence_name: String) -> Array:
 	return []
 
 ## Returns an array of all sequence names in the list.
-func get_sequence_names() -> PoolStringArray:
-	return PoolStringArray(_sequence_path_by_name.keys())
+func get_sequence_names() -> PackedStringArray:
+	return PackedStringArray(_sequence_path_by_name.keys())

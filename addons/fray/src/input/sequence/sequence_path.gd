@@ -10,7 +10,7 @@ var input_requirements: Array # InputRequirement[]
 ## Search 'fighting game negative edge' for more info on the concept
 var allow_negative_edge: bool
 
-func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
+func _init(path_allow_nedge = false, inputs: PackedStringArray = []) -> void:
 	allow_negative_edge = path_allow_nedge
 	for input in inputs:
 		then(input)
@@ -22,7 +22,7 @@ func _init(path_allow_nedge = false, inputs: PoolStringArray = []) -> void:
 ## min_time_held is the minimum time in seconds that the input is required to be held.
 ##
 ## Returns a reference to this sequence path allowing for chained method calls
-func then(input: String, min_time_held := 0.0, max_delay := .2) -> Reference:
+func then(input: String, min_time_held := 0.0, max_delay := .2) -> RefCounted:
 	var input_requirement := InputRequirement.new()
 	input_requirement.input = input
 	input_requirement.max_delay = max_delay
@@ -33,6 +33,6 @@ func then(input: String, min_time_held := 0.0, max_delay := .2) -> Reference:
 ## Setter for 'allow_negative_edge. 
 ##
 ## Returns a reference to this sequence path allowing for chained method calls
-func enable_negative_edge(allow: bool = true) -> Reference:
+func enable_negative_edge(allow: bool = true) -> RefCounted:
 	allow_negative_edge = allow
 	return self

@@ -26,15 +26,15 @@ func get_next_transitions(from: String) -> Array:
 	return .get_next_transitions(from) + get_next_global_transitions(from)
 
 ## Sets the tags associated with a state if the state exists.
-func set_node_tags(node: String, tags: PoolStringArray) -> void:
+func set_node_tags(node: String, tags: PackedStringArray) -> void:
 	if _ERR_INVALID_NODE(node): return
 	
 	_tags_by_node[node] = tags
 
 ## Gets the tags associated with a state if the state exists.
-func get_node_tags(node: String) -> PoolStringArray:
+func get_node_tags(node: String) -> PackedStringArray:
 	if _ERR_INVALID_NODE(node) or not _tags_by_node.has(node):
-		return PoolStringArray([])
+		return PackedStringArray([])
 	
 	return _tags_by_node[node]
 
@@ -114,13 +114,13 @@ func get_next_global_transitions(from: String) -> Array:
 	return transitions
 
 
-func _on_node_removed(name: String, _node: Reference) -> void:
+func _on_node_removed(name: String, _node: RefCounted) -> void:
 	if _tags_by_node.has(name):
 		_tags_by_node.erase(name)
 
 
 func _on_node_renamed(old_name: String, new_name: String) -> void:
 	if _tags_by_node.has(old_name):
-		var tags: PoolStringArray = _tags_by_node[old_name]
+		var tags: PackedStringArray = _tags_by_node[old_name]
 		_tags_by_node.erase(old_name)
 		_tags_by_node[new_name] = tags

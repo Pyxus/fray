@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Base class for inputs detected by the FrayInput singleton.
 ##
 ## @desc:
@@ -17,10 +17,10 @@ var physics_frame: int
 var idle_frame: int
 
 ## Returns true if the input has already been detected
-var echo: bool
+var is_echo: bool
 
 ## If true, the input is being pressed. If false, it is released
-var pressed: bool
+var is_pressed: bool
 
 ## The devices' ID
 var device: int
@@ -29,23 +29,22 @@ var device: int
 var input: String
 
 ## If true, this event was triggered by a virtual press.
-var virtually_pressed: bool
+var is_virtually_pressed: bool
 
 ## If true, this input occured before any other overlapping inputs.
-## Even if two inputs
 var is_distinct: bool
 
 func _to_string() -> String:
-	return "{input:%s, pressed:%s, device:%d}" % [input, pressed, device]
+	return "{input:%s, pressed:%s, device:%d}" % [input, is_pressed, device]
 
 ## Returns the time between two input events in miliseconds.
-func get_time_between_ms(fray_input_event: Reference, use_time_pressed: bool = false) -> int:
+func get_time_between_ms(fray_input_event: RefCounted, use_time_pressed: bool = false) -> int:
 	var t1: int = fray_input_event.time_pressed if use_time_pressed else fray_input_event.time_detected
 	var t2: int = time_pressed if use_time_pressed else time_detected
 	return int(abs(t1 - t2))
 
 ## Returns the time between two input events in seconds
-func get_time_between_sec(fray_input_event: Reference, use_time_pressed: bool = false) -> float:
+func get_time_between_sec(fray_input_event: RefCounted, use_time_pressed: bool = false) -> float:
 	return get_time_between_ms(fray_input_event, use_time_pressed) / 1000.0
 
 ## returns how long this input was held in miliseconds
@@ -58,8 +57,8 @@ func get_time_held_sec() -> float:
 
 ## Returns true if input was pressed with no echo
 func is_just_pressed() -> bool:
-	return pressed and not echo
+	return is_pressed and not is_echo
 
 ## Returns true if input was not virtually pressed
 func is_just_pressed_real() -> bool:
-	return is_just_pressed() and not virtually_pressed
+	return is_just_pressed() and not is_virtually_pressed

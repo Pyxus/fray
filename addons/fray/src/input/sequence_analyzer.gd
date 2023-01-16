@@ -1,4 +1,5 @@
-extends Reference
+class_name FraySequenceAnalyzer
+extends RefCounted
 ## Used to detect input sequences
 ##
 ## @desc:
@@ -8,7 +9,7 @@ extends Reference
 ##
 ##		To use you must first initialize the analyzer with a sequence list:
 ##
-##		var sequence_analyzer := SequenceAnalyzer.new()
+##		var sequence_analyzer := FraySequenceAnalyzer.new()
 ##		var sequence_list := SequenceList.new()
 ##
 ##		sequence_list.add("236p", SequencePath.new()\
@@ -166,7 +167,7 @@ func _resolve_sequence_break() -> void:
 	while not successful_retrace and not _input_queue.empty():
 		var first_frame: InputFrame = _input_queue.get_head().data
 		var can_remove_first_frame: bool = (
-			_match_path.empty()
+			_match_path.is_empty()
 			or not first_frame.try_remove(_match_path.front())
 			or first_frame.empty()
 			)
@@ -216,7 +217,7 @@ func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 
 
 class InputFrame:
-	extends Reference
+	extends RefCounted
 
 	const FrayInputEvent = preload("events/fray_input_event.gd")
 	
@@ -250,14 +251,14 @@ class InputFrame:
 
 
 	func empty() -> bool:
-		return inputs.empty()
+		return inputs.is_empty()
 
 
 	func only_has_release() -> bool:
 		for input in inputs:
 			if input.pressed:
 				return false
-		return inputs.empty()
+		return inputs.is_empty()
 
 
 	func trace(start_node: InputNode, match_path: Array) -> InputNode:
@@ -270,7 +271,7 @@ class InputFrame:
 		return match_node
 
 class InputNode:
-	extends Reference
+	extends RefCounted
 
 	const SequencePath = preload("sequence/sequence_path.gd")
 
@@ -294,7 +295,7 @@ class InputNode:
 			return "ROOT"
 
 		var string := ""
-		if sequence_name.empty():
+		if sequence_name.is_empty():
 			string = "[%s]" % input
 		else:
 			string = "[%s] -> %s" % [input, sequence_name]
@@ -312,7 +313,7 @@ class InputNode:
 
 
 	func add_node(node: InputNode) -> void:
-		if not sequence_name.empty():
+		if not sequence_name.is_empty():
 			push_warning("There can not be two sequences on the same path. Additional sequences will be ingored")
 		_next_nodes.append(node)
 
@@ -339,7 +340,7 @@ class InputNode:
 		return false
 
 	func has_sequence() -> bool:
-		return not sequence_name.empty() and sequence_path != null
+		return not sequence_name.is_empty() and sequence_path != null
 
 
 	func get_child_count() -> int:

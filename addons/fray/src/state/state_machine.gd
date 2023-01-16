@@ -10,13 +10,15 @@ enum AdvanceMode{
 }
 
 ## The process mode of this state machine.
-export(AdvanceMode) var advance_mode: int = AdvanceMode.IDLE
+@export_enum(AdvanceMode) var advance_mode: int = AdvanceMode.IDLE
 
 ## If true the combat state machine will be processing.
-export var active: bool
+@export var active: bool
 
 ## The root state machine node.
-var root: StateNodeStateMachine setget set_root
+var root: StateNodeStateMachine:
+	set(value):
+		set_root(value)
 
 func _process(delta: float) -> void:
 	if _can_process():
@@ -49,7 +51,7 @@ func _can_process() -> bool:
 
 ## Virtual method used to implement advance procedure
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if root.current_node.empty():
+	if root.current_node.is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	

@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Abstract base condition class
 
 var Condition: GDScript = load("res://addons/fray/src/state/node/transition/condition.gd")
@@ -16,7 +16,7 @@ func _init(condition_name: String = "", is_invert: bool = false) -> void:
 
 
 ## Returns true if this condition is equal to the given condition
-func equals(condition: Reference) -> bool:
+func equals(condition: RefCounted) -> bool:
 	return (
 		condition is Condition
 		and invert == condition.invert

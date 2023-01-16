@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Static helper class used to construct composite inputs
 
 const CompositeInput = preload("composite_input.gd")
@@ -31,14 +31,14 @@ static func new_conditional():
 	return ConditionalBuilder.new()
 
 ## Returns a new simple input builder
-static func new_simple(binds: PoolStringArray = []):
+static func new_simple(binds: PackedStringArray = []):
 	var builder := SimpleBuilder.new()
 	builder.set_binds(binds) 
 	return builder
 
 
 class ComponentBuilder:
-	extends Reference
+	extends RefCounted
 
 	const CompositeInput = preload("composite_input.gd")
 
@@ -56,14 +56,14 @@ class ComponentBuilder:
 	## Sets whether the input will be virtual or not
 	##
 	## Returns a reference to this ComponentBuilder
-	func is_virtual(value: bool = true) -> Reference:
+	func is_virtual(value: bool = true) -> RefCounted:
 		_composite_input.is_virtual = value
 		return self
 	
 	## Sets wthe composite input's process priority
 	##
 	## Returns a reference to this ComponentBuilder
-	func priority(value: int) -> Reference:
+	func priority(value: int) -> RefCounted:
 		_composite_input.priority = value
 		return self
 
@@ -79,14 +79,14 @@ class CombinationBuilder:
 	## Adds a composite input as a component of this combination
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(component_builder: Reference) -> Reference:
+	func add_component(component_builder: RefCounted) -> RefCounted:
 		_builders.append(component_builder)
 		return self
 
 	## Sets the combination mode
 	##
 	## Returns a reference to this ComponentBuilder
-	func mode(combination_mode: int) -> Reference:
+	func mode(combination_mode: int) -> RefCounted:
 		_composite_input.mode = combination_mode
 		return self
 	
@@ -104,7 +104,7 @@ class ConditionalBuilder:
 	## Adds a composite input as a component of this conditional input
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(condition: String, component_builder: Reference):
+	func add_component(condition: String, component_builder: RefCounted):
 		_conditions.append(condition)
 		_builders.append(component_builder)
 		return self 
@@ -130,14 +130,14 @@ class SimpleBuilder:
 	## Adds a bind to this simple input
 	##
 	## Returns a reference to this ComponentBuilder
-	func bind(bind_name: String) -> Reference:
+	func bind(bind_name: String) -> RefCounted:
 		_composite_input.binds.append(bind_name)
 		return self
 	
 	## Sets an array of binds to this simple input
 	##
 	## Returns a reference to this ComponentBuilder
-	func set_binds(bind_names: PoolStringArray) -> Reference:
+	func set_binds(bind_names: PackedStringArray) -> RefCounted:
 		_composite_input.binds = bind_names
 		return self
 

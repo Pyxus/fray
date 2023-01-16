@@ -28,12 +28,12 @@ const DEVICE_KBM_JOY1 = 0
 ## Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
-onready var _input_interface := InputInterface.new(weakref(self))
+@onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
+@onready var _input_interface := InputInterface.new(weakref(self))
 
 
 func _ready() -> void:
-	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
+	Input.joy_connection_changed.connect(_on_Input_joy_connection_changed)
 
 	for device in Input.get_connected_joypads():
 		_connect_device(device)
@@ -106,7 +106,7 @@ func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 			return false
 
 ## Returns true if any of the inputs given are being pressed
-func is_any_pressed(inputs: PoolStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_any_pressed(inputs: PackedStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
 	for input in inputs:
 		if is_pressed(input):
 			return true
@@ -120,7 +120,7 @@ func is_just_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 			if Engine.is_in_physics_frame():
 				return input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return input_state.pressed and input_state.idle_frame == Engine.get_idle_frames()
+				return input_state.pressed and input_state.idle_frame == Engine.get_process_frames()
 		null:
 			return false
 
@@ -141,13 +141,13 @@ func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 			if Engine.is_in_physics_frame():
 				return not input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return not input_state.pressed and input_state.idle_frame == Engine.get_idle_frames()
+				return not input_state.pressed and input_state.idle_frame == Engine.get_process_frames()
 		null:
 			return false
 
 ## Returns true if device with given id is connected
 func is_device_connected(device: int) -> bool:
-	 return _device_state_by_id.has(device)
+	return _device_state_by_id.has(device)
 
 ## Returns a value between 0 and 1 representing the intensity of an input.
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
@@ -168,7 +168,7 @@ func get_axis(negative_input: String, positive_input: String, device: int = DEVI
 func get_connected_devices() -> Array:
 	var connected_joypads := Input.get_connected_joypads()
 	
-	if connected_joypads.empty():
+	if connected_joypads.is_empty():
 		connected_joypads.append(DEVICE_KBM_JOY1)
 		
 	return connected_joypads
@@ -204,7 +204,7 @@ func create_virtual_device() -> VirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
 	var vd := VirtualDevice.new(_connect_device(id), id)
-	vd.connect("disconnect_requested", self, "_on_VirtualDevice_disconnect_requested", [id])
+	vd.disconnect_requested.connect(_on_VirtualDevice_disconnect_requested.bind(id))
 	return vd
 
 
@@ -269,13 +269,13 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 	input_event.time_pressed = input_state.time_pressed
 	input_event.physics_frame = input_state.physics_frame
 	input_event.idle_frame = input_state.idle_frame
-	input_event.time_detected = OS.get_ticks_msec()
+	input_event.time_detected = Time.get_ticks_msec()
 	input_event.pressed = input_state.pressed
 	input_event.is_distinct = input_state.is_distinct
 	
 	return input_event
 
-func _virtually_press(inputs: PoolStringArray, device: int) -> void:
+func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 	var device_state := _get_device_state(device)
 
 	# Virtually press held binds

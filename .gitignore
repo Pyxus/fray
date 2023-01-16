@@ -19,6 +19,5 @@ mono_crash.*.json
 !/addons/fray
 /demos
 /test
-*.import
 project.godot
 /default_env.tres

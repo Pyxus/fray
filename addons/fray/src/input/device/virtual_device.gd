@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Manually controlled virtual device
 ##
 ## @desc:

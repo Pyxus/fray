@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Represents transition from one state to another
 
 enum SwitchMode{

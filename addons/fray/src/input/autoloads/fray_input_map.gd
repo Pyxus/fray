@@ -107,8 +107,8 @@ func has_bind(bind_name: String) -> bool:
 	return _input_bind_by_name.has(bind_name)
 
 ## Returns an arry of all input bind names.
-func get_bind_names() -> PoolStringArray:
-	return PoolStringArray(_input_bind_by_name.keys())
+func get_bind_names() -> PackedStringArray:
+	return PackedStringArray(_input_bind_by_name.keys())
 
 ## Retruns input bind with given name if it exists.
 func get_bind(bind_name: String) -> InputBind:
@@ -121,8 +121,8 @@ func has_composite_input(input_name: String) -> bool:
 	return _composite_input_by_name.has(input_name)
 
 ## Returns an array of all composite input names.
-func get_composite_input_names() -> PoolStringArray:
-	return PoolStringArray(_composites_sorted)
+func get_composite_input_names() -> PackedStringArray:
+	return PackedStringArray(_composites_sorted)
 
 ## Returns composite input with given name if it exists.
 func get_composite_input(input_name: String) -> CompositeInput:

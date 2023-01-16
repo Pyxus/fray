@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Helper class for input nodes to safely interface with the FrayInput singleton.
 ## Used to fetch the state of certain data in the singleton.
 

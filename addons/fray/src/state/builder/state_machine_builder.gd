@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## State machine builder
 ##
 ## @desc:
@@ -50,7 +50,7 @@ func build() -> StateNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := StateNode.new()) -> Reference:
+func add_state(name: String, state := StateNode.new()) -> RefCounted:
 	if name.empty():
 		push_error("State name can not be empty")
 	else:
@@ -68,7 +68,7 @@ func add_state(name: String, state := StateNode.new()) -> Reference:
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
+func transition(from: String, to: String, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_transition(from, to, StateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -77,7 +77,7 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func start_at(state: String) -> Reference:
+func start_at(state: String) -> RefCounted:
 	_add_state_once(state)
 	_start_state = state
 	return self
@@ -86,7 +86,7 @@ func start_at(state: String) -> Reference:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func end_at(state: String) -> Reference:
+func end_at(state: String) -> RefCounted:
 	_add_state_once(state)
 	_end_state = state
 	return self
@@ -169,7 +169,7 @@ func _clear_impl() -> void:
 
 
 class Transition:
-	extends Reference
+	extends RefCounted
 	
 	const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 

@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 static func sort_ascending(t1, t2, property: String = "") -> bool:
 	if property.is_empty():

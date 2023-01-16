@@ -1,4 +1,4 @@
-tool
+@tool
 extends "state_machine.gd"
 ## Combat state machine
 ##
@@ -23,17 +23,35 @@ const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_globa
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
 ## This can be used to control when a player is allowed to 'cancel' an attack.
-export var allow_transitions: bool
+@export var allow_transitions: bool
 
 ## The max time a detected input can exist in the buffer before it is ignored in frames.
 ## Here a frame is defined as '1 / physics_fps'
-export var input_max_buffer_time: int = 5 setget set_input_max_buffer_time
+@export var input_max_buffer_time: int = 5:
+	set(value):
+		input_max_buffer_time = value
+		input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.iterations_per_second)) * 1000)
+		property_list_changed_notify()
 
 ## The max time a detected input can exist in the buffer before it is ignored in ms.
-export var input_max_buffer_time_ms: int = 1000 setget set_input_max_buffer_time_ms
+@export var input_max_buffer_time_ms: int = 1000:
+	set(value):
+		input_max_buffer_time_ms = value
+		input_max_buffer_time = ceil((Engine.iterations_per_second * input_max_buffer_time_ms) / 1000.0)
+		property_list_changed_notify()
 
 ## Name of the state machine's surrent situation
-var current_situation: String setget change_situation
+var current_situation: String:
+	set(situation_name):
+		if not has_situation(situation_name):
+			push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
+			return
+		
+		if situation_name != current_situation:
+			current_situation = situation_name
+			root = get_situation(situation_name)
+			root.goto_start()
+		
 
 ## Type: BufferedInput[]
 var _input_buffer: Array
@@ -46,7 +64,7 @@ var _time_since_last_input_ms: float
 
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
-	._advance_impl(input, args)
+	super(input, args)
 	
 	var current_time := OS.get_ticks_msec()
 	while not _input_buffer.empty() and allow_transitions:
@@ -62,7 +80,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 
 
 func set_root(value: StateNodeStateMachine) -> void:
-	.set_root(value)
+	super(value)
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
 ## Returns the current situation to its start state.
@@ -155,7 +173,7 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 	return ""
 
 class BufferedInput:
-	extends Reference
+	extends RefCounted
 
 	func _init(input_time_stamp: int = 0) -> void:
 		time_stamp = input_time_stamp
@@ -166,7 +184,8 @@ class BufferedInput:
 class BufferedInputButton:
 	extends BufferedInput
 
-	func _init(input_time_stamp: int = 0, input_name: String = "", input_is_pressed: bool = true).(input_time_stamp) -> void:
+	func _init(input_time_stamp: int = 0, input_name: String = "", input_is_pressed: bool = true) -> void:
+		super(input_time_stamp)
 		input = input_name
 		is_pressed = input_is_pressed
 	
@@ -177,7 +196,8 @@ class BufferedInputButton:
 class BufferedInputSequence:
 	extends BufferedInput
 
-	func _init(input_time_stamp: int = 0, input_sequence_name: String = "").(input_time_stamp) -> void:
+	func _init(input_time_stamp: int = 0, input_sequence_name: String = "") -> void:
+		super(input_time_stamp)
 		sequence_name = input_sequence_name
 	
 	var sequence_name: String

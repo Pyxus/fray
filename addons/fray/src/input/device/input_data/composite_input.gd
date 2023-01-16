@@ -1,4 +1,4 @@
-tool
+@tool
 extends Resource
 ## Abstract base class for all composite inputs
 ##
@@ -10,7 +10,13 @@ const InputState = preload("state/input_state.gd")
 
 ## If true, components that are still held when the composite is released
 ## will be treated as if they were just pressed again.
-var is_virtual: bool setget set_virtual
+var is_virtual: bool:
+	set(value):
+		is_virtual = value
+
+		if get_root() != null:
+			push_warning("Virtual on a non-root component has no affect.") 
+		
 
 ## The composite input's priority. Higher priority composites are processed first.
 var priority: int
@@ -43,15 +49,15 @@ func add_component(component: Resource) -> void:
 	_components.append(component)
 
 ## Decomposes composite input into binds
-func decompose(device: int, input_interface: InputInterface) -> PoolStringArray:
+func decompose(device: int, input_interface: InputInterface) -> PackedStringArray:
 	return _decompose_impl(device, input_interface)
 
 ## Returns true if the composite input can decompose into the given binds
 ## 'is_exact' If true then the given binds need to exactly match the input's decomposition
-func can_decompose_into(device: int, input_interface: InputInterface, binds: PoolStringArray, is_exact := true)  -> bool:
+func can_decompose_into(device: int, input_interface: InputInterface, binds: PackedStringArray, is_exact := true)  -> bool:
 	var my_components := decompose(device, input_interface)
 
-	if binds.empty() or my_components.empty():
+	if binds.is_empty() or my_components.is_empty():
 		return false
 
 	if binds.size() < my_components.size():
@@ -98,6 +104,6 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	return false
 
 ## Abstract method used to define decomposition procedure
-func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
+func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
 	push_error("Method not implemented.")
-	return PoolStringArray()
+	return PackedStringArray()

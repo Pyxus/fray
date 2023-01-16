@@ -1,4 +1,4 @@
-tool
+@tool
 extends "composite_input.gd"
 ## A composite input used to create combination inputs
 ##
@@ -30,9 +30,9 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: InputInterface) -> PoolStringArray:
+func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
 	# Returns all components decomposed and joined
-	var binds: PoolStringArray
+	var binds: PackedStringArray
 	for component in _components:
 		binds += component.decompose(device, input_interface)
 	return binds
