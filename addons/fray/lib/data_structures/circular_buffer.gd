@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## docstring
 
 #signals
@@ -11,7 +11,16 @@ extends Reference
 
 #exported variables
 
-var capacity: int = 1 setget set_capacity
+var capacity: int = 1:
+	set(value):
+		if value <= 0:
+			push_error("Circular buffer capacity can not be smaller than 1")
+
+		capacity = max(1, value)
+		_buffer.resize(capacity)
+		_read_index = 0
+		_write_index = 0
+		
 
 var _read_index: int
 var _write_index: int

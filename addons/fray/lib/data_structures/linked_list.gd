@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 var _head: ListNode
 var _itter_current: ListNode
@@ -68,17 +68,17 @@ func _iter_get(arg):
 
 
 class ListNode:
-	extends Reference
+	extends RefCounted
 
 	## Type: Variant
 	var data
 
 	## Type: ListNode
-	var _next: Reference
+	var _next: RefCounted
 
 	func _init(node_data) -> void:
 		data = node_data
 
 	## Returns: ListNode
-	func get_next() -> Reference:
+	func get_next() -> RefCounted:
 		return _next

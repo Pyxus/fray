@@ -17,7 +17,7 @@ static func implements(obj: Object, interface: String) -> bool:
 		push_error("Failed to check interface. Interface '%s' is not defined." % interface)
 		return false 
 	
-	return _get_missing_members(obj, interface).empty()
+	return _get_missing_members(obj, interface).is_empty()
 
 
 static func assert_implements(obj: Object, interface: String) -> void:
@@ -31,9 +31,9 @@ static func assert_implements(obj: Object, interface: String) -> void:
 	assert(has_implementation, "Script '%s' does not implement interface '%s'" % [script_name, interface])
 
 	
-static func _get_missing_members(obj: Object, interface: String) -> PoolStringArray:
+static func _get_missing_members(obj: Object, interface: String) -> PackedStringArray:
 	var script_name: String = obj.get_script().resource_path.get_file()
-	var missing_members: PoolStringArray = []
+	var missing_members: PackedStringArray = []
 
 	for method in _interfaces[interface]["methods"]:
 		if not obj.has_method(method):

@@ -2,7 +2,7 @@
 class_name HitboxAttributes
 extends Resource
 @icon("res://addons/fray/assets/icons/hit_attributes.svg")
-## Abstract data class that holds the attributes of a hitbox
+## Abstract data class used to define hitbox attributes.
 
 ## Returns the color a hitbox with this attribute should be.
 func get_color() -> Color:
@@ -16,7 +16,7 @@ func allows_detection_of(attributes: Resource) -> bool:
 ## Currently this does nothing as godot does not provide
 ## an easy way to change the area colors in 2d and 3d.
 func _get_color_impl() -> Color:
-	return Color.BLACK
+	return Color(0, 0, 0, .5)
 
 ## Virtual method used to implement 'allows_detection_of'.
 func _allows_detection_of_impl(attributes: Resource) -> bool:

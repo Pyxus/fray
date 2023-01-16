@@ -1,40 +1,58 @@
 @tool
-class_name Hitbox2D 
+class_name FrayHitbox2D 
 extends Area2D
 @icon("res://addons/fray/assets/icons/hitbox_2d.svg")
 ## 2D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.
-## Instead it serves as a template you can expand upon through the use of [HitboxAttributes]
+## It serves as a template you can expand upon through the use of [HitboxAttributes]
 
 ## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
-signal hitbox_entered(hitbox: Hitbox2D)
+signal hitbox_entered(hitbox: FrayHitbox2D)
 
 ## Emitted when the received [kbd]hitbox[/kbd] exits this hitbox. Requires monitoring to be set to [code]true[/code].
-signal hitbox_exited(hitbox: Hitbox2D)
+signal hitbox_exited(hitbox: FrayHitbox2D)
 
 ## If true then hitboxes that share the same source as this one will still be detected
 @export var detect_source_hitboxes: bool = false
 
 ## The assigned [HitboxAttributes]
-@export var attributes: HitboxAttributes
+@export var attributes: HitboxAttributes:
+	set(value):
+		attributes = value
+		
+		if attributes != null:
+			_update_collision_colors()
+		
+		update_configuration_warnings()
 
 ## Source of this hitbox. 
 ## By default hitboxes with the same source will not detect one another.
 ## This can be changed by enabling [member detect_srouce_hitboxes].
 var source: Object = null
 
-var _hitbox_exceptions: Array[Hitbox2D]
+var _hitbox_exceptions: Array[FrayHitbox2D]
 var _source_exceptions: Array[Object]
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		child_entered_tree.connect(func(node: Node): _update_collision_colors())
+		return
+		
 	area_entered.connect(_on_area_entered)
 	area_exited.connect(_on_area_exited)
 
-## Returns a list of intersecting [Hitbox2D]s.
-func get_overlapping_hitboxes() -> Array[Hitbox2D]:
-	var hitboxes: Array[Hitbox2D]
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings: PackedStringArray = []
+	if attributes == null:
+		warnings.append("Hitboxes without attributes are effective just Area2Ds. Consider giving this node a HitboxAttributes resource.")
+	return warnings
+
+## Returns a list of intersecting [FrayHitbox2D]s.
+func get_overlapping_hitboxes() -> Array[FrayHitbox2D]:
+	var hitboxes: Array[FrayHitbox2D]
 	for area in get_overlapping_areas():
 		if can_detect(area):
 			hitboxes.append(area)
@@ -42,7 +60,7 @@ func get_overlapping_hitboxes() -> Array[Hitbox2D]:
 
 ## Adds a hitbox to a list of hitboxes this hitbox can't detect
 func add_hitbox_exception_with(hitbox: Area2D) -> void:
-	if hitbox is Hitbox2D and not _hitbox_exceptions.has(hitbox):
+	if hitbox is FrayHitbox2D and not _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.append(hitbox)
 	
 ## Removes a hitbox from a list of hitboxes this hitbox can't detect
@@ -76,15 +94,22 @@ func deactivate() -> void:
 ## [br]
 ## A hitbox can not detect another hitbox if there is a source or hitbox exception
 ## or if the set hitbox attribute does not allow interaction with the given hitbox. 
-func can_detect(hitbox: Hitbox2D) -> bool:
+func can_detect(hitbox: FrayHitbox2D) -> bool:
 	return (
-		hitbox is Hitbox2D
+		hitbox is FrayHitbox2D
 		and not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
 		and detect_source_hitboxes or hitbox.source != source
 		and attributes.allows_detection_of(hitbox.attributes)
 			if attributes != null else true
 		)
+	
+
+func _update_collision_colors() -> void:
+	if attributes != null:
+		for node in get_children():
+			if node is CollisionShape2D:
+				node.debug_color = attributes.get_color()
 	
 	
 func _on_area_entered(hitbox: Area2D) -> void:
