@@ -51,7 +51,7 @@ func build() -> StateNodeStateMachine:
 ##
 ## Returns a reference to this builder
 func add_state(name: String, state := StateNode.new()) -> RefCounted:
-	if name.empty():
+	if name.is_empty():
 		push_error("State name can not be empty")
 	else:
 		_state_by_name[name] = state
@@ -132,10 +132,10 @@ func _configure_state_machine(root: StateNodeStateMachine) -> void:
 	for tr in _transitions:
 		root.add_transition(tr.from, tr.to, tr.transition)
 
-	if not _start_state.empty():
+	if not _start_state.is_empty():
 		root.start_node = _start_state
 	
-	if not _end_state.empty():
+	if not _end_state.is_empty():
 		root.end_node = _end_state
 
 

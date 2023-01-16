@@ -30,15 +30,15 @@ const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_globa
 @export var input_max_buffer_time: int = 5:
 	set(value):
 		input_max_buffer_time = value
-		input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.iterations_per_second)) * 1000)
-		property_list_changed_notify()
+		input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
+		notify_property_list_changed()
 
 ## The max time a detected input can exist in the buffer before it is ignored in ms.
 @export var input_max_buffer_time_ms: int = 1000:
 	set(value):
 		input_max_buffer_time_ms = value
-		input_max_buffer_time = ceil((Engine.iterations_per_second * input_max_buffer_time_ms) / 1000.0)
-		property_list_changed_notify()
+		input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
+		notify_property_list_changed()
 
 ## Name of the state machine's surrent situation
 var current_situation: String:
@@ -66,14 +66,14 @@ var _time_since_last_input_ms: float
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 	super(input, args)
 	
-	var current_time := OS.get_ticks_msec()
-	while not _input_buffer.empty() and allow_transitions:
+	var current_time := Time.get_ticks_msec()
+	while not _input_buffer.is_empty() and allow_transitions:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
 		var time_since_last_input = (current_time - _time_since_last_input_ms) / 1000.0
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		var next_state := _get_next_state(buffered_input, time_since_last_input)
 		
-		if not next_state.empty() and time_since_inputted <= input_max_buffer_time_ms:
+		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_ms:
 			root.goto(next_state)
 			_time_since_last_input_ms = current_time
 			break
@@ -125,15 +125,15 @@ func has_situation(situation_name: String) -> bool:
 ## Setter for 'input_max_buffer_time' property
 func set_input_max_buffer_time(value: int) -> void:
 	input_max_buffer_time = value
-	input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.iterations_per_second)) * 1000)
-	property_list_changed_notify()
+	input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
+	notify_property_list_changed()
 	
 
 ## Setter for 'input_max_buffer_time_ms' property
 func set_input_max_buffer_time_ms(value: int) -> void:
 	input_max_buffer_time_ms = value
-	input_max_buffer_time = ceil((Engine.iterations_per_second * input_max_buffer_time_ms) / 1000.0)
-	property_list_changed_notify()
+	input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
+	notify_property_list_changed()
 
 ## Buffers an input button to be processed by the state machine
 ##
@@ -143,7 +143,7 @@ func set_input_max_buffer_time_ms(value: int) -> void:
 ##
 ## If `is_pressed` is true then a pressed input is buffered, else a released input is buffered.
 func buffer_button(input: String, is_pressed: bool = true) -> void:
-	_input_buffer.append(BufferedInputButton.new(OS.get_ticks_msec(), input, is_pressed))
+	_input_buffer.append(BufferedInputButton.new(Time.get_ticks_msec(), input, is_pressed))
 
 ## Buffers an input sequence to be processed by the state machine
 #
@@ -151,7 +151,7 @@ func buffer_button(input: String, is_pressed: bool = true) -> void:
 ## This is just an identifier used in input transitions.
 ## It is not default associated with any actions in godot or inputs in fray.
 func buffer_sequence(sequence_name: String) -> void:
-	_input_buffer.append(BufferedInputSequence.new(OS.get_ticks_msec(), sequence_name))
+	_input_buffer.append(BufferedInputSequence.new(Time.get_ticks_msec(), sequence_name))
 
 ## Clears the input buffer
 func clear_buffer() -> void:

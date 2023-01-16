@@ -21,7 +21,7 @@ func _build_impl() -> StateNodeStateMachine:
 
 
 func _clear_impl() -> void:
-	._clear_impl()
+	super()
 	_transition_rules.clear()
 	_tags_by_state.clear()
 	_global_transitions.clear()
@@ -74,7 +74,7 @@ func _create_global_transition(to: String, transition: StateMachineTransition) -
 	return tr
 
 func _configure_state_machine(root: StateNodeStateMachine) -> void:
-	._configure_state_machine(root)
+	super(root)
 
 	if root is StateNodeStateMachineGlobal:
 		for state in _tags_by_state:
