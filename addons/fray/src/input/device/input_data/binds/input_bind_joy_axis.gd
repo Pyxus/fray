@@ -1,4 +1,5 @@
 @tool
+class_name FrayInputBindJoyAxis
 extends "input_bind_simple.gd"
 ## Joy axis input bind
 

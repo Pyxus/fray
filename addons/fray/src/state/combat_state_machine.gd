@@ -1,4 +1,5 @@
 @tool
+class_name FrayCombatStateMachine
 extends "state_machine.gd"
 ## Combat state machine
 ##

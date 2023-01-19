@@ -1,4 +1,5 @@
 @tool
+class_name FrayInputBindJoyButton
 extends "input_bind_simple.gd"
 ## Joystick input bind
 

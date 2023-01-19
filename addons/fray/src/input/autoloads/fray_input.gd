@@ -12,16 +12,6 @@ signal input_detected(input_event)
 ## Emitted when a device has been connected or disconnected
 signal device_connection_changed(device_id, connected)
 
-const DeviceState = preload("../device/device_state.gd")
-const VirtualDevice = preload("../device/virtual_device.gd")
-const InputState = preload("../device/input_data/state/input_state.gd")
-const InputInterface = preload("../device/input_data/state/input_interface.gd")
-const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
-const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
-const FrayInputEvent = preload("../events/fray_input_event.gd")
-const FrayInputEventBind = preload("../events/fray_input_event_bind.gd")
-const FrayInputEventComposite = preload("../events/fray_input_event_composite.gd")
-const FrayInputMap = preload("fray_input_map.gd")
 
 const DEVICE_KBM_JOY1 = 0
 
@@ -29,7 +19,7 @@ const DEVICE_KBM_JOY1 = 0
 var _device_state_by_id: Dictionary
 
 @onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
-@onready var _input_interface := InputInterface.new(weakref(self))
+@onready var _input_interface := FrayInputInterface.new(weakref(self))
 
 
 func _ready() -> void:
@@ -52,9 +42,9 @@ func _physics_process(_delta: float) -> void:
 			input_state.strength = bind.get_strength(device)
 
 			if bind.is_pressed(device):
-				if not input_state.pressed:
+				if not input_state.is_pressed:
 					input_state.press()
-			elif input_state.pressed:
+			elif input_state.is_pressed:
 				input_state.unpress()
 		
 		for composite_input_name in _input_map.get_composite_input_names():
@@ -89,11 +79,11 @@ func _physics_process(_delta: float) -> void:
 		for input in device_state.get_all_inputs():
 			if is_just_pressed(input, device) or is_just_released(input, device):
 				var input_event := _create_input_event(input, device)
-				input_event.echo = false
+				input_event.is_echo = false
 				emit_signal("input_detected", input_event)
 			elif is_pressed(input, device):
 				var input_event := _create_input_event(input, device)
-				input_event.echo = true
+				input_event.is_echo = true
 				emit_signal("input_detected", input_event)
 		
 
@@ -101,7 +91,7 @@ func _physics_process(_delta: float) -> void:
 func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
-			return input_state.pressed
+			return input_state.is_pressed
 		null:
 			return false
 
@@ -118,9 +108,9 @@ func is_just_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
-				return input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
+				return input_state.is_pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return input_state.pressed and input_state.idle_frame == Engine.get_process_frames()
+				return input_state.is_pressed and input_state.process_frame == Engine.get_process_frames()
 		null:
 			return false
 
@@ -139,9 +129,9 @@ func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
-				return not input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
+				return not input_state.is_pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return not input_state.pressed and input_state.idle_frame == Engine.get_process_frames()
+				return not input_state.ispressed and input_state.process_frame == Engine.get_process_frames()
 		null:
 			return false
 
@@ -200,16 +190,16 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 
 ## Retruns a newly created virtual device
 ## By convention all virtual devices are assigned a negative number
-func create_virtual_device() -> VirtualDevice:
+func create_virtual_device() -> FrayVirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
-	var vd := VirtualDevice.new(_connect_device(id), id)
+	var vd := FrayVirtualDevice.new(_connect_device(id), id)
 	vd.disconnect_requested.connect(_on_VirtualDevice_disconnect_requested.bind(id))
 	return vd
 
 
-func _connect_device(device: int) -> DeviceState:
-	var device_state := DeviceState.new()
+func _connect_device(device: int) -> FrayDeviceState:
+	var device_state := FrayDeviceState.new()
 	var all_input_names :=\
 		(_input_map.get_bind_names() + _input_map.get_composite_input_names())
 		
@@ -230,13 +220,13 @@ func _disconnect_device(device: int) -> void:
 		push_error("Failed to disconnect device. Unrecognized device '%d'." % device)
 
 
-func _get_device_state(device: int) -> DeviceState:
+func _get_device_state(device: int) -> FrayDeviceState:
 	if _device_state_by_id.has(device):
 		return _device_state_by_id[device]
 	return null
 
 
-func _get_input_state(input: String, device: int) -> InputState:
+func _get_input_state(input: String, device: int) -> FrayInputState:
 	match _get_device_state(device):
 		var device_state:
 			if not _input_map.has_input(input):
@@ -247,7 +237,7 @@ func _get_input_state(input: String, device: int) -> InputState:
 			return null
 
 
-func _get_bind_state(input: String, device: int) -> InputState:
+func _get_bind_state(input: String, device: int) -> FrayInputState:
 	if _input_map.has_bind(input):
 		return _get_input_state(input, device)
 	return null
@@ -268,9 +258,9 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 	input_event.input = input
 	input_event.time_pressed = input_state.time_pressed
 	input_event.physics_frame = input_state.physics_frame
-	input_event.idle_frame = input_state.idle_frame
+	input_event.process_frame = input_state.process_frame
 	input_event.time_detected = Time.get_ticks_msec()
-	input_event.pressed = input_state.pressed
+	input_event.is_pressed = input_state.is_pressed
 	input_event.is_distinct = input_state.is_distinct
 	
 	return input_event

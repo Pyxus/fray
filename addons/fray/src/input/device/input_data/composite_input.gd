@@ -1,4 +1,5 @@
 @tool
+class_name FrayCompositeInput
 extends Resource
 ## Abstract base class for all composite inputs
 ##
@@ -107,3 +108,18 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
 	push_error("Method not implemented.")
 	return PackedStringArray()
+
+
+class CompositeBuilder:
+	extends RefCounted
+
+	var _composite_input: FrayCompositeInput
+	var _builders: Array[CompositeBuilder]
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly build CompositeInput
+	func build() -> FrayCompositeInput:
+		for builder in _builders:
+			_composite_input.add_component(builder.build())
+		return _composite_input

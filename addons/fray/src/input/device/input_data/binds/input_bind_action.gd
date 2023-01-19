@@ -1,4 +1,5 @@
 @tool
+class_name FrayInputBindAction
 extends "input_bind_simple.gd"
 ## Action input bind
 ##

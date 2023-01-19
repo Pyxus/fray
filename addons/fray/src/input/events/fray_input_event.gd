@@ -1,3 +1,4 @@
+class_name FrayInputEvent
 extends RefCounted
 ## Base class for inputs detected by the FrayInput singleton.
 ##
@@ -14,7 +15,7 @@ var time_detected: int
 var physics_frame: int
 
 ## The idle frame when the input was first pressed
-var idle_frame: int
+var process_frame: int
 
 ## Returns true if the input has already been detected
 var is_echo: bool

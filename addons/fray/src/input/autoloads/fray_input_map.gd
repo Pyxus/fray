@@ -6,14 +6,6 @@ extends Node
 ##		Inputs in fray are either binds or composite inputs mapped to a string name.
 ##		These names can not be shared between binds and composite inputs.
 
-const InputBind = preload("../device/input_data/binds/input_bind.gd")
-const InputBindFrayAction = preload("../device/input_data/binds/input_bind_fray_action.gd")
-const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
-const InputBindJoyButton = preload("../device/input_data/binds/input_bind_joy_button.gd")
-const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
-const InputBindKey = preload("../device/input_data/binds/input_bind_key.gd")
-const InputBindMouseButton = preload("../device/input_data/binds/input_bind_mouse_button.gd")
-const CompositeInput = preload("../device/input_data/composite_input.gd")
 
 ## Type: Dictionary<String, InputBind>
 var _input_bind_by_name: Dictionary
@@ -21,7 +13,7 @@ var _input_bind_by_name: Dictionary
 ## Type: Dictionary<String, CompositeInput>
 var _composite_input_by_name: Dictionary
 
-var _composites_sorted: Array
+var _composites_sorted_by_priority: Array
 
 ## Adds a new composite input to the input map.
 ##
@@ -32,22 +24,22 @@ var _composites_sorted: Array
 ## FrayInputMap.add_composite_input("down_right", CIF.new_combination_async()\
 ## 		.add_component(CIF.new_simple(["down"]))\
 ## 		.add_component(CIF.new_simple(["right"]))
-func add_composite_input(name: String, composite_input: CompositeInput) -> void:
+func add_composite_input(name: String, composite_input: FrayCompositeInput) -> void:
 	if _err_input_already_exists(name, "Failed to add composite input."):
 		return
 	_composite_input_by_name[name] = composite_input
-	_composites_sorted.append(name)
-	_composites_sorted.sort_custom(Sorter.new(_composite_input_by_name), "sort")
+	_composites_sorted_by_priority.append(name)
+	_composites_sorted_by_priority.sort_custom(Sorter.new(_composite_input_by_name).sort)
 
 ## Binds input to set with given name.
-func add_bind_input(name: String, input_bind: InputBind) -> void:
+func add_bind_input(name: String, input_bind: FrayInputBind) -> void:
 	if _err_input_already_exists(name, "Failed to add input bind."):
 		return
 	_input_bind_by_name[name] = input_bind
 
 ## Binds action input.
 func add_bind_action(name: String, action: String) -> void:
-	var bind := InputBindAction.new()
+	var bind := FrayInputBindAction.new()
 	bind.action = action
 	
 	if not InputMap.has_action(action):
@@ -58,7 +50,7 @@ func add_bind_action(name: String, action: String) -> void:
 ## Binds a fray action
 ## 'simple_binds' is an array of InputBindSimple.
 func add_bind_fray_action(name: String, simple_binds: Array) -> void:
-	var bind := InputBindFrayAction.new()
+	var bind := FrayInputBindFrayAction.new()
 	for s_bind in simple_binds:
 		bind.add_bind(s_bind)
 	
@@ -66,13 +58,13 @@ func add_bind_fray_action(name: String, simple_binds: Array) -> void:
 
 ## Binds joystick button input.
 func add_bind_joy_button(name: String, button: int) -> void:
-	var bind := InputBindJoyButton.new()
+	var bind := FrayInputBindJoyButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
 
 ## Binds joystick axis input.
 func add_bind_joy_axis(name: String, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
-	var bind := InputBindJoyAxis.new()
+	var bind := FrayInputBindJoyAxis.new()
 	bind.axis = axis
 	bind.deadzone = deadzone
 	bind.check_positive = check_positive
@@ -80,13 +72,13 @@ func add_bind_joy_axis(name: String, axis: int, check_positive: bool = true, dea
 
 ## Binds key input.
 func add_bind_key(name: String, key: int) -> void:
-	var bind := InputBindKey.new()
+	var bind := FrayInputBindKey.new()
 	bind.key = key
 	add_bind_input(name, bind)
 
 ## Binds mouse button input.
 func add_bind_mouse_button(name: String, button: int) -> void:
-	var bind := InputBindMouseButton.new()
+	var bind := FrayInputBindMouseButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
 
@@ -100,7 +92,7 @@ func remove_input(name: String) -> void:
 		_input_bind_by_name.erase(name)
 	else:
 		_composite_input_by_name.erase(name)
-		_composites_sorted.erase(name)
+		_composites_sorted_by_priority.erase(name)
 
 ## Returns true if the given bind exists in the list.
 func has_bind(bind_name: String) -> bool:
@@ -111,7 +103,7 @@ func get_bind_names() -> PackedStringArray:
 	return PackedStringArray(_input_bind_by_name.keys())
 
 ## Retruns input bind with given name if it exists.
-func get_bind(bind_name: String) -> InputBind:
+func get_bind(bind_name: String) -> FrayInputBind:
 	if has_bind(bind_name):
 		return _input_bind_by_name[bind_name]
 	return null
@@ -122,10 +114,10 @@ func has_composite_input(input_name: String) -> bool:
 
 ## Returns an array of all composite input names.
 func get_composite_input_names() -> PackedStringArray:
-	return PackedStringArray(_composites_sorted)
+	return PackedStringArray(_composites_sorted_by_priority)
 
 ## Returns composite input with given name if it exists.
-func get_composite_input(input_name: String) -> CompositeInput:
+func get_composite_input(input_name: String) -> FrayCompositeInput:
 	if has_composite_input(input_name):
 		return _composite_input_by_name[input_name]
 	return null

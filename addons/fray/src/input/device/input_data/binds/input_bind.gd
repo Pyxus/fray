@@ -1,3 +1,4 @@
+class_name FrayInputBind
 extends Resource
 ## Abstract base class for all input binds
 ##

@@ -1,4 +1,5 @@
 @tool
+class_name FrayConditionalInput
 extends "composite_input.gd"
 
 ## A composite input used to create conditional inputs
@@ -15,6 +16,10 @@ extends "composite_input.gd"
 ## Hint: <component index, string condition>
 var _conditions_by_component: Dictionary
 
+
+static func builder() -> Builder:
+	return Builder.new()
+	
 
 func set_condition(component_index: int, condition: String) -> void:
 	if component_index == 0:
@@ -60,3 +65,43 @@ func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStri
 			component = comp
 			break
 	return component.decompose(device, input_interface)
+
+
+class Builder:
+	extends CompositeBuilder
+
+	var _conditions: PackedStringArray
+
+	func _init() -> void:
+		_composite_input = FrayConditionalInput.new()
+
+	## Adds a composite input as a component of this conditional input
+	##
+	## Returns a reference to this ComponentBuilder
+	func add_component(condition: String, component_builder: RefCounted) -> Builder:
+		_conditions.append(condition)
+		_builders.append(component_builder)
+		return self 
+	
+	## Sets wthe composite input's process priority
+	##
+	## Returns a reference to this ComponentBuilder
+	func is_virtual(value: bool = true) -> Builder:
+		_composite_input.is_virtual = value
+		return self
+
+	## Sets whether the input will be virtual or not
+	##
+	## Returns a reference to this ComponentBuilder
+	func priority(value: int) -> Builder:
+		_composite_input.priority = value
+		return self
+
+	
+	func build() -> FrayCompositeInput:
+		for i in len(_builders):
+			_composite_input.add_component(_builders[i].build())
+			
+			if i != 0:
+				_composite_input.set_condition(i, _conditions[i])
+		return _composite_input

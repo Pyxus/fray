@@ -1,3 +1,4 @@
+class_name FrayCompositeInputFactory
 extends RefCounted
 ## Static helper class used to construct composite inputs
 

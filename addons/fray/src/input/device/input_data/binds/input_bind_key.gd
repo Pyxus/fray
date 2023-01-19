@@ -1,4 +1,5 @@
 @tool
+class_name FrayInputBindKey
 extends "input_bind_simple.gd"
 ## Keyboard input bind
 

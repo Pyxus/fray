@@ -1,7 +1,8 @@
 @tool
-class_name HitboxAttributes
-extends Resource
 @icon("res://addons/fray/assets/icons/hit_attributes.svg")
+class_name FrayHitboxAttributes
+extends Resource
+
 ## Abstract data class used to define hitbox attributes.
 
 ## Returns the color a hitbox with this attribute should be.

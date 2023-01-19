@@ -1,3 +1,4 @@
+class_name FrayInputBindFrayAction
 extends "input_bind.gd"
 ## Fray action input bind
 ##

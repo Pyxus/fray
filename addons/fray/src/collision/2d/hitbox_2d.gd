@@ -1,11 +1,12 @@
 @tool
+@icon("res://addons/fray/assets/icons/hitbox_2d.svg")
 class_name FrayHitbox2D 
 extends Area2D
-@icon("res://addons/fray/assets/icons/hitbox_2d.svg")
+
 ## 2D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.
-## It serves as a template you can expand upon through the use of [HitboxAttributes]
+## It serves as a template you can expand upon through the use of [FrayHitboxAttributes]
 
 ## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
 signal hitbox_entered(hitbox: FrayHitbox2D)
@@ -16,8 +17,8 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 ## If true then hitboxes that share the same source as this one will still be detected
 @export var detect_source_hitboxes: bool = false
 
-## The assigned [HitboxAttributes]
-@export var attributes: HitboxAttributes:
+## The assigned [FrayHitboxAttributes]
+@export var attributes: FrayHitboxAttributes:
 	set(value):
 		attributes = value
 		
@@ -47,7 +48,7 @@ func _ready() -> void:
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
 	if attributes == null:
-		warnings.append("Hitboxes without attributes are effective just Area2Ds. Consider giving this node a HitboxAttributes resource.")
+		warnings.append("Hitboxes without attributes are effective just Area2Ds. Consider giving this node a FrayHitboxAttributes resource.")
 	return warnings
 
 ## Returns a list of intersecting [FrayHitbox2D]s.

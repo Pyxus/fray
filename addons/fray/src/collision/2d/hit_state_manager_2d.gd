@@ -1,7 +1,8 @@
 @tool
-class_name HitStateManager2D
-extends Node2D
 @icon("res://addons/fray/assets/icons/hit_state_manager_2d.svg")
+class_name FrayHitStateManager2D
+extends Node2D
+
 ## Node used to enforce discrete hit states.
 ## 
 ## This node only allows one hit state child to be active at a time.

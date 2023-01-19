@@ -1,3 +1,5 @@
+@icon("res://addons/fray/assets/icons/controller.svg")
+class_name FrayController
 extends Node
 ## A node representing a controller
 ##

@@ -1,4 +1,5 @@
 @tool
+class_name FraySimpleInput
 extends "composite_input.gd"
 ## A composite input used as a wrapper around input binds
 ##
@@ -17,6 +18,11 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 		if bind_state.pressed:
 			return true
 	return false
+
+
+static func builder() -> Builder:
+	return Builder.new()
+
 
 func set_virtual(value: bool) -> void:
 	super(value)
@@ -37,3 +43,41 @@ func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStri
 			most_recent_bind = bind_state
 	
 	return PackedStringArray([most_recent_bind.input])
+
+
+class Builder:
+	extends CompositeBuilder
+	
+	func _init() -> void:
+		_composite_input = FraySimpleInput.new()
+
+	## Adds a bind to this simple input
+	##
+	## Returns a reference to this ComponentBuilder
+	func bind(bind_name: String) -> Builder:
+		_composite_input.binds.append(bind_name)
+		return self
+	
+	## Sets an array of binds to this simple input
+	##
+	## Returns a reference to this ComponentBuilder
+	func set_binds(bind_names: PackedStringArray) -> Builder:
+		_composite_input.binds = bind_names
+		return self
+
+	## Sets wthe composite input's process priority
+	##
+	## Returns a reference to this ComponentBuilder
+	func is_virtual(value: bool = true) -> Builder:
+		_composite_input.is_virtual = value
+		return self
+
+	## Sets whether the input will be virtual or not
+	##
+	## Returns a reference to this ComponentBuilder
+	func priority(value: int) -> Builder:
+		_composite_input.priority = value
+		return self
+
+	func build() -> FrayCompositeInput:
+		return _composite_input

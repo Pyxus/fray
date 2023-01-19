@@ -1,4 +1,5 @@
 @tool
+class_name FrayInputBindMouseButton
 extends "input_bind_simple.gd"
 ## Mouse input bind
 

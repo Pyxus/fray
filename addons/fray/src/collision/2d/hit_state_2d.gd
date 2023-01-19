@@ -1,7 +1,8 @@
 @tool
+@icon("res://addons/fray/assets/icons/hit_state_2d.svg")
 class_name FrayHitState2D 
 extends Node2D
-@icon("res://addons/fray/assets/icons/hit_state_2d.svg")
+
 ## Node used to contain and manage [FrayHitbox2D]s
 ## 
 ## This node allows you to manage multiple hitboxes from a single access point.
