@@ -2,8 +2,6 @@ class_name FrayDeviceState
 extends RefCounted
 ## Used by FrayInput to track device state
 
-const InputState = preload("input_data/state/input_state.gd")
-
 ## Type: Dictionary<string, InputState>
 var input_state_by_name: Dictionary
 
@@ -64,14 +62,14 @@ func get_all_inputs() -> PackedStringArray:
 	return PackedStringArray(input_state_by_name.keys())
 
 
-func get_input_state(input_name: String) -> InputState:
+func get_input_state(input_name: String) -> FrayInputState:
 	if input_state_by_name.has(input_name):
 		return input_state_by_name[input_name]
 	return register_input_state(input_name)
 
 
-func register_input_state(input_name: String) -> InputState:
-	var input_state := InputState.new(input_name)
+func register_input_state(input_name: String) -> FrayInputState:
+	var input_state := FrayInputState.new(input_name)
 	input_state_by_name[input_name] = input_state
 	return input_state
 

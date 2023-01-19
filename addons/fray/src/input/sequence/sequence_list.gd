@@ -1,3 +1,4 @@
+class_name FraySequenceList
 extends Resource
 ## Contains a list of input sequencs
 ##
@@ -7,8 +8,8 @@ extends Resource
 
 const SequencePath = preload("sequence_path.gd")
 
-## Type: Dictionary<String, Sequence[]>
-## Hint: <sequence name, sub sequence array>
+# Type: Dictionary<String, Sequence[]>
+# Hint: <sequence name, sub sequence array>
 var _sequence_path_by_name: Dictionary
 
 ## Adds a sequence to list under a given name.
@@ -18,13 +19,13 @@ var _sequence_path_by_name: Dictionary
 ## These are inputs that do not exactly match the intended sequence.
 ##
 ## sequence_path is a collection of input requirements that define a path.
-func add(sequence_name: String, sequence_path: SequencePath) -> void:
+func add(sequence_name: StringName, sequence_path: SequencePath) -> void:
 	if not _sequence_path_by_name.has(sequence_name):
 		_sequence_path_by_name[sequence_name] = []
 	_sequence_path_by_name[sequence_name].append(sequence_path)
 
 ## Removes a sequence path at given index.
-func remove_sequence_path(sequence_name: String, path_index: int) -> void:
+func remove_sequence_path(sequence_name: StringName, path_index: int) -> void:
 	if _sequence_path_by_name.has(sequence_name):
 		var sequences: Array = _sequence_path_by_name[sequence_name]
 		if sequences.size() < path_index and path_index >= 0:
@@ -33,17 +34,17 @@ func remove_sequence_path(sequence_name: String, path_index: int) -> void:
 			push_error("Index out of range")
 
 ## Removes all sequence paths associated with a given sequence.
-func remove_sequence_path_all(sequence_name: String) -> void:
+func remove_sequence_path_all(sequence_name: StringName) -> void:
 	if _sequence_path_by_name.has(sequence_name):
 		_sequence_path_by_name[sequence_name].clear()
 
 ## Removes sequence along with all its paths.
-func remove_sequence(sequence_name: String) -> void:
+func remove_sequence(sequence_name: StringName) -> void:
 	if _sequence_path_by_name.has(sequence_name):
 		_sequence_path_by_name.erase(sequence_name)
 
 ## Returns the sequence path at a given index.
-func get_sequence_path(sequence_name: String, path_index: int = 0) -> SequencePath:
+func get_sequence_path(sequence_name: StringName, path_index: int = 0) -> SequencePath:
 	if _sequence_path_by_name.has(sequence_name):
 		var sequences: Array = _sequence_path_by_name[sequence_name]
 		if sequences.size() < path_index and path_index >= 0:
@@ -53,7 +54,7 @@ func get_sequence_path(sequence_name: String, path_index: int = 0) -> SequencePa
 	return null
 
 ## Returns an array of all sequence paths associated with the given sequence name.
-func get_sequence_paths(sequence_name: String) -> Array:
+func get_sequence_paths(sequence_name: StringName) -> Array:
 	if _sequence_path_by_name.has(sequence_name):
 		return _sequence_path_by_name[sequence_name]
 	return []

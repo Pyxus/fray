@@ -20,14 +20,10 @@ extends RefCounted
 ## Emmitted when a sequence match is found.
 ##
 ## `sequence_name: String` is the name of the sequence.
-signal match_found(sequence_name)
+signal match_found(sequence_name: StringName)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
-const FrayInputEvent = preload("events/fray_input_event.gd")
-const FrayInputEventBind = preload("events/fray_input_event_bind.gd")
-const FrayInputEventComposite = preload("events/fray_input_event_composite.gd")
-const InputRequirement = preload("sequence/input_requirement.gd")
-const SequenceList = preload("sequence/sequence_list.gd")
+
 
 ## If true, indistinct inputs will be ignored.
 ## Since a composite input's binds must be pressed at the same time as the composite, they will always trigger a sequence break.
@@ -45,13 +41,13 @@ var _current_node: InputNode
 var _current_frame: InputFrame
 
 ## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
-static func is_match(fray_input_events: Array, input_requirements: Array) -> bool:
-	if fray_input_events.size() != input_requirements.size():
+static func is_match(events: Array[FrayInputEvent], input_requirements: Array[FrayInputRequirement]) -> bool:
+	if events.size() != input_requirements.size():
 		return false
 	
 	for i in len(input_requirements):
-		var input_event: FrayInputEvent = fray_input_events[i]
-		var input_requirement: InputRequirement = input_requirements[i]
+		var input_event: FrayInputEvent = events[i]
+		var input_requirement: FrayInputRequirement = input_requirements[i]
 		
 		if input_event.input != input_requirement.input:
 			return false
@@ -60,7 +56,7 @@ static func is_match(fray_input_events: Array, input_requirements: Array) -> boo
 			return false
 		
 		if i > 0:
-			var sec_since_last_input := input_event.get_time_between_sec(fray_input_events[i - 1])
+			var sec_since_last_input := input_event.get_time_between_sec(events[i - 1])
 			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
 				return false
 
@@ -69,7 +65,7 @@ static func is_match(fray_input_events: Array, input_requirements: Array) -> boo
 ## Initialzes the analyzer
 ##
 ## sequence list is used to register the sequences recognized by this analyzer
-func initialize(sequence_list: SequenceList) -> void:
+func initialize(sequence_list: FraySequenceList) -> void:
 	_root = InputNode.new()
 	_root.is_root = true
 	_input_queue = LinkedList.new()

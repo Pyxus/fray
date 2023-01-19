@@ -6,8 +6,6 @@ extends Resource
 ## @desc:
 ##      Composite inputs are inputs composed of other composite inputs.
 
-const InputInterface = preload("state/input_interface.gd")
-const InputState = preload("state/input_state.gd")
 
 ## If true, components that are still held when the composite is released
 ## will be treated as if they were just pressed again.
@@ -29,7 +27,7 @@ var _components: Array
 var _root_wf: WeakRef
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
-func is_pressed(device: int, input_interface: InputInterface) -> bool:
+func is_pressed(device: int, input_interface: FrayInputInterface) -> bool:
 	return _is_pressed_impl(device, input_interface)
 
 ## Adds a component to this input
@@ -50,12 +48,12 @@ func add_component(component: Resource) -> void:
 	_components.append(component)
 
 ## Decomposes composite input into binds
-func decompose(device: int, input_interface: InputInterface) -> PackedStringArray:
+func decompose(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
 	return _decompose_impl(device, input_interface)
 
 ## Returns true if the composite input can decompose into the given binds
 ## 'is_exact' If true then the given binds need to exactly match the input's decomposition
-func can_decompose_into(device: int, input_interface: InputInterface, binds: PackedStringArray, is_exact := true)  -> bool:
+func can_decompose_into(device: int, input_interface: FrayInputInterface, binds: PackedStringArray, is_exact := true)  -> bool:
 	var my_components := decompose(device, input_interface)
 
 	if binds.is_empty() or my_components.is_empty():
@@ -81,10 +79,6 @@ func can_decompose_into(device: int, input_interface: InputInterface, binds: Pac
 				return false
 	return true
 
-	#var my_component_str := decompose(device, input_interface).join(" ")
-	#var bind_str := binds.join(" ")
-	#return my_component_str == bind_str
-
 
 ## is_virtual setter
 func set_virtual(value: bool) -> void:
@@ -100,13 +94,13 @@ func get_root() -> Resource:
 	return ref
 
 ## Abstract method used to define press check procedure
-func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
-	push_error("Method not implemented.")
+func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
+	assert(false, "Method not implemented")
 	return false
 
 ## Abstract method used to define decomposition procedure
-func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
-	push_error("Method not implemented.")
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
+	assert(false, "Method not implemented")
 	return PackedStringArray()
 
 

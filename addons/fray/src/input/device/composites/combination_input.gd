@@ -17,7 +17,7 @@ enum Mode {
 var mode: Mode = Mode.SYNC
 
 
-func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
+func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	match mode:
 		Mode.SYNC: 
 			return _is_combination_quick_enough(device, input_interface)
@@ -31,7 +31,7 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
 	# Returns all components decomposed and joined
 	var binds: PackedStringArray
 	for component in _components:
@@ -43,21 +43,21 @@ static func builder() -> Builder:
 	return Builder.new()
 
 # Returns: InputState[]
-func _get_decomposed_states(device: int, input_interface: InputInterface) -> Array:
+func _get_decomposed_states(device: int, input_interface: FrayInputInterface) -> Array:
 	var decomposed_states := []
 	for bind in decompose(device, input_interface):
 		decomposed_states.append(input_interface.get_bind_state(bind, device))
 	return decomposed_states
 
 
-func _is_all_components_pressed(device: int, input_interface: InputInterface) -> bool:
+func _is_all_components_pressed(device: int, input_interface: FrayInputInterface) -> bool:
 	for component in _components:
 		if not component.is_pressed(device, input_interface):
 			return false
 	return true
 
 
-func _is_combination_quick_enough(device: int, input_interface: InputInterface, tolerance: float = 10) -> bool:
+func _is_combination_quick_enough(device: int, input_interface: FrayInputInterface, tolerance: float = 10) -> bool:
 	var decomposed_states := _get_decomposed_states(device, input_interface)
 	var avg_difference := 0
 
@@ -75,7 +75,7 @@ func _is_combination_quick_enough(device: int, input_interface: InputInterface, 
 	return avg_difference <= tolerance
 
 
-func _is_combination_in_order(device: int, input_interface: InputInterface, tolerance: float = 10) -> bool:
+func _is_combination_in_order(device: int, input_interface: FrayInputInterface, tolerance: float = 10) -> bool:
 	var decomposed_states := _get_decomposed_states(device, input_interface)
 
 	for i in len(decomposed_states):

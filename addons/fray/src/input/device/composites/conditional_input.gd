@@ -32,7 +32,7 @@ func set_condition(component_index: int, condition: String) -> void:
 		push_warning("Failed to set condition on input. Given index out of range")
 		
 
-func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
+func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	if _components.is_empty():
 		push_warning("Conditional input has no components")
 		return false
@@ -50,7 +50,7 @@ func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	return comp.is_pressed(device, input_interface)
 
 
-func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
 	# Returns the first component with a true condition. Defaults to component at index 0
 
 	if _components.is_empty():

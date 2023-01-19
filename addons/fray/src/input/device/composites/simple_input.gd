@@ -12,9 +12,9 @@ extends "composite_input.gd"
 var binds: PackedStringArray
 
 
-func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
+func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	for bind in binds:
-		var bind_state: InputState = input_interface.get_bind_state(bind, device)
+		var bind_state: FrayInputState = input_interface.get_bind_state(bind, device)
 		if bind_state.is_pressed:
 			return true
 	return false
@@ -30,11 +30,11 @@ func set_virtual(value: bool) -> void:
 		push_warning("Conditionals by design always overlap with their components. A conditional will never trigger a virtual press.")
 
 		
-func _decompose_impl(device: int, input_interface: InputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
 	# Returns the most recently pressed bind
-	var most_recent_bind: InputState
+	var most_recent_bind: FrayInputState
 	for bind in binds:
-		var bind_state: InputState = input_interface.get_bind_state(bind, device)
+		var bind_state: FrayInputState = input_interface.get_bind_state(bind, device)
 
 		if most_recent_bind != null:
 			if most_recent_bind.time_pressed < bind_state.time_pressed:

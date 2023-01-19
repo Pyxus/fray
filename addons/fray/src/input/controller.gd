@@ -9,15 +9,16 @@ extends Node
 ##      If an entity needs to respond to inputs from another device you only need to change the controller's `device` value.
 ##      It is also possible to hand the controller off to an AI by using virtual devices.
 
-const VirtualDevice = preload("device/virtual_device.gd")
 
 @export var device: int
 @export var disabled: bool
 
-var _FrayInput: Node
+@onready var _FrayInput: Node = get_node("/root/FrayInput")
 
-func _ready() -> void:
-	_FrayInput = get_node("/root/FrayInput")
+
+## Returns true if this controller is connected
+func is_device_connected() -> bool:
+	return _FrayInput.is_device_connected(device)
 
 ## Returns true if an input is being pressed.
 func is_pressed(input: String) -> bool:
@@ -41,10 +42,6 @@ func is_just_pressed_real(input: String) -> bool:
 ## meaning it's true only on the frame that the user released the button.
 func is_just_released(input: String) -> bool:
 	return not disabled and is_device_connected() and _FrayInput.is_just_released(input, device)
-
-## Returns true if this controller is connected
-func is_device_connected() -> bool:
-	return _FrayInput.is_device_connected(device)
 
 ## Returns a value between 0 and 1 representing the intensity of an input.
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.

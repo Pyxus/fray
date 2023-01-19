@@ -7,15 +7,15 @@ extends Node
 ## Emitted when an input is detected
 ##
 ## input_event is a `FrayInputEvent` object containing information about the event
-signal input_detected(input_event)
+signal input_detected(input_event: FrayInputEvent)
 
 ## Emitted when a device has been connected or disconnected
-signal device_connection_changed(device_id, connected)
+signal device_connection_changed(device: int, is_connected: bool)
 
-
+## Device id of the keyboard and mouse as well as the first controller connected.
 const DEVICE_KBM_JOY1 = 0
 
-## Type: Dictionary<int, DeviceState>
+# Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
 @onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
@@ -80,11 +80,11 @@ func _physics_process(_delta: float) -> void:
 			if is_just_pressed(input, device) or is_just_released(input, device):
 				var input_event := _create_input_event(input, device)
 				input_event.is_echo = false
-				emit_signal("input_detected", input_event)
+				input_detected.emit(input_event)
 			elif is_pressed(input, device):
 				var input_event := _create_input_event(input, device)
 				input_event.is_echo = true
-				emit_signal("input_detected", input_event)
+				input_detected.emit(input_event)
 		
 
 ## Returns true if an input is being pressed.
@@ -207,15 +207,15 @@ func _connect_device(device: int) -> FrayDeviceState:
 		device_state.register_input_state(input_name)
 	
 	_device_state_by_id[device] = device_state
-
-	emit_signal("device_connection_changed", device, true)
+	
+	device_connection_changed.emit(device, true)
 	return device_state
 
 
 func _disconnect_device(device: int) -> void:
 	if _device_state_by_id.has(device):
 		_device_state_by_id.erase(device)
-		emit_signal("device_connection_changed", true, false)
+		device_connection_changed.emit(device, false)
 	else:
 		push_error("Failed to disconnect device. Unrecognized device '%d'." % device)
 
