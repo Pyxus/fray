@@ -15,7 +15,7 @@ var binds: PackedStringArray
 func _is_pressed_impl(device: int, input_interface: InputInterface) -> bool:
 	for bind in binds:
 		var bind_state: InputState = input_interface.get_bind_state(bind, device)
-		if bind_state.pressed:
+		if bind_state.is_pressed:
 			return true
 	return false
 

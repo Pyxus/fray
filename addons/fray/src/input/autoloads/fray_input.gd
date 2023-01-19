@@ -52,7 +52,7 @@ func _physics_process(_delta: float) -> void:
 			var input_state := device_state.get_input_state(composite_input_name)
 			
 			if composite_input.is_pressed(device, _input_interface):
-				if not input_state.pressed:
+				if not input_state.is_pressed:
 					var my_components := composite_input.decompose(device, _input_interface)
 					input_state.press()
 					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
@@ -61,7 +61,7 @@ func _physics_process(_delta: float) -> void:
 						device_state.unflag_inputs_as_distinct([composite_input_name])
 					else:
 						device_state.unflag_inputs_as_distinct(my_components)
-			elif input_state.pressed:
+			elif input_state.is_pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
 				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
@@ -252,7 +252,7 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 		input_event.composites_used_in = input_state.composites_used_in
 	elif _input_map.has_composite_input(input):
 		input_event = FrayInputEventComposite.new()
-		input_event.virtually_pressed = input_state.virtually_pressed
+		input_event.is_virtually_pressed = input_state.is_virtually_pressed
 
 	input_event.device = device
 	input_event.input = input

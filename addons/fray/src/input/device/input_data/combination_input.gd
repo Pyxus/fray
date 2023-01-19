@@ -66,7 +66,7 @@ func _is_combination_quick_enough(device: int, input_interface: InputInterface, 
 			var input1: InputState = decomposed_states[i]
 			var input2: InputState = decomposed_states[i - 1]
 
-			if not input1.pressed or not input2.pressed:
+			if not input1.is_pressed or not input2.is_pressed:
 				return false
 
 			avg_difference += abs(input1.time_pressed - input2.time_pressed)
@@ -83,7 +83,7 @@ func _is_combination_in_order(device: int, input_interface: InputInterface, tole
 			var input1: InputState = decomposed_states[i]
 			var input2: InputState = decomposed_states[i - 1]
 
-			if not input1.pressed or not input2.pressed:
+			if not input1.is_pressed or not input2.is_pressed:
 				return false
 
 			if input2.time_pressed - tolerance > input1.time_pressed:
