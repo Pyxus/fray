@@ -8,9 +8,9 @@ extends "composite_input.gd"
 ##      all components are pressed according to the mode.
 
 enum Mode {
-	SYNC, ## Components must all be pressed at the same time
+	SYNC, ## Components must all be pressed at the same time.
 	ASYNC, ## Components can be pressed at any time so long as they are all pressed.
-	ORDERED, ## Like asynchronous but the presses must occur in order
+	ORDERED, ## Like asynchronous but the presses must occur in order.
 }
 
 ## Determines press condition necessary to trigger combination
@@ -63,8 +63,8 @@ func _is_combination_quick_enough(device: int, input_interface: FrayInputInterfa
 
 	for i in len(decomposed_states):
 		if i > 0:
-			var input1: InputState = decomposed_states[i]
-			var input2: InputState = decomposed_states[i - 1]
+			var input1: FrayInputState = decomposed_states[i]
+			var input2: FrayInputState = decomposed_states[i - 1]
 
 			if not input1.is_pressed or not input2.is_pressed:
 				return false
@@ -80,8 +80,8 @@ func _is_combination_in_order(device: int, input_interface: FrayInputInterface, 
 
 	for i in len(decomposed_states):
 		if i > 0:
-			var input1: InputState = decomposed_states[i]
-			var input2: InputState = decomposed_states[i - 1]
+			var input1: FrayInputState = decomposed_states[i]
+			var input2: FrayInputState = decomposed_states[i - 1]
 
 			if not input1.is_pressed or not input2.is_pressed:
 				return false

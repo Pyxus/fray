@@ -29,7 +29,7 @@ func set_virtual(value: bool) -> void:
 	if is_virtual:
 		push_warning("Conditionals by design always overlap with their components. A conditional will never trigger a virtual press.")
 
-		
+
 func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
 	# Returns the most recently pressed bind
 	var most_recent_bind: FrayInputState

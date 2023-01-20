@@ -20,10 +20,9 @@ var is_virtual: bool:
 ## The composite input's priority. Higher priority composites are processed first.
 var priority: int
 
-## Type: CompositeInput[]
-var _components: Array 
+var _components: Array [FrayCompositeInput]
 
-## Type: CompositeInput
+# Type: WeakRef<CompositeInput>
 var _root_wf: WeakRef
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
@@ -92,6 +91,19 @@ func set_virtual(value: bool) -> void:
 func get_root() -> Resource:
 	var ref = _root_wf.get_ref() if _root_wf else null
 	return ref
+
+func get_time_pressed(device: int, input_interface: FrayInputInterface) -> int:
+	for component in _components:
+		var binds := decompose(device, input_interface)
+		
+		if not binds.is_empty():
+			var most_recent_press := input_interface.get_bind_state(binds[0], device).time_pressed
+			for bind in binds:
+				var bind_state := input_interface.get_bind_state(bind, device)
+				if bind_state.time_pressed < most_recent_press:
+					most_recent_press = bind_state.time_pressed
+			return most_recent_press
+	return -1
 
 ## Abstract method used to define press check procedure
 func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:

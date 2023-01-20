@@ -14,10 +14,12 @@ var _composite_input_by_name: Dictionary
 
 var _composites_sorted_by_priority: Array[StringName]
 
-## Adds a new composite input to the input map.
-## [br]
+## Adds a composite input to the input map with a given [kbd]name[/kbd].[br]
+##
+## [b]Note:[/b] Composite inputs and binds can not share names! [br][br]
+##
 ## Each composite input has a static builder method which returns a builder object.
-## The builder object can be used to construct composite inputs like so:
+## The builder object can be used to construct composite inputs as demonstrated below.
 ## 
 ## [codeblock]
 ## FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
@@ -36,7 +38,10 @@ func add_composite_input(name: StringName, composite_input: FrayCompositeInput) 
 			return _composite_input_by_name[in1].priority > _composite_input_by_name[in2].priority
 	)
 
-## Binds input to set with given name.
+## Adds bind to the input map with a given [kbd]name[/kbd].
+##
+## [b]Note:[/b] Composite inputs and binds can not share names! [br][br]
+##
 func add_bind_input(name: StringName, input_bind: FrayInputBind) -> void:
 	if _err_input_already_exists(name, "Failed to add input bind."):
 		return
@@ -53,8 +58,7 @@ func add_bind_action(name: StringName, action: String) -> void:
 	add_bind_input(name, bind)
 
 ## Binds a fray action
-## 'simple_binds' is an array of InputBindSimple.
-func add_bind_fray_action(name: StringName, simple_binds: Array) -> void:
+func add_bind_fray_action(name: StringName, simple_binds: Array[FrayInputBindSimple]) -> void:
 	var bind := FrayInputBindFrayAction.new()
 	for s_bind in simple_binds:
 		bind.add_bind(s_bind)
