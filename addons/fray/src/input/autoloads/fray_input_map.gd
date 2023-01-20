@@ -1,29 +1,31 @@
+class_name _FrayInputMap
 extends Node
-## Singleton that manages inputs recognized by FrayInput singleton
+## Singleton used to register inputs recognized by [_FrayInput] singleton
 ##
-## @desc:
-##		Used to register new inputs to be detected by the FrayInput singleton.
-##		Inputs in fray are either binds or composite inputs mapped to a string name.
-##		These names can not be shared between binds and composite inputs.
+## Inputs in fray are input binds, or composite inputs, mapped to a string name.
+## These names can not be shared between binds and composite inputs.
 
 
-## Type: Dictionary<StringName, InputBind>
+# Type: Dictionary<StringName, InputBind>
 var _input_bind_by_name: Dictionary
 
-## Type: Dictionary<StringName, CompositeInput>
+# Type: Dictionary<StringName, CompositeInput>
 var _composite_input_by_name: Dictionary
 
 var _composites_sorted_by_priority: Array[StringName]
 
 ## Adds a new composite input to the input map.
-##
-## To build a composite input the CompositeInputFactory can be used:
-##
-## var CIF := Fray.Input.CompositeInputFactory
-## var ComboMode := Fray.Input.CombinationInput.Mode
-## FrayInputMap.add_composite_input("down_right", CIF.new_combination_async()\
-## 		.add_component(CIF.new_simple(["down"]))\
-## 		.add_component(CIF.new_simple(["right"]))
+## [br]
+## Each composite input has a static builder method which returns a builder object.
+## The builder object can be used to construct composite inputs like so:
+## 
+## [codeblock]
+## FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
+##	.add_component(FraySimpleInput.builder().bind("down"))
+##	.add_component(FraySimpleInput.builder().bind("right"))
+##	.build()
+##	)
+## [/codeblock]
 func add_composite_input(name: StringName, composite_input: FrayCompositeInput) -> void:
 	if _err_input_already_exists(name, "Failed to add composite input."):
 		return

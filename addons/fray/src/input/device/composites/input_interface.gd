@@ -1,4 +1,4 @@
-class_name FrayFrayInputInterface
+class_name FrayInputInterface
 extends RefCounted
 ## Helper class for composite inputs to safely interface with the FrayInput singleton.
 ## Used to fetch the state of certain data in the fray input singleton.

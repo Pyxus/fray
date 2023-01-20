@@ -17,7 +17,7 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 ## If true then hitboxes that share the same source as this one will still be detected
 @export var detect_source_hitboxes: bool = false
 
-## The assigned [FrayHitboxAttributes]
+## The [FrayHitboxAttributes] assigned to this hitbox
 @export var attributes: FrayHitboxAttributes:
 	set(value):
 		attributes = value
@@ -28,8 +28,7 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 		update_configuration_warnings()
 
 ## Source of this hitbox. 
-## By default hitboxes with the same source will not detect one another.
-## This can be changed by enabling [member detect_srouce_hitboxes].
+## Hitboxes with the same source will not detect one another unless [member detect_source_hitboxes] is enabled.
 var source: Object = null
 
 var _hitbox_exceptions: Array[FrayHitbox2D]
@@ -59,25 +58,25 @@ func get_overlapping_hitboxes() -> Array[FrayHitbox2D]:
 			hitboxes.append(area)
 	return hitboxes
 
-## Adds a hitbox to a list of hitboxes this hitbox can't detect
+## Adds a [kbd]hitbox[/kbd] to a list of hitboxes this hitbox can't detect
 func add_hitbox_exception_with(hitbox: Area2D) -> void:
 	if hitbox is FrayHitbox2D and not _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.append(hitbox)
 	
-## Removes a hitbox from a list of hitboxes this hitbox can't detect
+## Removes a [kbd]hitbox[/kbd] from a list of hitboxes this hitbox can't detect
 func remove_hitbox_exception_with(hitbox: Area2D) -> void:
 	if _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.erase(hitbox)
 
-## Adds a source to a list of sources whose hitboxes this hitbox can't detect
-func add_source_exception_with(obj: Object) -> void:
-	if not _source_exceptions.has(obj):
-		_source_exceptions.append(obj)
+## Adds a source [kbd]object[/kbd] to a list of sources whose hitboxes this hitbox can't detect
+func add_source_exception_with(object: Object) -> void:
+	if not _source_exceptions.has(object):
+		_source_exceptions.append(object)
 	
-## Removes a source to a list of sources whose hitboxes this hitbox can't detect
-func remove_source_exception_with(obj: Object) -> void:
-	if _source_exceptions.has(obj):
-		_source_exceptions.erase(obj)
+## Removes a source [kbd]object[/kbd] to a list of sources whose hitboxes this hitbox can't detect
+func remove_source_exception_with(object: Object) -> void:
+	if _source_exceptions.has(object):
+		_source_exceptions.erase(object)
 		
 ## Activates this hitbox allowing it to monitor and be monitored.
 func activate() -> void:

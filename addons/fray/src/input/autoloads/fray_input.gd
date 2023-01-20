@@ -1,8 +1,8 @@
+class_name _FrayInput
 extends Node
 ## Fray input manager singleton
 ##
-## @desc:
-## 		Functionally similar to Godot's built in `Input` singleton.
+## Functionally similar to Godot's built in `Input` singleton.
 
 ## Emitted when an input is detected
 ##
