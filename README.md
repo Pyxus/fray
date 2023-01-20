@@ -1,4 +1,4 @@
-# Fray
+# Fray 2.0
 
 <p align="center">
 	<img src="assets/fray_banner.gif" alt="Fray Logo">

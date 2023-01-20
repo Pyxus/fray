@@ -4,7 +4,6 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bpbw01ih06cvh"
 path="res://.godot/imported/controller.svg-a926362aa5e951fa4cb208d5484b0c2c.ctex"
-
 metadata={
 "vram_texture": false
 }
@@ -13,7 +12,6 @@ metadata={
 
 source_file="res://addons/fray/assets/icons/controller.svg"
 dest_files=["res://.godot/imported/controller.svg-a926362aa5e951fa4cb208d5484b0c2c.ctex"]
-
 
 [params]
 
