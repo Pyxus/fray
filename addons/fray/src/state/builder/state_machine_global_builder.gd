@@ -21,7 +21,7 @@ func _build_impl() -> StateNodeStateMachine:
 
 
 func _clear_impl() -> void:
-	._clear_impl()
+	super()
 	_transition_rules.clear()
 	_tags_by_state.clear()
 	_global_transitions.clear()
@@ -29,7 +29,7 @@ func _clear_impl() -> void:
 ## Adds a new transition rule to be used by global transitions.
 ##
 ## Returns a reference to this builder
-func add_rule(from_tag: String, to_tag: String) -> Reference:
+func add_rule(from_tag: String, to_tag: String) -> RefCounted:
 	if not _transition_rules.has(from_tag):
 		_transition_rules[from_tag] = []
 	_transition_rules[from_tag].append(to_tag)
@@ -39,7 +39,7 @@ func add_rule(from_tag: String, to_tag: String) -> Reference:
 ## States used will automatically be added.
 ##
 ## Returns a reference to this builder
-func tag_multi(states: PoolStringArray, tags: PoolStringArray) -> Reference:
+func tag_multi(states: PackedStringArray, tags: PackedStringArray) -> RefCounted:
 	for state in states:
 		tag(state, tags)
 	return self
@@ -48,7 +48,7 @@ func tag_multi(states: PoolStringArray, tags: PoolStringArray) -> Reference:
 ## States used will automatically be added.
 ##
 ## Returns a reference to this builder
-func tag(state: String, tags: PoolStringArray) -> Reference:
+func tag(state: String, tags: PackedStringArray) -> RefCounted:
 	_add_state_once(state)
 		
 	if not _tags_by_state.has(state):
@@ -60,7 +60,7 @@ func tag(state: String, tags: PoolStringArray) -> Reference:
 	return self
 
 ## Creates a new global transtion to the specified state. 
-func transition_global(to: String, config: Dictionary = {}) -> Reference:
+func transition_global(to: String, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, StateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -74,7 +74,7 @@ func _create_global_transition(to: String, transition: StateMachineTransition) -
 	return tr
 
 func _configure_state_machine(root: StateNodeStateMachine) -> void:
-	._configure_state_machine(root)
+	super(root)
 
 	if root is StateNodeStateMachineGlobal:
 		for state in _tags_by_state:

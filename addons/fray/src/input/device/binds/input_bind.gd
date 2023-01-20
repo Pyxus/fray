@@ -1,10 +1,10 @@
+class_name FrayInputBind
 extends Resource
 ## Abstract base class for all input binds
 ##
 ## @desc:
 ##		An input bind is used to map physical device presses to inputs fray input names.
 
-var InputBind: GDScript = load("res://addons/fray/src/input/device/input_data/binds/input_bind.gd")
 
 ## Returns true if the bind is pressed
 func is_pressed(device: int = 0) -> bool:
@@ -18,15 +18,15 @@ func equals(input_bind: Resource) -> bool:
 func get_strength(device: int = 0) -> float:
 	return _get_strength_impl()
 
-## Abstract method used to define a bind's 'is_pressed' method
+## [code]Abstract method[/code] used to implement a bind's [method is_pressed] method.
 func _is_pressed_impl(device: int = 0) -> bool:
-	push_error("Method not implemented.")
+	assert(false, "Method not implemented")
 	return false
 
-## Virtual method used to implement 'equals' method
+## [code]Virtual method[/code] used to implement [method equals] method
 func _equals_impl(input_bind: Resource) -> bool:
-	return input_bind is InputBind
+	return input_bind is FrayInputBind
 
-## Virtual method used to implement `get_strength` method
+## [code]Virtual method[/code] used to implement [method get_strength] method
 func _get_strength_impl(device: int = 0) -> float:
 	return float(is_pressed(device))

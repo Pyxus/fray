@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## Simple wrapper around `AStar` class.
 ##
 ## @desc:
@@ -14,18 +14,18 @@ var _node_by_point_id: Dictionary
 
 var _astar: CustomAStar
 var _astar_point_id := 0
-var _travel_path: PoolStringArray
+var _travel_path: PackedStringArray
 var _travel_index: int
 
 ## `func_get_transition_cost: (String, String) -> float`
-func _init(func_get_transition_cost: FuncRef) -> void:
-	_astar = CustomAStar.new(func_get_transition_cost, funcref(self, "_get_node_from_id"))
+func _init(func_get_transition_cost: Callable) -> void:
+	_astar = CustomAStar.new(func_get_transition_cost, _get_node_from_id)
 
 
 func add_point(state_name: String) -> void:
 	_point_id_by_node[state_name] = _astar_point_id
 	_node_by_point_id[_astar_point_id] = state_name
-	_astar.add_point(_astar_point_id, Vector3.ZERO)
+	_astar.add_point(_astar_point_id, Vector2.ZERO)
 	_astar_point_id += 1
 
 
@@ -53,9 +53,9 @@ func disconnect_points(from: String, to: String, bidirectional: bool) -> void:
 	_astar.disconnect_points(_point_id_by_node[from], _point_id_by_node[to], bidirectional)
 
 
-func compute_travel_path(from: String, to: String) -> PoolStringArray:
+func compute_travel_path(from: String, to: String) -> PackedStringArray:
 	var id_path := _astar.get_id_path(_point_id_by_node[from], _point_id_by_node[to])
-	var path := PoolStringArray()
+	var path := PackedStringArray()
 
 	for id in id_path:
 		path.append(_node_by_point_id[id])
@@ -65,12 +65,12 @@ func compute_travel_path(from: String, to: String) -> PoolStringArray:
 	return path
 
 
-func get_computed_travel_path() -> PoolStringArray:
+func get_computed_travel_path() -> PackedStringArray:
 	return _travel_path
 
 	
 func clear_travel_path() -> void:
-	_travel_path = PoolStringArray()
+	_travel_path = PackedStringArray()
 
 	
 func has_next_travel_node() -> bool:
@@ -90,19 +90,19 @@ func _get_node_from_id(id: int) -> String:
 
 
 class CustomAStar:
-	extends AStar
+	extends AStar2D
 
 	## Type: (String, String) -> int
-	var _func_get_transition_cost: FuncRef
+	var _func_get_transition_cost: Callable
 
 	## Type: (int) -> String
-	var _func_get_node_from_id: FuncRef
+	var _func_get_node_from_id: Callable
 
-	func _init(func_get_transition_cost: FuncRef, func_get_node_from_id: FuncRef) -> void:
+	func _init(func_get_transition_cost: Callable, func_get_node_from_id: Callable) -> void:
 		_func_get_transition_cost = func_get_transition_cost
 		_func_get_node_from_id = func_get_node_from_id
 
 	func _compute_cost(from_id: int, to_id: int) -> float:
-		var from: String = _func_get_node_from_id.call_func(from_id)
-		var to: String = _func_get_node_from_id.call_func(to_id)
-		return _func_get_transition_cost.call_func(from, to)
+		var from: String = _func_get_node_from_id.call(from_id)
+		var to: String = _func_get_node_from_id.call(to_id)
+		return _func_get_transition_cost.call(from, to)

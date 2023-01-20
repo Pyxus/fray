@@ -1,15 +1,19 @@
-extends Reference
+extends RefCounted
 
-static func safe_connect(obj: Object, 
-signal_name: String, 
-target: Object, 
-method: String, binds: Array = [], flags: int = 0) -> int:
-	if not obj.is_connected(signal_name, target, method):
-		return obj.connect(signal_name, target, method, binds, flags)
+## Connects signal only if not already connected.
+static func safe_connect( 
+	sig: Signal, 
+	method: Callable, binds: Array = [], flags: int = 0
+	) -> int:
+	if not sig.is_connected(method):
+		for bind in binds:
+			method = method.bind(bind)
+		return sig.connect(method, flags)
 	return OK
 
-
-static func safe_disconnect(obj: Object, 
-signal_name: String, target: Object, method: String) -> void:
-	if obj.is_connected(signal_name, target, method):
-		obj.disconnect(signal_name, target, method)
+## Disconnects signal only if already connected.
+static func safe_disconnect(
+	sig: Signal,
+	method: Callable) -> void:
+	if sig.is_connected(method):
+		sig.disconnect(method)

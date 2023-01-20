@@ -1,53 +1,55 @@
+class_name _FrayInputMap
 extends Node
-## Singleton that manages inputs recognized by FrayInput singleton
+## Singleton used to register inputs recognized by [_FrayInput] singleton
 ##
-## @desc:
-##		Used to register new inputs to be detected by the FrayInput singleton.
-##		Inputs in fray are either binds or composite inputs mapped to a string name.
-##		These names can not be shared between binds and composite inputs.
+## Inputs in fray are input binds, or composite inputs, mapped to a string name.
+## These names can not be shared between binds and composite inputs.
 
-const InputBind = preload("../device/input_data/binds/input_bind.gd")
-const InputBindFrayAction = preload("../device/input_data/binds/input_bind_fray_action.gd")
-const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
-const InputBindJoyButton = preload("../device/input_data/binds/input_bind_joy_button.gd")
-const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
-const InputBindKey = preload("../device/input_data/binds/input_bind_key.gd")
-const InputBindMouseButton = preload("../device/input_data/binds/input_bind_mouse_button.gd")
-const CompositeInput = preload("../device/input_data/composite_input.gd")
 
-## Type: Dictionary<String, InputBind>
+# Type: Dictionary<StringName, InputBind>
 var _input_bind_by_name: Dictionary
 
-## Type: Dictionary<String, CompositeInput>
+# Type: Dictionary<StringName, CompositeInput>
 var _composite_input_by_name: Dictionary
 
-var _composites_sorted: Array
+var _composites_sorted_by_priority: Array[StringName]
 
-## Adds a new composite input to the input map.
+## Adds a composite input to the input map with a given [kbd]name[/kbd].[br]
+## 
+## [b][color=yellow]Warning:[/color][/b] Composite inputs and binds can not share names! [br][br]
 ##
-## To build a composite input the CompositeInputFactory can be used:
-##
-## var CIF := Fray.Input.CompositeInputFactory
-## var ComboMode := Fray.Input.CombinationInput.Mode
-## FrayInputMap.add_composite_input("down_right", CIF.new_combination_async()\
-## 		.add_component(CIF.new_simple(["down"]))\
-## 		.add_component(CIF.new_simple(["right"]))
-func add_composite_input(name: String, composite_input: CompositeInput) -> void:
+## Each composite input has a static builder method which returns a builder object.
+## The builder object can be used to construct composite inputs as demonstrated below.
+## 
+## [codeblock]
+## FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
+##	.add_component(FraySimpleInput.builder().bind("down"))
+##	.add_component(FraySimpleInput.builder().bind("right"))
+##	.build()
+##	)
+## [/codeblock]
+func add_composite_input(name: StringName, composite_input: FrayCompositeInput) -> void:
 	if _err_input_already_exists(name, "Failed to add composite input."):
 		return
 	_composite_input_by_name[name] = composite_input
-	_composites_sorted.append(name)
-	_composites_sorted.sort_custom(Sorter.new(_composite_input_by_name), "sort")
+	_composites_sorted_by_priority.append(name)
+	_composites_sorted_by_priority.sort_custom(
+		func(in1, in2) -> bool:
+			return _composite_input_by_name[in1].priority > _composite_input_by_name[in2].priority
+	)
 
-## Binds input to set with given name.
-func add_bind_input(name: String, input_bind: InputBind) -> void:
+## Adds bind to the input map with a given [kbd]name[/kbd].[br]
+##
+## [b][color=yellow]Warning:[/color][/b] Composite inputs and binds can not share names!
+##
+func add_bind_input(name: StringName, input_bind: FrayInputBind) -> void:
 	if _err_input_already_exists(name, "Failed to add input bind."):
 		return
 	_input_bind_by_name[name] = input_bind
 
 ## Binds action input.
-func add_bind_action(name: String, action: String) -> void:
-	var bind := InputBindAction.new()
+func add_bind_action(name: StringName, action: String) -> void:
+	var bind := FrayInputBindAction.new()
 	bind.action = action
 	
 	if not InputMap.has_action(action):
@@ -56,43 +58,42 @@ func add_bind_action(name: String, action: String) -> void:
 	add_bind_input(name, bind)
 
 ## Binds a fray action
-## 'simple_binds' is an array of InputBindSimple.
-func add_bind_fray_action(name: String, simple_binds: Array) -> void:
-	var bind := InputBindFrayAction.new()
+func add_bind_fray_action(name: StringName, simple_binds: Array[FrayInputBindSimple]) -> void:
+	var bind := FrayInputBindFrayAction.new()
 	for s_bind in simple_binds:
 		bind.add_bind(s_bind)
 	
 	add_bind_input(name, bind)
 
 ## Binds joystick button input.
-func add_bind_joy_button(name: String, button: int) -> void:
-	var bind := InputBindJoyButton.new()
+func add_bind_joy_button(name: StringName, button: int) -> void:
+	var bind := FrayInputBindJoyButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
 
 ## Binds joystick axis input.
-func add_bind_joy_axis(name: String, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
-	var bind := InputBindJoyAxis.new()
+func add_bind_joy_axis(name: StringName, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
+	var bind := FrayInputBindJoyAxis.new()
 	bind.axis = axis
 	bind.deadzone = deadzone
 	bind.check_positive = check_positive
 	add_bind_input(name, bind)
 
 ## Binds key input.
-func add_bind_key(name: String, key: int) -> void:
-	var bind := InputBindKey.new()
+func add_bind_key(name: StringName, key: int) -> void:
+	var bind := FrayInputBindKey.new()
 	bind.key = key
 	add_bind_input(name, bind)
 
 ## Binds mouse button input.
-func add_bind_mouse_button(name: String, button: int) -> void:
-	var bind := InputBindMouseButton.new()
+func add_bind_mouse_button(name: StringName, button: int) -> void:
+	var bind := FrayInputBindMouseButton.new()
 	bind.button = button
 	add_bind_input(name, bind)
 
 
 ## Removes input from list. Both binds and composite inputs can be removed this way
-func remove_input(name: String) -> void:
+func remove_input(name: StringName) -> void:
 	if _err_input_does_not_exist(name, "Failed to remove input."):
 		return
 
@@ -100,42 +101,42 @@ func remove_input(name: String) -> void:
 		_input_bind_by_name.erase(name)
 	else:
 		_composite_input_by_name.erase(name)
-		_composites_sorted.erase(name)
+		_composites_sorted_by_priority.erase(name)
 
 ## Returns true if the given bind exists in the list.
-func has_bind(bind_name: String) -> bool:
+func has_bind(bind_name: StringName) -> bool:
 	return _input_bind_by_name.has(bind_name)
 
 ## Returns an arry of all input bind names.
-func get_bind_names() -> PoolStringArray:
-	return PoolStringArray(_input_bind_by_name.keys())
+func get_bind_names() -> PackedStringArray:
+	return PackedStringArray(_input_bind_by_name.keys())
 
 ## Retruns input bind with given name if it exists.
-func get_bind(bind_name: String) -> InputBind:
+func get_bind(bind_name: StringName) -> FrayInputBind:
 	if has_bind(bind_name):
 		return _input_bind_by_name[bind_name]
 	return null
 
 ## Returns true if the given composite input exists in the list.
-func has_composite_input(input_name: String) -> bool:
+func has_composite_input(input_name: StringName) -> bool:
 	return _composite_input_by_name.has(input_name)
 
 ## Returns an array of all composite input names.
-func get_composite_input_names() -> PoolStringArray:
-	return PoolStringArray(_composites_sorted)
+func get_composite_input_names() -> PackedStringArray:
+	return PackedStringArray(_composites_sorted_by_priority)
 
 ## Returns composite input with given name if it exists.
-func get_composite_input(input_name: String) -> CompositeInput:
+func get_composite_input(input_name: StringName) -> FrayCompositeInput:
 	if has_composite_input(input_name):
 		return _composite_input_by_name[input_name]
 	return null
 
 ## Returns true if the given input exists within the list.
-func has_input(input_name: String) -> bool:
+func has_input(input_name: StringName) -> bool:
 	return has_composite_input(input_name) or has_bind(input_name)
 
 
-func _err_input_already_exists(input: String, err_msg: String) -> bool:
+func _err_input_already_exists(input: StringName, err_msg: String) -> bool:
 	if has_bind(input):
 		push_error(err_msg + " Input bind with name '%s' already exists." % input)
 		return true
@@ -146,22 +147,9 @@ func _err_input_already_exists(input: String, err_msg: String) -> bool:
 	return false
 
 
-func _err_input_does_not_exist(input: String, err_msg: String) -> bool:
+func _err_input_does_not_exist(input: StringName, err_msg: String) -> bool:
 	if not has_bind(input) and not has_composite_input(input):
 		push_error(err_msg + " Input bind or composite input with name '%s' does not exist." % input)
 		return true
 	
 	return false
-
-
-class Sorter:
-	
-	var _input_dict: Dictionary
-
-	func _init(input_dict: Dictionary) -> void:
-		_input_dict = input_dict
-
-	func sort(in1, in2) -> bool:
-		if _input_dict[in1].priority > _input_dict[in2].priority:
-			return true
-		return false

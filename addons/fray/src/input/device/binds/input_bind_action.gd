@@ -1,4 +1,5 @@
-tool
+@tool
+class_name FrayInputBindAction
 extends "input_bind_simple.gd"
 ## Action input bind
 ##
@@ -22,7 +23,7 @@ func _is_pressed_impl(_device: int = 0) -> bool:
 
 func _equals_impl(input_bind: Resource) -> bool:
 	return (
-		._equals_impl(input_bind)
+		super(input_bind)
 		and action == input_bind.action)
 
 

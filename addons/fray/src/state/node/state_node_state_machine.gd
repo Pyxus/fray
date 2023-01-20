@@ -17,11 +17,22 @@ const AStarGraph = preload("a_star_graph.gd")
 const StateMachineTransition = preload("transition/state_machine_transition.gd")
 var StateNodeStateMachine: GDScript = load("res://addons/fray/src/state/node/state_node_state_machine.gd")
 
-var start_node: String setget set_start_node
-var end_node: String setget set_end_node
-var current_node: String setget set_current_node
+var start_node: String:
+	set(node):
+		if _ERR_INVALID_NODE(node): return
+		start_node = node
+		
+var end_node: String:
+	set(node):
+		if _ERR_INVALID_NODE(node): return
+		end_node = node
+		
+var current_node: String:
+	set(node):
+		if _ERR_INVALID_NODE(node): return
+		goto(node)
 
-var _astar := AStarGraph.new(funcref(self, "_get_transition_priority"))
+var _astar := AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 
 ## Type: Dictionary<String, StateNode>
@@ -36,13 +47,13 @@ func _enter_impl(args: Dictionary) -> void:
 
 
 func _is_done_processing_impl() -> bool:
-	return end_node.empty() or current_node == end_node
+	return end_node.is_empty() or current_node == end_node
 
 ## Adds a new `StateNodeBase` under the given `name`.
-func add_node(name: String, node: Reference) -> void:
+func add_node(name: String, node: RefCounted) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
-	if _states.empty():
+	if _states.is_empty():
 		start_node = name
 
 	_states[name] = node
@@ -53,7 +64,7 @@ func add_node(name: String, node: Reference) -> void:
 func remove_node(name: String) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
-	var node: Reference = get_node(name)
+	var node: RefCounted = get_node(name)
 	_states.erase(name)
 	_astar.remove_point(name)
 	_on_node_removed(name, node)
@@ -72,7 +83,7 @@ func rename_node(old_name: String, new_name: String) -> void:
 	_on_node_renamed(old_name, new_name)
 
 ## Replaces the specified node's `StateNodeBase` object.
-func replace_node(name: String, replacement_node: Reference) -> void:
+func replace_node(name: String, replacement_node: RefCounted) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
 	if replacement_node.has_parent():
@@ -87,13 +98,13 @@ func has_node(name: String) -> bool:
 
 ## Returns the sub-node with the specified name.
 ## Return Type: StateNodeBase
-func get_node(name: String) -> Reference:
+func get_node(name: String) -> RefCounted:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
 ## Returns the current node if it is set.
 ## Return Type: StateNodeBase
-func get_node_current() -> Reference:
+func get_node_current() -> RefCounted:
 	return _states.get(current_node)
 	
 ## Adds a transition between specified nodes.
@@ -141,7 +152,7 @@ func get_transition(from: String, to: String) -> StateMachineTransition:
 func travel(to: String, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
-	if not current_node.empty():
+	if not current_node.is_empty():
 		_astar.compute_travel_path(current_node, to)
 		_travel_args = args
 
@@ -160,7 +171,7 @@ func travel(to: String, args: Dictionary = {}) -> void:
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var cur_node: Reference = get_node_current()
+	var cur_node: RefCounted = get_node_current()
 
 	if cur_node != null:
 		if cur_node is StateNodeStateMachine:
@@ -173,7 +184,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 				travel_node = get_node(current_node)
 		else:
 			var next_node := get_next_node(input)
-			if not next_node.empty():
+			if not next_node.is_empty():
 				goto(next_node, args)
 
 	return cur_node != null and cur_node != _states.get(current_node, null)
@@ -182,7 +193,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 ## Returns the next reachable node
 func get_next_node(input: Dictionary = {}) -> String:
 	
-	if current_node.empty():
+	if current_node.is_empty():
 		push_warning("No current state is set.")
 		return ""
 
@@ -206,7 +217,7 @@ func goto(to_node: String, args: Dictionary = {}) -> void:
 
 ## Short hand for 'node.goto(node.start_node, args)'
 func goto_start(args: Dictionary = {}) -> void:
-	if start_node.empty():
+	if start_node.is_empty():
 		push_warning("Failed to go to start. Start node not set.")
 		return
 	
@@ -214,7 +225,7 @@ func goto_start(args: Dictionary = {}) -> void:
 
 ## Short hand for 'node.goto(node.end_node, args)'
 func goto_end(args: Dictionary = {}) -> void:
-	if end_node.empty():
+	if end_node.is_empty():
 		push_warning("Failed to go to end. End node not set.")
 		return
 	
@@ -252,7 +263,7 @@ func set_current_node(name: String) -> void:
 ## Process child states then this state.
 ## Intended to be called by `StateMachine` node 
 func process(delta: float) -> void:
-	var cur_state: Reference = _states.get(current_node)
+	var cur_state: RefCounted = _states.get(current_node)
 	if cur_state != null:
 		cur_state._process_impl(delta)
 	_process_impl(delta)
@@ -260,7 +271,7 @@ func process(delta: float) -> void:
 ## Physics process child states then this state.
 ## Intended to be called by `StateMachine` node 
 func physics_process(delta: float) -> void:
-	var cur_state: Reference = _states.get(current_node)
+	var cur_state: RefCounted = _states.get(current_node)
 	if cur_state != null:
 		cur_state._physics_process_impl(delta)
 	_physics_process_impl(delta)
@@ -311,7 +322,7 @@ func _goto(to_node: String, args: Dictionary) -> void:
 	if _ERR_INVALID_NODE(to_node): return
 
 	var prev_node_name := current_node
-	var prev_node: Reference = get_node(to_node)
+	var prev_node: RefCounted = get_node(to_node)
 
 	if prev_node != null:
 		prev_node._exit_impl()
@@ -340,7 +351,7 @@ func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool
 	return (
 		transition.auto_advance
 		or (
-			not transition.advance_conditions.empty()
+			not transition.advance_conditions.is_empty()
 			and _is_conditions_satisfied(transition.advance_conditions)
 			)
 		or transition.accepts(input)
@@ -365,11 +376,11 @@ func _is_condition_true(condition: Condition) -> bool:
 			)
 
 
-func _on_node_added(name: String, node: Reference) -> void:
+func _on_node_added(name: String, node: RefCounted) -> void:
 	pass
 
 
-func _on_node_removed(name: String, node: Reference) -> void:
+func _on_node_removed(name: String, node: RefCounted) -> void:
 	pass
 
 
@@ -377,8 +388,8 @@ func _on_node_renamed(old_name: String, new_name: String) -> void:
 	pass
 
 
-func _ERR_FAILED_TO_ADD_NODE(name: String, state: Reference) -> bool:
-	if name.empty():
+func _ERR_FAILED_TO_ADD_NODE(name: String, state: RefCounted) -> bool:
+	if name.is_empty():
 		push_error("Failed to add node. Node name can not be empty.")
 		return true
 
@@ -393,7 +404,7 @@ func _ERR_FAILED_TO_ADD_NODE(name: String, state: Reference) -> bool:
 	return false
 
 func _ERR_INVALID_NODE(name: String) -> bool:
-	if name.empty():
+	if name.is_empty():
 		push_error("Invalid node name, name can not be empty")
 		return true
 	
@@ -405,7 +416,7 @@ func _ERR_INVALID_NODE(name: String) -> bool:
 
 
 class Transition:
-	extends Reference
+	extends RefCounted
 	
 	const StateMachineTransition = preload("transition/state_machine_transition.gd")
 

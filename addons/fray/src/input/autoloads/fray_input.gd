@@ -1,39 +1,27 @@
+class_name _FrayInput
 extends Node
 ## Fray input manager singleton
 ##
-## @desc:
-## 		Functionally similar to Godot's built in `Input` singleton.
+## Functionally similar to Godot's built in `Input` singleton.
 
-## Emitted when an input is detected
-##
-## input_event is a `FrayInputEvent` object containing information about the event
-signal input_detected(input_event)
+## Emitted when a [kbd]input_event[/kbd] is detected.
+signal input_detected(input_event: FrayInputEvent)
 
-## Emitted when a device has been connected or disconnected
-signal device_connection_changed(device_id, connected)
+## Emitted when a [kbd]device[/kbd] has been connected or disconnected
+signal device_connection_changed(device: int, is_connected: bool)
 
-const DeviceState = preload("../device/device_state.gd")
-const VirtualDevice = preload("../device/virtual_device.gd")
-const InputState = preload("../device/input_data/state/input_state.gd")
-const InputInterface = preload("../device/input_data/state/input_interface.gd")
-const InputBindAction = preload("../device/input_data/binds/input_bind_action.gd")
-const InputBindJoyAxis = preload("../device/input_data/binds/input_bind_joy_axis.gd")
-const FrayInputEvent = preload("../events/fray_input_event.gd")
-const FrayInputEventBind = preload("../events/fray_input_event_bind.gd")
-const FrayInputEventComposite = preload("../events/fray_input_event_composite.gd")
-const FrayInputMap = preload("fray_input_map.gd")
-
+## Device id of the keyboard and mouse as well as the first controller connected.
 const DEVICE_KBM_JOY1 = 0
 
-## Type: Dictionary<int, DeviceState>
+# Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
-onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
-onready var _input_interface := InputInterface.new(weakref(self))
+@onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
+@onready var _input_interface := FrayInputInterface.new(weakref(self))
 
 
 func _ready() -> void:
-	Input.connect("joy_connection_changed", self, "_on_Input_joy_connection_changed")
+	Input.joy_connection_changed.connect(_on_Input_joy_connection_changed)
 
 	for device in Input.get_connected_joypads():
 		_connect_device(device)
@@ -52,9 +40,9 @@ func _physics_process(_delta: float) -> void:
 			input_state.strength = bind.get_strength(device)
 
 			if bind.is_pressed(device):
-				if not input_state.pressed:
+				if not input_state.is_pressed:
 					input_state.press()
-			elif input_state.pressed:
+			elif input_state.is_pressed:
 				input_state.unpress()
 		
 		for composite_input_name in _input_map.get_composite_input_names():
@@ -62,7 +50,7 @@ func _physics_process(_delta: float) -> void:
 			var input_state := device_state.get_input_state(composite_input_name)
 			
 			if composite_input.is_pressed(device, _input_interface):
-				if not input_state.pressed:
+				if not input_state.is_pressed:
 					var my_components := composite_input.decompose(device, _input_interface)
 					input_state.press()
 					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
@@ -71,7 +59,7 @@ func _physics_process(_delta: float) -> void:
 						device_state.unflag_inputs_as_distinct([composite_input_name])
 					else:
 						device_state.unflag_inputs_as_distinct(my_components)
-			elif input_state.pressed:
+			elif input_state.is_pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
 				input_state.unpress()
 				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
@@ -89,43 +77,78 @@ func _physics_process(_delta: float) -> void:
 		for input in device_state.get_all_inputs():
 			if is_just_pressed(input, device) or is_just_released(input, device):
 				var input_event := _create_input_event(input, device)
-				input_event.echo = false
-				emit_signal("input_detected", input_event)
+				input_event.is_echo = false
+				input_detected.emit(input_event)
 			elif is_pressed(input, device):
 				var input_event := _create_input_event(input, device)
-				input_event.echo = true
-				emit_signal("input_detected", input_event)
+				input_event.is_echo = true
+				input_detected.emit(input_event)
 		
 
-## Returns true if an input is being pressed.
+## Returns [code]true[/code] if the [kbd]input[/kbd] is being pressed.
 func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
-			return input_state.pressed
+			return input_state.is_pressed
 		null:
 			return false
 
-## Returns true if any of the inputs given are being pressed
-func is_any_pressed(inputs: PoolStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
+## Returns [code]true[/code] if any of the [kbd]inputs[/kbd] given are being pressed.
+func is_any_pressed(inputs: PackedStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
 	for input in inputs:
-		if is_pressed(input):
+		if is_pressed(input, device):
 			return true
 	return false
 
-## Returns true when a user starts pressing the input, 
-## meaning it's true only on the frame the user pressed down the input.
+## Returns [code]true[/code] if any [kbd]n[/kbd] count of the [kbd]inputs[/kbd] given are being pressed.
+func is_any_pressed_n(inputs: PackedStringArray, n: int = 1, device: int = DEVICE_KBM_JOY1) -> bool:
+	var count := 0
+
+	if n > inputs.size():
+		push_warning("'n' should not be greater than the number of inputs")
+	
+	for input in inputs:
+		if is_pressed(input, device):
+			count += 1
+	
+	if count >= n:
+		return true
+	
+	return false
+
+## Returns [code]true[/code] if all [kbd]inputs[/kbd] given are being pressed.
+func is_all_pressed(inputs: PackedStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
+	if inputs.is_empty():
+		return false
+	
+	for input in inputs:
+		if not is_pressed(input, device):
+			return false
+	
+	return true
+	
+## Returns [code]true[/code] if any bind is being pressed.
+func is_anything_pressed(device: int = DEVICE_KBM_JOY1) -> bool:
+	for bind in _input_map.get_bind_names():
+		if is_pressed(bind, device):
+			return true
+	return false
+
+## Returns [code]true[/code] when a user starts pressing the [kbd]input[/kbd], 
+## meaning it's true only on the frame the user pressed down the [kbd]input[/kbd].
 func is_just_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
-				return input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
+				return input_state.is_pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return input_state.pressed and input_state.idle_frame == Engine.get_idle_frames()
+				return input_state.is_pressed and input_state.process_frame == Engine.get_process_frames()
 		null:
 			return false
 
-## Returns true if input was physically pressed
-## meaning it is only true if the press was not trigerred virtually.
+## Returns [code]true[/code] if [kbd]input[/kbd] was just physically pressed
+## meaning it's true only on the frame the user pressed down the [kbd]input[/kbd]
+## and the [kbd]input[/kbd] was not triggered virtually.
 func is_just_pressed_real(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
@@ -133,24 +156,24 @@ func is_just_pressed_real(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 		null:
 			return false
 
-## Returns true when the user stops pressing the input, 
+## Returns [code]true[/code] when the user stops pressing the [kbd]input[/kbd], 
 ## meaning it's true only on the frame that the user released the button.
 func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
-				return not input_state.pressed and input_state.physics_frame == Engine.get_physics_frames()
+				return not input_state.is_pressed and input_state.physics_frame == Engine.get_physics_frames()
 			else:
-				return not input_state.pressed and input_state.idle_frame == Engine.get_idle_frames()
+				return not input_state.ispressed and input_state.process_frame == Engine.get_process_frames()
 		null:
 			return false
 
-## Returns true if device with given id is connected
+## Returns [code]true[/code] if device with given id is connected
 func is_device_connected(device: int) -> bool:
-	 return _device_state_by_id.has(device)
+	return _device_state_by_id.has(device)
 
-## Returns a value between 0 and 1 representing the intensity of an input.
-## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
+## Returns a value between 0 and 1 representing the intensity of an [kbd]input[/kbd].
+## If the [kbd]input[/kbd] has no range of strngth a discrete value of 0 or 1 will be returned.
 func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	match _get_input_state(input, device):
 		var input_state:
@@ -158,22 +181,21 @@ func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 		null:
 			return 0.0
 
-## Get axis input by specifiying two input ids, one negative and one positive.
+## Get axis input by specifiying two input names, one negative and one positive.
 func get_axis(negative_input: String, positive_input: String, device: int = DEVICE_KBM_JOY1) -> float:
 	return get_strength(positive_input, device) - get_strength(negative_input, device)
 
 ## Returns an array of all connected devices.
-## This array always contains device 0 as this represents
-## both the keyboard and mouse as well as the first joypad
+## This array always contains device 0 as this represents the keyboard and mouse.
 func get_connected_devices() -> Array:
 	var connected_joypads := Input.get_connected_joypads()
 	
-	if connected_joypads.empty():
+	if connected_joypads.is_empty():
 		connected_joypads.append(DEVICE_KBM_JOY1)
 		
 	return connected_joypads
 
-## Sets condition to given value. Used for checking conditional inputs.
+## Sets [kbd]condition[/kbd] to given [kbd]value[/kbd]. Used for checking conditional inputs.
 func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1) -> void:
 	match _get_device_state(device):
 		var device_state:
@@ -181,7 +203,7 @@ func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1
 		null:
 			push_error("Failed to set condition. Unrecognized device '%d'" % device)
 
-## Returns the value of a condition set with set_condition.
+## Returns the state of a [kbd]condition[/kbd] set with set_condition.
 func is_condition_true(condition: String, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_device_state(device):
 		var device_state:
@@ -190,7 +212,7 @@ func is_condition_true(condition: String, device: int = DEVICE_KBM_JOY1) -> bool
 			push_error("Failed to check condition. Unrecognized device '%d'" % device)
 			return false
 
-## Clears the condition dict
+## Clears the condition dict.
 func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 	match _get_device_state(device):
 		var device_state:
@@ -198,18 +220,18 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 		null:
 			push_error("Failed to clear conditions. Unrecognized device '%d'" % device)
 
-## Retruns a newly created virtual device
-## By convention all virtual devices are assigned a negative number
-func create_virtual_device() -> VirtualDevice:
+## Retruns a newly created virtual device.
+## By convention all virtual devices are assigned a negative number.
+func create_virtual_device() -> FrayVirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
-	var vd := VirtualDevice.new(_connect_device(id), id)
-	vd.connect("disconnect_requested", self, "_on_VirtualDevice_disconnect_requested", [id])
+	var vd := FrayVirtualDevice.new(_connect_device(id), id)
+	vd.disconnect_requested.connect(_on_VirtualDevice_disconnect_requested.bind(id))
 	return vd
 
 
-func _connect_device(device: int) -> DeviceState:
-	var device_state := DeviceState.new()
+func _connect_device(device: int) -> FrayDeviceState:
+	var device_state := FrayDeviceState.new()
 	var all_input_names :=\
 		(_input_map.get_bind_names() + _input_map.get_composite_input_names())
 		
@@ -217,26 +239,26 @@ func _connect_device(device: int) -> DeviceState:
 		device_state.register_input_state(input_name)
 	
 	_device_state_by_id[device] = device_state
-
-	emit_signal("device_connection_changed", device, true)
+	
+	device_connection_changed.emit(device, true)
 	return device_state
 
 
 func _disconnect_device(device: int) -> void:
 	if _device_state_by_id.has(device):
 		_device_state_by_id.erase(device)
-		emit_signal("device_connection_changed", true, false)
+		device_connection_changed.emit(device, false)
 	else:
 		push_error("Failed to disconnect device. Unrecognized device '%d'." % device)
 
 
-func _get_device_state(device: int) -> DeviceState:
+func _get_device_state(device: int) -> FrayDeviceState:
 	if _device_state_by_id.has(device):
 		return _device_state_by_id[device]
 	return null
 
 
-func _get_input_state(input: String, device: int) -> InputState:
+func _get_input_state(input: String, device: int) -> FrayInputState:
 	match _get_device_state(device):
 		var device_state:
 			if not _input_map.has_input(input):
@@ -247,7 +269,7 @@ func _get_input_state(input: String, device: int) -> InputState:
 			return null
 
 
-func _get_bind_state(input: String, device: int) -> InputState:
+func _get_bind_state(input: String, device: int) -> FrayInputState:
 	if _input_map.has_bind(input):
 		return _get_input_state(input, device)
 	return null
@@ -262,20 +284,20 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 		input_event.composites_used_in = input_state.composites_used_in
 	elif _input_map.has_composite_input(input):
 		input_event = FrayInputEventComposite.new()
-		input_event.virtually_pressed = input_state.virtually_pressed
+		input_event.is_virtually_pressed = input_state.is_virtually_pressed
 
 	input_event.device = device
 	input_event.input = input
 	input_event.time_pressed = input_state.time_pressed
 	input_event.physics_frame = input_state.physics_frame
-	input_event.idle_frame = input_state.idle_frame
-	input_event.time_detected = OS.get_ticks_msec()
-	input_event.pressed = input_state.pressed
+	input_event.process_frame = input_state.process_frame
+	input_event.time_detected = Time.get_ticks_msec()
+	input_event.is_pressed = input_state.is_pressed
 	input_event.is_distinct = input_state.is_distinct
 	
 	return input_event
 
-func _virtually_press(inputs: PoolStringArray, device: int) -> void:
+func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 	var device_state := _get_device_state(device)
 
 	# Virtually press held binds

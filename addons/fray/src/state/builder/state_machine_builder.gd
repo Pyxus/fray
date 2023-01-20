@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 ## State machine builder
 ##
 ## @desc:
@@ -50,8 +50,8 @@ func build() -> StateNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := StateNode.new()) -> Reference:
-	if name.empty():
+func add_state(name: String, state := StateNode.new()) -> RefCounted:
+	if name.is_empty():
 		push_error("State name can not be empty")
 	else:
 		_state_by_name[name] = state
@@ -68,7 +68,7 @@ func add_state(name: String, state := StateNode.new()) -> Reference:
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
+func transition(from: String, to: String, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_transition(from, to, StateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -77,7 +77,7 @@ func transition(from: String, to: String, config: Dictionary = {}) -> Reference:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func start_at(state: String) -> Reference:
+func start_at(state: String) -> RefCounted:
 	_add_state_once(state)
 	_start_state = state
 	return self
@@ -86,7 +86,7 @@ func start_at(state: String) -> Reference:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func end_at(state: String) -> Reference:
+func end_at(state: String) -> RefCounted:
 	_add_state_once(state)
 	_end_state = state
 	return self
@@ -132,10 +132,10 @@ func _configure_state_machine(root: StateNodeStateMachine) -> void:
 	for tr in _transitions:
 		root.add_transition(tr.from, tr.to, tr.transition)
 
-	if not _start_state.empty():
+	if not _start_state.is_empty():
 		root.start_node = _start_state
 	
-	if not _end_state.empty():
+	if not _end_state.is_empty():
 		root.end_node = _end_state
 
 
@@ -169,7 +169,7 @@ func _clear_impl() -> void:
 
 
 class Transition:
-	extends Reference
+	extends RefCounted
 	
 	const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 
