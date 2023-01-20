@@ -1,11 +1,10 @@
 @tool
 class_name FrayCombinationInput
-extends "composite_input.gd"
+extends FrayCompositeInput
 ## A composite input used to create combination inputs
 ##
-## @desc:
-## 		A combination will be considered as press when
-##      all components are pressed according to the mode.
+## A combination will be considered as press when
+## all components are pressed according to the mode.
 
 enum Mode {
 	SYNC, ## Components must all be pressed at the same time.
@@ -15,7 +14,6 @@ enum Mode {
 
 ## Determines press condition necessary to trigger combination
 var mode: Mode = Mode.SYNC
-
 
 func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	match mode:
@@ -38,7 +36,7 @@ func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Packed
 		binds += component.decompose(device, input_interface)
 	return binds
 
-
+## Returns a builder instance
 static func builder() -> Builder:
 	return Builder.new()
 
@@ -106,14 +104,14 @@ class Builder:
 		_builders.append(component_builder)
 		return self
 
-	## Sets wthe composite input's process priority
+	## Sets whether the input will be virtual or not
 	##
 	## Returns a reference to this ComponentBuilder
 	func is_virtual(value: bool = true) -> Builder:
 		_composite_input.is_virtual = value
 		return self
 
-	## Sets whether the input will be virtual or not
+	## Sets the composite input's process priority
 	##
 	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
@@ -121,16 +119,16 @@ class Builder:
 		return self
 
 	## Sets the combination to async mode
-	func async() -> Builder:
+	func mode_async() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ASYNC
 		return self
 		
 	## Sets the combination to sync mode
-	func sync() -> Builder:
+	func mode_sync() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.SYNC
 		return self
 		
 	## Sets the combination to ordered mode
-	func ordered() -> Builder:
+	func mode_ordered() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ORDERED
 		return self

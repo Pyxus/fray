@@ -126,6 +126,10 @@ class CompositeBuilder:
 	##
 	## Returns a reference to the newly build CompositeInput
 	func build() -> FrayCompositeInput:
+		return _build_impl()
+	
+	## [code]Virtual method[/code] used to implement [method build] method
+	func _build_impl() -> FrayCompositeInput:
 		for builder in _builders:
 			_composite_input.add_component(builder.build())
 		return _composite_input

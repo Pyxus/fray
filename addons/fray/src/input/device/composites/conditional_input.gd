@@ -1,6 +1,6 @@
 @tool
 class_name FrayConditionalInput
-extends "composite_input.gd"
+extends FrayCompositeInput
 
 ## A composite input used to create conditional inputs
 ##
@@ -16,7 +16,7 @@ extends "composite_input.gd"
 ## Hint: <component index, string condition>
 var _conditions_by_component: Dictionary
 
-
+## Returns a builder instance
 static func builder() -> Builder:
 	return Builder.new()
 	
@@ -83,21 +83,21 @@ class Builder:
 		_builders.append(component_builder)
 		return self 
 	
-	## Sets wthe composite input's process priority
+	## Sets whether the input will be virtual or not
 	##
 	## Returns a reference to this ComponentBuilder
 	func is_virtual(value: bool = true) -> Builder:
 		_composite_input.is_virtual = value
 		return self
 
-	## Sets whether the input will be virtual or not
+	## Sets the composite input's process priority
 	##
 	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self
 
-	
+	## Returns composite input instance
 	func build() -> FrayCompositeInput:
 		for i in len(_builders):
 			_composite_input.add_component(_builders[i].build())
