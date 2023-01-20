@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.1
+
+### Removed
+
+- Removed `*.import` gitignore
+
 ## v1.0.0
 
 ### Added
