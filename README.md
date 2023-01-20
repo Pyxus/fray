@@ -1,15 +1,19 @@
 # Fray
 
 <p align="center">
-    <img src="assets/fray_banner.gif" alt="Fray Logo">
+	<img src="assets/fray_banner.gif" alt="Fray Logo">
 </p>
 
 
-![Godot version](https://img.shields.io/badge/godot-v3.5-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
+![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v4.0-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
 
 ## 📖 About
 
 Fray is an addon for the [Godot Game Engine](https://godotengine.org) that provides tools which aid in the development of action / fighting game combat. If your project requires changes in combatant state corresponding to button presses, input buffering, handling complex player inputs, or hitbox management then you may benefit from using Fray!
+
+## ⚠️ IMPORTANT
+
+**Fray 2.0 is in alpha! Breaking changes may still be made.**
 
 ## ✨ Core Features
 
@@ -29,10 +33,10 @@ State machines can be defined declaratively using the included builder classes.
 # Constructs state machine that resembles:
 # 	idle -[attack_button]> attack1 -[attack_button]> attack2
 combat_state_machine.add_situation("on_ground", CombatSituationBuilder.new()\
-    .transition_button("idle", "attack1", {input = "attack_button"})\
-    .transition_button("attack1", "attack2", {input = "attack_button"})\
-    .start_at("idle")\
-    .build()
+	.transition_button("idle", "attack1", {input = "attack_button"})\
+	.transition_button("attack1", "attack2", {input = "attack_button"})\
+	.start_at("idle")\
+	.build()
 )
 ```
 
@@ -61,14 +65,14 @@ FrayInputMap.add_bind_action("ui_down", "down")
 
 # This describes a combination input which changes based on what side the player is on.
 FrayInputMap.add_composite_input("down_forward", CIF.new_conditional()\
-    .add_component("", CIF.new_combination_async()\
-        .add_component(CIF.new_simple(["down"]))\
-        .add_component(CIF.new_simple(["right"])))\
-    .add_component("on_right", CIF.new_combination_async()\
-        .add_component(CIF.new_simple(["down"]))\
-        .add_component(CIF.new_simple(["left"])))\
-    .is_virtual()\
-    .build()
+	.add_component("", CIF.new_combination_async()\
+		.add_component(CIF.new_simple(["down"]))\
+		.add_component(CIF.new_simple(["right"])))\
+	.add_component("on_right", CIF.new_combination_async()\
+		.add_component(CIF.new_simple(["down"]))\
+		.add_component(CIF.new_simple(["left"])))\
+	.is_virtual()\
+	.build()
 )
 ```
 
@@ -79,11 +83,11 @@ The sequence analyzer can then be fed inputs and will emit a signal if any match
 var sequence_list := SequenceList.new()
 
 sequence_list.add("236p", SequencePath.new()\
-    .then("down").then("down_forward").then("forward").then("punch"))
+	.then("down").then("down_forward").then("forward").then("punch"))
 
 # Input leniency can be done by adding a new path with the same sequence name
 sequence_list.add("214p", SequencePath.new()\
-    .then("down").then("forward").then("punch"))
+	.then("down").then("forward").then("punch"))
 ```
 
 ```gdscript
