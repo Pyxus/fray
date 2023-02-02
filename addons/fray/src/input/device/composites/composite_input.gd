@@ -30,7 +30,7 @@ func is_pressed(device: int, input_interface: FrayInputInterface) -> bool:
 	return _is_pressed_impl(device, input_interface)
 
 ## Adds a component to this input
-func add_component(component: Resource) -> void:
+func add_component(component: FrayCompositeInput) -> void:
 	if component.get_root() == self:
 		push_warning("Component '%s' already belongs to this system." % component)
 		return
@@ -45,6 +45,10 @@ func add_component(component: Resource) -> void:
 
 	component._root_wf = weakref(get_root())
 	_components.append(component)
+
+## Returns the number of components.
+func get_component_count() -> int:
+	return _components.size()
 
 ## Decomposes composite input into binds
 func decompose(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
@@ -120,16 +124,9 @@ class CompositeBuilder:
 	extends RefCounted
 
 	var _composite_input: FrayCompositeInput
-	var _builders: Array[CompositeBuilder]
 
 	## Builds the composite input
 	##
 	## Returns a reference to the newly build CompositeInput
 	func build() -> FrayCompositeInput:
-		return _build_impl()
-	
-	## [code]Virtual method[/code] used to implement [method build] method
-	func _build_impl() -> FrayCompositeInput:
-		for builder in _builders:
-			_composite_input.add_component(builder.build())
 		return _composite_input

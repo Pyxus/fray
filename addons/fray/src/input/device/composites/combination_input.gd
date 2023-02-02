@@ -100,8 +100,8 @@ class Builder:
 	## Adds a composite input as a component of this combination
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(component_builder: CompositeBuilder) -> Builder:
-		_builders.append(component_builder)
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		_composite_input.add_component(composite_input)
 		return self
 
 	## Sets whether the input will be virtual or not

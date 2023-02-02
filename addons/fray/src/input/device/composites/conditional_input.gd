@@ -78,9 +78,14 @@ class Builder:
 	## Adds a composite input as a component of this conditional input
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(condition: String, component_builder: RefCounted) -> Builder:
+	func add_component(condition: String, composite_input: FrayCompositeInput) -> Builder:
 		_conditions.append(condition)
-		_builders.append(component_builder)
+		_composite_input.add_component(composite_input)
+		
+		var component_count := _composite_input.get_component_count() 
+		if component_count != 1:
+			_composite_input.set_condition(component_count - 1, _conditions[component_count - 1])
+		
 		return self 
 	
 	## Sets whether the input will be virtual or not
@@ -96,12 +101,3 @@ class Builder:
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self
-
-	## Returns composite input instance
-	func build() -> FrayCompositeInput:
-		for i in len(_builders):
-			_composite_input.add_component(_builders[i].build())
-			
-			if i != 0:
-				_composite_input.set_condition(i, _conditions[i])
-		return _composite_input

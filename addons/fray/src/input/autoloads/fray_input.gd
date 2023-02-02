@@ -83,9 +83,12 @@ func _physics_process(_delta: float) -> void:
 				input_detected.emit(input_event)
 			elif is_pressed(input, device):
 				var input_event := _create_input_event(input, device)
-				if _last_physics_frame - input_event.physics_frame > 2:
+				var is_same_physics_frame := _last_physics_frame - input_event.physics_frame <= 2
+
+				if not is_same_physics_frame:
 					input_event.is_echo = true
 					input_detected.emit(input_event)
+
 	_last_physics_frame = Engine.get_physics_frames()
 
 ## Returns [code]true[/code] if the [kbd]input[/kbd] is being pressed.
