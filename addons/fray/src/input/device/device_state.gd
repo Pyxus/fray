@@ -2,11 +2,12 @@ class_name FrayDeviceState
 extends RefCounted
 ## Used by FrayInput to track device state
 
-## Type: Dictionary<string, InputState>
+## Type: Dictionary<String, InputState>
 var input_state_by_name: Dictionary
 
 ## Type: Dictionary<String, bool>
 var bool_by_condition: Dictionary
+
 
 func flag_inputs_use_in_composite(composite: String, inputs: PackedStringArray) -> void:
 	for input in inputs:
@@ -30,17 +31,13 @@ func unflag_inputs_as_distinct(inputs: PackedStringArray) -> void:
 		if input_state_by_name.has(input):
 			input_state_by_name[input].is_distinct = false
 
-func set_inputs_distinctiveness(inputs: PackedStringArray, is_distinct: bool) -> void:
-	for input in inputs:
-		if input_state_by_name.has(input):
-			input_state_by_name[input].is_distinct = is_distinct
-
 
 func is_all_indistinct(inputs: PackedStringArray) -> bool:
 	for input in inputs:
 		if input_state_by_name.has(input) and input_state_by_name[input].is_distinct:
 			return false
 	return true
+
 
 func get_pressed_inputs() -> PackedStringArray:
 	var pressed_inputs: PackedStringArray

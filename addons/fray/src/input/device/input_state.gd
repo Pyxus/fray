@@ -5,7 +5,7 @@ extends RefCounted
 ## Type: Peudo-HashSet
 var composites_used_in: Dictionary
 
-var input: String
+var input: StringName
 var physics_frame: int = -1
 var process_frame: int = -1
 var time_pressed: int = -1
@@ -14,7 +14,8 @@ var is_pressed: bool
 var is_virtually_pressed: bool
 var is_distinct: bool = true
 
-func _init(input_name: String) -> void:
+
+func _init(input_name: StringName) -> void:
 	input = input_name
 
 

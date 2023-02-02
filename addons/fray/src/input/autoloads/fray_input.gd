@@ -16,6 +16,8 @@ const DEVICE_KBM_JOY1 = 0
 # Type: Dictionary<int, DeviceState>
 var _device_state_by_id: Dictionary
 
+var _last_physics_frame: int
+
 @onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
 @onready var _input_interface := FrayInputInterface.new(weakref(self))
 
@@ -81,12 +83,13 @@ func _physics_process(_delta: float) -> void:
 				input_detected.emit(input_event)
 			elif is_pressed(input, device):
 				var input_event := _create_input_event(input, device)
-				input_event.is_echo = true
-				input_detected.emit(input_event)
-		
+				if _last_physics_frame - input_event.physics_frame > 2:
+					input_event.is_echo = true
+					input_detected.emit(input_event)
+	_last_physics_frame = Engine.get_physics_frames()
 
 ## Returns [code]true[/code] if the [kbd]input[/kbd] is being pressed.
-func is_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_pressed(input: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			return input_state.is_pressed
@@ -136,7 +139,7 @@ func is_anything_pressed(device: int = DEVICE_KBM_JOY1) -> bool:
 
 ## Returns [code]true[/code] when a user starts pressing the [kbd]input[/kbd], 
 ## meaning it's true only on the frame the user pressed down the [kbd]input[/kbd].
-func is_just_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_just_pressed(input: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
@@ -149,7 +152,7 @@ func is_just_pressed(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 ## Returns [code]true[/code] if [kbd]input[/kbd] was just physically pressed
 ## meaning it's true only on the frame the user pressed down the [kbd]input[/kbd]
 ## and the [kbd]input[/kbd] was not triggered virtually.
-func is_just_pressed_real(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_just_pressed_real(input: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			return is_just_pressed(input, device) and not input_state.virtually_pressed
@@ -158,7 +161,7 @@ func is_just_pressed_real(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
 
 ## Returns [code]true[/code] when the user stops pressing the [kbd]input[/kbd], 
 ## meaning it's true only on the frame that the user released the button.
-func is_just_released(input: String, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_just_released(input: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_input_state(input, device):
 		var input_state:
 			if Engine.is_in_physics_frame():
@@ -174,7 +177,7 @@ func is_device_connected(device: int) -> bool:
 
 ## Returns a value between 0 and 1 representing the intensity of an [kbd]input[/kbd].
 ## If the [kbd]input[/kbd] has no range of strngth a discrete value of 0 or 1 will be returned.
-func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
+func get_strength(input: StringName, device: int = DEVICE_KBM_JOY1) -> float:
 	match _get_input_state(input, device):
 		var input_state:
 			return input_state.strength
@@ -182,7 +185,7 @@ func get_strength(input: String, device: int = DEVICE_KBM_JOY1) -> float:
 			return 0.0
 
 ## Get axis input by specifiying two input names, one negative and one positive.
-func get_axis(negative_input: String, positive_input: String, device: int = DEVICE_KBM_JOY1) -> float:
+func get_axis(negative_input: StringName, positive_input: StringName, device: int = DEVICE_KBM_JOY1) -> float:
 	return get_strength(positive_input, device) - get_strength(negative_input, device)
 
 ## Returns an array of all connected devices.
@@ -296,6 +299,7 @@ func _create_input_event(input: String, device: int) -> FrayInputEvent:
 	input_event.is_distinct = input_state.is_distinct
 	
 	return input_event
+
 
 func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 	var device_state := _get_device_state(device)

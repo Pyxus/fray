@@ -15,6 +15,10 @@ extends Node
 
 @onready var _fray_input: Node = get_node("/root/FrayInput")
 
+func _ready() -> void:
+	if _fray_input == null:
+		push_error("Failed to access FrayInput singleton. Fray plugin may not be enabled.")
+		return
 
 ## Returns true if this controller is connected
 func is_device_connected() -> bool:
