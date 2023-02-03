@@ -1,18 +1,18 @@
 @tool
-@icon("res://addons/fray/assets/icons/hitbox_2d.svg")
-class_name FrayHitbox2D 
-extends Area2D
+@icon("res://addons/fray/assets/icons/hitbox_3d.svg")
+class_name FrayHitbox3D
+extends Area3D
 
-## 2D area intended to detect combat interactions.
+## 3D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.
 ## It serves as a template you can expand upon through the use of [FrayHitboxAttributes]
 
 ## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
-signal hitbox_entered(hitbox: FrayHitbox2D)
+signal hitbox_entered(hitbox: FrayHitbox3D)
 
 ## Emitted when the received [kbd]hitbox[/kbd] exits this hitbox. Requires monitoring to be set to [code]true[/code].
-signal hitbox_exited(hitbox: FrayHitbox2D)
+signal hitbox_exited(hitbox: FrayHitbox3D)
 
 ## If true then hitboxes that share the same source as this one will still be detected
 @export var detect_source_hitboxes: bool = false
@@ -31,7 +31,7 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 ## Hitboxes with the same source will not detect one another unless [member detect_source_hitboxes] is enabled.
 var source: Object = null
 
-var _hitbox_exceptions: Array[FrayHitbox2D]
+var _hitbox_exceptions: Array[FrayHitbox3D]
 var _source_exceptions: Array[Object]
 
 
@@ -47,24 +47,24 @@ func _ready() -> void:
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
 	if attributes == null:
-		warnings.append("Hitboxes without attributes are effectively just Area2Ds. Consider giving this node a FrayHitboxAttributes resource.")
+		warnings.append("Hitboxes without attributes are effectively just Area3Ds. Consider giving this node a FrayHitboxAttributes resource.")
 	return warnings
 
-## Returns a list of intersecting [FrayHitbox2D]s.
-func get_overlapping_hitboxes() -> Array[FrayHitbox2D]:
-	var hitboxes: Array[FrayHitbox2D]
+## Returns a list of intersecting [FrayHitbox3D]s.
+func get_overlapping_hitboxes() -> Array[FrayHitbox3D]:
+	var hitboxes: Array[FrayHitbox3D]
 	for area in get_overlapping_areas():
 		if can_detect(area):
 			hitboxes.append(area)
 	return hitboxes
 
 ## Adds a [kbd]hitbox[/kbd] to a list of hitboxes this hitbox can't detect
-func add_hitbox_exception_with(hitbox: FrayHitbox2D) -> void:
-	if hitbox is FrayHitbox2D and not _hitbox_exceptions.has(hitbox):
+func add_hitbox_exception_with(hitbox: FrayHitbox3D) -> void:
+	if hitbox is FrayHitbox3D and not _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.append(hitbox)
 	
 ## Removes a [kbd]hitbox[/kbd] from a list of hitboxes this hitbox can't detect
-func remove_hitbox_exception_with(hitbox: FrayHitbox2D) -> void:
+func remove_hitbox_exception_with(hitbox: FrayHitbox3D) -> void:
 	if _hitbox_exceptions.has(hitbox):
 		_hitbox_exceptions.erase(hitbox)
 
@@ -94,7 +94,7 @@ func deactivate() -> void:
 ## [br]
 ## A hitbox can not detect another hitbox if there is a source or hitbox exception
 ## or if the set hitbox attribute does not allow interaction with the given hitbox. 
-func can_detect(hitbox: FrayHitbox2D) -> bool:
+func can_detect(hitbox: FrayHitbox3D) -> bool:
 	return (
 		not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
@@ -107,15 +107,17 @@ func can_detect(hitbox: FrayHitbox2D) -> bool:
 func _update_collision_colors() -> void:
 	if attributes != null:
 		for node in get_children():
-			if node is CollisionShape2D:
-				node.debug_color = attributes.get_color()
+			if node is CollisionShape3D:
+				#TODO: Figure out 3d implementation
+				#node.debug_color = attributes.get_color()
+				pass
 	
 	
-func _on_area_entered(area: Area2D) -> void:
-	if area is FrayHitbox2D and can_detect(area):
+func _on_area_entered(area: Area3D) -> void:
+	if area is FrayHitbox3D and can_detect(area):
 		hitbox_entered.emit(area)
 
 
-func _on_area_exited(area: Area2D) -> void:
-	if area is FrayHitbox2D and can_detect(area):
+func _on_area_exited(area: Area3D) -> void:
+	if area is FrayHitbox3D and can_detect(area):
 		hitbox_exited.emit(area)
