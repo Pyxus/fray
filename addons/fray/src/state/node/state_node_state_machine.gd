@@ -15,17 +15,17 @@ signal transitioned(from, to)
 
 const _AStarGraph = preload("a_star_graph.gd")
 
-var start_node: String:
+var start_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		start_node = node
 		
-var end_node: String:
+var end_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		end_node = node
 		
-var current_node: String:
+var current_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		goto(node)
@@ -33,7 +33,7 @@ var current_node: String:
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 
-## Type: Dictionary<String, StateNode>
+## Type: Dictionary<StringName, StateNode>
 var _states: Dictionary
 
 ## Type: Transition[]
@@ -48,7 +48,7 @@ func _is_done_processing_impl() -> bool:
 	return end_node.is_empty() or current_node == end_node
 
 ## Adds a new `StateNodeBase` under the given `name`.
-func add_node(name: String, node: RefCounted) -> void:
+func add_node(name: StringName, node: RefCounted) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
 	if _states.is_empty():
@@ -59,7 +59,7 @@ func add_node(name: String, node: RefCounted) -> void:
 	_on_node_added(name, node)
 
 ## Removes the specified node.
-func remove_node(name: String) -> void:
+func remove_node(name: StringName) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
 	var node: RefCounted = get_node(name)
@@ -68,7 +68,7 @@ func remove_node(name: String) -> void:
 	_on_node_removed(name, node)
 
 ## Renames the specified node.
-func rename_node(old_name: String, new_name: String) -> void:
+func rename_node(old_name: StringName, new_name: StringName) -> void:
 	if _ERR_INVALID_NODE(old_name): return
 	
 	if has_node(new_name):
@@ -81,7 +81,7 @@ func rename_node(old_name: String, new_name: String) -> void:
 	_on_node_renamed(old_name, new_name)
 
 ## Replaces the specified node's `StateNodeBase` object.
-func replace_node(name: String, replacement_node: RefCounted) -> void:
+func replace_node(name: StringName, replacement_node: RefCounted) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
 	if replacement_node.has_parent():
@@ -91,12 +91,12 @@ func replace_node(name: String, replacement_node: RefCounted) -> void:
 	_states[name] = replacement_node
 
 ## Returns true if the machine contains the specified node.
-func has_node(name: String) -> bool:
+func has_node(name: StringName) -> bool:
 	return _states.has(name)
 
 ## Returns the sub-node with the specified name.
 ## Return Type: StateNodeBase
-func get_node(name: String) -> RefCounted:
+func get_node(name: StringName) -> RefCounted:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
@@ -106,7 +106,7 @@ func get_node_current() -> RefCounted:
 	return _states.get(current_node)
 	
 ## Adds a transition between specified nodes.
-func add_transition(from: String, to: String, transition: FrayStateMachineTransition) -> void:
+func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
 	
@@ -120,7 +120,7 @@ func add_transition(from: String, to: String, transition: FrayStateMachineTransi
 	_transitions.append(tr)
 
 ## Removes transition between the two specified nodes if one exists.
-func remove_transition(from: String, to: String) -> void:
+func remove_transition(from: StringName, to: StringName) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
 	
@@ -133,11 +133,11 @@ func remove_transition(from: String, to: String) -> void:
 			return
 
 ## Returns true if transition between specified nodes exists.
-func has_transition(from: String, to: String) -> bool:
+func has_transition(from: StringName, to: StringName) -> bool:
 	return get_transition(from, to) != null
 
 ## Returns `StateMachineTransition` between given states if it exists.
-func get_transition(from: String, to: String) -> FrayStateMachineTransition:
+func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransition:
 	for transition in _transitions:
 		if transition.from == from and transition.to == to:
 			return transition.transition
@@ -147,7 +147,7 @@ func get_transition(from: String, to: String) -> FrayStateMachineTransition:
 ## Transitions from the current state to another one, following the shortest path.
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
 ## If no travel path can be formed then the `to` state will be visted directly.
-func travel(to: String, args: Dictionary = {}) -> void:
+func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
 	if not current_node.is_empty():
@@ -189,7 +189,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 
 
 ## Returns the next reachable node
-func get_next_node(input: Dictionary = {}) -> String:
+func get_next_node(input: Dictionary = {}) -> StringName:
 	
 	if current_node.is_empty():
 		push_warning("No current state is set.")
@@ -207,7 +207,7 @@ func get_next_node(input: Dictionary = {}) -> String:
 ## If a travel is being performed it will be interupted
 ##
 ## `args` is user-defined data which is passed to the advanced state on enter. 
-func goto(to_node: String, args: Dictionary = {}) -> void:
+func goto(to_node: StringName, args: Dictionary = {}) -> void:
 	if _astar.has_next_travel_node():
 		_astar.clear_travel_path()
 	
@@ -231,7 +231,7 @@ func goto_end(args: Dictionary = {}) -> void:
 
 ## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
-func get_next_transitions(from: String) -> Array[Transition]:
+func get_next_transitions(from: StringName) -> Array[Transition]:
 	if _ERR_INVALID_NODE(from): return []
 
 	var transitions: Array[Transition]
@@ -243,18 +243,18 @@ func get_next_transitions(from: String) -> Array[Transition]:
 	return transitions
 
 ## Setter for `start_node` property
-func set_start_node(name: String) -> void:
+func set_start_node(name: StringName) -> void:
 	if _ERR_INVALID_NODE(name): return
 	start_node = name
 
 ## Setter for `end_node` property
-func set_end_node(name: String) -> void:
+func set_end_node(name: StringName) -> void:
 	if _ERR_INVALID_NODE(name): return
 	end_node = name
 
 ## Setter for `current_node` property
 ## Will call `goto()` when changed
-func set_current_node(name: String) -> void:
+func set_current_node(name: StringName) -> void:
 	if _ERR_INVALID_NODE(name): return
 	goto(name)
 
@@ -311,12 +311,12 @@ func print_adj() -> void:
 	print(string)
 
 
-func _get_transition_priority(from: String, to: String) -> float:
+func _get_transition_priority(from: StringName, to: StringName) -> float:
 	var tr := get_transition(from, to)
 	return float(tr.transition.priority) if tr else 0.0
 
 
-func _goto(to_node: String, args: Dictionary) -> void:
+func _goto(to_node: StringName, args: Dictionary) -> void:
 	if _ERR_INVALID_NODE(to_node): return
 
 	var prev_node_name := current_node
@@ -374,19 +374,19 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 			)
 
 
-func _on_node_added(name: String, node: RefCounted) -> void:
+func _on_node_added(name: StringName, node: RefCounted) -> void:
 	pass
 
 
-func _on_node_removed(name: String, node: RefCounted) -> void:
+func _on_node_removed(name: StringName, node: RefCounted) -> void:
 	pass
 
 
-func _on_node_renamed(old_name: String, new_name: String) -> void:
+func _on_node_renamed(old_name: StringName, new_name: StringName) -> void:
 	pass
 
 
-func _ERR_FAILED_TO_ADD_NODE(name: String, state: RefCounted) -> bool:
+func _ERR_FAILED_TO_ADD_NODE(name: StringName, state: RefCounted) -> bool:
 	if name.is_empty():
 		push_error("Failed to add node. Node name can not be empty.")
 		return true
@@ -401,7 +401,7 @@ func _ERR_FAILED_TO_ADD_NODE(name: String, state: RefCounted) -> bool:
 	
 	return false
 
-func _ERR_INVALID_NODE(name: String) -> bool:
+func _ERR_INVALID_NODE(name: StringName) -> bool:
 	if name.is_empty():
 		push_error("Invalid node name, name can not be empty")
 		return true
@@ -416,6 +416,6 @@ func _ERR_INVALID_NODE(name: String) -> bool:
 class Transition:
 	extends RefCounted
 	
-	var from: String
-	var to: String
+	var from: StringName
+	var to: StringName
 	var transition: FrayStateMachineTransition

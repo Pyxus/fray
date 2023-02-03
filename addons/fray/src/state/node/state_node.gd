@@ -5,20 +5,20 @@ extends RefCounted
 ## Type: WeakRef<StateNodeBase>
 var _parent_ref: WeakRef
 
-## Type: Dictionary<String, bool>
-## Hint: <condition name, condition status>
+# Type: Dictionary<StringName, bool>
+# Hint: <condition name, condition status>
 var _conditions: Dictionary
 
-## Type: Dictionary<String, int>
-## Hint: <condition name, usage count>
+# Type: Dictionary<StringName, int>
+# Hint: <condition name, usage count>
 var _condition_usage_count: Dictionary
 
 ## Returns true if state has condition with given name.
-func has_condition(name: String) -> bool:
+func has_condition(name: StringName) -> bool:
 	return _conditions.has(name)
 
 ## Returns the status of a condition in this node if it exists.
-func check_condition(name: String) -> bool:
+func check_condition(name: StringName) -> bool:
 	if not has_condition(name):
 		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
 		return false
@@ -26,7 +26,7 @@ func check_condition(name: String) -> bool:
 	return _conditions[name]
 
 ## Sets the value of a condition if it exists.
-func set_condition(name: String, value: bool) -> void:
+func set_condition(name: StringName, value: bool) -> void:
 	if not has_condition(name):
 		push_warning("Condition '%s' does not exist")
 		return
@@ -45,8 +45,8 @@ func get_parent() -> RefCounted:
 func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
-## `conditions: Condition[]`
-func _add_conditions(conditions: Array) -> void:
+
+func _add_conditions(conditions: Array[FrayCondition]) -> void:
 	for condition in conditions:
 		if not has_condition(condition.name):
 			_condition_usage_count[condition.name] = 1
@@ -54,8 +54,8 @@ func _add_conditions(conditions: Array) -> void:
 		else:
 			_condition_usage_count[condition.name] += 1
 
-## `conditions: Condition[]`
-func _remove_conditions(conditions: Array) -> void:
+
+func _remove_conditions(conditions: Array[FrayCondition]) -> void:
 	for condition in conditions:
 		_condition_usage_count[condition.name] -= 1
 
