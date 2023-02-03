@@ -33,11 +33,21 @@ var source: Object = null
 
 var _hitbox_exceptions: Array[FrayHitbox3D]
 var _source_exceptions: Array[Object]
+var _debug_meshes: Array[MeshInstance3D]
 
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		child_entered_tree.connect(func(node: Node): _update_collision_colors())
+		child_entered_tree.connect(
+			func(node: Node): 
+				if node is CollisionShape3D:
+					_update_collision_colors()
+				)
+		child_exiting_tree.connect(
+			func(node: Node): 
+				if node is CollisionShape3D:
+					_update_collision_colors()
+				)
 		return
 		
 	area_entered.connect(_on_area_entered)
@@ -105,13 +115,26 @@ func can_detect(hitbox: FrayHitbox3D) -> bool:
 	
 
 func _update_collision_colors() -> void:
-	if attributes != null:
+	if attributes != null and _are_collision_shapes_visible():
+		## TODO: Finish implementation
+		return
+		
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = attributes.get_color()
+		
+		for mesh in _debug_meshes:
+			mesh.queue_free()
+
 		for node in get_children():
-			if node is CollisionShape3D:
-				#TODO: Figure out 3d implementation
-				#node.debug_color = attributes.get_color()
-				pass
-	
+			if node is CollisionShape3D and node.shape != null:
+				var mesh := MeshInstance3D.new()
+				mesh.material_override = mat
+				mesh.mesh = node.shape.get_debug_mesh()
+				add_child(mesh)
+				
+
+func _are_collision_shapes_visible() -> bool:
+	return (is_inside_tree() and get_tree().debug_collisions_hint) or Engine.is_editor_hint()
 	
 func _on_area_entered(area: Area3D) -> void:
 	if area is FrayHitbox3D and can_detect(area):

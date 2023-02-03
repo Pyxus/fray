@@ -37,7 +37,11 @@ var _source_exceptions: Array[Object]
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		child_entered_tree.connect(func(node: Node): _update_collision_colors())
+		child_entered_tree.connect(
+			func(node: Node): 
+				if node is CollisionShape2D:
+					_update_collision_colors()
+				)
 		return
 		
 	area_entered.connect(_on_area_entered)
