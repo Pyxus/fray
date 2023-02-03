@@ -1,30 +1,28 @@
 class_name FrayStateNodeStateMachine
 extends FrayStateNode
-## State node that behaves like a state machine
+## State machine state node
 ##
-## @desc:
-##		Contains multiple multiple state nodes connected through `StateMachineTransitions`.
-##		It is recommended to construct this state machine with a `StateMachineBuilder`.
+## Contains multiple multiple [FrayStateNode]s connected through [FrayStateMachineTransition]s.
+## It is recommended to construct this state machine with a [FrayStateMachineBuilder].
 
 ## Emitted when the current state is changes
-##
-## `from: String` is the previous state
-##
-## `to: String` is the current state
-signal transitioned(from, to)
+signal transitioned(from: StringName, to: StringName)
 
 const _AStarGraph = preload("a_star_graph.gd")
 
+## The state machine's staring node.
 var start_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		start_node = node
-		
+
+## The state machine's end node.
 var end_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		end_node = node
-		
+
+## The state machine's current node.
 var current_node: StringName:
 	set(node):
 		if _ERR_INVALID_NODE(node): return
@@ -33,10 +31,9 @@ var current_node: StringName:
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 
-## Type: Dictionary<StringName, StateNode>
+# Type: Dictionary<StringName, StateNode>
 var _states: Dictionary
 
-## Type: Transition[]
 var _transitions: Array[Transition]
 
 
@@ -47,8 +44,8 @@ func _enter_impl(args: Dictionary) -> void:
 func _is_done_processing_impl() -> bool:
 	return end_node.is_empty() or current_node == end_node
 
-## Adds a new `StateNodeBase` under the given `name`.
-func add_node(name: StringName, node: RefCounted) -> void:
+## Adds a new [kbd]node[/kbd] under a given [kbd]name[/kbd].
+func add_node(name: StringName, node: FrayStateNode) -> void:
 	if _ERR_FAILED_TO_ADD_NODE(name, node): return
 	
 	if _states.is_empty():
@@ -80,8 +77,8 @@ func rename_node(old_name: StringName, new_name: StringName) -> void:
 	_astar.rename_point(old_name, new_name)
 	_on_node_renamed(old_name, new_name)
 
-## Replaces the specified node's `StateNodeBase` object.
-func replace_node(name: StringName, replacement_node: RefCounted) -> void:
+## Replaces the specified node's object.
+func replace_node(name: StringName, replacement_node: FrayStateNode) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
 	if replacement_node.has_parent():
@@ -90,19 +87,17 @@ func replace_node(name: StringName, replacement_node: RefCounted) -> void:
 	
 	_states[name] = replacement_node
 
-## Returns true if the machine contains the specified node.
+## Returns [code]true[/code] if the machine contains the specified node.
 func has_node(name: StringName) -> bool:
 	return _states.has(name)
 
 ## Returns the sub-node with the specified name.
-## Return Type: StateNodeBase
-func get_node(name: StringName) -> RefCounted:
+func get_node(name: StringName) -> FrayStateNode:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
 ## Returns the current node if it is set.
-## Return Type: StateNodeBase
-func get_node_current() -> RefCounted:
+func get_node_current() -> FrayStateNode:
 	return _states.get(current_node)
 	
 ## Adds a transition between specified nodes.
@@ -132,11 +127,11 @@ func remove_transition(from: StringName, to: StringName) -> void:
 			_remove_conditions(transition.prereqs + transition.advance_conditions)
 			return
 
-## Returns true if transition between specified nodes exists.
+## Returns [code]true[/code] if transition between specified nodes exists.
 func has_transition(from: StringName, to: StringName) -> bool:
 	return get_transition(from, to) != null
 
-## Returns `StateMachineTransition` between given states if it exists.
+## Returns transition between given states if it exists.
 func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransition:
 	for transition in _transitions:
 		if transition.from == from and transition.to == to:
@@ -146,7 +141,7 @@ func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransit
 
 ## Transitions from the current state to another one, following the shortest path.
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
-## If no travel path can be formed then the `to` state will be visted directly.
+## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
 func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
@@ -160,12 +155,12 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 ## Advances to next reachable state.
 ## Will only transition if a travel was initiated. 
 ## Or if a travel was not initiated and a reachable transition has `auto_advance` enabled
-##
-## `input` is optional user-defined data used to determine if a transition can occur.
-##	The `_accept_input_impl()` virtual method can be overidden to determine what input is accepted.
-##
-## `args` is user-defined data which is passed to the advanced state on enter.
-##	If a state advances due to traveling the args provided to the initial travel call will be used instead.
+## [br][br]
+## [kbd]input[/kbd] is optional user-defined data used to determine if a transition can occur.
+##	The [method _accept_input_impl] virtual method can be overidden to determine what input is accepted.
+## [br][br]
+## [kbd]args[/kbd] is user-defined data which is passed to the advanced state on enter.
+## If a state advances due to traveling the args provided to the initial travel call will be used instead.
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
@@ -188,7 +183,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	return cur_node != null and cur_node != _states.get(current_node, null)
 
 
-## Returns the next reachable node
+## Returns the name of the next reachable node.
 func get_next_node(input: Dictionary = {}) -> StringName:
 	
 	if current_node.is_empty():
@@ -203,17 +198,14 @@ func get_next_node(input: Dictionary = {}) -> StringName:
 	return ""
 
 ## Goes directly to the given state if it exists.
-##
-## If a travel is being performed it will be interupted
-##
-## `args` is user-defined data which is passed to the advanced state on enter. 
+## If a travel is being performed it will be interupted.
 func goto(to_node: StringName, args: Dictionary = {}) -> void:
 	if _astar.has_next_travel_node():
 		_astar.clear_travel_path()
 	
 	_goto(to_node, args)
 
-## Short hand for 'node.goto(node.start_node, args)'
+## Short hand for 'node.goto(node.start_node, args)'.
 func goto_start(args: Dictionary = {}) -> void:
 	if start_node.is_empty():
 		push_warning("Failed to go to start. Start node not set.")
@@ -221,7 +213,7 @@ func goto_start(args: Dictionary = {}) -> void:
 	
 	goto(start_node)
 
-## Short hand for 'node.goto(node.end_node, args)'
+## Short hand for 'node.goto(node.end_node, args)'.
 func goto_end(args: Dictionary = {}) -> void:
 	if end_node.is_empty():
 		push_warning("Failed to go to end. End node not set.")
@@ -230,7 +222,6 @@ func goto_end(args: Dictionary = {}) -> void:
 	goto(end_node)
 
 ## Returns an array of transitions traversable from the given state.
-## Return Type: Transition[].
 func get_next_transitions(from: StringName) -> Array[Transition]:
 	if _ERR_INVALID_NODE(from): return []
 
@@ -242,24 +233,7 @@ func get_next_transitions(from: StringName) -> Array[Transition]:
 
 	return transitions
 
-## Setter for `start_node` property
-func set_start_node(name: StringName) -> void:
-	if _ERR_INVALID_NODE(name): return
-	start_node = name
-
-## Setter for `end_node` property
-func set_end_node(name: StringName) -> void:
-	if _ERR_INVALID_NODE(name): return
-	end_node = name
-
-## Setter for `current_node` property
-## Will call `goto()` when changed
-func set_current_node(name: StringName) -> void:
-	if _ERR_INVALID_NODE(name): return
-	goto(name)
-
 ## Process child states then this state.
-## Intended to be called by `StateMachine` node 
 func process(delta: float) -> void:
 	var cur_state: RefCounted = _states.get(current_node)
 	if cur_state != null:
@@ -267,7 +241,6 @@ func process(delta: float) -> void:
 	_process_impl(delta)
 
 ## Physics process child states then this state.
-## Intended to be called by `StateMachine` node 
 func physics_process(delta: float) -> void:
 	var cur_state: RefCounted = _states.get(current_node)
 	if cur_state != null:
@@ -275,10 +248,11 @@ func physics_process(delta: float) -> void:
 	_physics_process_impl(delta)
 
 ## Prints this state machine in adjacency list form.
-## '| c--' indicates the current state.
-## '| -s-' indicates the start state.
-## '| --e' indicates the end state.
-## ... -> [state_name : state_priority, ...] indicates the adjacent states
+## [br]
+## c-- indicates the current state.[br]
+## -s- indicates the start state.[br]
+## --e indicates the end state.[br]
+## ... -> [state_name : state_priority, ...] indicates the adjacent states[br]
 func print_adj() -> void:
 	var string := ""
 
@@ -369,8 +343,8 @@ func _is_conditions_satisfied(conditions: Array[FrayCondition]) -> bool:
 
 func _is_condition_true(condition: FrayCondition) -> bool:
 	return (
-			check_condition(condition.name) and not condition.invert 
-			or not check_condition(condition.name) and condition.invert
+			is_condition_true(condition.name) and not condition.invert 
+			or not is_condition_true(condition.name) and condition.invert
 			)
 
 

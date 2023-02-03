@@ -2,14 +2,13 @@ class_name FrayStateNodeStateMachineGlobal
 extends FrayStateNodeStateMachine
 ## A state machine featuring global transitions
 ##
-## @desc:
-##		Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
-##		Nodes within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
-##		Nodes with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
-##		A state is considered global if it is used as the 'to' state in a global transition.
+## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
+## Nodes within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
+## Nodes with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
+## A state is considered global if it is used as the 'to' state in a global transition.
 ##
-##		This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
-##		For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
+## This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
+## For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
 var _global_transitions: Array[FrayStateMachineTransition]
 
@@ -25,20 +24,22 @@ var _tags_by_node: Dictionary
 func get_next_transitions(from: StringName) -> Array[FrayStateMachineTransition]:
 	return super(from) + get_next_global_transitions(from)
 
-## Sets the tags associated with a state if the state exists.
+## Sets the [kbd]tags[/kbd] associated with a [kbd]node[/kbd] if the node exists.
 func set_node_tags(node: StringName, tags: PackedStringArray) -> void:
 	if _ERR_INVALID_NODE(node): return
 	
 	_tags_by_node[node] = tags
 
-## Gets the tags associated with a state if the state exists.
+## Gets the tags associated with a [kbd]node[/kbd] if the node exists.
 func get_node_tags(node: StringName) -> PackedStringArray:
 	if _ERR_INVALID_NODE(node) or not _tags_by_node.has(node):
 		return PackedStringArray([])
 	
 	return _tags_by_node[node]
 
-## Returns true if the given node is considered global
+## Returns [code]true[/code] if the given node is considered global.
+## [br]
+## A node is considered global if a global transition to the node exists.
 func is_node_global(node: StringName) -> bool:
 	if _ERR_INVALID_NODE(node): return false
 
@@ -48,7 +49,7 @@ func is_node_global(node: StringName) -> bool:
 
 	return false
 
-## Adds global input transition to a state
+## Adds global input transition to a state.
 func add_global_transition(to: StringName, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
@@ -76,14 +77,14 @@ func remove_global_transition(to_state: StringName) -> void:
 			_global_transitions.erase(transition)
 			return
 
-## Returns true if a state has a global transition.
+## Returns [code]true[/code] if a state has a global transition.
 func has_global_transition(to_state: StringName) -> bool:
 	for transition in _global_transitions:
 		if transition.to == to_state:
 			return true
 	return false
 
-## Returns true if global transition rule exists.
+## Returns [code]true[/code] if global transition rule exists.
 func has_global_transition_rule(from_tag: StringName, to_tag: StringName) -> bool:
 	return _global_transition_rules.has(from_tag) and _global_transition_rules[from_tag].has(to_tag)
 

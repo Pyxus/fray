@@ -1,5 +1,5 @@
 extends RefCounted
-## Simple wrapper around [class AStar2D] class that stores points as string names.
+## Simple wrapper around [AStar2D] class that stores points as string names.
 
 # Type: Dictionary<String, int>
 # Hint: <state name, point id>
