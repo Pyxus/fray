@@ -1,4 +1,5 @@
-extends "state_node.gd"
+class_name FrayStateNodeStateMachine
+extends FrayStateNode
 ## State node that behaves like a state machine
 ##
 ## @desc:
@@ -12,10 +13,7 @@ extends "state_node.gd"
 ## `to: String` is the current state
 signal transitioned(from, to)
 
-const Condition = preload("transition/condition.gd")
-const AStarGraph = preload("a_star_graph.gd")
-const StateMachineTransition = preload("transition/state_machine_transition.gd")
-var StateNodeStateMachine: GDScript = load("res://addons/fray/src/state/node/state_node_state_machine.gd")
+const _AStarGraph = preload("a_star_graph.gd")
 
 var start_node: String:
 	set(node):
@@ -32,14 +30,14 @@ var current_node: String:
 		if _ERR_INVALID_NODE(node): return
 		goto(node)
 
-var _astar := AStarGraph.new(_get_transition_priority)
+var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 
 ## Type: Dictionary<String, StateNode>
 var _states: Dictionary
 
 ## Type: Transition[]
-var _transitions: Array
+var _transitions: Array[Transition]
 
 
 func _enter_impl(args: Dictionary) -> void:
@@ -108,7 +106,7 @@ func get_node_current() -> RefCounted:
 	return _states.get(current_node)
 	
 ## Adds a transition between specified nodes.
-func add_transition(from: String, to: String, transition: StateMachineTransition) -> void:
+func add_transition(from: String, to: String, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
 	
@@ -139,10 +137,10 @@ func has_transition(from: String, to: String) -> bool:
 	return get_transition(from, to) != null
 
 ## Returns `StateMachineTransition` between given states if it exists.
-func get_transition(from: String, to: String) -> StateMachineTransition:
+func get_transition(from: String, to: String) -> FrayStateMachineTransition:
 	for transition in _transitions:
 		if transition.from == from and transition.to == to:
-			return transition
+			return transition.transition
 
 	return null
 
@@ -174,7 +172,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var cur_node: RefCounted = get_node_current()
 
 	if cur_node != null:
-		if cur_node is StateNodeStateMachine:
+		if cur_node is FrayStateNodeStateMachine:
 			cur_node.advance(input, args)
 		
 		if _astar.has_next_travel_node():
@@ -198,7 +196,7 @@ func get_next_node(input: Dictionary = {}) -> String:
 		return ""
 
 	for tr in get_next_transitions(current_node):
-		var transition: StateMachineTransition = tr.transition
+		var transition: FrayStateMachineTransition = tr.transition
 		if _can_transition(transition) and _can_advance(transition, input):
 			return tr.to
 
@@ -233,10 +231,10 @@ func goto_end(args: Dictionary = {}) -> void:
 
 ## Returns an array of transitions traversable from the given state.
 ## Return Type: Transition[].
-func get_next_transitions(from: String) -> Array:
+func get_next_transitions(from: String) -> Array[Transition]:
 	if _ERR_INVALID_NODE(from): return []
 
-	var transitions: Array
+	var transitions: Array[Transition]
 
 	for transition in _transitions:
 		if transition.from == from:
@@ -332,22 +330,22 @@ func _goto(to_node: String, args: Dictionary) -> void:
 	emit_signal("transitioned", prev_node_name, current_node)
 
 
-func _can_transition(transition: StateMachineTransition) -> bool:
+func _can_transition(transition: FrayStateMachineTransition) -> bool:
 	return (
 		_is_conditions_satisfied(transition.prereqs) 
 		and _can_switch(transition) 
 		)
 
 
-func _can_switch(transition: StateMachineTransition) -> bool:
+func _can_switch(transition: FrayStateMachineTransition) -> bool:
 	return ( 
-		transition.switch_mode == StateMachineTransition.SwitchMode.IMMEDIATE
-		or transition.switch_mode == StateMachineTransition.SwitchMode.AT_END 
+		transition.switch_mode == FrayStateMachineTransition.SwitchMode.IMMEDIATE
+		or transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END 
 		and is_done_processing()
 		)
 
 
-func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool:
+func _can_advance(transition: FrayStateMachineTransition, input: Dictionary) -> bool:
 	return (
 		transition.auto_advance
 		or (
@@ -357,8 +355,8 @@ func _can_advance(transition: StateMachineTransition, input: Dictionary) -> bool
 		or transition.accepts(input)
 		)
 
-## `conditions: Condition[]`
-func _is_conditions_satisfied(conditions: Array) -> bool:
+
+func _is_conditions_satisfied(conditions: Array[FrayCondition]) -> bool:
 	for condition in conditions:
 		if not has_condition(condition.name):
 			push_warning("Condition '%s' was never set" % condition.name)
@@ -369,7 +367,7 @@ func _is_conditions_satisfied(conditions: Array) -> bool:
 	return true
 
 
-func _is_condition_true(condition: Condition) -> bool:
+func _is_condition_true(condition: FrayCondition) -> bool:
 	return (
 			check_condition(condition.name) and not condition.invert 
 			or not check_condition(condition.name) and condition.invert
@@ -418,8 +416,6 @@ func _ERR_INVALID_NODE(name: String) -> bool:
 class Transition:
 	extends RefCounted
 	
-	const StateMachineTransition = preload("transition/state_machine_transition.gd")
-
 	var from: String
 	var to: String
-	var transition: StateMachineTransition
+	var transition: FrayStateMachineTransition

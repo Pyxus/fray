@@ -1,9 +1,10 @@
-extends "input_transition.gd"
+class_name FrayInputTransitionButton
+extends FrayInputTransition
 
 ## Input name
 var input: String
 
-## If true the condition only counts the input if it is released
+## If true the input is only accepted on release
 var is_triggered_on_release: bool
 
 func _accepts_impl(sm_input: Dictionary) -> bool:

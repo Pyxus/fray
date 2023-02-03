@@ -1,3 +1,4 @@
+class_name FrayCondition
 extends RefCounted
 ## Abstract base condition class
 

@@ -23,7 +23,7 @@ var is_echo: bool
 ## If true, the input is being pressed. If false, it is released
 var is_pressed: bool
 
-## The devices' ID
+## The ID of the device that caused this event
 var device: int
 
 ## The input's name

@@ -1,3 +1,4 @@
+class_name FrayStateMachineBuilder
 extends RefCounted
 ## State machine builder
 ##
@@ -13,24 +14,16 @@ extends RefCounted
 ##
 ##		Note: '\' is necessary for GDScript to read the next line when multi-line method chaning
 
-const StateNode = preload("../node/state_node.gd")
-const StateNodeStateMachine = preload("../node/state_node_state_machine.gd")
-const Condition = preload("../node/transition/condition.gd")
-const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 
 ## If true then conditions will be cached to prevent identical conditions from being instantiated.
 var enable_condition_caching: bool = true
 
-## Type: Condition[]
-var _condition_cache: Array
-
-## Type: Dictionary<String, StateNode>
-## Hint: <state name, >
+# Type: Dictionary<String, StateNode>
+# Hint: <state name, >
 var _state_by_name: Dictionary
 
-## Type: Transition[]
-var _transitions: Array
-
+var _condition_cache: Array[FrayCondition]
+var _transitions: Array[Transition]
 var _start_state: String
 var _end_state: String
 
@@ -39,7 +32,7 @@ var _end_state: String
 ## Keep in mind that the condition cache does not reset autoatmically.
 ##
 ## Returns a newly constructed CombatSituation
-func build() -> StateNodeStateMachine:
+func build() -> FrayStateNodeStateMachine:
 	return _build_impl()
 
 ## Adds a new state to the state machine.
@@ -50,7 +43,7 @@ func build() -> StateNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := StateNode.new()) -> RefCounted:
+func add_state(name: String, state := FrayStateNode.new()) -> FrayStateMachineBuilder:
 	if name.is_empty():
 		push_error("State name can not be empty")
 	else:
@@ -68,8 +61,8 @@ func add_state(name: String, state := StateNode.new()) -> RefCounted:
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition(from: String, to: String, config: Dictionary = {}) -> RefCounted:
-	var tr := _create_transition(from, to, StateMachineTransition.new())
+func transition(from: String, to: String, config: Dictionary = {}) -> FrayStateMachineBuilder:
+	var tr := _create_transition(from, to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
 
@@ -77,7 +70,7 @@ func transition(from: String, to: String, config: Dictionary = {}) -> RefCounted
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func start_at(state: String) -> RefCounted:
+func start_at(state: String) -> FrayStateMachineBuilder:
 	_add_state_once(state)
 	_start_state = state
 	return self
@@ -86,7 +79,7 @@ func start_at(state: String) -> RefCounted:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func end_at(state: String) -> RefCounted:
+func end_at(state: String) -> FrayStateMachineBuilder:
 	_add_state_once(state)
 	_end_state = state
 	return self
@@ -100,7 +93,7 @@ func clear() -> void:
 	_clear_impl()
 
 
-func _create_transition(from: String, to: String, transition: StateMachineTransition) -> Transition:
+func _create_transition(from: String, to: String, transition: FrayStateMachineTransition) -> Transition:
 	var tr := Transition.new()
 	tr.from = from
 	tr.to = to
@@ -117,15 +110,15 @@ func _add_state_once(state: String) -> void:
 		add_state(state)
 
 
-func _configure_transition(transition: StateMachineTransition, config: Dictionary) -> void:
+func _configure_transition(transition: FrayStateMachineTransition, config: Dictionary) -> void:
 	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
 	transition.prereqs = _cache_conditions(config.get("prereqs", []))
 	transition.auto_advance = config.get("auto_advance", false)
 	transition.priority = config.get("priority", 0)
-	transition.switch_mode = config.get("switch_mode", StateMachineTransition.SwitchMode.IMMEDIATE)
+	transition.switch_mode = config.get("switch_mode", FrayStateMachineTransition.SwitchMode.IMMEDIATE)
 
 
-func _configure_state_machine(root: StateNodeStateMachine) -> void:
+func _configure_state_machine(root: FrayStateNodeStateMachine) -> void:
 	for state_name in _state_by_name:
 		root.add_node(state_name, _state_by_name[state_name])
 	
@@ -139,7 +132,7 @@ func _configure_state_machine(root: StateNodeStateMachine) -> void:
 		root.end_node = _end_state
 
 
-func _cache_condition(condition: Condition) -> Condition:
+func _cache_condition(condition: FrayCondition) -> FrayCondition:
 	if enable_condition_caching:
 		for cached_condition in _condition_cache:
 			if cached_condition.equals(condition):
@@ -149,15 +142,15 @@ func _cache_condition(condition: Condition) -> Condition:
 	return condition
 
 
-func _cache_conditions(conditions: Array) -> Array:
-	var c: Array
+func _cache_conditions(conditions: Array[FrayCondition]) -> Array[FrayCondition]:
+	var c: Array[FrayCondition]
 	for condition in conditions:
 		c.append(_cache_condition(condition))
 	return c
 
 
-func _build_impl() -> StateNodeStateMachine:
-	var root := StateNodeStateMachine.new()
+func _build_impl() -> FrayStateNodeStateMachine:
+	var root := FrayStateNodeStateMachine.new()
 	_configure_state_machine(root)
 	clear()
 	return root

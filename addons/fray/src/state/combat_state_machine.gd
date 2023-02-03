@@ -1,22 +1,23 @@
 @tool
 class_name FrayCombatStateMachine
-extends "state_machine.gd"
+extends FrayStateMachine
 ## Combat state machine
 ##
-## @desc:
-##		A state machine which can contain and switch between multiple situations.
-##		A situation is a `StateNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
-##		For example, in many fighting games the actions a combatant can perform when situated on the ground differ
-##		from when they're in the air.
-##
-##		When adding situations it is recommended to build the state node using the `CombatSituationBuilder`.
-##		Example:
-##			var builder := Fray.State.CombatSituationBuilder.new()
-##			combat_sm.add_situation("on_ground", builder\
-##				.transition_button("idle", "punch1", "square")\
-##				.transition_button("punch1", "punch2", "square", {prereqs = [Fray.State.Condition.new("on_hit")]})
-##				.build()
-##			)
+## A state machine which can contain and switch between multiple situations.
+## A situation is a `StateNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
+## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
+## from when they're in the air.
+ 
+## When adding situations it is recommended to build the state node using the `CombatSituationBuilder`.
+## Example:
+## [code]
+## var builder := Fray.State.CombatSituationBuilder.new()
+## combat_sm.add_situation("on_ground", builder\
+## 	.transition_button("idle", "punch1", "square")\
+## 	.transition_button("punch1", "punch2", "square", {prereqs = [Fray.State.Condition.new("on_hit")]})
+## 	.build()
+## 	)
+##  [/code]
 
 const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_global.gd")
 
@@ -54,8 +55,7 @@ var current_situation: String:
 			root.goto_start()
 		
 
-## Type: BufferedInput[]
-var _input_buffer: Array
+var _input_buffer: Array[BufferedInput]
 
 ## Type: Dictionary<String, StateNodeStateMachineGlobal>
 ## Hint: <situation name, >

@@ -1,3 +1,4 @@
+class_name FrayStateNode
 extends RefCounted
 ## Base state node class
 
@@ -62,24 +63,25 @@ func _remove_conditions(conditions: Array) -> void:
 			_conditions.erase(condition.name)
 			_condition_usage_count.erase(condition.name)
 
-## Virtual method used to implement `is_done_processing()`
+## [code]Virtual method[/code] used to implement `is_done_processing()`
 func _is_done_processing_impl() -> bool:
 	return true
 
-## Virtual method invoked when the node is first entered
+## [code]Virtual method[/code] invoked when the node is first entered
 ##
 ## `args` is user-defined data which is passed to the advanced node on enter. 
 func _enter_impl(args: Dictionary) -> void:
 	pass
 
-## Virtual method invoked when the node is being processed
+## [code]Virtual method[/code] invoked when the node is being processed
 func _process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the node is being physics processed
+
+## [code]Virtual method[/code] invoked when the node is being physics processed
 func _physics_process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the node is existed
+## [code]Virtual method[/code] invoked when the node is existed
 func _exit_impl() -> void:
 	pass

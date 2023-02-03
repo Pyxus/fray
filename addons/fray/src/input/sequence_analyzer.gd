@@ -216,8 +216,7 @@ class _InputFrame:
 
 	const FrayInputEvent = preload("events/fray_input_event.gd")
 	
-	## FrayInputEvent[]
-	var inputs: Array
+	var inputs: Array[FrayInputEvent]
 	var physics_frame: int
 
 	func _to_string() -> String:
@@ -282,8 +281,7 @@ class _InputNode:
 	var sequence_path: SequencePath
 	var input: String
 
-	## Type: InputNode[]
-	var _next_nodes: Array
+	var _next_nodes: Array[_InputNode]
 
 	func _to_string() -> String:
 		if is_root:
@@ -302,7 +300,7 @@ class _InputNode:
 
 	func is_next_accepting_release(input: String) -> bool:
 		for node in _next_nodes:
-			if node.input == input and not node.sequence_name.empty() and (not node.is_press_input or node.allow_negative_edge):
+			if node.input == input and not node.sequence_name.is_empty() and (not node.is_press_input or node.allow_negative_edge):
 				return true
 		return false		
 

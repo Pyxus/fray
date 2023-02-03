@@ -1,9 +1,9 @@
-extends "state_machine_global_builder.gd"
+class_name FrayCombatSiutationBuilder
+extends FrayStateMachineGlobalBuilder
 ## Combat situation builder
 ##
-## @desc:
-##		Global state machine builder that supports input transitions.
-##		Useful for creating state machines when adding situations to a `CombatStateMachine`.
+## Global state machine builder that supports input transitions.
+## Useful for creating situations for use in a [FrayCombatStateMachine].
 
 const InputTransition = preload("../node/transition/input_transition.gd")
 const InputTransitionButton = preload("../node/transition/input_transition_button.gd")
@@ -83,13 +83,13 @@ func transition_sequence_global(to: String, config: Dictionary = {}) -> RefCount
 	return self
 
 
-func _configure_transition_input(transition: InputTransition, config: Dictionary) -> void:
+func _configure_transition_input(transition: FrayInputTransition, config: Dictionary) -> void:
 	_configure_transition(transition, config)
 	transition.auto_advance = config.get("auto_advance", false)
 	transition.min_input_delay = config.get("min_input_delay", 0)
 
 
-func _configure_transition_input_button(transition: InputTransitionButton, config: Dictionary) -> void:
+func _configure_transition_input_button(transition: FrayInputTransitionButton, config: Dictionary) -> void:
 	_configure_transition_input(transition, config)
 	
 	if not config.has("input"):
@@ -99,7 +99,7 @@ func _configure_transition_input_button(transition: InputTransitionButton, confi
 	transition.is_triggered_on_release = config.get("is_triggered_on_release", false)
 
 
-func _configure_transition_input_sequence(transition: InputTransitionSequence, config: Dictionary) -> void:
+func _configure_transition_input_sequence(transition: FrayInputTransitionSequence, config: Dictionary) -> void:
 	_configure_transition_input(transition, config)
 	
 	if not config.has("input"):

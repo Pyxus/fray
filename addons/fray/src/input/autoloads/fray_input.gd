@@ -69,7 +69,7 @@ func _physics_process(_delta: float) -> void:
 				device_state.flag_inputs_as_distinct(my_components)
 
 				if composite_input.is_virtual:
-					var held_components: Array
+					var held_components: PackedStringArray
 					for bind in my_components:
 						if is_pressed(bind, device):
 							held_components.append(bind)
@@ -193,7 +193,7 @@ func get_axis(negative_input: StringName, positive_input: StringName, device: in
 
 ## Returns an array of all connected devices.
 ## This array always contains device 0 as this represents the keyboard and mouse.
-func get_connected_devices() -> Array:
+func get_connected_devices() -> Array[int]:
 	var connected_joypads := Input.get_connected_joypads()
 	
 	if connected_joypads.is_empty():

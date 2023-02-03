@@ -9,8 +9,10 @@ extends Node
 ##      If an entity needs to respond to inputs from another device you only need to change the controller's `device` value.
 ##      It is also possible to hand the controller off to an AI by using virtual devices.
 
-
+## The ID of the device to check for
 @export var device: int
+
+## If [code]true[/code] then all input checks will return false.
 @export var disabled: bool
 
 @onready var _fray_input: Node = get_node("/root/FrayInput")

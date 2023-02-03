@@ -1,25 +1,22 @@
 extends RefCounted
-## Simple wrapper around `AStar` class.
-##
-## @desc:
-##		Used by `StateCompound` class
+## Simple wrapper around [class AStar2D] class that stores points as string names.
 
-## Type: Dictionary<String, int>
-## Hint: <state name, point id>
+# Type: Dictionary<String, int>
+# Hint: <state name, point id>
 var _point_id_by_node: Dictionary
 
-## Type: Dictionary<int, String>
-## Hint: <point id, state name>
+# Type: Dictionary<int, String>
+# Hint: <point id, state name>
 var _node_by_point_id: Dictionary
 
-var _astar: CustomAStar
+var _astar: _CustomAStar
 var _astar_point_id := 0
 var _travel_path: PackedStringArray
 var _travel_index: int
 
 ## `func_get_transition_cost: (String, String) -> float`
 func _init(func_get_transition_cost: Callable) -> void:
-	_astar = CustomAStar.new(func_get_transition_cost, _get_node_from_id)
+	_astar = _CustomAStar.new(func_get_transition_cost, _get_node_from_id)
 
 
 func add_point(state_name: String) -> void:
@@ -45,6 +42,8 @@ func rename_point(old_name: String, new_name: String) -> void:
 
 		_point_id_by_node[new_name] = id
 		_node_by_point_id[id] = new_name
+
+
 func connect_points(from: String, to: String, bidirectional: bool) -> void:
 	_astar.connect_points(_point_id_by_node[from], _point_id_by_node[to], bidirectional)
 
@@ -89,7 +88,7 @@ func _get_node_from_id(id: int) -> String:
 	return _node_by_point_id[id]
 
 
-class CustomAStar:
+class _CustomAStar:
 	extends AStar2D
 
 	## Type: (String, String) -> int

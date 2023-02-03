@@ -1,21 +1,20 @@
-extends "state_machine_builder.gd"
+class_name FrayStateMachineGlobalBuilder
+extends FrayStateMachineBuilder
 ## Global state machine builder
 
-const StateNodeStateMachineGlobal = preload("../node/state_node_state_machine_global.gd")
 
-## Type: Dictionary<String, String[]>
-## Hint: <from tag, to tags>
+# Type: Dictionary<String, String[]>
+# Hint: <from tag, to tags>
 var _transition_rules: Dictionary
 
-## Type: Dictionary<String, String[]>
+# Type: Dictionary<String, String[]>
 var _tags_by_state: Dictionary
 
-## Type: InputTransition[]
-var _global_transitions: Array
+var _global_transitions: Array[FrayInputTransition]
 
 
-func _build_impl() -> StateNodeStateMachine:
-	var root := StateNodeStateMachineGlobal.new()
+func _build_impl() -> FrayStateNodeStateMachine:
+	var root := FrayStateNodeStateMachineGlobal.new()
 	_configure_state_machine(root)
 	return root
 
@@ -61,22 +60,22 @@ func tag(state: String, tags: PackedStringArray) -> RefCounted:
 
 ## Creates a new global transtion to the specified state. 
 func transition_global(to: String, config: Dictionary = {}) -> RefCounted:
-	var tr := _create_global_transition(to, StateMachineTransition.new())
+	var tr := _create_global_transition(to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
 
 
-func _create_global_transition(to: String, transition: StateMachineTransition) -> Transition:
+func _create_global_transition(to: String, transition: FrayStateMachineTransition) -> Transition:
 	var tr := Transition.new()
 	tr.to = to
 	tr.transition = transition
 	_global_transitions.append(tr)
 	return tr
 
-func _configure_state_machine(root: StateNodeStateMachine) -> void:
+func _configure_state_machine(root: FrayStateNodeStateMachine) -> void:
 	super(root)
 
-	if root is StateNodeStateMachineGlobal:
+	if root is FrayStateNodeStateMachineGlobal:
 		for state in _tags_by_state:
 			root.set_node_tags(state, _tags_by_state[state])
 		

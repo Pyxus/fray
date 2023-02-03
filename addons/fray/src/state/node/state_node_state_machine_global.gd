@@ -1,4 +1,5 @@
-extends "state_node_state_machine.gd"
+class_name FrayStateNodeStateMachineGlobal
+extends FrayStateNodeStateMachine
 ## A state machine featuring global transitions
 ##
 ## @desc:
@@ -10,8 +11,7 @@ extends "state_node_state_machine.gd"
 ##		This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
 ##		For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
-## Type: StateMachineTransition[]
-var _global_transitions: Array
+var _global_transitions: Array[FrayStateMachineTransition]
 
 ## Type: Dictionary<String, String[]>
 ## Hint: <from tag, to tags
@@ -22,7 +22,7 @@ var _global_transition_rules: Dictionary
 var _tags_by_node: Dictionary
 
 
-func get_next_transitions(from: String) -> Array:
+func get_next_transitions(from: String) -> Array[FrayStateMachineTransition]:
 	return super(from) + get_next_global_transitions(from)
 
 ## Sets the tags associated with a state if the state exists.
@@ -49,7 +49,7 @@ func is_node_global(node: String) -> bool:
 	return false
 
 ## Adds global input transition to a state
-func add_global_transition(to: String, transition: StateMachineTransition) -> void:
+func add_global_transition(to: String, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
 	var tr := Transition.new()
@@ -98,14 +98,14 @@ func delete_global_transition_rule(from_tag: String) -> void:
 		_global_transition_rules.erase(from_tag)
 
 ## Returns array of next global transitions accessible from this state.
-func get_next_global_transitions(from: String) -> Array:
+func get_next_global_transitions(from: String) -> Array[FrayStateMachineTransition]:
 	if _ERR_INVALID_NODE(from): return []
 	
-	var transitions: Array
+	var transitions: Array[FrayStateMachineTransition]
 	
 	for from_tag in get_node_tags(from):
 		if _global_transition_rules.has(from_tag):
-			var to_tags: Array = _global_transition_rules[from_tag]
+			var to_tags: Array[String] = _global_transition_rules[from_tag]
 
 			for transition in _global_transitions:
 				for to_tag in to_tags:

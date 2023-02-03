@@ -1,4 +1,5 @@
-extends "input_transition.gd"
+class_name FrayInputTransitionSequence
+extends FrayInputTransition
 
 ## Name of the sequence
 var sequence_name: String
