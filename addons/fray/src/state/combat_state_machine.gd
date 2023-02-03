@@ -164,7 +164,8 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 		return root.get_next_node({
 			input = buffered_input.input,
 			input_is_pressed = buffered_input.is_pressed,
-			time_since_last_input = time_since_last_input
+			time_since_last_input = time_since_last_input,
+			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp) / 1000.0
 		})
 	elif buffered_input is BufferedInputSequence:
 		return root.get_next_node({

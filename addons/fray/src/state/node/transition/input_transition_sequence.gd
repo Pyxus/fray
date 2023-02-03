@@ -7,5 +7,5 @@ var sequence_name: String
 func _accepts_impl(sm_input: Dictionary) -> bool:
 	return (
 		super(sm_input)
-		and sequence_name == sm_input.get("input", null)
+		and sm_input.get("input", null) == sequence_name
 		)
