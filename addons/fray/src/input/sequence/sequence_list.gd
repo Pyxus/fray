@@ -11,12 +11,12 @@ const SequencePath = preload("sequence_path.gd")
 # Hint: <sequence name, sub sequence array>
 var _sequence_path_by_name: Dictionary
 
-## Adds a sequence to list under a given name.[br][br]
-## 
+## Adds a sequence to list under a given name.
+## [br][br]
 ## [kbd]sequence_name[/kbd] is the name of the sequence, a name can be associated with many sequence paths.
 ## A sequence can have many paths which allows support for 'lenient inputs'.
-## These are inputs that do not exactly match the intended sequence.[br][br]
-##
+## These are inputs that do not exactly match the intended sequence.
+## [br][br]
 ## [kbd]sequence_path[/kbd] is a collection of input requirements that define a path.
 func add(sequence_name: StringName, sequence_path: SequencePath) -> void:
 	if not _sequence_path_by_name.has(sequence_name):

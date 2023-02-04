@@ -55,18 +55,7 @@ func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachi
 ## [br]
 ## Returns a reference to this builder
 ## [br][br]
-## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
-## [br][br]
-## [br][br]
-## - [code]advance_conditions: Array[Condition][/code]
-## [br][br]
-## - [code]prereqs: Array[Condition][/code]
-## [br][br]
-## - [code]auto_advance: bool[/code]
-## [br][br]
-## - [code]priority: int[/code]
-## [br][br]
-## - [code]switch_mode: int[/code]
+## [kbd]config[/kbd] is an optional dictionary used to configure [FrayStateMachineTransition] properties.
 func transition(from: StringName, to: StringName, config: Dictionary = {}) -> FrayStateMachineBuilder:
 	var tr := _create_transition(from, to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
@@ -120,12 +109,13 @@ func _configure_transition(transition: FrayStateMachineTransition, config: Dicti
 	for property in transition.get_property_list():
 		if config.has(property.name):
 			var data = config.get(property.name)
-			transition[property.name]
-	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
-	transition.prereqs = _cache_conditions(config.get("prereqs", []))
-	transition.auto_advance = config.get("auto_advance", false)
-	transition.priority = config.get("priority", 0)
-	transition.switch_mode = config.get("switch_mode", FrayStateMachineTransition.SwitchMode.IMMEDIATE)
+
+			if data is FrayCondition:
+				transition[property.name] = _cache_condition(data)
+			elif data is Array[FrayCondition]:
+				transition[property.name] = _cache_conditions(data)
+			else:
+				transition[property.name] = data
 
 
 func _configure_state_machine(root: FrayStateNodeStateMachine) -> void:

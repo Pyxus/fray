@@ -22,12 +22,12 @@ static func from_inputs(inputs: PackedStringArray, max_delay := .2) -> FraySeque
 	return path
 
 ## Appends an input requirement to the end of the input_requirements array
-##
-## [kbd]max_delay[/kbd] is the maximum time in seconds between two inputs. 
-##
-## [kbd]min_time_held[/kbd] is the minimum time in seconds that the input is required to be held.
-##
+## [br]
 ## Returns a reference to this sequence path.
+## [br][br]
+## [kbd]max_delay[/kbd] is the maximum time in seconds between two inputs. 
+## [br]
+## [kbd]min_time_held[/kbd] is the minimum time in seconds that the input is required to be held.
 func then(input: StringName, max_delay := .2, min_time_held := 0.0) -> FraySequencePath:
 	var input_requirement := FrayInputRequirement.new()
 	input_requirement.input = input

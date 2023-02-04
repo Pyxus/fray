@@ -1,9 +1,6 @@
 class_name FrayInputEvent
 extends RefCounted
 ## Base class for inputs detected by the FrayInput singleton.
-##
-## @desc:
-## 		Conceptually similiar to a godot's built-in InputEvent.
 
 ## Time in miliseconds that the input was initially pressed
 var time_pressed: int

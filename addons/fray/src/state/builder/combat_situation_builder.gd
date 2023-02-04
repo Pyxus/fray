@@ -14,126 +14,42 @@ const InputTransitionSequence = preload("../node/transition/input_transition_seq
 ## [br]
 ## Returns a reference to this builder
 ## [br][br]
-## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
-## [br][br]
-## - [code]input: StringName[/code]
-## [br][br]
-## - [code]min_input_delay: float[/code]
-## [br][br]
-## - [code]advance_conditions: Array[Condition][/code]
-## [br][br]
-## - [code]prereqs: Array[Condition][/code]
-## [br][br]
-## - [code]auto_advance: bool[/code]
-## [br][br]
-## - [code]priority: int[/code]
-## [br][br]
-## - [code]switch_mode: int[/code]
+## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionButton] properties.
 func transition_button(from: StringName, to: StringName, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionButton.new()).transition
-	_configure_transition_input_button(transition, config)
+	_configure_transition(transition, config)
 	return self
 
 ## Creates a new inupt sequence transition from one state to another.
 ## States used will automatically be added.
-##
+## [br]
 ## Returns a reference to this builder
 ## [br][br]
-## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
-## [br][br]
-## - [code]input: StringName[/code]
-## [br][br]
-## - [code]min_input_delay: float[/code]
-## [br][br]
-## - [code]advance_conditions: Array[Condition][/code]
-## [br][br]
-## - [code]prereqs: Array[Condition][/code]
-## [br][br]
-## - [code]auto_advance: bool[/code]
-## [br][br]
-## - [code]priority: int[/code]
-## [br][br]
-## - [code]switch_mode: int[/code]
+## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionSequence] properties.
 func transition_sequence(from: StringName, to: StringName, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionSequence.new()).transition
-	_configure_transition_input_button(transition, config)
+	_configure_transition(transition, config)
 	return self
 
 
 ## Creates a new global input button transition from one state to another.
 ## States used will automatically be added.
-##
+## [br]
 ## Returns a reference to this builder
 ## [br][br]
-## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
-## [br][br]
-## - [code]input: StringName[/code]
-## [br][br]
-## - [code]min_input_delay: float[/code]
-## [br][br]
-## - [code]min_time_held: float[/code]
-## [br][br]
-## - [code]advance_conditions: Array[Condition][/code]
-## [br][br]
-## - [code]prereqs: Array[Condition][/code]
-## [br][br]
-## - [code]auto_advance: bool[/code]
-## [br][br]
-## - [code]priority: int[/code]
-## [br][br]
-## - [code]switch_mode: int[/code]
+## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionButton] properties.
 func transition_button_global(to: StringName, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionButton.new())
-	_configure_transition_input_sequence(tr.transition, config)
+	_configure_transition(tr.transition, config)
 	return self
 
 ## Creates a new global input sequence transition from one state to another.
 ## States used will automatically be added.
-##
+## [br]
 ## Returns a reference to this builder
 ## [br][br]
-## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
-## [br][br]
-## - [code]input: StringName[/code]
-## [br][br]
-## - [code]min_input_delay: float[/code]
-## [br][br]
-## - [code]advance_conditions: Array[Condition][/code]
-## [br][br]
-## - [code]prereqs: Array[Condition][/code]
-## [br][br]
-## - [code]auto_advance: bool[/code]
-## [br][br]
-## - [code]priority: int[/code]
-## [br][br]
-## - [code]switch_mode: int[/code]
+## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionSequence] properties.
 func transition_sequence_global(to: StringName, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionSequence.new())
-	_configure_transition_input_sequence(tr.transition, config)
+	_configure_transition(tr.transition, config)
 	return self
-
-
-func _configure_transition_input(transition: FrayInputTransition, config: Dictionary) -> void:
-	_configure_transition(transition, config)
-	transition.auto_advance = config.get("auto_advance", false)
-	transition.min_input_delay = config.get("min_input_delay", 0)
-
-
-func _configure_transition_input_button(transition: FrayInputTransitionButton, config: Dictionary) -> void:
-	_configure_transition_input(transition, config)
-	
-	if not config.has("input"):
-		push_warning("No 'input' config given for input button transition")
-	
-	transition.input = config.get("input", "")
-	transition.is_triggered_on_release = config.get("is_triggered_on_release", false)
-
-
-func _configure_transition_input_sequence(transition: FrayInputTransitionSequence, config: Dictionary) -> void:
-	_configure_transition_input(transition, config)
-	
-	if not config.has("input"):
-		push_warning("No 'input' config given for input sequence transition")
-	
-	transition.sequence_name = config.get("input", "")
-	
