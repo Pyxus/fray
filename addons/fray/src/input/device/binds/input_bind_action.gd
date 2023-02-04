@@ -7,10 +7,10 @@ extends "input_bind_simple.gd"
 ##		Bind that makes use of godot's actions
 
 ## Action name
-var action: String
+var action: StringName
 
 
-func _init(action_name: String = "") -> void:
+func _init(action_name: StringName = "") -> void:
 	action = action_name
 
 

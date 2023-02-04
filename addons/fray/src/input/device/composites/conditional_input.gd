@@ -12,8 +12,8 @@ extends FrayCompositeInput
 ##      If no condition is true then the input will default to checking the first component.
 
 
-## Type: Dictionary<int, String>
-## Hint: <component index, string condition>
+# Type: Dictionary<int, StringName
+# Hint: <component index, string condition>
 var _conditions_by_component: Dictionary
 
 ## Returns a builder instance
@@ -21,7 +21,7 @@ static func builder() -> Builder:
 	return Builder.new()
 	
 
-func set_condition(component_index: int, condition: String) -> void:
+func set_condition(component_index: int, condition: StringName) -> void:
 	if component_index == 0:
 		push_warning("The first component is treated as the default input. Condition will be ignored")
 		return
@@ -41,7 +41,7 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 
 	for component_index in _conditions_by_component:
 		var component: Resource = _components[component_index]
-		var condition: String = _conditions_by_component[component_index]
+		var condition: StringName = _conditions_by_component[component_index]
 
 		if input_interface.is_condition_true(condition, device):
 			comp = component
@@ -59,7 +59,7 @@ func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Packed
 	var component: Resource = _components[0]
 	for component_index in _conditions_by_component:
 		var comp: Resource = _components[component_index]
-		var condition: String = _conditions_by_component[component_index]
+		var condition: StringName = _conditions_by_component[component_index]
 
 		if input_interface.is_condition_true(condition, device):
 			component = comp
@@ -78,7 +78,7 @@ class Builder:
 	## Adds a composite input as a component of this conditional input
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(condition: String, composite_input: FrayCompositeInput) -> Builder:
+	func add_component(condition: StringName, composite_input: FrayCompositeInput) -> Builder:
 		_conditions.append(condition)
 		_composite_input.add_component(composite_input)
 		

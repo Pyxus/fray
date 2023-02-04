@@ -27,7 +27,7 @@ func is_device_connected() -> bool:
 	return _fray_input.is_device_connected(device)
 
 ## Returns true if an input is being pressed.
-func is_pressed(input: String) -> bool:
+func is_pressed(input: StringName) -> bool:
 	return not disabled and is_device_connected() and _fray_input.is_pressed(input, device)
 
 ## Returns true if any of the inputs given are being pressed
@@ -36,24 +36,24 @@ func is_any_pressed(inputs: PackedStringArray) -> bool:
 
 ## Returns true when a user starts pressing the input, 
 ## meaning it's true only on the frame the user pressed down the input.
-func is_just_pressed(input: String) -> bool:
+func is_just_pressed(input: StringName) -> bool:
 	return not disabled and is_device_connected() and _fray_input.is_just_pressed(input, device)
 
 ## Returns true if input was physically pressed
 ## meaning it is only true if the press was not trigerred virtually.
-func is_just_pressed_real(input: String) -> bool:
+func is_just_pressed_real(input: StringName) -> bool:
 	return not disabled and is_device_connected() and _fray_input.is_just_pressed_real(input, device)
 
 ## Returns true when the user stops pressing the input, 
 ## meaning it's true only on the frame that the user released the button.
-func is_just_released(input: String) -> bool:
+func is_just_released(input: StringName) -> bool:
 	return not disabled and is_device_connected() and _fray_input.is_just_released(input, device)
 
 ## Returns a value between 0 and 1 representing the intensity of an input.
 ## If the input has no range of strngth a discrete value of 0 or 1 will be returned.
-func get_strength(input: String) -> float:
+func get_strength(input: StringName) -> float:
 	return _fray_input.get_strength(input, device) if is_device_connected() and not disabled else 0.0
 
 ## Get axis input by specifiying two input ids, one negative and one positive.
-func get_axis(negative_input: String, positive_input: String) -> float:
+func get_axis(negative_input: StringName, positive_input: StringName) -> float:
 	return _fray_input.get_axis(negative_input, positive_input, device) if is_device_connected() and not disabled else 0.0

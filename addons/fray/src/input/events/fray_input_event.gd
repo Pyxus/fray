@@ -27,7 +27,7 @@ var is_pressed: bool
 var device: int
 
 ## The input's name
-var input: String
+var input: StringName
 
 ## If true, this event was triggered by a virtual press.
 var is_virtually_pressed: bool

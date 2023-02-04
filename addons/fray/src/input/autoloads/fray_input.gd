@@ -202,7 +202,7 @@ func get_connected_devices() -> Array[int]:
 	return connected_joypads
 
 ## Sets [kbd]condition[/kbd] to given [kbd]value[/kbd]. Used for checking conditional inputs.
-func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1) -> void:
+func set_condition(condition: StringName, value: bool, device: int = DEVICE_KBM_JOY1) -> void:
 	match _get_device_state(device):
 		var device_state:
 			device_state.set_condition(condition, value)
@@ -210,7 +210,7 @@ func set_condition(condition: String, value: bool, device: int = DEVICE_KBM_JOY1
 			push_error("Failed to set condition. Unrecognized device '%d'" % device)
 
 ## Returns the state of a [kbd]condition[/kbd] set with set_condition.
-func is_condition_true(condition: String, device: int = DEVICE_KBM_JOY1) -> bool:
+func is_condition_true(condition: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_device_state(device):
 		var device_state:
 			return device_state.is_condition_true(condition)
@@ -264,7 +264,7 @@ func _get_device_state(device: int) -> FrayDeviceState:
 	return null
 
 
-func _get_input_state(input: String, device: int) -> FrayInputState:
+func _get_input_state(input: StringName, device: int) -> FrayInputState:
 	match _get_device_state(device):
 		var device_state:
 			if not _input_map.has_input(input):
@@ -275,13 +275,13 @@ func _get_input_state(input: String, device: int) -> FrayInputState:
 			return null
 
 
-func _get_bind_state(input: String, device: int) -> FrayInputState:
+func _get_bind_state(input: StringName, device: int) -> FrayInputState:
 	if _input_map.has_bind(input):
 		return _get_input_state(input, device)
 	return null
 
 
-func _create_input_event(input: String, device: int) -> FrayInputEvent:
+func _create_input_event(input: StringName, device: int) -> FrayInputEvent:
 	var input_state := _get_input_state(input, device)
 	var input_event := FrayInputEvent.new()
 

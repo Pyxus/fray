@@ -2,20 +2,20 @@ class_name FrayDeviceState
 extends RefCounted
 ## Used by FrayInput to track device state
 
-## Type: Dictionary<String, InputState>
+# Type: Dictionary<StringName, InputState>
 var input_state_by_name: Dictionary
 
-## Type: Dictionary<String, bool>
+# Type: Dictionary<StringName, bool>
 var bool_by_condition: Dictionary
 
 
-func flag_inputs_use_in_composite(composite: String, inputs: PackedStringArray) -> void:
+func flag_inputs_use_in_composite(composite: StringName, inputs: PackedStringArray) -> void:
 	for input in inputs:
 		if input_state_by_name.has(input):
 			input_state_by_name[input].composites_used_in[composite] = true
 
 
-func unflag_inputs_use_in_composite(composite: String, inputs: PackedStringArray) -> void:
+func unflag_inputs_use_in_composite(composite: StringName, inputs: PackedStringArray) -> void:
 	for input in inputs:
 		if input_state_by_name.has(input):
 			input_state_by_name[input].composites_used_in.erase(composite)
@@ -59,25 +59,25 @@ func get_all_inputs() -> PackedStringArray:
 	return PackedStringArray(input_state_by_name.keys())
 
 
-func get_input_state(input_name: String) -> FrayInputState:
+func get_input_state(input_name: StringName) -> FrayInputState:
 	if input_state_by_name.has(input_name):
 		return input_state_by_name[input_name]
 	return register_input_state(input_name)
 
 
-func register_input_state(input_name: String) -> FrayInputState:
+func register_input_state(input_name: StringName) -> FrayInputState:
 	var input_state := FrayInputState.new(input_name)
 	input_state_by_name[input_name] = input_state
 	return input_state
 
 
-func is_condition_true(condition: String) -> bool:
+func is_condition_true(condition: StringName) -> bool:
 	if bool_by_condition.has(condition):
 		return bool_by_condition[condition]
 	return false
 
 
-func set_condition(condition: String, value: bool) -> void:
+func set_condition(condition: StringName, value: bool) -> void:
 	bool_by_condition[condition] = value
 
 

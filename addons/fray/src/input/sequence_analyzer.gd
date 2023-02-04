@@ -18,8 +18,6 @@ extends RefCounted
 ##		sequence_analyzer.initialize(sequence_list)		
 
 ## Emmitted when a sequence match is found.
-##
-## `sequence_name: String` is the name of the sequence.
 signal match_found(sequence_name: StringName)
 
 const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
@@ -277,9 +275,9 @@ class _InputNode:
 	var is_root: bool
 	var is_press_input: bool
 	var allow_negative_edge: bool
-	var sequence_name: String
+	var sequence_name: StringName
 	var sequence_path: SequencePath
-	var input: String
+	var input: StringName
 
 	var _next_nodes: Array[_InputNode]
 
@@ -298,7 +296,7 @@ class _InputNode:
 		return string
 
 
-	func is_next_accepting_release(input: String) -> bool:
+	func is_next_accepting_release(input: StringName) -> bool:
 		for node in _next_nodes:
 			if node.input == input and not node.sequence_name.is_empty() and (not node.is_press_input or node.allow_negative_edge):
 				return true
@@ -311,7 +309,7 @@ class _InputNode:
 		_next_nodes.append(node)
 
 
-	func get_next(next_input: String, is_pressed: bool) -> _InputNode:
+	func get_next(next_input: StringName, is_pressed: bool) -> _InputNode:
 		for node in _next_nodes:
 			if node.input == next_input and (node.is_press_input == is_pressed or node.allow_negative_edge):
 				return node
@@ -322,7 +320,7 @@ class _InputNode:
 		return _next_nodes[index]
 
 
-	func has_next(input: String, released: bool) -> bool:
+	func has_next(input: StringName, released: bool) -> bool:
 		return get_next(input, released) != null
 	
 

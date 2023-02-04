@@ -48,7 +48,7 @@ func add_bind_input(name: StringName, input_bind: FrayInputBind) -> void:
 	_input_bind_by_name[name] = input_bind
 
 ## Binds action input.
-func add_bind_action(name: StringName, action: String) -> void:
+func add_bind_action(name: StringName, action: StringName) -> void:
 	var bind := FrayInputBindAction.new()
 	bind.action = action
 	

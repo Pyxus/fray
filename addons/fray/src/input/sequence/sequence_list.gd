@@ -7,7 +7,7 @@ extends Resource
 
 const SequencePath = preload("sequence_path.gd")
 
-# Type: Dictionary<String, Sequence[]>
+# Type: Dictionary<StringName, Sequence[]>
 # Hint: <sequence name, sub sequence array>
 var _sequence_path_by_name: Dictionary
 

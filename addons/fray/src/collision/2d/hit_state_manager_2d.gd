@@ -35,7 +35,7 @@ signal hitbox_seperated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitb
 					)
 		set_hitbox_source(value)
 
-var _current_state: String = ""
+var _current_state: StringName = ""
 var _cc_detector: _ChildChangeDetector
 
 func _ready() -> void:
@@ -79,7 +79,7 @@ func _set(property: StringName, value) -> bool:
 	return false
 
 ## Returns the name of the current hit state
-func get_current_state() -> String:
+func get_current_state() -> StringName:
 	return _current_state
 
 ## Returns a reference to the current state. Returns null if no state is set.
@@ -93,7 +93,7 @@ func set_hitbox_source(source: Object) -> void:
 			child.set_hitbox_source(source)
 
 
-func _set_current_state(new_current_state: String) -> void:
+func _set_current_state(new_current_state: StringName) -> void:
 	if new_current_state != _current_state:
 		_current_state = new_current_state
 

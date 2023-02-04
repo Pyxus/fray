@@ -8,10 +8,10 @@ var Condition: GDScript = load("res://addons/fray/src/state/node/transition/cond
 var invert: bool
 
 ## Name of this condition
-var name: String
+var name: StringName
 
 
-func _init(condition_name: String = "", is_invert: bool = false) -> void:
+func _init(condition_name: StringName = "", is_invert: bool = false) -> void:
 	name = condition_name
 	invert = is_invert
 

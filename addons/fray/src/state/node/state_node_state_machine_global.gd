@@ -12,11 +12,11 @@ extends FrayStateNodeStateMachine
 
 var _global_transitions: Array[FrayStateMachineTransition]
 
-# Type: Dictionary<StringName, String[]>
+# Type: Dictionary<StringName, StringName[]>
 # Hint: <from tag, to tags
 var _global_transition_rules: Dictionary
 
-# Type: Dictionary<StringName, String[]>
+# Type: Dictionary<StringName, StringName[]>
 # Hint: <node name, tags>
 var _tags_by_node: Dictionary
 
@@ -106,7 +106,7 @@ func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTran
 	
 	for from_tag in get_node_tags(from):
 		if _global_transition_rules.has(from_tag):
-			var to_tags: Array[String] = _global_transition_rules[from_tag]
+			var to_tags: Array[StringName] = _global_transition_rules[from_tag]
 
 			for transition in _global_transitions:
 				for to_tag in to_tags:

@@ -21,7 +21,7 @@ func _notification(what: int) -> void:
 		unplug()
 
 ## presses given input on virtual device
-func press(input: String, press_strength: float = 1.0) -> void:
+func press(input: StringName, press_strength: float = 1.0) -> void:
 	match _device_state.get_input_state(input):
 		var input_state:
 			input_state.strength = press_strength
@@ -32,7 +32,7 @@ func press(input: String, press_strength: float = 1.0) -> void:
 	pass
 
 ## Unpresses given input on virtual device
-func unpress(input: String) -> void:
+func unpress(input: StringName) -> void:
 	match _device_state.get_input_state(input):
 		var input_state:
 			input_state.unpress()

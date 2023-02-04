@@ -2,7 +2,7 @@ class_name FrayInputTransitionSequence
 extends FrayInputTransition
 
 ## Name of the sequence
-var sequence_name: String
+var sequence_name: StringName
 
 func _accepts_impl(sm_input: Dictionary) -> bool:
 	return (

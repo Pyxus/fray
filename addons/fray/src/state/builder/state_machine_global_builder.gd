@@ -3,11 +3,11 @@ extends FrayStateMachineBuilder
 ## Global state machine builder
 
 
-# Type: Dictionary<String, String[]>
+# Type: Dictionary<StringName, StringName[]>
 # Hint: <from tag, to tags>
 var _transition_rules: Dictionary
 
-# Type: Dictionary<String, String[]>
+# Type: Dictionary<StringName, StringName[]>
 var _tags_by_state: Dictionary
 
 var _global_transitions: Array[FrayInputTransition]
@@ -28,7 +28,7 @@ func _clear_impl() -> void:
 ## Adds a new transition rule to be used by global transitions.
 ##
 ## Returns a reference to this builder
-func add_rule(from_tag: String, to_tag: String) -> RefCounted:
+func add_rule(from_tag: StringName, to_tag: StringName) -> RefCounted:
 	if not _transition_rules.has(from_tag):
 		_transition_rules[from_tag] = []
 	_transition_rules[from_tag].append(to_tag)
@@ -47,7 +47,7 @@ func tag_multi(states: PackedStringArray, tags: PackedStringArray) -> RefCounted
 ## States used will automatically be added.
 ##
 ## Returns a reference to this builder
-func tag(state: String, tags: PackedStringArray) -> RefCounted:
+func tag(state: StringName, tags: PackedStringArray) -> RefCounted:
 	_add_state_once(state)
 		
 	if not _tags_by_state.has(state):
@@ -59,13 +59,13 @@ func tag(state: String, tags: PackedStringArray) -> RefCounted:
 	return self
 
 ## Creates a new global transtion to the specified state. 
-func transition_global(to: String, config: Dictionary = {}) -> RefCounted:
+func transition_global(to: StringName, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
 
 
-func _create_global_transition(to: String, transition: FrayStateMachineTransition) -> Transition:
+func _create_global_transition(to: StringName, transition: FrayStateMachineTransition) -> Transition:
 	var tr := Transition.new()
 	tr.to = to
 	tr.transition = transition

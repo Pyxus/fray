@@ -43,7 +43,7 @@ const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_globa
 		notify_property_list_changed()
 
 ## Name of the state machine's surrent situation
-var current_situation: String:
+var current_situation: StringName:
 	set(situation_name):
 		if not has_situation(situation_name):
 			push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
@@ -57,7 +57,7 @@ var current_situation: String:
 
 var _input_buffer: Array[BufferedInput]
 
-## Type: Dictionary<String, StateNodeStateMachineGlobal>
+## Type: Dictionary<StringName, StateNodeStateMachineGlobal>
 ## Hint: <situation name, >
 var _situations: Dictionary
 
@@ -91,7 +91,7 @@ func goto_start_state() -> void:
 		root.goto_start()
 
 ## Adds a combat situation to the state machine.
-func add_situation(situation_name: String, node: StateNodeStateMachineGlobal) -> void:
+func add_situation(situation_name: StringName, node: StateNodeStateMachineGlobal) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
@@ -102,7 +102,7 @@ func add_situation(situation_name: String, node: StateNodeStateMachineGlobal) ->
 		change_situation(situation_name)
 
 ## Changes the currently activate situation
-func change_situation(situation_name: String) -> void:
+func change_situation(situation_name: StringName) -> void:
 	if not has_situation(situation_name):
 		push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
 		return
@@ -113,14 +113,14 @@ func change_situation(situation_name: String) -> void:
 		root.goto_start()
 
 ## Returns a situation with the given name if it exists.
-func get_situation(situation_name: String) -> StateNodeStateMachineGlobal:
+func get_situation(situation_name: StringName) -> StateNodeStateMachineGlobal:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null
 
 
 ## Returns true if a situation with the given name exists
-func has_situation(situation_name: String) -> bool:
+func has_situation(situation_name: StringName) -> bool:
 	return _situations.has(situation_name)
 
 ## Setter for 'input_max_buffer_time' property
@@ -143,7 +143,7 @@ func set_input_max_buffer_time_ms(value: int) -> void:
 ## It is not default associated with any actions in godot or inputs in fray.
 ##
 ## If `is_pressed` is true then a pressed input is buffered, else a released input is buffered.
-func buffer_button(input: String, is_pressed: bool = true) -> void:
+func buffer_button(input: StringName, is_pressed: bool = true) -> void:
 	_input_buffer.append(BufferedInputButton.new(Time.get_ticks_msec(), input, is_pressed))
 
 ## Buffers an input sequence to be processed by the state machine
@@ -151,7 +151,7 @@ func buffer_button(input: String, is_pressed: bool = true) -> void:
 ## `sequence_name` is the name of the sequence.
 ## This is just an identifier used in input transitions.
 ## It is not default associated with any actions in godot or inputs in fray.
-func buffer_sequence(sequence_name: String) -> void:
+func buffer_sequence(sequence_name: StringName) -> void:
 	_input_buffer.append(BufferedInputSequence.new(Time.get_ticks_msec(), sequence_name))
 
 ## Clears the input buffer
@@ -159,7 +159,7 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
-func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> String:
+func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> StringName:
 	if buffered_input is BufferedInputButton:
 		return root.get_next_node({
 			input = buffered_input.input,
@@ -186,20 +186,20 @@ class BufferedInput:
 class BufferedInputButton:
 	extends BufferedInput
 
-	func _init(input_time_stamp: int = 0, input_name: String = "", input_is_pressed: bool = true) -> void:
+	func _init(input_time_stamp: int = 0, input_name: StringName = "", input_is_pressed: bool = true) -> void:
 		super(input_time_stamp)
 		input = input_name
 		is_pressed = input_is_pressed
 	
-	var input: String
+	var input: StringName
 	var is_pressed: bool
 
 
 class BufferedInputSequence:
 	extends BufferedInput
 
-	func _init(input_time_stamp: int = 0, input_sequence_name: String = "") -> void:
+	func _init(input_time_stamp: int = 0, input_sequence_name: StringName = "") -> void:
 		super(input_time_stamp)
 		sequence_name = input_sequence_name
 	
-	var sequence_name: String
+	var sequence_name: StringName

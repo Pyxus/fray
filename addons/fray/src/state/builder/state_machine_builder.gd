@@ -18,14 +18,14 @@ extends RefCounted
 ## If true then conditions will be cached to prevent identical conditions from being instantiated.
 var enable_condition_caching: bool = true
 
-# Type: Dictionary<String, StateNode>
+# Type: Dictionary<StringName, StateNode>
 # Hint: <state name, >
 var _state_by_name: Dictionary
 
 var _condition_cache: Array[FrayCondition]
 var _transitions: Array[Transition]
-var _start_state: String
-var _end_state: String
+var _start_state: StringName
+var _end_state: StringName
 
 ## Constructs a state machine, represented by a StateCommpound, using the current build configuration.
 ## After building the builder is reset and can be used again. 
@@ -43,7 +43,7 @@ func build() -> FrayStateNodeStateMachine:
 ##		calling this method is unncessary.
 ##
 ## Returns a reference to this builder
-func add_state(name: String, state := FrayStateNode.new()) -> FrayStateMachineBuilder:
+func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachineBuilder:
 	if name.is_empty():
 		push_error("State name can not be empty")
 	else:
@@ -61,7 +61,7 @@ func add_state(name: String, state := FrayStateNode.new()) -> FrayStateMachineBu
 ##		`switch_mode: int`
 ##
 ## Returns a reference to this builder
-func transition(from: String, to: String, config: Dictionary = {}) -> FrayStateMachineBuilder:
+func transition(from: StringName, to: StringName, config: Dictionary = {}) -> FrayStateMachineBuilder:
 	var tr := _create_transition(from, to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -70,7 +70,7 @@ func transition(from: String, to: String, config: Dictionary = {}) -> FrayStateM
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func start_at(state: String) -> FrayStateMachineBuilder:
+func start_at(state: StringName) -> FrayStateMachineBuilder:
 	_add_state_once(state)
 	_start_state = state
 	return self
@@ -79,7 +79,7 @@ func start_at(state: String) -> FrayStateMachineBuilder:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func end_at(state: String) -> FrayStateMachineBuilder:
+func end_at(state: StringName) -> FrayStateMachineBuilder:
 	_add_state_once(state)
 	_end_state = state
 	return self
@@ -93,7 +93,7 @@ func clear() -> void:
 	_clear_impl()
 
 
-func _create_transition(from: String, to: String, transition: FrayStateMachineTransition) -> Transition:
+func _create_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> Transition:
 	var tr := Transition.new()
 	tr.from = from
 	tr.to = to
@@ -105,7 +105,7 @@ func _create_transition(from: String, to: String, transition: FrayStateMachineTr
 	return tr
 
 
-func _add_state_once(state: String) -> void:
+func _add_state_once(state: StringName) -> void:
 	if not _state_by_name.has(state):
 		add_state(state)
 
@@ -166,6 +166,6 @@ class Transition:
 	
 	const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
 
-	var from: String
-	var to: String
+	var from: StringName
+	var to: StringName
 	var transition: StateMachineTransition

@@ -1,11 +1,11 @@
 extends RefCounted
 ## Simple wrapper around [AStar2D] class that stores points as string names.
 
-# Type: Dictionary<String, int>
+# Type: Dictionary<StringName, int>
 # Hint: <state name, point id>
 var _point_id_by_node: Dictionary
 
-# Type: Dictionary<int, String>
+# Type: Dictionary<int, StringName
 # Hint: <point id, state name>
 var _node_by_point_id: Dictionary
 
@@ -14,7 +14,7 @@ var _astar_point_id := 0
 var _travel_path: PackedStringArray
 var _travel_index: int
 
-## `func_get_transition_cost: (String, String) -> float`
+# func_get_transition_cost: func(StringName, StringName) -> float
 func _init(func_get_transition_cost: Callable) -> void:
 	_astar = _CustomAStar.new(func_get_transition_cost, _get_node_from_id)
 
@@ -91,10 +91,10 @@ func _get_node_from_id(id: int) -> StringName:
 class _CustomAStar:
 	extends AStar2D
 
-	## Type: (String, String) -> int
+	# Type: func(StringName, StringName) -> int
 	var _func_get_transition_cost: Callable
 
-	## Type: (int) -> String
+	# Type: func(int) -> StringName
 	var _func_get_node_from_id: Callable
 
 	func _init(func_get_transition_cost: Callable, func_get_node_from_id: Callable) -> void:
