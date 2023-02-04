@@ -17,10 +17,10 @@ var physics_frame: int
 ## The idle frame when the input was first pressed
 var process_frame: int
 
-## Returns true if the input has already been detected
+## If [code]true[/code], the input has already been detected
 var is_echo: bool
 
-## If true, the input is being pressed. If false, it is released
+## If [code]true[/code], the input is being pressed. If false, it is released
 var is_pressed: bool
 
 ## The ID of the device that caused this event
@@ -29,10 +29,10 @@ var device: int
 ## The input's name
 var input: StringName
 
-## If true, this event was triggered by a virtual press.
+## If [code]true[/code], this event was triggered by a virtual press.
 var is_virtually_pressed: bool
 
-## If true, this input occured before any other overlapping inputs.
+## If [code]true[/code], this input occured before any other overlapping inputs.
 var is_distinct: bool
 
 func _to_string() -> String:

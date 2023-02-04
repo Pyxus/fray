@@ -27,22 +27,22 @@ var _transitions: Array[Transition]
 var _start_state: StringName
 var _end_state: StringName
 
-## Constructs a state machine, represented by a StateCommpound, using the current build configuration.
+## Returns a newly constructed state machine node.
+## [br]
+## Constructs a state machine using the current build configuration.
 ## After building the builder is reset and can be used again. 
 ## Keep in mind that the condition cache does not reset autoatmically.
-##
-## Returns a newly constructed CombatSituation
 func build() -> FrayStateNodeStateMachine:
 	return _build_impl()
 
 ## Adds a new state to the state machine.
-##
-## Note: 
-##		States are added automatically when making transitions.
-## 		So unless you need to provide a specific state object,
-##		calling this method is unncessary.
-##
+## [br]
 ## Returns a reference to this builder
+## [br][br]
+## [b]Note[/b]: 
+## States are added automatically when making transitions.
+## So unless you need to provide a specific state object,
+## calling this method is unncessary.
 func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachineBuilder:
 	if name.is_empty():
 		push_error("State name can not be empty")
@@ -52,15 +52,21 @@ func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachi
 
 ## Creates a new transition from one state to another.
 ## States used will automatically be added.
-##
-## `config` is a dictionary used to configure transition options:
-##		`advance_conditions: Condition[]`
-##		`prereqs: Condition[]`
-##		`auto_advance: bool`
-##		`priority: int`
-##		`switch_mode: int`
-##
+## [br]
 ## Returns a reference to this builder
+## [br][br]
+## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
+## [br][br]
+## [br][br]
+## - [code]advance_conditions: Array[Condition][/code]
+## [br][br]
+## - [code]prereqs: Array[Condition][/code]
+## [br][br]
+## - [code]auto_advance: bool[/code]
+## [br][br]
+## - [code]priority: int[/code]
+## [br][br]
+## - [code]switch_mode: int[/code]
 func transition(from: StringName, to: StringName, config: Dictionary = {}) -> FrayStateMachineBuilder:
 	var tr := _create_transition(from, to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
@@ -111,6 +117,10 @@ func _add_state_once(state: StringName) -> void:
 
 
 func _configure_transition(transition: FrayStateMachineTransition, config: Dictionary) -> void:
+	for property in transition.get_property_list():
+		if config.has(property.name):
+			var data = config.get(property.name)
+			transition[property.name]
 	transition.advance_conditions = _cache_conditions(config.get("advance_conditions", []))
 	transition.prereqs = _cache_conditions(config.get("prereqs", []))
 	transition.auto_advance = config.get("auto_advance", false)

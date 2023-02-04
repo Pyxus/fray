@@ -19,8 +19,6 @@ extends FrayStateMachine
 ## 	)
 ##  [/code]
 
-const StateNodeStateMachineGlobal = preload("node/state_node_state_machine_global.gd")
-
 ## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
@@ -80,7 +78,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 			break
 
 
-func set_root(value: StateNodeStateMachine) -> void:
+func set_root(value: FrayStateNodeStateMachine) -> void:
 	super(value)
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
@@ -91,7 +89,7 @@ func goto_start_state() -> void:
 		root.goto_start()
 
 ## Adds a combat situation to the state machine.
-func add_situation(situation_name: StringName, node: StateNodeStateMachineGlobal) -> void:
+func add_situation(situation_name: StringName, node: FrayStateNodeStateMachineGlobal) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
@@ -113,7 +111,7 @@ func change_situation(situation_name: StringName) -> void:
 		root.goto_start()
 
 ## Returns a situation with the given name if it exists.
-func get_situation(situation_name: StringName) -> StateNodeStateMachineGlobal:
+func get_situation(situation_name: StringName) -> FrayStateNodeStateMachineGlobal:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null

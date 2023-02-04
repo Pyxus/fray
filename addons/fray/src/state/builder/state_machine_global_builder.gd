@@ -26,8 +26,8 @@ func _clear_impl() -> void:
 	_global_transitions.clear()
 
 ## Adds a new transition rule to be used by global transitions.
-##
-## Returns a reference to this builder
+## [br]
+## Returns a reference to this builder.
 func add_rule(from_tag: StringName, to_tag: StringName) -> RefCounted:
 	if not _transition_rules.has(from_tag):
 		_transition_rules[from_tag] = []
@@ -36,7 +36,7 @@ func add_rule(from_tag: StringName, to_tag: StringName) -> RefCounted:
 
 ## Appends given tags onto all given states.
 ## States used will automatically be added.
-##
+## [br]
 ## Returns a reference to this builder
 func tag_multi(states: PackedStringArray, tags: PackedStringArray) -> RefCounted:
 	for state in states:
@@ -45,7 +45,7 @@ func tag_multi(states: PackedStringArray, tags: PackedStringArray) -> RefCounted
 
 ## Appends given tags onto given state.
 ## States used will automatically be added.
-##
+## [br]
 ## Returns a reference to this builder
 func tag(state: StringName, tags: PackedStringArray) -> RefCounted:
 	_add_state_once(state)

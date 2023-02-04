@@ -11,17 +11,24 @@ const InputTransitionSequence = preload("../node/transition/input_transition_seq
 
 ## Creates a new input button transition from one state to another.
 ## States used will automatically be added.
-##
-## `config` is a dictionary used to configure transition options:
-##		`input: String`
-##		`min_input_delay: float`
-##		`advance_conditions: Condition[]`
-##		`prereqs: Condition[]`
-##		`auto_advance: bool`
-##		`priority: int`
-##		`switch_mode: int`
-##
+## [br]
 ## Returns a reference to this builder
+## [br][br]
+## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
+## [br][br]
+## - [code]input: StringName[/code]
+## [br][br]
+## - [code]min_input_delay: float[/code]
+## [br][br]
+## - [code]advance_conditions: Array[Condition][/code]
+## [br][br]
+## - [code]prereqs: Array[Condition][/code]
+## [br][br]
+## - [code]auto_advance: bool[/code]
+## [br][br]
+## - [code]priority: int[/code]
+## [br][br]
+## - [code]switch_mode: int[/code]
 func transition_button(from: StringName, to: StringName, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionButton.new()).transition
 	_configure_transition_input_button(transition, config)
@@ -30,16 +37,23 @@ func transition_button(from: StringName, to: StringName, config: Dictionary = {}
 ## Creates a new inupt sequence transition from one state to another.
 ## States used will automatically be added.
 ##
-## `config` is a dictionary used to configure transition options:
-##		`input: String`
-##		`min_input_delay: float`
-##		`advance_conditions: Condition[]`
-##		`prereqs: Condition[]`
-##		`auto_advance: bool`
-##		`priority: int`
-##		`switch_mode: int`
-##
 ## Returns a reference to this builder
+## [br][br]
+## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
+## [br][br]
+## - [code]input: StringName[/code]
+## [br][br]
+## - [code]min_input_delay: float[/code]
+## [br][br]
+## - [code]advance_conditions: Array[Condition][/code]
+## [br][br]
+## - [code]prereqs: Array[Condition][/code]
+## [br][br]
+## - [code]auto_advance: bool[/code]
+## [br][br]
+## - [code]priority: int[/code]
+## [br][br]
+## - [code]switch_mode: int[/code]
 func transition_sequence(from: StringName, to: StringName, config: Dictionary = {}) -> RefCounted:
 	var transition := _create_transition(from, to, InputTransitionSequence.new()).transition
 	_configure_transition_input_button(transition, config)
@@ -49,16 +63,25 @@ func transition_sequence(from: StringName, to: StringName, config: Dictionary = 
 ## Creates a new global input button transition from one state to another.
 ## States used will automatically be added.
 ##
-## `config` is a dictionary used to configure transition options:
-##		`input: String`
-##		`min_input_delay: float`
-##		`advance_conditions: Condition[]`
-##		`prereqs: Condition[]`
-##		`auto_advance: bool`
-##		`priority: int`
-##		`switch_mode: int`
-##
 ## Returns a reference to this builder
+## [br][br]
+## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
+## [br][br]
+## - [code]input: StringName[/code]
+## [br][br]
+## - [code]min_input_delay: float[/code]
+## [br][br]
+## - [code]min_time_held: float[/code]
+## [br][br]
+## - [code]advance_conditions: Array[Condition][/code]
+## [br][br]
+## - [code]prereqs: Array[Condition][/code]
+## [br][br]
+## - [code]auto_advance: bool[/code]
+## [br][br]
+## - [code]priority: int[/code]
+## [br][br]
+## - [code]switch_mode: int[/code]
 func transition_button_global(to: StringName, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionButton.new())
 	_configure_transition_input_sequence(tr.transition, config)
@@ -67,16 +90,23 @@ func transition_button_global(to: StringName, config: Dictionary = {}) -> RefCou
 ## Creates a new global input sequence transition from one state to another.
 ## States used will automatically be added.
 ##
-## `config` is a dictionary used to configure transition options:
-##		`input: String`
-##		`min_input_delay: float`
-##		`advance_conditions: Condition[]`
-##		`prereqs: Condition[]`
-##		`auto_advance: bool`
-##		`priority: int`
-##		`switch_mode: int`
-##
 ## Returns a reference to this builder
+## [br][br]
+## [kbd]config[/kbd] is an optional dictionary used to configure the below transition options:
+## [br][br]
+## - [code]input: StringName[/code]
+## [br][br]
+## - [code]min_input_delay: float[/code]
+## [br][br]
+## - [code]advance_conditions: Array[Condition][/code]
+## [br][br]
+## - [code]prereqs: Array[Condition][/code]
+## [br][br]
+## - [code]auto_advance: bool[/code]
+## [br][br]
+## - [code]priority: int[/code]
+## [br][br]
+## - [code]switch_mode: int[/code]
 func transition_sequence_global(to: StringName, config: Dictionary = {}) -> RefCounted:
 	var tr := _create_global_transition(to, InputTransitionSequence.new())
 	_configure_transition_input_sequence(tr.transition, config)

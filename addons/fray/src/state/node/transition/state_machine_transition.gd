@@ -7,7 +7,7 @@ enum SwitchMode{
 	AT_END, ## Wait for the current state to end, then switch to the beginning of the next state.
 }
 
-## If 'auto_advance' is enabled then transition will occur automatically when all advance conditions are true.
+## If [member auto_advance] is enabled then the transition will occur automatically when all advance conditions are true.
 var advance_conditions: Array[FrayCondition]
 
 ## Prevents transition from occuring unless all prerequisite conditions are true.

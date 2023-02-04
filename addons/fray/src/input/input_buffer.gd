@@ -38,8 +38,6 @@ func _physics_process(delta: float) -> void:
 		if window.can_start():
 			start_window(input)
 		
-		
-
 ## Sets a buffer for the given [kbd]input[/kbd] that lasts for a given [kbd]duration[/kbd] in ms.
 ## [br]
 ## A buffer repeats an input for a certain amount of time after the input is pressed.

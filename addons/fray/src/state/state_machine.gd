@@ -2,8 +2,6 @@ class_name FrayStateMachine
 extends Node
 ## Base Hierarchical State Machine
 
-const StateNodeStateMachine = preload("node/state_node_state_machine.gd")
-
 enum AdvanceMode{
 	PROCESS, ## Advance during the physics process
 	PHYSICS, ## Advance during the idle process
@@ -17,9 +15,9 @@ enum AdvanceMode{
 @export var active: bool
 
 ## The root state machine node.
-var root: StateNodeStateMachine:
-	set(value):
-		set_root(value)
+var root: FrayStateNodeStateMachine:
+	set = set_root
+
 
 func _process(delta: float) -> void:
 	if _can_process():
@@ -43,7 +41,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 		
 
 ## Setter for [member root] property.
-func set_root(value: StateNodeStateMachine) -> void:
+func set_root(value: FrayStateNodeStateMachine) -> void:
 	root = value
 
 

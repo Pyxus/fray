@@ -99,7 +99,7 @@ Look up 'fighting game notation' if you wish to understand the numbers I used in
 
 There is an input behavior featured in some fighting games known as negative edge. Ordinarily the input sequence is only considered valid when every button is pressed in succession. However, for inputs that support negative edge the last input in the sequence can be triggered by either a button press or a button release. Then means you can hold the last button down, enter the rest of the sequence, then release to trigger it.
 
-Although this is niche, Fray does support it. You just need to set `allow_negative_edge` to true or call the `enable_negative_edge()` when building your `SequencePath`s.
+Although this is niche, Fray does support it. You just need to set `is_negative_edge_enabled` to true or call the `enable_negative_edge()` when building your `SequencePath`s.
 
 ```gdscript
 var sequence_list := SequenceList.new()

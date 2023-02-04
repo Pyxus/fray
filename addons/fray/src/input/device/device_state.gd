@@ -26,6 +26,7 @@ func flag_inputs_as_distinct(inputs: PackedStringArray, ignore_in_comp_check: bo
 		if _input_state_by_name.has(input) and (ignore_in_comp_check or _input_state_by_name[input].composites_used_in.is_empty()):
 			_input_state_by_name[input].is_distinct = true
 
+
 func unflag_inputs_as_distinct(inputs: PackedStringArray) -> void:
 	for input in inputs:
 		if _input_state_by_name.has(input):

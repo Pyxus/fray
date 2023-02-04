@@ -18,7 +18,7 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 static func builder() -> Builder:
 	return Builder.new()
 
-## Returns a simple input that uses the given [kbd]bind[/kbd].
+## Returns a simple input using the given [kbd]bind[/kbd].
 static func from_bind(bind: StringName) -> FraySimpleInput:
 	return builder().bind(bind).build()
 

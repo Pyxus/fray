@@ -5,14 +5,21 @@ extends Resource
 ## Array holding the InputRequirements used to detect a sequence.
 var input_requirements: Array[FrayInputRequirement]
 
-## If true the final input in the sequence is allowed to be triggered by a button release
-## Search 'fighting game negative edge' for more info on the concept
-var allow_negative_edge: bool
+## If true the final input in the sequence is allowed to be triggered by a button release..
+## Search "fighting game negative edge" for more info on the concept
+var is_negative_edge_enabled: bool
 
-func _init(path_allow_nedge = false, inputs: PackedStringArray = [], max_delay := .2) -> void:
-	allow_negative_edge = path_allow_nedge
+func _init(path_allow_nedge = false) -> void:
+	is_negative_edge_enabled = path_allow_nedge
+
+## Returns a sequence path using the given inputs.
+static func from_inputs(inputs: PackedStringArray, max_delay := .2) -> FraySequencePath:
+	var path := FraySequencePath.new()
+	
 	for input in inputs:
-		then(input, max_delay)
+		path.then(input, max_delay)
+
+	return path
 
 ## Appends an input requirement to the end of the input_requirements array
 ##
@@ -20,7 +27,7 @@ func _init(path_allow_nedge = false, inputs: PackedStringArray = [], max_delay :
 ##
 ## [kbd]min_time_held[/kbd] is the minimum time in seconds that the input is required to be held.
 ##
-## Returns a reference to this sequence path allowing for chained method calls
+## Returns a reference to this sequence path.
 func then(input: StringName, max_delay := .2, min_time_held := 0.0) -> FraySequencePath:
 	var input_requirement := FrayInputRequirement.new()
 	input_requirement.input = input
@@ -29,9 +36,9 @@ func then(input: StringName, max_delay := .2, min_time_held := 0.0) -> FraySeque
 	input_requirements.append(input_requirement)
 	return self
 
-## Setter for 'allow_negative_edge. 
+## Sets [method is_negative_edge_enabled] to [code]true[/code]. 
 ##
-## Returns a reference to this sequence path allowing for chained method calls
-func enable_negative_edge(allow: bool = true) -> FraySequencePath:
-	allow_negative_edge = allow
+## Returns a reference to this sequence path.
+func enable_negative_edge() -> FraySequencePath:
+	is_negative_edge_enabled = true
 	return self

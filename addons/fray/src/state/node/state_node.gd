@@ -13,25 +13,25 @@ var _conditions: Dictionary
 # Hint: <condition name, usage count>
 var _condition_usage_count: Dictionary
 
-## Returns [code]true[/code] if state has condition with given [kbd]name[/kbd].
-func has_condition(name: StringName) -> bool:
-	return _conditions.has(name)
+## Returns [code]true[/code] if state has the given [kbd]condition[/kbd].
+func has_condition(condition: StringName) -> bool:
+	return _conditions.has(condition)
 
-## Returns the value of a condition in this node if it exists.
-func is_condition_true(name: StringName) -> bool:
-	if not has_condition(name):
-		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
+## Returns the value of a [kbd]condition[/kbd] if it exists.
+func is_condition_true(condition: StringName) -> bool:
+	if not has_condition(condition):
+		push_warning("Failed to check condition. Condition with name '%s' does not exist" % condition)
 		return false
 
-	return _conditions[name]
+	return _conditions[condition]
 
-## Sets the [kbd]value[/kbd] of a condition if it exists.
-func set_condition(name: StringName, value: bool) -> void:
-	if not has_condition(name):
+## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
+func set_condition(condition: StringName, value: bool) -> void:
+	if not has_condition(condition):
 		push_warning("Condition '%s' does not exist")
 		return
 	
-	_conditions[name] = value
+	_conditions[condition] = value
 
 ## Returns [code]true[/code] if this node is child of another node.
 func has_parent() -> bool:
