@@ -311,7 +311,7 @@ func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 	for input in inputs:
 		var input_state := _get_input_state(input, device)
 		if input_state.is_pressed:
-			input_state.press(true)
+			input_state.press_virtually()
 			
 	device_state.flag_inputs_as_distinct(inputs, true)
 	
@@ -323,7 +323,7 @@ func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 		var has_binds := com_input.can_decompose_into(device, _input_interface, inputs, false)
 
 		if com_input_state.is_pressed and has_binds:
-			com_input_state.press(true)
+			com_input_state.press_virtually()
 			device_state.flag_inputs_use_in_composite(com_input_name, inputs)
 			device_state.flag_inputs_as_distinct([com_input_name])
 

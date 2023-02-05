@@ -37,15 +37,18 @@ func _init(input_name: StringName) -> void:
 	input = input_name
 
 ## Presses the input and records the new input state.
-func press(is_virtual_press: bool = false) -> void:
+func press() -> void:
 	is_pressed = true
 	physics_frame = Engine.get_physics_frames()
 	process_frame = Engine.get_process_frames()
 	time_pressed = Time.get_ticks_msec()
-	is_virtually_pressed = is_virtual_press
 
 	if strength <= 0:
 		strength = 1
+
+func press_virtually() -> void:
+	press()
+	is_virtually_pressed = true
 
 ## Unpresses the input and records the new input state.
 func unpress() -> void:
