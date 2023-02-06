@@ -1,3 +1,4 @@
+@icon("res://addons/fray/assets/icons/state_machine.svg")
 class_name FrayStateMachine
 extends Node
 ## Base Hierarchical State Machine

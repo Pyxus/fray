@@ -3,11 +3,10 @@ class_name FrayController
 extends Node
 ## A node representing a controller
 ##
-## @desc:
-##      This node is a helper node which wrapper around `FrayInput` input checks.
-##      It can be used to decouple entities from the inputs they check in a way that is accesible from the node tree.
-##      If an entity needs to respond to inputs from another device you only need to change the controller's `device` value.
-##      It is also possible to hand the controller off to an AI by using virtual devices.
+## This node is a helper node which wrapper around `FrayInput` input checks.
+## It can be used to decouple entities from the inputs they check in a way that is accesible from the node tree.
+## If an entity needs to respond to inputs from another device you only need to change the controller's [member device] value.
+## It is also possible to hand the controller off to an AI by using virtual devices.
 
 ## The ID of the device to check for
 @export var device: int

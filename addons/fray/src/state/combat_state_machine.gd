@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/fray/assets/icons/combat_state_machine.svg")
 class_name FrayCombatStateMachine
 extends FrayStateMachine
 ## Combat state machine
