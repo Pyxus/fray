@@ -33,7 +33,7 @@ extends FrayStateMachine
 		input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
 		notify_property_list_changed()
 
-## The max time a detected input can exist in the buffer before it is ignored in ms.
+## The max time a detected input can exist in the buffer before it is ignored in milliseconds.
 @export var input_max_buffer_time_ms: int = 1000:
 	set(value):
 		input_max_buffer_time_ms = value

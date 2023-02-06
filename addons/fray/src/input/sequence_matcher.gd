@@ -55,11 +55,11 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 		if input_event.input != input_requirement.input:
 			return false
 		
-		if not input_event.is_pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
+		if not input_event.is_pressed and input_event.get_time_held_msec() < input_requirement.min_time_held:
 			return false
 		
 		if i > 0:
-			var sec_since_last_input := input_event.get_time_between_sec(events[i - 1])
+			var sec_since_last_input := input_event.get_time_between_msec(events[i - 1])
 			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
 				return false
 

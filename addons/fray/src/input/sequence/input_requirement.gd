@@ -5,11 +5,11 @@ extends Resource
 ## The name of the input
 var input: StringName
 
-## The minimum amount of time that the input must be held.
-var min_time_held: float
+## The minimum amount of time that the input must be held in milliseconds.
+var min_time_held: int
 
-## The max delay between this input and the last.
-var max_delay: float
+## The max delay between this input and the last in milliseconds.
+var max_delay: int
 
 ## Returns [code]true[/code] if the is a charge input.[br]
 ##
