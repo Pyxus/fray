@@ -29,11 +29,11 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	# Returns all components decomposed and joined
-	var binds: PackedStringArray
+	var binds: Array[StringName]
 	for component in _components:
-		binds += component.decompose(device, input_interface)
+		binds.append_array(component.decompose(device, input_interface))
 	return binds
 
 ## Returns a builder instance

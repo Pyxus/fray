@@ -20,7 +20,7 @@ var is_virtual: bool:
 ## The composite input's priority. Higher priority composites are processed first.
 var priority: int
 
-var _components: Array [FrayCompositeInput]
+var _components: Array[FrayCompositeInput]
 
 # Type: WeakRef<CompositeInput>
 var _root_wf: WeakRef
@@ -51,12 +51,12 @@ func get_component_count() -> int:
 	return _components.size()
 
 ## Decomposes composite input into binds
-func decompose(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
+func decompose(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	return _decompose_impl(device, input_interface)
 
 ## Returns true if the composite input can decompose into the given binds
 ## 'is_exact' If true then the given binds need to exactly match the input's decomposition
-func can_decompose_into(device: int, input_interface: FrayInputInterface, binds: PackedStringArray, is_exact := true)  -> bool:
+func can_decompose_into(device: int, input_interface: FrayInputInterface, binds: Array[StringName], is_exact := true)  -> bool:
 	var my_components := decompose(device, input_interface)
 
 	if binds.is_empty() or my_components.is_empty():
@@ -115,9 +115,9 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	return false
 
 ## Abstract method used to define decomposition procedure
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	assert(false, "Method not implemented")
-	return PackedStringArray()
+	return []
 
 
 class CompositeBuilder:

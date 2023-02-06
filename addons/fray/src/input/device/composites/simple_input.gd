@@ -23,8 +23,8 @@ static func from_bind(bind: StringName) -> FraySimpleInput:
 	return builder().bind(bind).build()
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
-	return PackedStringArray([bind])
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+	return [bind]
 
 
 class Builder:

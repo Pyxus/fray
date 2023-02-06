@@ -21,11 +21,11 @@ static func builder() -> Builder:
 
 func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	var press_count := 0
-	var last_inputs := PackedStringArray()
+	var last_inputs: Array[StringName] = []
 	
 	for component in _components:
 		if component.is_pressed(device, input_interface):
-			last_inputs += component.decompose(device, input_interface)
+			last_inputs.append_array(component.decompose(device, input_interface))
 			press_count += 1
 
 			if press_count >= min(min_pressed, _components.size()):
@@ -35,8 +35,8 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
-	return _last_inputs_by_device[device] if _last_inputs_by_device.has(device) else PackedStringArray()
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+	return _last_inputs_by_device[device] if _last_inputs_by_device.has(device) else []
 
 
 class Builder:
