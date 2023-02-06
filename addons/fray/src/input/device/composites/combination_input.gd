@@ -91,7 +91,7 @@ func _is_combination_in_order(device: int, input_interface: FrayInputInterface, 
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 
 	var _composite_input = FrayCombinationInput.new()
 
