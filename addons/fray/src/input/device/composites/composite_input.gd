@@ -118,15 +118,3 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	assert(false, "Method not implemented")
 	return []
-
-
-class CompositeBuilder:
-	extends RefCounted
-
-	var _composite_input: FrayCompositeInput
-
-	## Builds the composite input
-	##
-	## Returns a reference to the newly build CompositeInput
-	func build() -> FrayCompositeInput:
-		return _composite_input

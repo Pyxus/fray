@@ -68,12 +68,16 @@ func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 
+	var _composite_input: FrayConditionalInput = FrayConditionalInput.new()
 	var _conditions: PackedStringArray
 
-	func _init() -> void:
-		_composite_input = FrayConditionalInput.new()
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FrayCompositeInput:
+		return _composite_input
 
 	## Adds a composite input as a component of this conditional input
 	##

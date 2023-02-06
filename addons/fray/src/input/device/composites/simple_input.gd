@@ -28,10 +28,15 @@ func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 	
-	func _init() -> void:
-		_composite_input = FraySimpleInput.new()
+	var _composite_input = FraySimpleInput.new()
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FraySimpleInput:
+		return _composite_input
 
 	## Adds a bind to this simple input
 	##

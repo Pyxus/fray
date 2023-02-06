@@ -93,9 +93,13 @@ func _is_combination_in_order(device: int, input_interface: FrayInputInterface, 
 class Builder:
 	extends CompositeBuilder
 
-	func _init() -> void:
-		_composite_input = FrayCombinationInput.new()
-		pass
+	var _composite_input = FrayCombinationInput.new()
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FrayCombinationInput:
+		return _composite_input
 
 	## Adds a composite input as a component of this combination
 	##
