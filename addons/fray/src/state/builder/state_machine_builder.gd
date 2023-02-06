@@ -2,17 +2,19 @@ class_name FrayStateMachineBuilder
 extends RefCounted
 ## State machine builder
 ##
-## @desc:
-##		The state machine builder can be used to create state machines programatically.
-##		The builder supports using optional method chaining for the construction.
-##		
-##		Example:
-##		var sm = builder\
-##			.transition("a", "b")\
-##			.transition("b", "c")\
-##			.build()
+## The state machine builder can be used to create state machines programatically.
+## The builder supports using optional method chaining for the construction.
+## [br]
+## Example:
 ##
-##		Note: '\' is necessary for GDScript to read the next line when multi-line method chaning
+## [codeblock]
+## var sm = builder\
+## .transition("a", "b")\
+## .transition("b", "c")\
+## .build()
+## [/codeblock]
+## 
+##	[br]Note:[/b] '\' is necessary for GDScript to read the next line when multi-line method chaning
 
 
 ## If true then conditions will be cached to prevent identical conditions from being instantiated.
