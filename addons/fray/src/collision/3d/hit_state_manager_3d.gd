@@ -84,7 +84,7 @@ func get_current_state() -> StringName:
 
 ## Returns a reference to the current state. Returns null if no state is set.
 func get_current_state_obj() -> FrayHitState3D:
-	return get_node_or_null(_current_state) as FrayHitState3D
+	return get_node_or_null(NodePath(_current_state)) as FrayHitState3D
 
 ## Sets the [kbd]source[/kbd] of all [FrayHitbox3D] beneath this node.
 func set_hitbox_source(source: Object) -> void:
