@@ -2,7 +2,6 @@ class_name FraySequenceList
 extends Resource
 ## Contains a list of input sequencs
 ##
-## List of sequences used by the SequenceAnalyzer.
 ## A sequence is a name associated with one or more sequence paths.
 
 const SequencePath = preload("sequence_path.gd")

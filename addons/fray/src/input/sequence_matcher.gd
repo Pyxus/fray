@@ -1,20 +1,20 @@
-class_name FraySequenceAnalyzer
+class_name FraySequenceMatcher
 extends RefCounted
 ## Used to detect input sequences
 ##
-## The sequence analyzer can be used to detect input sequences such as
+## The sequence matcher can be used to detect input sequences such as
 ## motion inputs which are common to many fighting games.
 ## Search "fighting game motion inputs" for more info on the concept.
 ## [br]
-## To use you must first initialize the analyzer with a sequence list:
+## To use you must first initialize the matcher with a sequence list:
 ## [codeblock]
-## var sequence_analyzer := FraySequenceAnalyzer.new()
+## var sequence_matcher := FraySequenceMatcher.new()
 ## var sequence_list := SequenceList.new()
 ##
 ## sequence_list.add("236p", SequencePath.new()
 ## 		.then("down").then("down_forward").then("backward").then("punch"))
 ##
-## sequence_analyzer.initialize(sequence_list)
+## sequence_matcher.initialize(sequence_list)
 ## [/codeblock]
 ##
 ## @tutorial(What Are Motion Inputs?): https://mugen.fandom.com/wiki/Command_input#Motion_input
@@ -24,14 +24,13 @@ signal match_found(sequence_name: StringName)
 
 const _LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
 
-
 ## If [code]true[/code], indistinct inputs will be ignored.
 ## [br]
 ## A composite input requires its binds to be pressed for it to be considered pressed.
-## If all occuring inputs are fed directly to the sequence analyzer
+## If all occuring inputs are fed directly to the sequence matcher
 ## then composites will always fail to match due to their binds causing sequence breaks.
 ## This option aims to prevent that by filtering out indistinct inputs. However, this means a composite's
-## binds are likely to be ignored by the analyzer when enabled; the same is true for lower priority composite's that share binds.
+## binds are likely to be ignored by the matcher when enabled; the same is true for lower priority composite's that share binds.
 ## It is recommend to design sequence path's to only use inputs which will always be distinct.
 ## Alternatively this can be disabled and the user can implement their own input filtration when feeding inputs.
 var can_ignore_indistinct_inputs: bool = true
@@ -66,9 +65,9 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 
 	return true
 
-## Initialzes the analyzer
+## Initialzes the matcher
 ## [br]
-## [kbd]sequence_list[/kbd] is used to register the sequences recognized by this analyzer
+## [kbd]sequence_list[/kbd] is used to register the sequences recognized by this matcher
 func initialize(sequence_list: FraySequenceList) -> void:
 	_root = _InputNode.new()
 	_root.is_root = true
@@ -105,10 +104,10 @@ func initialize(sequence_list: FraySequenceList) -> void:
 					)
 			path_index += 1
 
-## Used to feed next inputs to analyzer.
+## Used to feed next inputs to matcher.
 func read(input_event: FrayInputEvent) -> void:
 	if _root == null:
-		push_error("Sequence analyzer is not initialized.")
+		push_error("Sequence matcher is not initialized.")
 		return
 
 	if _can_ignore_input(input_event):
@@ -150,10 +149,10 @@ func read(input_event: FrayInputEvent) -> void:
 func get_match_path() -> Array[FrayInputEvent]:
 	return _match_path
 
-## Prints a tree visualizing the paths available on the sequence analyzer
+## Prints a tree visualizing the paths available on the sequence matcher
 func print_tree() -> void:
 	if _root == null:
-		push_error("Sequence analyzer is not initialized.")
+		push_error("Sequence matcher is not initialized.")
 		return
 
 	_root.print_tree()
