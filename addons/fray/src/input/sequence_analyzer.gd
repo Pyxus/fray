@@ -28,10 +28,10 @@ const _LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.g
 ## If [code]true[/code], indistinct inputs will be ignored.
 ## [br]
 ## A composite input requires its binds to be pressed for it to be considered pressed.
-## If all inputs are fed directly to the sequence analyzer then composites will always fail to match
-## due to their binds causing sequence breaks.
+## If all occuring inputs are fed directly to the sequence analyzer
+## then composites will always fail to match due to their binds causing sequence breaks.
 ## This option aims to prevent that by filtering out indistinct inputs. However, this means a composite's
-## binds are likely to be ignored by the analyzer when enabled; the same is true for composite's which share binds.
+## binds are likely to be ignored by the analyzer when enabled; the same is true for lower priority composite's that share binds.
 ## It is recommend to design sequence path's to only use inputs which will always be distinct.
 ## Alternatively this can be disabled and the user can implement their own input filtration when feeding inputs.
 var can_ignore_indistinct_inputs: bool = true
