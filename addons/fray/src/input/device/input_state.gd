@@ -30,7 +30,7 @@ var is_pressed: bool
 var is_virtually_pressed: bool
 
 ## If [code]true[/code] then the input is considered pressed without any overlapping inputs.
-var is_distinct: bool = true
+var is_distinct: bool = false
 
 
 func _init(input_name: StringName) -> void:
@@ -38,6 +38,7 @@ func _init(input_name: StringName) -> void:
 
 ## Presses the input and records the new input state.
 func press() -> void:
+	is_distinct = true
 	is_pressed = true
 	physics_frame = Engine.get_physics_frames()
 	process_frame = Engine.get_process_frames()

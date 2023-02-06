@@ -28,66 +28,15 @@ func _ready() -> void:
 	for device in Input.get_connected_joypads():
 		_connect_device(device)
 	
+	# We assume at least the keyboard is always connected.
 	_connect_device(DEVICE_KBM_JOY1)
 
 
 func _physics_process(_delta: float) -> void:
 	for device in get_connected_devices():
-		var device_state := _get_device_state(device)
-
-		for bind_name in _input_map.get_bind_names():
-			var bind := _input_map.get_bind(bind_name)
-			var input_state := device_state.get_input_state(bind_name)
-
-			input_state.strength = bind.get_strength(device)
-
-			if bind.is_pressed(device):
-				if not input_state.is_pressed:
-					input_state.press()
-			elif input_state.is_pressed:
-				input_state.unpress()
-		
-		for composite_input_name in _input_map.get_composite_input_names():
-			var composite_input := _input_map.get_composite_input(composite_input_name)
-			var input_state := device_state.get_input_state(composite_input_name)
-			
-			if composite_input.is_pressed(device, _input_interface):
-				if not input_state.is_pressed:
-					var my_components := composite_input.decompose(device, _input_interface)
-					input_state.press()
-					device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
-					
-					if device_state.is_all_indistinct(my_components):
-						device_state.unflag_inputs_as_distinct([composite_input_name])
-					else:
-						device_state.unflag_inputs_as_distinct(my_components)
-			elif input_state.is_pressed:
-				var my_components := composite_input.decompose(device, _input_interface)
-				input_state.unpress()
-				device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
-				device_state.flag_inputs_as_distinct([composite_input_name], true)
-				device_state.flag_inputs_as_distinct(my_components)
-
-				if composite_input.is_virtual:
-					var held_components: PackedStringArray
-					for bind in my_components:
-						if is_pressed(bind, device):
-							held_components.append(bind)
-					
-					_virtually_press(held_components, device)
-
-		for input in device_state.get_all_inputs():
-			if is_just_pressed(input, device) or is_just_released(input, device):
-				var input_event := _create_input_event(input, device)
-				input_event.is_echo = false
-				input_detected.emit(input_event)
-			elif is_pressed(input, device):
-				var input_event := _create_input_event(input, device)
-				var is_same_physics_frame := _last_physics_frame - input_event.physics_frame <= 2
-
-				if not is_same_physics_frame:
-					input_event.is_echo = true
-					input_detected.emit(input_event)
+		_update_bind_input_states(device)
+		_update_composite_input_states(device)
+		_emit_detection_events(device)
 
 	_last_physics_frame = Engine.get_physics_frames()
 
@@ -234,6 +183,72 @@ func create_virtual_device() -> FrayVirtualDevice:
 	var vd := FrayVirtualDevice.new(_connect_device(id), id)
 	vd.disconnect_requested.connect(_on_VirtualDevice_disconnect_requested.bind(id))
 	return vd
+
+
+func _update_bind_input_states(device: int) -> void:
+	var device_state := _get_device_state(device)
+
+	for bind_name in _input_map.get_bind_names():
+		var bind := _input_map.get_bind(bind_name)
+		var input_state := device_state.get_input_state(bind_name)
+
+		input_state.strength = bind.get_strength(device)
+
+		if bind.is_pressed(device):
+			if not input_state.is_pressed:
+				input_state.press()
+		elif input_state.is_pressed:
+			input_state.unpress()
+
+
+func _update_composite_input_states(device: int) -> void:
+	var device_state := _get_device_state(device)
+
+	for composite_input_name in _input_map.get_composite_input_names():
+		var composite_input := _input_map.get_composite_input(composite_input_name)
+		var input_state := device_state.get_input_state(composite_input_name)
+		
+		if composite_input.is_pressed(device, _input_interface):
+			if not input_state.is_pressed:
+				var my_components := composite_input.decompose(device, _input_interface)
+				input_state.press()
+				device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
+				
+				if device_state.is_all_indistinct(my_components):
+					device_state.unflag_inputs_as_distinct([composite_input_name])
+				else:
+					device_state.unflag_inputs_as_distinct(my_components)
+		elif input_state.is_pressed:
+			var my_components := composite_input.decompose(device, _input_interface)
+			input_state.unpress()
+			device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
+			device_state.flag_inputs_as_distinct([composite_input_name], true)
+			device_state.flag_inputs_as_distinct(my_components)
+
+			if composite_input.is_virtual:
+				var held_components: PackedStringArray
+				for bind in my_components:
+					if is_pressed(bind, device):
+						held_components.append(bind)
+				
+				_virtually_press(held_components, device)
+
+
+func _emit_detection_events(device: int) -> void:
+	var device_state := _get_device_state(device)
+	
+	for input in device_state.get_all_inputs():
+		if is_just_pressed(input, device) or is_just_released(input, device):
+			var input_event := _create_input_event(input, device)
+			input_event.is_echo = false
+			input_detected.emit(input_event)
+		elif is_pressed(input, device):
+			var input_event := _create_input_event(input, device)
+			var is_same_physics_frame := _last_physics_frame - input_event.physics_frame <= 2
+
+			if not is_same_physics_frame:
+				input_event.is_echo = true
+				input_detected.emit(input_event)
 
 
 func _connect_device(device: int) -> FrayDeviceState:
