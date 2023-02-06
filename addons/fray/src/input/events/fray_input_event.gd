@@ -29,7 +29,9 @@ var input: StringName
 ## If [code]true[/code], this event was triggered by a virtual press.
 var is_virtually_pressed: bool
 
-## If [code]true[/code], this input occured before any other overlapping inputs.
+## If [code]true[/code], this input is considered to have occured before any other overlapping inputs.
+## If multiple composite inputs which share binds are overlapping then try increasing 
+## the more complex input's [member FrayCompositeInput.priority].
 var is_distinct: bool
 
 func _to_string() -> String:
