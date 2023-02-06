@@ -11,8 +11,7 @@ extends RefCounted
 ## var sequence_matcher := FraySequenceMatcher.new()
 ## var sequence_list := SequenceList.new()
 ##
-## sequence_list.add("236p", SequencePath.new()
-## 		.then("down").then("down_forward").then("backward").then("punch"))
+## sequence_list.add("236p", SequencePath.from_first("down").then("down_forward").then("backward").then("punch"))
 ##
 ## sequence_matcher.initialize(sequence_list)
 ## [/codeblock]

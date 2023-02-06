@@ -30,14 +30,14 @@ extends FrayStateMachine
 @export var input_max_buffer_time: int = 5:
 	set(value):
 		input_max_buffer_time = value
-		input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
+		input_max_buffer_time_msec = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
 		notify_property_list_changed()
 
 ## The max time a detected input can exist in the buffer before it is ignored in milliseconds.
-@export var input_max_buffer_time_ms: int = 1000:
+@export var input_max_buffer_time_msec: int = 1000:
 	set(value):
-		input_max_buffer_time_ms = value
-		input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
+		input_max_buffer_time_msec = value
+		input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_msec) / 1000.0)
 		notify_property_list_changed()
 
 ## Name of the state machine's surrent situation
@@ -72,7 +72,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		var next_state := _get_next_state(buffered_input, time_since_last_input)
 		
-		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_ms:
+		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_msec:
 			root.goto(next_state)
 			_time_since_last_input_ms = current_time
 			break
@@ -116,7 +116,6 @@ func get_situation(situation_name: StringName) -> FrayStateNodeStateMachineGloba
 		return _situations[situation_name]
 	return null
 
-
 ## Returns true if a situation with the given name exists
 func has_situation(situation_name: StringName) -> bool:
 	return _situations.has(situation_name)
@@ -124,14 +123,14 @@ func has_situation(situation_name: StringName) -> bool:
 ## Setter for 'input_max_buffer_time' property
 func set_input_max_buffer_time(value: int) -> void:
 	input_max_buffer_time = value
-	input_max_buffer_time_ms = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
+	input_max_buffer_time_msec = floor((input_max_buffer_time / float(Engine.physics_ticks_per_second)) * 1000)
 	notify_property_list_changed()
 	
 
-## Setter for 'input_max_buffer_time_ms' property
-func set_input_max_buffer_time_ms(value: int) -> void:
-	input_max_buffer_time_ms = value
-	input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
+## Setter for 'input_max_buffer_time_msec' property
+func set_input_max_buffer_time_msec(value: int) -> void:
+	input_max_buffer_time_msec = value
+	input_max_buffer_time = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_msec) / 1000.0)
 	notify_property_list_changed()
 
 ## Buffers an input button to be processed by the state machine

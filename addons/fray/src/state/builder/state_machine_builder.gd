@@ -109,11 +109,15 @@ func _configure_transition(transition: FrayStateMachineTransition, config: Dicti
 	for property in transition.get_property_list():
 		if config.has(property.name):
 			var data = config.get(property.name)
-
 			if data is FrayCondition:
 				transition[property.name] = _cache_condition(data)
-			elif data is Array[FrayCondition]:
-				transition[property.name] = _cache_conditions(data)
+			elif data is Array:
+				if data.all(func(element): return element is FrayCondition):
+					var conditions: Array[FrayCondition] = []
+					conditions.assign(data)
+					transition[property.name] = _cache_conditions(conditions)
+				else:
+					transition[property.name].assign(data)
 			else:
 				transition[property.name] = data
 
