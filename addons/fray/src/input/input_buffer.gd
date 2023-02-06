@@ -1,5 +1,8 @@
 class_name FrayInputBuffer
 extends Node
+## Experimental input buffer node
+##
+## Allows the creation and use of input buffers and windows.
 
 ## The ID of the device to check for## 
 @export var device: int
