@@ -218,8 +218,6 @@ func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 class _InputFrame:
 	extends RefCounted
 
-	const FrayInputEvent = preload("events/fray_input_event.gd")
-	
 	var inputs: Array[FrayInputEvent]
 	var physics_frame: int
 
@@ -271,8 +269,6 @@ class _InputFrame:
 class _InputNode:
 	extends RefCounted
 
-	const SequencePath = preload("sequence/sequence_path.gd")
-
 	const CROSS = " ┠╴";
 	const CORNER = " ┖ ";
 	const VERTICAL = " ┃ ";
@@ -282,7 +278,7 @@ class _InputNode:
 	var is_press_input: bool
 	var is_negative_edge_enabled: bool
 	var sequence_name: StringName
-	var sequence_path: SequencePath
+	var sequence_path: FraySequencePath
 	var input: StringName
 
 	var _next_nodes: Array[_InputNode]

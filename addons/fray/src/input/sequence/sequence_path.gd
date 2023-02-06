@@ -22,17 +22,19 @@ static func from_inputs(inputs: PackedStringArray, max_delay := .2) -> FraySeque
 	return path
 
 ## Returns a new sequence path whos first requirement is based on the given info.
-static func from_first(input: StringName, max_delay := .2, min_time_held := 0.0) -> FraySequencePath:
-	return FraySequencePath.new().then(input, max_delay, min_time_held)
+static func from_first(input: StringName, min_time_held := 0.0) -> FraySequencePath:
+	return FraySequencePath.new().then(input, 0, min_time_held)
 
 ## Appends an input requirement to the end of the input_requirements array
 ## [br]
 ## Returns a reference to this sequence path.
 ## [br][br]
 ## [kbd]max_delay[/kbd] is the maximum time in seconds between two inputs. 
+## A negative delay means that an infinite amount of time is allowed between inputs.
+## This parameter has no effect on the first requirement of a sequence.
 ## [br]
 ## [kbd]min_time_held[/kbd] is the minimum time in seconds that the input is required to be held. 
-## Inputs with a non-zero time time will only match with releases, not presses.
+## Inputs with a non-zero time are considered to be "charged inputs" and will only match with releases, not presses.
 func then(input: StringName, max_delay := .2, min_time_held := 0.0) -> FraySequencePath:
 	var input_requirement := FrayInputRequirement.new()
 	input_requirement.input = input
