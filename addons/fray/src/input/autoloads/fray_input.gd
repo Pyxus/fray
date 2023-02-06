@@ -158,7 +158,7 @@ func set_condition(condition: StringName, value: bool, device: int = DEVICE_KBM_
 		null:
 			push_error("Failed to set condition. Unrecognized device '%d'" % device)
 
-## Returns the state of a [kbd]condition[/kbd] set with set_condition.
+## Returns the state of a [kbd]condition[/kbd] set with [method set_condition].
 func is_condition_true(condition: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 	match _get_device_state(device):
 		var device_state:
@@ -211,26 +211,22 @@ func _update_composite_input_states(device: int) -> void:
 		if composite_input.is_pressed(device, _input_interface):
 			if not input_state.is_pressed:
 				var my_components := composite_input.decompose(device, _input_interface)
+				
 				input_state.press()
 				device_state.flag_inputs_use_in_composite(composite_input_name, my_components)
-				
-				if device_state.is_all_indistinct(my_components):
-					device_state.unflag_inputs_as_distinct([composite_input_name])
+
+				if not device_state.is_all_distinct(my_components):
+					device_state.unset_inputs_as_distinct([composite_input_name])
 				else:
-					device_state.unflag_inputs_as_distinct(my_components)
+					device_state.unset_inputs_as_distinct(my_components)
 		elif input_state.is_pressed:
 			var my_components := composite_input.decompose(device, _input_interface)
 			input_state.unpress()
-			device_state.unflag_inputs_use_in_composite(composite_input_name, my_components)
-			device_state.flag_inputs_as_distinct([composite_input_name], true)
-			device_state.flag_inputs_as_distinct(my_components)
+			device_state.set_inputs_as_distinct([composite_input_name], true)
+			device_state.set_inputs_as_distinct(my_components)
 
 			if composite_input.is_virtual:
-				var held_components: PackedStringArray
-				for bind in my_components:
-					if is_pressed(bind, device):
-						held_components.append(bind)
-				
+				var held_components: Array[StringName] = my_components.filter(func(bind): return is_pressed(bind, device))
 				_virtually_press(held_components, device)
 
 
@@ -319,7 +315,7 @@ func _create_input_event(input: StringName, device: int) -> FrayInputEvent:
 	return input_event
 
 
-func _virtually_press(inputs: PackedStringArray, device: int) -> void:
+func _virtually_press(inputs: Array[StringName], device: int) -> void:
 	var device_state := _get_device_state(device)
 
 	# Virtually press held binds
@@ -328,7 +324,7 @@ func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 		if input_state.is_pressed:
 			input_state.press_virtually()
 			
-	device_state.flag_inputs_as_distinct(inputs, true)
+	device_state.set_inputs_as_distinct(inputs, true)
 	
 	# Virtually press composite inputs that uses held binds
 	var is_atleast_one_composite_pressed := false
@@ -340,12 +336,12 @@ func _virtually_press(inputs: PackedStringArray, device: int) -> void:
 		if com_input_state.is_pressed and has_binds:
 			com_input_state.press_virtually()
 			device_state.flag_inputs_use_in_composite(com_input_name, inputs)
-			device_state.flag_inputs_as_distinct([com_input_name])
+			device_state.set_inputs_as_distinct([com_input_name])
 
-			if device_state.is_all_indistinct(inputs):
-				device_state.unflag_inputs_as_distinct([com_input_name])
+			if not device_state.is_all_distinct(inputs):
+				device_state.unset_inputs_as_distinct([com_input_name])
 			else:
-				device_state.unflag_inputs_as_distinct(inputs)
+				device_state.unset_inputs_as_distinct(inputs)
 
 
 func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
