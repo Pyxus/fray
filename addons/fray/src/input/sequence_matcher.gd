@@ -55,7 +55,7 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 		if input_event.input != input_requirement.input:
 			return false
 		
-		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
+		if not input_event.is_pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
 			return false
 		
 		if i > 0:
@@ -113,7 +113,7 @@ func read(input_event: FrayInputEvent) -> void:
 	if _can_ignore_input(input_event):
 		return
 	
-	var next_node := _current_node.get_next(input_event.input, input_event.pressed)
+	var next_node := _current_node.get_next(input_event.input, input_event.is_pressed)
 	if next_node != null:
 		_current_node = next_node
 		_match_path.append(input_event)
@@ -134,7 +134,7 @@ func read(input_event: FrayInputEvent) -> void:
 		# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
 		_current_frame = _create_frame(input_event)
 
-		if next_node == null and input_event.pressed:
+		if next_node == null and input_event.is_pressed:
 			_resolve_sequence_break()
 	
 	if _current_node.has_sequence():
@@ -210,7 +210,7 @@ func _create_frame(input_event: FrayInputEvent) -> _InputFrame:
 
 func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 	return(
-		input_event.echo
+		input_event.is_echo
 		or can_ignore_indistinct_inputs and not input_event.is_distinct
 	)
 
@@ -229,7 +229,7 @@ class _InputFrame:
 			var input: FrayInputEvent = inputs[i]
 
 			string += input.input
-			if not input.pressed:
+			if not input.is_pressed:
 				string += ".r"
 			
 			if i != inputs.size() - 1:
@@ -254,7 +254,7 @@ class _InputFrame:
 
 	func only_has_release() -> bool:
 		for input in inputs:
-			if input.pressed:
+			if input.is_pressed:
 				return false
 		return inputs.is_empty()
 
@@ -262,7 +262,7 @@ class _InputFrame:
 	func trace(start_node: _InputNode, match_path: Array) -> _InputNode:
 		var match_node: _InputNode
 		for input in inputs:
-			var node = start_node.get_next(input.input, input.pressed)
+			var node = start_node.get_next(input.input, input.is_pressed)
 			if node != null:
 				match_path.append(input)
 				match_node = node
