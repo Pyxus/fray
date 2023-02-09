@@ -1,45 +1,48 @@
-class_name FraySequenceAnalyzer
+class_name FraySequenceMatcher
 extends RefCounted
 ## Used to detect input sequences
 ##
-## @desc:
-## 		The sequence analyzer can be used to detect input sequences such as
-##		motion inputs which are common to many fighting games.
-##		Search 'fighting game motion inputs' for more info on the concept.
+## The sequence matcher can be used to detect input sequences such as
+## motion inputs which are common to many fighting games.
+## Search "fighting game motion inputs" for more info on the concept.
+## [br]
+## To use you must first initialize the matcher with a sequence list:
+## [codeblock]
+## var sequence_matcher := FraySequenceMatcher.new()
+## var sequence_list := SequenceList.new()
 ##
-##		To use you must first initialize the analyzer with a sequence list:
+## sequence_list.add("236p", SequencePath.from_first("down").then("down_forward").then("backward").then("punch"))
 ##
-##		var sequence_analyzer := FraySequenceAnalyzer.new()
-##		var sequence_list := SequenceList.new()
+## sequence_matcher.initialize(sequence_list)
+## [/codeblock]
 ##
-##		sequence_list.add("236p", SequencePath.new()\
-##			.then("down").then("down_forward").then("backward").then("punch"))
-##
-##		sequence_analyzer.initialize(sequence_list)		
+## @tutorial(What Are Motion Inputs?): https://mugen.fandom.com/wiki/Command_input#Motion_input
 
 ## Emmitted when a sequence match is found.
-##
-## `sequence_name: String` is the name of the sequence.
 signal match_found(sequence_name: StringName)
 
-const LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
+const _LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.gd")
 
+## If [code]true[/code], indistinct inputs will be ignored.
+## [br]
+## A composite input requires its binds to be pressed for it to be considered pressed.
+## If all occuring inputs are fed directly to the sequence matcher
+## then composites will always fail to match due to their binds causing sequence breaks.
+## This option aims to prevent that by filtering out indistinct inputs. However, this means a composite's
+## binds are likely to be ignored by the matcher when enabled; the same is true for lower priority composite's that share binds.
+## It is recommend to design sequence path's to only use inputs which will always be distinct.
+## Alternatively this can be disabled and the user can implement their own input filtration when feeding inputs.
+var can_ignore_indistinct_inputs: bool = true
 
-## If true, indistinct inputs will be ignored.
-## Since a composite input's binds must be pressed at the same time as the composite, they will always trigger a sequence break.
-## The same is true for composites which share components.
-var ignore_indistinct_inputs: bool = true
-
-## Type: LinkedList<InputFrame>
-var _input_queue: LinkedList
+# Type: LinkedList<InputFrame>
+var _input_queue: _LinkedList
 
 var _match_path: Array[FrayInputEvent]
-
 var _root: _InputNode
 var _current_node: _InputNode
 var _current_frame: _InputFrame
 
-## Returns true if the given sequence of FrayInputEvents meets the input requirements of the sequence data.
+## Returns [code]true[/code] if the given sequence of inputs meets the input requirements of the sequence data.
 static func is_match(events: Array[FrayInputEvent], input_requirements: Array[FrayInputRequirement]) -> bool:
 	if events.size() != input_requirements.size():
 		return false
@@ -51,23 +54,23 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 		if input_event.input != input_requirement.input:
 			return false
 		
-		if not input_event.pressed and input_event.get_time_held_sec() < input_requirement.min_time_held:
+		if not input_event.is_pressed and input_event.get_time_held_msec() < input_requirement.min_time_held:
 			return false
 		
 		if i > 0:
-			var sec_since_last_input := input_event.get_time_between_sec(events[i - 1])
+			var sec_since_last_input := input_event.get_time_between_msec(events[i - 1])
 			if input_requirement.max_delay >= 0 and sec_since_last_input > input_requirement.max_delay:
 				return false
 
 	return true
 
-## Initialzes the analyzer
-##
-## sequence list is used to register the sequences recognized by this analyzer
+## Initialzes the matcher
+## [br]
+## [kbd]sequence_list[/kbd] is used to register the sequences recognized by this matcher
 func initialize(sequence_list: FraySequenceList) -> void:
 	_root = _InputNode.new()
 	_root.is_root = true
-	_input_queue = LinkedList.new()
+	_input_queue = _LinkedList.new()
 	_current_node = _root
 
 	for name in sequence_list.get_sequence_names():
@@ -91,7 +94,7 @@ func initialize(sequence_list: FraySequenceList) -> void:
 			if not next_node.has_sequence():
 				next_node.sequence_name = name
 				next_node.sequence_path = sequence_path
-				next_node.allow_negative_edge = sequence_path.allow_negative_edge
+				next_node.is_negative_edge_enabled = sequence_path.is_negative_edge_enabled
 			else:
 				push_error(
 					"Collision for sequence '%s' at path index '%d' at input '%s'. " % [name, path_index, next_node.input] +
@@ -100,16 +103,16 @@ func initialize(sequence_list: FraySequenceList) -> void:
 					)
 			path_index += 1
 
-## Used to feed next inputs to analyzer.
+## Used to feed next inputs to matcher.
 func read(input_event: FrayInputEvent) -> void:
 	if _root == null:
-		push_error("Sequence analyzer is not initialized.")
+		push_error("Sequence matcher is not initialized.")
 		return
 
 	if _can_ignore_input(input_event):
 		return
 	
-	var next_node := _current_node.get_next(input_event.input, input_event.pressed)
+	var next_node := _current_node.get_next(input_event.input, input_event.is_pressed)
 	if next_node != null:
 		_current_node = next_node
 		_match_path.append(input_event)
@@ -130,7 +133,7 @@ func read(input_event: FrayInputEvent) -> void:
 		# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
 		_current_frame = _create_frame(input_event)
 
-		if next_node == null and input_event.pressed:
+		if next_node == null and input_event.is_pressed:
 			_resolve_sequence_break()
 	
 	if _current_node.has_sequence():
@@ -140,15 +143,15 @@ func read(input_event: FrayInputEvent) -> void:
 		else:
 			_resolve_sequence_break()
 
-## Returns current array of input events used to attempt to match a sequence path
-## If called during a 'match_found' signal callback then this array contains the exact input events that triggered the match.
-func get_match_path() -> Array:
+## Returns current array of inputs used to attempt to match a sequence path
+## If called during a [signal match_found] signal callback then this array contains the exact input events that triggered the match.
+func get_match_path() -> Array[FrayInputEvent]:
 	return _match_path
 
-## Prints a tree visualizing the paths available on the sequence analyzer
+## Prints a tree visualizing the paths available on the sequence matcher
 func print_tree() -> void:
 	if _root == null:
-		push_error("Sequence analyzer is not initialized.")
+		push_error("Sequence matcher is not initialized.")
 		return
 
 	_root.print_tree()
@@ -206,18 +209,15 @@ func _create_frame(input_event: FrayInputEvent) -> _InputFrame:
 
 func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 	return(
-		input_event.echo
-		or ignore_indistinct_inputs and not input_event.is_distinct
+		input_event.is_echo
+		or can_ignore_indistinct_inputs and not input_event.is_distinct
 	)
 
 
 class _InputFrame:
 	extends RefCounted
 
-	const FrayInputEvent = preload("events/fray_input_event.gd")
-	
-	## FrayInputEvent[]
-	var inputs: Array
+	var inputs: Array[FrayInputEvent]
 	var physics_frame: int
 
 	func _to_string() -> String:
@@ -226,7 +226,7 @@ class _InputFrame:
 			var input: FrayInputEvent = inputs[i]
 
 			string += input.input
-			if not input.pressed:
+			if not input.is_pressed:
 				string += ".r"
 			
 			if i != inputs.size() - 1:
@@ -251,7 +251,7 @@ class _InputFrame:
 
 	func only_has_release() -> bool:
 		for input in inputs:
-			if input.pressed:
+			if input.is_pressed:
 				return false
 		return inputs.is_empty()
 
@@ -259,7 +259,7 @@ class _InputFrame:
 	func trace(start_node: _InputNode, match_path: Array) -> _InputNode:
 		var match_node: _InputNode
 		for input in inputs:
-			var node = start_node.get_next(input.input, input.pressed)
+			var node = start_node.get_next(input.input, input.is_pressed)
 			if node != null:
 				match_path.append(input)
 				match_node = node
@@ -268,8 +268,6 @@ class _InputFrame:
 class _InputNode:
 	extends RefCounted
 
-	const SequencePath = preload("sequence/sequence_path.gd")
-
 	const CROSS = " ┠╴";
 	const CORNER = " ┖ ";
 	const VERTICAL = " ┃ ";
@@ -277,13 +275,12 @@ class _InputNode:
 
 	var is_root: bool
 	var is_press_input: bool
-	var allow_negative_edge: bool
-	var sequence_name: String
-	var sequence_path: SequencePath
-	var input: String
+	var is_negative_edge_enabled: bool
+	var sequence_name: StringName
+	var sequence_path: FraySequencePath
+	var input: StringName
 
-	## Type: InputNode[]
-	var _next_nodes: Array
+	var _next_nodes: Array[_InputNode]
 
 	func _to_string() -> String:
 		if is_root:
@@ -300,9 +297,9 @@ class _InputNode:
 		return string
 
 
-	func is_next_accepting_release(input: String) -> bool:
+	func is_next_accepting_release(input: StringName) -> bool:
 		for node in _next_nodes:
-			if node.input == input and not node.sequence_name.empty() and (not node.is_press_input or node.allow_negative_edge):
+			if node.input == input and not node.sequence_name.is_empty() and (not node.is_press_input or node.is_negative_edge_enabled):
 				return true
 		return false		
 
@@ -313,9 +310,9 @@ class _InputNode:
 		_next_nodes.append(node)
 
 
-	func get_next(next_input: String, is_pressed: bool) -> _InputNode:
+	func get_next(next_input: StringName, is_pressed: bool) -> _InputNode:
 		for node in _next_nodes:
-			if node.input == next_input and (node.is_press_input == is_pressed or node.allow_negative_edge):
+			if node.input == next_input and (node.is_press_input == is_pressed or node.is_negative_edge_enabled):
 				return node
 		return null
 
@@ -324,7 +321,7 @@ class _InputNode:
 		return _next_nodes[index]
 
 
-	func has_next(input: String, released: bool) -> bool:
+	func has_next(input: StringName, released: bool) -> bool:
 		return get_next(input, released) != null
 	
 

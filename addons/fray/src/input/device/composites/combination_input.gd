@@ -29,11 +29,11 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	# Returns all components decomposed and joined
-	var binds: PackedStringArray
+	var binds: Array[StringName]
 	for component in _components:
-		binds += component.decompose(device, input_interface)
+		binds.append_array(component.decompose(device, input_interface))
 	return binds
 
 ## Returns a builder instance
@@ -91,17 +91,21 @@ func _is_combination_in_order(device: int, input_interface: FrayInputInterface, 
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 
-	func _init() -> void:
-		_composite_input = FrayCombinationInput.new()
-		pass
+	var _composite_input = FrayCombinationInput.new()
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FrayCombinationInput:
+		return _composite_input
 
 	## Adds a composite input as a component of this combination
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(component_builder: CompositeBuilder) -> Builder:
-		_builders.append(component_builder)
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		_composite_input.add_component(composite_input)
 		return self
 
 	## Sets whether the input will be virtual or not

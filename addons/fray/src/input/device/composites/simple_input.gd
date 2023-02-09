@@ -18,20 +18,25 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 static func builder() -> Builder:
 	return Builder.new()
 
-## Returns a builder instance that uses the given [kbd]bind[/kbd].
-static func from_bind(bind: StringName) -> Builder:
-	return builder().bind(bind)
+## Returns a simple input using the given [kbd]bind[/kbd].
+static func from_bind(bind: StringName) -> FraySimpleInput:
+	return builder().bind(bind).build()
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
-	return PackedStringArray([bind])
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+	return [bind]
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 	
-	func _init() -> void:
-		_composite_input = FraySimpleInput.new()
+	var _composite_input = FraySimpleInput.new()
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FraySimpleInput:
+		return _composite_input
 
 	## Adds a bind to this simple input
 	##
@@ -53,7 +58,3 @@ class Builder:
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self
-
-
-	func _build_impl() -> FrayCompositeInput:
-		return _composite_input

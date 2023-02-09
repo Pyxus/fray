@@ -1,52 +1,51 @@
 class_name FrayInputEvent
 extends RefCounted
 ## Base class for inputs detected by the FrayInput singleton.
-##
-## @desc:
-## 		Conceptually similiar to a godot's built-in InputEvent.
 
 ## Time in miliseconds that the input was initially pressed
-var time_pressed: int
+var time_pressed: int = 0
 
 ## Time in miliseconds that the input was detected. This is recorded when the signal is emitted
-var time_detected: int
+var time_detected: int = 0
 
 ## The physics frame when the input was first pressed
-var physics_frame: int
+var physics_frame: int = 0
 
 ## The idle frame when the input was first pressed
-var process_frame: int
+var process_frame: int = 0
 
-## Returns true if the input has already been detected
-var is_echo: bool
+## If [code]true[/code], the input has already been detected
+var is_echo: bool = false
 
-## If true, the input is being pressed. If false, it is released
-var is_pressed: bool
+## If [code]true[/code], the input is being pressed. If false, it is released
+var is_pressed: bool = false
 
-## The devices' ID
-var device: int
+## The ID of the device that caused this event
+var device: int = 0
 
 ## The input's name
-var input: String
+var input: StringName = ""
 
-## If true, this event was triggered by a virtual press.
-var is_virtually_pressed: bool
+## If [code]true[/code], this event was triggered by a virtual press.
+var is_virtually_pressed: bool = false
 
-## If true, this input occured before any other overlapping inputs.
-var is_distinct: bool
+## If [code]true[/code], this input is considered to have occured before any other overlapping inputs.
+## If multiple composite inputs which share binds are overlapping then try increasing 
+## the more complex input's [member FrayCompositeInput.priority].
+var is_distinct: bool = false
 
 func _to_string() -> String:
 	return "{input:%s, pressed:%s, device:%d}" % [input, is_pressed, device]
 
 ## Returns the time between two input events in miliseconds.
-func get_time_between_ms(fray_input_event: RefCounted, use_time_pressed: bool = false) -> int:
+func get_time_between_msec(fray_input_event: RefCounted, use_time_pressed: bool = false) -> int:
 	var t1: int = fray_input_event.time_pressed if use_time_pressed else fray_input_event.time_detected
 	var t2: int = time_pressed if use_time_pressed else time_detected
 	return int(abs(t1 - t2))
 
 ## Returns the time between two input events in seconds
 func get_time_between_sec(fray_input_event: RefCounted, use_time_pressed: bool = false) -> float:
-	return get_time_between_ms(fray_input_event, use_time_pressed) / 1000.0
+	return get_time_between_msec(fray_input_event, use_time_pressed) / 1000.0
 
 ## returns how long this input was held in miliseconds
 func get_time_held_ms() -> int:

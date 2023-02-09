@@ -1,18 +1,17 @@
 class_name FrayVirtualDevice
 extends RefCounted
-## Manually controlled virtual device
+## Manually controlled device.
 ##
-## @desc:
-## 		A virtual device's whos inputs must be manually controlled through code.
+## A device's whos inputs must be manually controlled through code.
 
+## Emitted when this virtual device request a disconnect
 signal disconnect_requested()
 
-const DeviceState = preload("device_state.gd")
 
-var _device_state: DeviceState
+var _device_state: FrayDeviceState
 var _id: int
 
-func _init(device_state: DeviceState, id: int):
+func _init(device_state: FrayDeviceState, id: int):
 	_device_state = device_state
 	_id = id
 
@@ -21,7 +20,7 @@ func _notification(what: int) -> void:
 		unplug()
 
 ## presses given input on virtual device
-func press(input: String, press_strength: float = 1.0) -> void:
+func press(input: StringName, press_strength: float = 1.0) -> void:
 	match _device_state.get_input_state(input):
 		var input_state:
 			input_state.strength = press_strength
@@ -32,7 +31,7 @@ func press(input: String, press_strength: float = 1.0) -> void:
 	pass
 
 ## Unpresses given input on virtual device
-func unpress(input: String) -> void:
+func unpress(input: StringName) -> void:
 	match _device_state.get_input_state(input):
 		var input_state:
 			input_state.unpress()

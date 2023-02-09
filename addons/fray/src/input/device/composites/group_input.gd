@@ -21,29 +21,34 @@ static func builder() -> Builder:
 
 func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	var press_count := 0
-	var _last_inputs := PackedStringArray()
+	var last_inputs: Array[StringName] = []
 	
 	for component in _components:
 		if component.is_pressed(device, input_interface):
-			_last_inputs += component.decompose(device, input_interface)
+			last_inputs.append_array(component.decompose(device, input_interface))
 			press_count += 1
 
 			if press_count >= min(min_pressed, _components.size()):
-				_last_inputs_by_device[device] = _last_inputs
+				_last_inputs_by_device[device] = last_inputs
 				return true
 
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> PackedStringArray:
-	return _last_inputs_by_device[device] if _last_inputs_by_device.has(device) else PackedStringArray()
+func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+	return _last_inputs_by_device[device] if _last_inputs_by_device.has(device) else []
 
 
 class Builder:
-	extends CompositeBuilder
+	extends RefCounted
 	
-	func _init() -> void:
-		_composite_input = FrayGroupInput.new()
+	var _composite_input = FrayGroupInput.new()
+
+	## Builds the composite input
+	##
+	## Returns a reference to the newly built CompositeInput
+	func build() -> FrayGroupInput:
+		return _composite_input
 
 	## Sets the minimum number of components that must be pressed.
 	##
@@ -55,8 +60,8 @@ class Builder:
 	## Adds a composite input as a component of this combination
 	##
 	## Returns a reference to this ComponentBuilder
-	func add_component(component_builder: CompositeBuilder) -> Builder:
-		_builders.append(component_builder)
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		_composite_input.add_component(composite_input)
 		return self
 
 	## Sets whether the input will be virtual or not

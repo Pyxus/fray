@@ -2,21 +2,20 @@ class_name FraySequenceList
 extends Resource
 ## Contains a list of input sequencs
 ##
-## List of sequences used by the SequenceAnalyzer.
 ## A sequence is a name associated with one or more sequence paths.
 
 const SequencePath = preload("sequence_path.gd")
 
-# Type: Dictionary<String, Sequence[]>
+# Type: Dictionary<StringName, Sequence[]>
 # Hint: <sequence name, sub sequence array>
 var _sequence_path_by_name: Dictionary
 
-## Adds a sequence to list under a given name.[br][br]
-## 
+## Adds a sequence to list under a given name.
+## [br][br]
 ## [kbd]sequence_name[/kbd] is the name of the sequence, a name can be associated with many sequence paths.
 ## A sequence can have many paths which allows support for 'lenient inputs'.
-## These are inputs that do not exactly match the intended sequence.[br][br]
-##
+## These are inputs that do not exactly match the intended sequence.
+## [br][br]
 ## [kbd]sequence_path[/kbd] is a collection of input requirements that define a path.
 func add(sequence_name: StringName, sequence_path: SequencePath) -> void:
 	if not _sequence_path_by_name.has(sequence_name):

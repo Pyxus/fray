@@ -1,32 +1,31 @@
+class_name FrayStateMachineTransition
 extends RefCounted
-## Represents transition from one state to another
+## Represents transition from one state to another.
 
 enum SwitchMode{
-	IMMEDIATE,
-	AT_END,
+	IMMEDIATE, ## Switch to the next state immediately.
+	AT_END, ## Wait for the current state to end, then switch to the beginning of the next state.
 }
 
-## If 'auto_advance' is enabled then transition will occur automatically when all advance conditions are true.
-## Type: Condition[]
-var advance_conditions: Array
+## If [member auto_advance] is enabled then the transition will occur automatically when all advance conditions are true.
+var advance_conditions: Array[FrayCondition]
 
 ## Prevents transition from occuring unless all prerequisite conditions are true.
-## Type: Condition[]
-var prereqs: Array
+var prereqs: Array[FrayCondition]
 
-## If true then the transition can advance automatically
-var auto_advance: bool
+## If true then the transition can advance automatically.
+var auto_advance: bool = false
 
-## Lower priority transitions are be preffered when determining next transitions
-var priority: int
+## Lower priority transitions are be preffered when determining next transitions.
+var priority: int = 0
 
-## The transition type
-var switch_mode: int = SwitchMode.IMMEDIATE
+## The transition type.
+var switch_mode: SwitchMode = SwitchMode.IMMEDIATE
 
-## Returns true if the transition accepts the given input
+## Returns true if the transition accepts the given input.
 func accepts(input: Dictionary) -> bool:
 	return _accepts_impl(input)
 
-## Virtual method used to implement `accepts`
+## [code]Virtual method[/code] used to implement [method accepts] method.
 func _accepts_impl(input: Dictionary) -> bool:
 	return true

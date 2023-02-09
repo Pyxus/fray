@@ -48,7 +48,7 @@ func add_bind_input(name: StringName, input_bind: FrayInputBind) -> void:
 	_input_bind_by_name[name] = input_bind
 
 ## Binds action input.
-func add_bind_action(name: StringName, action: String) -> void:
+func add_bind_action(name: StringName, action: StringName) -> void:
 	var bind := FrayInputBindAction.new()
 	bind.action = action
 	
@@ -107,9 +107,11 @@ func remove_input(name: StringName) -> void:
 func has_bind(bind_name: StringName) -> bool:
 	return _input_bind_by_name.has(bind_name)
 
-## Returns an arry of all input bind names.
-func get_bind_names() -> PackedStringArray:
-	return PackedStringArray(_input_bind_by_name.keys())
+## Returns an array of all input bind names.
+func get_bind_names() -> Array[StringName]:
+	var names: Array[StringName]
+	names.assign(_input_bind_by_name.keys())
+	return names
 
 ## Retruns input bind with given name if it exists.
 func get_bind(bind_name: StringName) -> FrayInputBind:
@@ -122,8 +124,8 @@ func has_composite_input(input_name: StringName) -> bool:
 	return _composite_input_by_name.has(input_name)
 
 ## Returns an array of all composite input names.
-func get_composite_input_names() -> PackedStringArray:
-	return PackedStringArray(_composites_sorted_by_priority)
+func get_composite_input_names() -> Array[StringName]:
+	return _composites_sorted_by_priority
 
 ## Returns composite input with given name if it exists.
 func get_composite_input(input_name: StringName) -> FrayCompositeInput:

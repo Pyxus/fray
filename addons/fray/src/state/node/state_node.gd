@@ -1,51 +1,52 @@
+class_name FrayStateNode
 extends RefCounted
 ## Base state node class
 
-## Type: WeakRef<StateNodeBase>
+# Type: WeakRef<StateNode>
 var _parent_ref: WeakRef
 
-## Type: Dictionary<String, bool>
-## Hint: <condition name, condition status>
+# Type: Dictionary<StringName, bool>
+# Hint: <condition name, condition status>
 var _conditions: Dictionary
 
-## Type: Dictionary<String, int>
-## Hint: <condition name, usage count>
+# Type: Dictionary<StringName, int>
+# Hint: <condition name, usage count>
 var _condition_usage_count: Dictionary
 
-## Returns true if state has condition with given name.
-func has_condition(name: String) -> bool:
-	return _conditions.has(name)
+## Returns [code]true[/code] if state has the given [kbd]condition[/kbd].
+func has_condition(condition: StringName) -> bool:
+	return _conditions.has(condition)
 
-## Returns the status of a condition in this node if it exists.
-func check_condition(name: String) -> bool:
-	if not has_condition(name):
-		push_warning("Failed to check condition. Condition with name '%s' does not exist" % name)
+## Returns the value of a [kbd]condition[/kbd] if it exists.
+func is_condition_true(condition: StringName) -> bool:
+	if not has_condition(condition):
+		push_warning("Failed to check condition. Condition with name '%s' does not exist" % condition)
 		return false
 
-	return _conditions[name]
+	return _conditions[condition]
 
-## Sets the value of a condition if it exists.
-func set_condition(name: String, value: bool) -> void:
-	if not has_condition(name):
+## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
+func set_condition(condition: StringName, value: bool) -> void:
+	if not has_condition(condition):
 		push_warning("Condition '%s' does not exist")
 		return
 	
-	_conditions[name] = value
+	_conditions[condition] = value
 
-## Returns true if this node is child of another node.
+## Returns [code]true[/code] if this node is child of another node.
 func has_parent() -> bool:
 	return _parent_ref != null
 
 ## Returns the parent of this node if it exists.
-func get_parent() -> RefCounted:
+func get_parent() -> FrayStateNode:
 	return _parent_ref.get_ref() if has_parent() else null
 
-## Returns true if the node is considered to be done processing
+## Returns [code]true[/code] if the node is considered to be done processing.
 func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
-## `conditions: Condition[]`
-func _add_conditions(conditions: Array) -> void:
+
+func _add_conditions(conditions: Array[FrayCondition]) -> void:
 	for condition in conditions:
 		if not has_condition(condition.name):
 			_condition_usage_count[condition.name] = 1
@@ -53,8 +54,8 @@ func _add_conditions(conditions: Array) -> void:
 		else:
 			_condition_usage_count[condition.name] += 1
 
-## `conditions: Condition[]`
-func _remove_conditions(conditions: Array) -> void:
+
+func _remove_conditions(conditions: Array[FrayCondition]) -> void:
 	for condition in conditions:
 		_condition_usage_count[condition.name] -= 1
 
@@ -62,24 +63,25 @@ func _remove_conditions(conditions: Array) -> void:
 			_conditions.erase(condition.name)
 			_condition_usage_count.erase(condition.name)
 
-## Virtual method used to implement `is_done_processing()`
+## [code]Virtual method[/code] used to implement [method is_done_processing].
 func _is_done_processing_impl() -> bool:
 	return true
 
-## Virtual method invoked when the node is first entered
-##
-## `args` is user-defined data which is passed to the advanced node on enter. 
+## [code]Virtual method[/code] invoked when the node is first entered.
+## [br]
+## [kbd]args[/kbd] is user-defined data which is passed to the advanced node on enter. 
 func _enter_impl(args: Dictionary) -> void:
 	pass
 
-## Virtual method invoked when the node is being processed
+## [code]Virtual method[/code] invoked when the node is being processed.
 func _process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the node is being physics processed
+
+## [code]Virtual method[/code] invoked when the node is being physics processed.
 func _physics_process_impl(_delta: float) -> void:
 	pass
 
-## Virtual method invoked when the node is existed
+## [code]Virtual method[/code] invoked when the node is existed.
 func _exit_impl() -> void:
 	pass
