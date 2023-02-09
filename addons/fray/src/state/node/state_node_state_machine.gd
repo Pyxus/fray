@@ -11,19 +11,19 @@ signal transitioned(from: StringName, to: StringName)
 const _AStarGraph = preload("a_star_graph.gd")
 
 ## The state machine's staring node.
-var start_node: StringName:
+var start_node: StringName = "":
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		start_node = node
 
 ## The state machine's end node.
-var end_node: StringName:
+var end_node: StringName = "":
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		end_node = node
 
 ## The state machine's current node.
-var current_node: StringName:
+var current_node: StringName = "":
 	set(node):
 		if _ERR_INVALID_NODE(node): return
 		goto(node)

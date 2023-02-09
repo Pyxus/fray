@@ -9,10 +9,10 @@ extends Node
 ## It is also possible to hand the controller off to an AI by using virtual devices.
 
 ## The ID of the device to check for
-@export var device: int
+@export var device: int = _FrayInput.DEVICE_KBM_JOY1
 
 ## If [code]true[/code] then all input checks will return false.
-@export var disabled: bool
+@export var disabled: bool = false
 
 @onready var _fray_input: Node = get_node("/root/FrayInput")
 

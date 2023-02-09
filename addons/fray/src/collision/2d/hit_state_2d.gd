@@ -2,7 +2,6 @@
 @icon("res://addons/fray/assets/icons/hit_state_2d.svg")
 class_name FrayHitState2D 
 extends Node2D
-
 ## Node used to contain and manage [FrayHitbox2D]s
 ## 
 ## This node allows you to manage multiple hitboxes from a single access point.
@@ -27,7 +26,7 @@ signal active_hitboxes_changed()
 ## This is a convinience that allows you to set the hitbox source from the inspector.
 ## However, this property only allows nodes to be used as sources.
 ## Any object can be used by calling [member set_hitbox_source].
-var source: Node:
+var source: Node = null:
 	set(value):
 		source = value
 		set_hitbox_source(value)
@@ -48,6 +47,9 @@ var active_hitboxes: int = 0:
 
 		active_hitboxes_changed.emit()
 
+## Returns [code]true[/code] if this state is active.
+## [br]
+## [b]Note:[/b] This property is readonly!
 var is_active: bool:
 	get: return _is_active
 	set(value):

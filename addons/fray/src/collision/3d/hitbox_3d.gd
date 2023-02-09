@@ -2,7 +2,6 @@
 @icon("res://addons/fray/assets/icons/hitbox_3d.svg")
 class_name FrayHitbox3D
 extends Area3D
-
 ## 3D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.

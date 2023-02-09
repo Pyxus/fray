@@ -2,7 +2,6 @@
 @icon("res://addons/fray/assets/icons/hit_state_manager_2d.svg")
 class_name FrayHitStateManager2D
 extends Node2D
-
 ## Node used to enforce discrete hit states.
 ## 
 ## This node only allows one hit state child to be active at a time.
@@ -24,7 +23,7 @@ signal hitbox_seperated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitb
 ## This is a convinience that allows you to set the hitbox source from the inspector.
 ## However, this property only allows nodes to be used as sources.
 ## Any object can be used by calling [member set_hitbox_source].
-@export var source: Node:
+@export var source: Node = null:
 	set(value):
 		source = value
 		

@@ -2,7 +2,6 @@
 @icon("res://addons/fray/assets/icons/hitbox_2d.svg")
 class_name FrayHitbox2D 
 extends Area2D
-
 ## 2D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.
@@ -18,7 +17,7 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 @export var detect_source_hitboxes: bool = false
 
 ## The [FrayHitboxAttributes] assigned to this hitbox
-@export var attributes: FrayHitboxAttributes:
+@export var attributes: FrayHitboxAttributes = null:
 	set(value):
 		attributes = value
 		

@@ -5,7 +5,7 @@ extends Node
 ## Allows the creation and use of input buffers and windows.
 
 ## The ID of the device to check for## 
-@export var device: int
+@export var device: int = _FrayInput.DEVICE_KBM_JOY1
 
 # Type: Dictionary<StringName, _InputWindow>
 var _window_by_input: Dictionary

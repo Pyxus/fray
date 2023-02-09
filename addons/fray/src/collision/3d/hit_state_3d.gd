@@ -2,7 +2,6 @@
 @icon("res://addons/fray/assets/icons/hit_state_3d.svg")
 class_name FrayHitState3D 
 extends Node3D
-
 ## Node used to contain and manage [FrayHitbox3D]s
 ## 
 ## This node allows you to manage multiple hitboxes from a single access point.
@@ -27,7 +26,7 @@ signal active_hitboxes_changed()
 ## This is a convinience that allows you to set the hitbox source from the inspector.
 ## However, this property only allows nodes to be used as sources.
 ## Any object can be used by calling [member set_hitbox_source].
-var source: Node:
+var source: Node = null:
 	set(value):
 		source = value
 		set_hitbox_source(value)

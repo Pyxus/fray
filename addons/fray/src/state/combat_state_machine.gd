@@ -5,26 +5,27 @@ extends FrayStateMachine
 ## Combat state machine
 ##
 ## A state machine which can contain and switch between multiple situations.
-## A situation is a `StateNodeStateMachineGlobal` that represents the set of actions avilable to a combatant.
+## A situation is a [FrayStateNodeStateMachineGlobal] that represents the set of actions avilable to a combatant.
 ## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ## from when they're in the air.
- 
-## When adding situations it is recommended to build the state node using the `CombatSituationBuilder`.
+## [br]
+## When adding situations it is recommended to build the state node using the [FrayCombatSiutationBuilder].
+## [br][br]
 ## Example:
-## [code]
+## [codeblock]
 ## var builder := Fray.State.CombatSituationBuilder.new()
-## combat_sm.add_situation("on_ground", builder\
-## 	.transition_button("idle", "punch1", "square")\
-## 	.transition_button("punch1", "punch2", "square", {prereqs = [Fray.State.Condition.new("on_hit")]})
+## combat_sm.add_situation("on_ground", builder
+## 	.transition_button("idle", "punch1", "square")
+## 	.transition_button("punch1", "punch2", "square", {prereqs = [FrayCondition.new("on_hit")]})
 ## 	.build()
 ## 	)
-##  [/code]
+##  [/codeblock]
 
 ## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
 ## This can be used to control when a player is allowed to 'cancel' an attack.
-@export var allow_transitions: bool
+@export var allow_transitions: bool = false
 
 ## The max time a detected input can exist in the buffer before it is ignored in milliseconds.
 @export var input_max_buffer_time_ms: int = 1000:
@@ -56,8 +57,8 @@ var current_situation: StringName:
 
 var _input_buffer: Array[BufferedInput]
 
-## Type: Dictionary<StringName, StateNodeStateMachineGlobal>
-## Hint: <situation name, >
+# Type: Dictionary<StringName, StateNodeStateMachineGlobal>
+# Hint: <situation name, >
 var _situations: Dictionary
 
 var _time_since_last_input_ms: float
@@ -84,6 +85,7 @@ func set_root(value: FrayStateNodeStateMachine) -> void:
 	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
 
 ## Returns the current situation to its start state.
+## [br]
 ## Shorthand for root.goto_start()
 func goto_start_state() -> void:
 	if root != null:
@@ -128,25 +130,19 @@ func set_input_max_buffer_time(value: int) -> void:
 	notify_property_list_changed()
 	
 
-## Setter for 'input_max_buffer_time_ms' property
-func set_input_max_buffer_time_ms(value: int) -> void:
-	input_max_buffer_time_ms = value
-	input_max_buffer_time_frames = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
-	notify_property_list_changed()
-
 ## Buffers an input button to be processed by the state machine
 ##
-## `input` is the name of the input.
+## [kbd]input[/kbd] is the name of the input.
 ## This is just an identifier used in input transitions.
 ## It is not default associated with any actions in godot or inputs in fray.
 ##
-## If `is_pressed` is true then a pressed input is buffered, else a released input is buffered.
+## If [kbd]is_presse[/kbd] is true then a pressed input is buffered, else a released input is buffered.
 func buffer_button(input: StringName, is_pressed: bool = true) -> void:
 	_input_buffer.append(BufferedInputButton.new(Time.get_ticks_msec(), input, is_pressed))
 
 ## Buffers an input sequence to be processed by the state machine
 #
-## `sequence_name` is the name of the sequence.
+## [kbd]sequence_name[/kbd] is the name of the sequence.
 ## This is just an identifier used in input transitions.
 ## It is not default associated with any actions in godot or inputs in fray.
 func buffer_sequence(sequence_name: StringName) -> void:
@@ -171,6 +167,7 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 			time_since_last_input = time_since_last_input,
 		})
 	return ""
+
 
 class BufferedInput:
 	extends RefCounted

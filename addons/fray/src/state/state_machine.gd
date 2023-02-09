@@ -13,11 +13,15 @@ enum AdvanceMode{
 @export var advance_mode: AdvanceMode = AdvanceMode.PROCESS
 
 ## If true the combat state machine will be processing.
-@export var active: bool
+@export var active: bool = false
 
 ## The root state machine node.
 var root: FrayStateNodeStateMachine:
-	set = set_root
+	set = set_root 
+	# Note: I did this soley to make it possible to add a
+	# warning when you try to set the root of combat state machine.
+	# I think instead users should should just need to construct a 
+	# situation state machine that they provide as the root.
 
 
 func _process(delta: float) -> void:

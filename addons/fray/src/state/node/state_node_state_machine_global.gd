@@ -6,7 +6,7 @@ extends FrayStateNodeStateMachine
 ## Nodes within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
 ## Nodes with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
 ## A state is considered global if it is used as the 'to' state in a global transition.
-##
+## [br]
 ## This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
 ## For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
