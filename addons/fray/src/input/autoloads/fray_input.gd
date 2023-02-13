@@ -18,7 +18,7 @@ var _device_state_by_id: Dictionary
 
 var _last_physics_frame: int
 
-@onready var _input_map: FrayInputMap = get_node("../FrayInputMap")
+@onready var _input_map: _FrayInputMap = get_node("../FrayInputMap")
 @onready var _input_interface := FrayInputInterface.new(weakref(self))
 
 

@@ -21,3 +21,4 @@ mono_crash.*.json
 /test
 project.godot
 /default_env.tres
+.vscode/
