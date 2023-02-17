@@ -28,19 +28,7 @@ extends FrayStateMachine
 @export var allow_transitions: bool = false
 
 ## The max time a detected input can exist in the buffer before it is ignored in milliseconds.
-@export var input_max_buffer_time_ms: int = 1000:
-	set(value):
-		input_max_buffer_time_ms = value
-		input_max_buffer_time_frames = ceil((Engine.physics_ticks_per_second * input_max_buffer_time_ms) / 1000.0)
-		notify_property_list_changed()
-
-## The max time a detected input can exist in the buffer before it is ignored in frames.
-## Here a frame is defined as '1 / physics_fps'
-@export var input_max_buffer_time_frames: int = 5:
-	set(value):
-		input_max_buffer_time_frames = value
-		input_max_buffer_time_ms = floor((input_max_buffer_time_frames / float(Engine.physics_ticks_per_second)) * 1000)
-		notify_property_list_changed()
+@export var input_max_buffer_time_ms: int = 1000
 
 ## Name of the state machine's surrent situation
 var current_situation: StringName:
@@ -123,12 +111,6 @@ func get_situation(situation_name: StringName) -> FrayStateNodeStateMachineGloba
 func has_situation(situation_name: StringName) -> bool:
 	return _situations.has(situation_name)
 
-## Setter for 'input_max_buffer_time_frames' property
-func set_input_max_buffer_time(value: int) -> void:
-	input_max_buffer_time_frames = value
-	input_max_buffer_time_ms = floor((input_max_buffer_time_frames / float(Engine.physics_ticks_per_second)) * 1000)
-	notify_property_list_changed()
-	
 
 ## Buffers an input button to be processed by the state machine
 ##
