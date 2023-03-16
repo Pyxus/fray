@@ -2,6 +2,11 @@
 class_name FrayStateMachine
 extends Node
 ## Base Hierarchical State Machine
+##
+## This class wraps around the [FrayStateNodeStateMachine] and uses the [SceneTree] to
+## process the state node.
+## [br]
+## The [method _get_root_impl] abstract method must be implemented in order to determine the root of this node.
 
 enum AdvanceMode{
 	PROCESS, ## Advance during the physics process
@@ -15,18 +20,10 @@ enum AdvanceMode{
 ## If true the combat state machine will be processing.
 @export var active: bool = false
 
-## The root state machine node.
-var root: FrayStateNodeStateMachine:
-	set = set_root 
-	# Note: I did this soley to make it possible to add a
-	# warning when you try to set the root of combat state machine.
-	# I think instead users should should just need to construct a 
-	# situation state machine that they provide as the root.
-
 
 func _process(delta: float) -> void:
 	if _can_process():
-		root.process(delta)
+		get_root().process(delta)
 		
 		if advance_mode == AdvanceMode.PROCESS:
 			advance()
@@ -34,7 +31,7 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _can_process():
-		root.physics_process(delta)
+		get_root().physics_process(delta)
 
 		if advance_mode == AdvanceMode.PHYSICS:
 			advance()
@@ -45,18 +42,25 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 		_advance_impl()
 		
 
-## Setter for [member root] property.
-func set_root(value: FrayStateNodeStateMachine) -> void:
-	root = value
+func get_root() -> FrayStateNodeStateMachine:
+	return _get_root_impl()
 
 
 func _can_process() -> bool:
-	return root != null and active
+	return get_root() != null and active
 
-## [code]Virtual method[/code] used to implement [method advance] method
+## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if root.current_node.is_empty():
+	if get_root().current_node.is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	
-	root.advance(input, args)
+	get_root().advance(input, args)
+
+## [code]Abstract method[/code] used to implement [method get_root] method.
+## [br]
+## The return value of this method is used to determine what this state machine's
+## current root node is.
+func _get_root_impl() -> FrayStateNodeStateMachine:
+	assert(false, "Method not implemented")
+	return null

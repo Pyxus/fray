@@ -39,17 +39,20 @@ var current_situation: StringName:
 		
 		if situation_name != current_situation:
 			current_situation = situation_name
-			root = get_situation(situation_name)
-			root.goto_start()
-		
-
-var _input_buffer: Array[BufferedInput]
+			_root = get_situation(situation_name)
+			_root.goto_start()
 
 # Type: Dictionary<StringName, StateNodeStateMachineGlobal>
 # Hint: <situation name, >
 var _situations: Dictionary
 
+var _root: FrayStateNodeStateMachine
+var _input_buffer: Array[BufferedInput]
 var _time_since_last_input_ms: float
+
+
+func _get_root_impl() -> FrayStateNodeStateMachine:
+	return _root
 
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
@@ -63,21 +66,17 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		var next_state := _get_next_state(buffered_input, time_since_last_input)
 		
 		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_ms:
-			root.goto(next_state)
+			_root.goto(next_state)
 			_time_since_last_input_ms = current_time
 			break
 
 
-func set_root(value: FrayStateNodeStateMachine) -> void:
-	super(value)
-	push_warning("The CombatStateMachine changes the root internally based on the current situation. You should not need to set it directly.")
-
 ## Returns the current situation to its start state.
 ## [br]
-## Shorthand for root.goto_start()
+## Shorthand for _root.goto_start()
 func goto_start_state() -> void:
-	if root != null:
-		root.goto_start()
+	if _root != null:
+		_root.goto_start()
 
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: StringName, node: FrayStateNodeStateMachineGlobal) -> void:
@@ -98,8 +97,8 @@ func change_situation(situation_name: StringName) -> void:
 	
 	if situation_name != current_situation:
 		current_situation = situation_name
-		root = get_situation(situation_name)
-		root.goto_start()
+		_root = get_situation(situation_name)
+		_root.goto_start()
 
 ## Returns a situation with the given name if it exists.
 func get_situation(situation_name: StringName) -> FrayStateNodeStateMachineGlobal:
@@ -137,14 +136,14 @@ func clear_buffer() -> void:
 
 func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> StringName:
 	if buffered_input is BufferedInputButton:
-		return root.get_next_node({
+		return _root.get_next_node({
 			input = buffered_input.input,
 			input_is_pressed = buffered_input.is_pressed,
 			time_since_last_input = time_since_last_input,
 			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp) / 1000.0
 		})
 	elif buffered_input is BufferedInputSequence:
-		return root.get_next_node({
+		return _root.get_next_node({
 			sequence = buffered_input.sequence,
 			time_since_last_input = time_since_last_input,
 		})
