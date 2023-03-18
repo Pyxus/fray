@@ -1,6 +1,6 @@
 class_name Fray
 extends Object
-## A list of static helper functions and constants
+## A collection of static helper functions and constants
 
 ## Converts time in [kbd]frames[/kbd] to time in milliseconds.
 ## [br]
