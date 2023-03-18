@@ -3,7 +3,7 @@ extends FrayState
 ## Root state
 ##
 ## Contains multiple [FrayState]s connected through [FrayStateMachineTransition]s.
-## It is recommended to construct this state machine with a [FratRootState.Builder].
+## It is recommended to construct this state machine with a [FrayRootState.Builder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
 ## States within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.

@@ -5,7 +5,7 @@ extends FrayStateMachine
 ## Combat state machine
 ##
 ## A state machine which can contain and switch between multiple situations based on buffered inputs.
-## A situation is a [FraySituationState] which represents the set of actions avilable to a combatant.
+## A situation is a [FrayRootState] which represents the set of actions avilable to a combatant.
 ## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ## from when they're in the air.
 ## [br]
