@@ -793,4 +793,3 @@ class Builder:
 		_transition_rules.clear()
 		_tags_by_state.clear()
 		_global_transitions.clear()
-
