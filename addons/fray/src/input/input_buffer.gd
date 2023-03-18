@@ -1,8 +1,10 @@
 class_name FrayInputBuffer
 extends Node
-## Experimental input buffer node
+## [EXPERIMENTAL] input buffer node
 ##
 ## Allows the creation and use of input buffers and windows.
+## [br]
+## [color=yellow][b]Warning:[/b][/color] This node is still experimental and subject to change.
 
 ## The ID of the device to check for## 
 @export var device: int = _FrayInput.DEVICE_KBM_JOY1
