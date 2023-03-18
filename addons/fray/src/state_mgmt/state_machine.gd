@@ -1,12 +1,13 @@
 @icon("res://addons/fray/assets/icons/state_machine.svg")
 class_name FrayStateMachine
 extends Node
-## Base Hierarchical State Machine
+## Abstract Base Hierarchical State Machine
 ##
-## This class wraps around the [FrayStateNodeStateMachine] and uses the [SceneTree] to
+## This class wraps around the [FrayStateRoot] and uses the [SceneTree] to
 ## process the state node.
 ## [br]
-## The [method _get_root_impl] abstract method must be implemented in order to determine the root of this node.
+## The [method _get_root_impl] abstract method must be implemented in order to 
+## determine the root state of this node.
 
 enum AdvanceMode{
 	PROCESS, ## Advance during the physics process
@@ -42,7 +43,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 		_advance_impl()
 		
 
-func get_root() -> FrayStateNodeStateMachine:
+func get_root() -> FrayRootState:
 	return _get_root_impl()
 
 
@@ -61,6 +62,6 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
 ## [br]
 ## The return value of this method is used to determine what this state machine's
 ## current root node is.
-func _get_root_impl() -> FrayStateNodeStateMachine:
+func _get_root_impl() -> FrayRootState:
 	assert(false, "Method not implemented")
 	return null

@@ -1,10 +1,11 @@
+class_name FraySimpleStateMachine
 extends FrayStateMachine
-## Basic implementation of state machine
+## Basic implementation of [FrayStateMachine]
 ##
-## Contains a root propety, which can be updated to set  the root state node. Once the root state node is set, the state machine
+## Contains a root propety, which can be updated to set  the root state. Once the root state is set, the state machine
 ## can begin processing state transitions.
 
-var root: FrayStateNodeStateMachine
+var root: FrayRootState
 
-func _get_root_impl() -> FrayStateNodeStateMachine:
+func _get_root_impl() -> FrayRootState:
 	return root

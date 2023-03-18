@@ -1,6 +1,6 @@
-class_name FrayStateMachineBuilder
+class_name FrayRootStateBuilder
 extends RefCounted
-## State machine builder
+## Root state builder
 ##
 ## The state machine builder can be used to create state machines programatically.
 ## The builder supports using optional method chaining for the construction.
@@ -24,8 +24,16 @@ var enable_condition_caching: bool = true
 # Hint: <state name, >
 var _state_by_name: Dictionary
 
+# Type: Dictionary<StringName, StringName[]>
+# Hint: <from tag, to tags>
+var _transition_rules: Dictionary
+
+# Type: Dictionary<StringName, StringName[]>
+var _tags_by_state: Dictionary
+
+var _global_transitions: Array[FrayInputTransition]
 var _condition_cache: Array[FrayCondition]
-var _transitions: Array[Transition]
+var _transitions: Array[FrayRootState.Transition]
 var _start_state: StringName
 var _end_state: StringName
 
@@ -34,7 +42,7 @@ var _end_state: StringName
 ## Constructs a state machine using the current build configuration.
 ## After building the builder is reset and can be used again. 
 ## Keep in mind that the condition cache does not reset autoatmically.
-func build() -> FrayStateNodeStateMachine:
+func build() -> FrayRootState:
 	return _build_impl()
 
 ## Adds a new state to the state machine.
@@ -45,7 +53,7 @@ func build() -> FrayStateNodeStateMachine:
 ## States are added automatically when making transitions.
 ## So unless you need to provide a specific state object,
 ## calling this method is unncessary.
-func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachineBuilder:
+func add_state(name: StringName, state := FrayState.new()) -> FrayRootStateBuilder:
 	if name.is_empty():
 		push_error("State name can not be empty")
 	else:
@@ -58,7 +66,7 @@ func add_state(name: StringName, state := FrayStateNode.new()) -> FrayStateMachi
 ## Returns a reference to this builder
 ## [br][br]
 ## [kbd]config[/kbd] is an optional dictionary used to configure [FrayStateMachineTransition] properties.
-func transition(from: StringName, to: StringName, config: Dictionary = {}) -> FrayStateMachineBuilder:
+func transition(from: StringName, to: StringName, config: Dictionary = {}) -> FrayRootStateBuilder:
 	var tr := _create_transition(from, to, FrayStateMachineTransition.new())
 	_configure_transition(tr.transition, config)
 	return self
@@ -67,7 +75,7 @@ func transition(from: StringName, to: StringName, config: Dictionary = {}) -> Fr
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func start_at(state: StringName) -> FrayStateMachineBuilder:
+func start_at(state: StringName) -> FrayRootStateBuilder:
 	_add_state_once(state)
 	_start_state = state
 	return self
@@ -76,9 +84,48 @@ func start_at(state: StringName) -> FrayStateMachineBuilder:
 ## State used will automatically be added.
 ##
 ## Returns a reference to this builder
-func end_at(state: StringName) -> FrayStateMachineBuilder:
+func end_at(state: StringName) -> FrayRootStateBuilder:
 	_add_state_once(state)
 	_end_state = state
+	return self
+
+## Adds a new transition rule to be used by global transitions.
+## [br]
+## Returns a reference to this builder.
+func add_rule(from_tag: StringName, to_tag: StringName) -> FrayRootStateBuilder:
+	if not _transition_rules.has(from_tag):
+		_transition_rules[from_tag] = []
+	_transition_rules[from_tag].append(to_tag)
+	return self
+
+## Appends given tags onto all given states.
+## States used will automatically be added.
+## [br]
+## Returns a reference to this builder
+func tag_multi(states: PackedStringArray, tags: PackedStringArray) -> FrayRootStateBuilder:
+	for state in states:
+		tag(state, tags)
+	return self
+
+## Appends given tags onto given state.
+## States used will automatically be added.
+## [br]
+## Returns a reference to this builder
+func tag(state: StringName, tags: PackedStringArray) -> FrayRootStateBuilder:
+	_add_state_once(state)
+		
+	if not _tags_by_state.has(state):
+		_tags_by_state[state] = []
+
+	for tag in tags:
+		if not _tags_by_state[state].has(tag):
+			_tags_by_state[state].append(tag)
+	return self
+
+## Creates a new global transtion to the specified state. 
+func transition_global(to: StringName, config: Dictionary = {}) -> FrayRootStateBuilder:
+	var tr := _create_global_transition(to, FrayStateMachineTransition.new())
+	_configure_transition(tr.transition, config)
 	return self
 
 ## Clears the condition cache
@@ -90,8 +137,8 @@ func clear() -> void:
 	_clear_impl()
 
 
-func _create_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> Transition:
-	var tr := Transition.new()
+func _create_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> FrayRootState.Transition:
+	var tr := FrayRootState.Transition.new()
 	tr.from = from
 	tr.to = to
 	tr.transition = transition
@@ -101,6 +148,13 @@ func _create_transition(from: StringName, to: StringName, transition: FrayStateM
 	_transitions.append(tr)
 	return tr
 
+
+func _create_global_transition(to: StringName, transition: FrayStateMachineTransition) -> FrayRootState.Transition:
+	var tr := FrayRootState.Transition.new()
+	tr.to = to
+	tr.transition = transition
+	_global_transitions.append(tr)
+	return tr
 
 func _add_state_once(state: StringName) -> void:
 	if not _state_by_name.has(state):
@@ -124,20 +178,6 @@ func _configure_transition(transition: FrayStateMachineTransition, config: Dicti
 				transition[property.name] = data
 
 
-func _configure_state_machine(root: FrayStateNodeStateMachine) -> void:
-	for state_name in _state_by_name:
-		root.add_node(state_name, _state_by_name[state_name])
-	
-	for tr in _transitions:
-		root.add_transition(tr.from, tr.to, tr.transition)
-
-	if not _start_state.is_empty():
-		root.start_node = _start_state
-	
-	if not _end_state.is_empty():
-		root.end_node = _end_state
-
-
 func _cache_condition(condition: FrayCondition) -> FrayCondition:
 	if enable_condition_caching:
 		for cached_condition in _condition_cache:
@@ -155,21 +195,39 @@ func _cache_conditions(conditions: Array[FrayCondition]) -> Array[FrayCondition]
 	return c
 
 
-func _build_impl() -> FrayStateNodeStateMachine:
-	var root := FrayStateNodeStateMachine.new()
-	_configure_state_machine(root)
-	clear()
+func _configure_state_machine_impl(root: FrayRootState) -> void:
+	for state_name in _state_by_name:
+		root.add_node(state_name, _state_by_name[state_name])
+	
+	for tr in _transitions:
+		root.add_transition(tr.from, tr.to, tr.transition)
+
+	if not _start_state.is_empty():
+		root.start_node = _start_state
+	
+	if not _end_state.is_empty():
+		root.end_node = _end_state
+
+	for state in _tags_by_state:
+		root.set_node_tags(state, _tags_by_state[state])
+	
+	for from_tag in _transition_rules:
+		for to_tag in _transition_rules[from_tag]:
+			root.add_global_transition_rule(from_tag, to_tag)
+	
+	for g_tr in _global_transitions:
+		root.add_global_transition(g_tr.to, g_tr.transition)
+
+
+func _build_impl() -> FrayRootState:
+	var root := FrayRootState.new()
+	_configure_state_machine_impl(root)
 	return root
 
 
 func _clear_impl() -> void:
 	_state_by_name.clear()
 	_transitions.clear()
-
-
-class Transition:
-	extends RefCounted
-	
-	var from: StringName
-	var to: StringName
-	var transition: FrayStateMachineTransition
+	_transition_rules.clear()
+	_tags_by_state.clear()
+	_global_transitions.clear()

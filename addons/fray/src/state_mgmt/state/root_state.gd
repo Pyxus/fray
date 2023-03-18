@@ -19,6 +19,9 @@ signal transitioned(from: StringName, to: StringName)
 
 const _AStarGraph = preload("a_star_graph.gd")
 
+static func builder() -> FrayRootStateBuilder:
+	return FrayRootStateBuilder.new()
+
 ## The state machine's staring state.
 var start_state: StringName = "":
 	set(state):
@@ -37,7 +40,7 @@ var current_state: StringName = "":
 		if _ERR_INVALID_NODE(state): return
 		goto(state)
 
-# Type: Dictionary<StringName, StateNode>
+# Type: Dictionary<StringName, FrayState>
 var _states: Dictionary
 
 # Type: Dictionary<StringName, StringName[]>
