@@ -7,7 +7,7 @@ extends Node
 ## process the state node.
 ## [br]
 ## The [method _get_root_impl] abstract method must be implemented in order to 
-## determine the root state of this node.
+## determine the root state of this state machine.
 
 enum AdvanceMode{
 	PROCESS, ## Advance during the physics process
