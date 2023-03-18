@@ -9,11 +9,11 @@ extends FrayStateMachine
 ## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ## from when they're in the air.
 ## [br]
-## When adding situations it is recommended to build the state using the [FraySituationStateBuilder].
+## When adding situations it is recommended to build the state using the [FrayRootState.Builder].
 ## [br][br]
 ## Example:
 ## [codeblock]
-## var builder := Fray.State.CombatSituationBuilder.new()
+## var builder := FrayRootState.builder()
 ## combat_sm.add_situation("on_ground", builder
 ## 	.transition_button("idle", "punch1", "square")
 ## 	.transition_button("punch1", "punch2", "square", {prereqs = [FrayCondition.new("on_hit")]})
@@ -46,7 +46,7 @@ var current_situation: StringName:
 # Hint: <situation name, >
 var _situations: Dictionary
 
-var _root: FraySituationState
+var _root: FrayRootState
 var _input_buffer: Array[BufferedInput]
 var _time_since_last_input_ms: float
 
@@ -79,7 +79,7 @@ func goto_start_state() -> void:
 		_root.goto_start()
 
 ## Adds a combat situation to the state machine.
-func add_situation(situation_name: StringName, state: FraySituationState) -> void:
+func add_situation(situation_name: StringName, state: FrayRootState) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
@@ -101,7 +101,7 @@ func change_situation(situation_name: StringName) -> void:
 		_root.goto_start()
 
 ## Returns a situation with the given name if it exists.
-func get_situation(situation_name: StringName) -> FraySituationState:
+func get_situation(situation_name: StringName) -> FrayRootState:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null
