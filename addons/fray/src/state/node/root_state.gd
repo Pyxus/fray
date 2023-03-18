@@ -1,8 +1,8 @@
-class_name FrayStateNodeStateMachine
+class_name FrayRootState
 extends FrayStateNode
-## State machine state node
+## Root state node
 ##
-## Contains multiple multiple [FrayStateNode]s connected through [FrayStateMachineTransition]s.
+## Contains multiple [FrayStateNode]s connected through [FrayStateMachineTransition]s.
 ## It is recommended to construct this state machine with a [FrayStateMachineBuilder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.

@@ -1,4 +1,4 @@
-class_name FrayStateNode
+class_name FrayState
 extends RefCounted
 ## Base state node class
 
