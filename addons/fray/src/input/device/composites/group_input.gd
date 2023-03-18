@@ -11,10 +11,13 @@ extends FrayCompositeInput
 	set(value):
 		min_pressed = max(1, value)
 
+# Note: I really don't like the composite inputs maintaing state. They're really supposed to
+#		just peek at the fray input state and determine if they're considered pressed.
+#		But this is the only way I could think to handle their decomposition.
 # Type: Dictionary<int, PackedStringArray>
 var _last_inputs_by_device: Dictionary
 
-## Returns a builder instance
+## Returns a builder instance.
 static func builder() -> Builder:
 	return Builder.new()
 
