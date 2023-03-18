@@ -1,8 +1,8 @@
 class_name FrayRootState
-extends FrayStateNode
-## Root state node
+extends FrayState
+## Root state
 ##
-## Contains multiple [FrayStateNode]s connected through [FrayStateMachineTransition]s.
+## Contains multiple [FrayState]s connected through [FrayStateMachineTransition]s.
 ## It is recommended to construct this state machine with a [FrayStateMachineBuilder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
@@ -19,23 +19,23 @@ signal transitioned(from: StringName, to: StringName)
 
 const _AStarGraph = preload("a_star_graph.gd")
 
-## The state machine's staring node.
-var start_node: StringName = "":
-	set(node):
-		if _ERR_INVALID_NODE(node): return
-		start_node = node
+## The state machine's staring state.
+var start_state: StringName = "":
+	set(state):
+		if _ERR_INVALID_NODE(state): return
+		start_state = state
 
-## The state machine's end node.
-var end_node: StringName = "":
-	set(node):
-		if _ERR_INVALID_NODE(node): return
-		end_node = node
+## The state machine's end state.
+var end_state: StringName = "":
+	set(state):
+		if _ERR_INVALID_NODE(state): return
+		end_state = state
 
-## The state machine's current node.
-var current_node: StringName = "":
-	set(node):
-		if _ERR_INVALID_NODE(node): return
-		goto(node)
+## The state machine's current state.
+var current_state: StringName = "":
+	set(state):
+		if _ERR_INVALID_NODE(state): return
+		goto(state)
 
 # Type: Dictionary<StringName, StateNode>
 var _states: Dictionary
@@ -45,8 +45,8 @@ var _states: Dictionary
 var _global_transition_rules: Dictionary
 
 # Type: Dictionary<StringName, StringName[]>
-# Hint: <node name, tags>
-var _tags_by_node: Dictionary
+# Hint: <state name, tags>
+var _tags_by_state: Dictionary
 
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
@@ -59,75 +59,75 @@ func _enter_impl(args: Dictionary) -> void:
 
 
 func _is_done_processing_impl() -> bool:
-	return end_node.is_empty() or current_node == end_node
+	return end_state.is_empty() or current_state == end_state
 
-## Adds a new [kbd]node[/kbd] under a given [kbd]name[/kbd].
-func add_node(name: StringName, node: FrayStateNode) -> void:
-	if _ERR_FAILED_TO_ADD_NODE(name, node): return
+## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
+func add_state(name: StringName, state: FrayState) -> void:
+	if _ERR_FAILED_TO_ADD_NODE(name, state): return
 	
 	if _states.is_empty():
-		start_node = name
+		start_state = name
 
-	_states[name] = node
+	_states[name] = state
 	_astar.add_point(name)
-	_on_node_added(name, node)
+	_on_state_added(name, state)
 
-## Removes the specified node.
-func remove_node(name: StringName) -> void:
+## Removes the specified state.
+func remove_state(name: StringName) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
-	var node: RefCounted = get_node(name)
+	var state: RefCounted = get_state(name)
 	_states.erase(name)
 	_astar.remove_point(name)
 	
-	if _tags_by_node.has(name):
-		_tags_by_node.erase(name)
+	if _tags_by_state.has(name):
+		_tags_by_state.erase(name)
 	
-	_on_node_removed(name, node)
+	_on_state_removed(name, state)
 
-## Renames the specified node.
-func rename_node(old_name: StringName, new_name: StringName) -> void:
+## Renames the specified state.
+func rename_state(old_name: StringName, new_name: StringName) -> void:
 	if _ERR_INVALID_NODE(old_name): return
 	
-	if has_node(new_name):
-		push_warning("Failed to rename node. Node with name %s already exists." % new_name)
+	if has_state(new_name):
+		push_warning("Failed to rename state. Node with name %s already exists." % new_name)
 		return
 	
 	_states[new_name] = _states[old_name]
 	_states.erase(old_name)
 	_astar.rename_point(old_name, new_name)
 	
-	if _tags_by_node.has(old_name):
-		var tags: PackedStringArray = _tags_by_node[old_name]
-		_tags_by_node.erase(old_name)
-		_tags_by_node[new_name] = tags
+	if _tags_by_state.has(old_name):
+		var tags: PackedStringArray = _tags_by_state[old_name]
+		_tags_by_state.erase(old_name)
+		_tags_by_state[new_name] = tags
 	
-	_on_node_renamed(old_name, new_name)
+	_on_state_renamed(old_name, new_name)
 
-## Replaces the specified node's object.
-func replace_node(name: StringName, replacement_node: FrayStateNode) -> void:
+## Replaces the specified state's object.
+func replace_state(name: StringName, replacement_state: FrayState) -> void:
 	if _ERR_INVALID_NODE(name): return
 	
-	if replacement_node.has_parent():
-		push_warning("Failed to replace node. Replacement node already belongs to parent node %s" % replacement_node.get_parent())
+	if replacement_state.has_parent():
+		push_warning("Failed to replace state. Replacement state already belongs to parent state %s" % replacement_state.get_parent())
 		return
 	
-	_states[name] = replacement_node
+	_states[name] = replacement_state
 
-## Returns [code]true[/code] if the machine contains the specified node.
-func has_node(name: StringName) -> bool:
+## Returns [code]true[/code] if the machine contains the specified state.
+func has_state(name: StringName) -> bool:
 	return _states.has(name)
 
-## Returns the sub-node with the specified name.
-func get_node(name: StringName) -> FrayStateNode:
+## Returns the sub-state with the specified name.
+func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_NODE(name): return null
 	return _states[name]
 
-## Returns the current node if it is set.
-func get_node_current() -> FrayStateNode:
-	return _states.get(current_node)
+## Returns the current state if it is set.
+func get_state_current() -> FrayState:
+	return _states.get(current_state)
 	
-## Adds a transition between specified nodes.
+## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
@@ -141,7 +141,7 @@ func add_transition(from: StringName, to: StringName, transition: FrayStateMachi
 	_astar.connect_points(from, to, has_transition(from, to))
 	_transitions.append(tr)
 
-## Removes transition between the two specified nodes if one exists.
+## Removes transition between the two specified states if one exists.
 func remove_transition(from: StringName, to: StringName) -> void:
 	if _ERR_INVALID_NODE(from): return
 	if _ERR_INVALID_NODE(to): return
@@ -154,7 +154,7 @@ func remove_transition(from: StringName, to: StringName) -> void:
 			_remove_conditions(transition.prereqs + transition.advance_conditions)
 			return
 
-## Returns [code]true[/code] if transition between specified nodes exists.
+## Returns [code]true[/code] if transition between specified states exists.
 func has_transition(from: StringName, to: StringName) -> bool:
 	return get_transition(from, to) != null
 
@@ -172,11 +172,11 @@ func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransit
 func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_NODE(to): return
 	
-	if not current_node.is_empty():
-		_astar.compute_travel_path(current_node, to)
+	if not current_state.is_empty():
+		_astar.compute_travel_path(current_state, to)
 		_travel_args = args
 
-		if not _astar.has_next_travel_node():
+		if not _astar.has_next_travel_state():
 			goto(to, args)
 
 ## Advances to next reachable state.
@@ -191,33 +191,33 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var cur_node: RefCounted = get_node_current()
+	var cur_state: RefCounted = get_state_current()
 
-	if cur_node != null:
-		if cur_node is FrayStateNodeStateMachine:
-			cur_node.advance(input, args)
+	if cur_state != null:
+		if cur_state is FrayRootState:
+			cur_state.advance(input, args)
 		
-		if _astar.has_next_travel_node():
-			var travel_node = cur_node
-			while travel_node.is_done_processing() and _astar.has_next_travel_node():
-				_goto(_astar.get_next_travel_node(), _travel_args)
-				travel_node = get_node(current_node)
+		if _astar.has_next_travel_state():
+			var travel_state = cur_state
+			while travel_state.is_done_processing() and _astar.has_next_travel_state():
+				_goto(_astar.get_next_travel_state(), _travel_args)
+				travel_state = get_state(current_state)
 		else:
-			var next_node := get_next_node(input)
-			if not next_node.is_empty():
-				goto(next_node, args)
+			var next_state := get_next_state(input)
+			if not next_state.is_empty():
+				goto(next_state, args)
 
-	return cur_node != null and cur_node != _states.get(current_node, null)
+	return cur_state != null and cur_state != _states.get(current_state, null)
 
 
-## Returns the name of the next reachable node.
-func get_next_node(input: Dictionary = {}) -> StringName:
+## Returns the name of the next reachable state.
+func get_next_state(input: Dictionary = {}) -> StringName:
 	
-	if current_node.is_empty():
+	if current_state.is_empty():
 		push_warning("No current state is set.")
 		return ""
 
-	for tr in get_next_transitions(current_node):
+	for tr in get_next_transitions(current_state):
 		var transition: FrayStateMachineTransition = tr.transition
 		if _can_transition(transition) and _can_advance(transition, input):
 			return tr.to
@@ -226,27 +226,27 @@ func get_next_node(input: Dictionary = {}) -> StringName:
 
 ## Goes directly to the given state if it exists.
 ## If a travel is being performed it will be interupted.
-func goto(to_node: StringName, args: Dictionary = {}) -> void:
-	if _astar.has_next_travel_node():
+func goto(to_state: StringName, args: Dictionary = {}) -> void:
+	if _astar.has_next_travel_state():
 		_astar.clear_travel_path()
 	
-	_goto(to_node, args)
+	_goto(to_state, args)
 
-## Short hand for 'node.goto(node.start_node, args)'.
+## Short hand for 'state.goto(state.start_state, args)'.
 func goto_start(args: Dictionary = {}) -> void:
-	if start_node.is_empty():
-		push_warning("Failed to go to start. Start node not set.")
+	if start_state.is_empty():
+		push_warning("Failed to go to start. Start state not set.")
 		return
 	
-	goto(start_node)
+	goto(start_state)
 
-## Short hand for 'node.goto(node.end_node, args)'.
+## Short hand for 'state.goto(state.end_state, args)'.
 func goto_end(args: Dictionary = {}) -> void:
-	if end_node.is_empty():
-		push_warning("Failed to go to end. End node not set.")
+	if end_state.is_empty():
+		push_warning("Failed to go to end. End state not set.")
 		return
 	
-	goto(end_node)
+	goto(end_state)
 
 ## Returns an array of transitions traversable from the given state.
 func get_next_transitions(from: StringName) -> Array[Transition]:
@@ -260,27 +260,27 @@ func get_next_transitions(from: StringName) -> Array[Transition]:
 
 	return transitions + get_next_global_transitions(from)
 
-## Sets the [kbd]tags[/kbd] associated with a [kbd]node[/kbd] if the node exists.
-func set_node_tags(node: StringName, tags: PackedStringArray) -> void:
-	if _ERR_INVALID_NODE(node): return
+## Sets the [kbd]tags[/kbd] associated with a [kbd]state[/kbd] if the state exists.
+func set_state_tags(state: StringName, tags: PackedStringArray) -> void:
+	if _ERR_INVALID_NODE(state): return
 	
-	_tags_by_node[node] = tags
+	_tags_by_state[state] = tags
 
-## Gets the tags associated with a [kbd]node[/kbd] if the node exists.
-func get_node_tags(node: StringName) -> PackedStringArray:
-	if _ERR_INVALID_NODE(node) or not _tags_by_node.has(node):
+## Gets the tags associated with a [kbd]state[/kbd] if the state exists.
+func get_state_tags(state: StringName) -> PackedStringArray:
+	if _ERR_INVALID_NODE(state) or not _tags_by_state.has(state):
 		return PackedStringArray([])
 	
-	return _tags_by_node[node]
+	return _tags_by_state[state]
 
-## Returns [code]true[/code] if the given node is considered global.
+## Returns [code]true[/code] if the given state is considered global.
 ## [br]
-## A node is considered global if a global transition to the node exists.
-func is_node_global(node: StringName) -> bool:
-	if _ERR_INVALID_NODE(node): return false
+## A state is considered global if a global transition to the state exists.
+func is_state_global(state: StringName) -> bool:
+	if _ERR_INVALID_NODE(state): return false
 
 	for transition in _global_transitions:
-		if transition.to == node:
+		if transition.to == state:
 			return true
 
 	return false
@@ -340,26 +340,26 @@ func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTran
 	
 	var transitions: Array[FrayStateMachineTransition]
 	
-	for from_tag in get_node_tags(from):
+	for from_tag in get_state_tags(from):
 		if _global_transition_rules.has(from_tag):
 			var to_tags: Array[StringName] = _global_transition_rules[from_tag]
 
 			for transition in _global_transitions:
 				for to_tag in to_tags:
-					if to_tag in get_node_tags(transition.to): 
+					if to_tag in get_state_tags(transition.to): 
 						transitions.append(transition)
 	return transitions
 
 ## Process child states then this state.
 func process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(current_node)
+	var cur_state: RefCounted = _states.get(current_state)
 	if cur_state != null:
 		cur_state._process_impl(delta)
 	_process_impl(delta)
 
 ## Physics process child states then this state.
 func physics_process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(current_node)
+	var cur_state: RefCounted = _states.get(current_state)
 	if cur_state != null:
 		cur_state._physics_process_impl(delta)
 	_physics_process_impl(delta)
@@ -376,9 +376,9 @@ func print_adj() -> void:
 	for state in _states.keys():
 		var next_transitions := get_next_transitions(state)
 		var modifiers := "%s%s%s" % [
-			"c" if state == current_node else "-",
-			"s" if state == start_node else "-",
-			"e" if state == end_node else "-",
+			"c" if state == current_state else "-",
+			"s" if state == start_state else "-",
+			"e" if state == end_state else "-",
 		]
 
 		if modifiers == "---":
@@ -407,18 +407,18 @@ func _get_transition_priority(from: StringName, to: StringName) -> float:
 	return float(tr.transition.priority) if tr else 0.0
 
 
-func _goto(to_node: StringName, args: Dictionary) -> void:
-	if _ERR_INVALID_NODE(to_node): return
+func _goto(to_state: StringName, args: Dictionary) -> void:
+	if _ERR_INVALID_NODE(to_state): return
 
-	var prev_node_name := current_node
-	var prev_node: RefCounted = get_node(to_node)
+	var prev_state_name := current_state
+	var prev_state: RefCounted = get_state(to_state)
 
-	if prev_node != null:
-		prev_node._exit_impl()
+	if prev_state != null:
+		prev_state._exit_impl()
 	
-	current_node = to_node
-	get_node(current_node)._enter_impl(args)
-	emit_signal("transitioned", prev_node_name, current_node)
+	current_state = to_state
+	get_state(current_state)._enter_impl(args)
+	emit_signal("transitioned", prev_state_name, current_state)
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
@@ -465,40 +465,40 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 			)
 
 
-func _on_node_added(name: StringName, node: RefCounted) -> void:
+func _on_state_added(name: StringName, state: RefCounted) -> void:
 	pass
 
 
-func _on_node_removed(name: StringName, node: RefCounted) -> void:
+func _on_state_removed(name: StringName, state: RefCounted) -> void:
 	pass
 
 
-func _on_node_renamed(old_name: StringName, new_name: StringName) -> void:
+func _on_state_renamed(old_name: StringName, new_name: StringName) -> void:
 	pass
 
 
 func _ERR_FAILED_TO_ADD_NODE(name: StringName, state: RefCounted) -> bool:
 	if name.is_empty():
-		push_error("Failed to add node. Node name can not be empty.")
+		push_error("Failed to add state. Node name can not be empty.")
 		return true
 
-	if has_node(name):
-		push_error("Failed to add node. Node with name %s already exists" % name)
+	if has_state(name):
+		push_error("Failed to add state. Node with name %s already exists" % name)
 		return true
 	
 	if state.has_parent():
-		push_error("Failed to add node. Node object already belongs to parent %s" % state.get_parent())
+		push_error("Failed to add state. Node object already belongs to parent %s" % state.get_parent())
 		return true
 	
 	return false
 
 func _ERR_INVALID_NODE(name: StringName) -> bool:
 	if name.is_empty():
-		push_error("Invalid node name, name can not be empty")
+		push_error("Invalid state name, name can not be empty")
 		return true
 	
-	if not has_node(name):
-		push_error("Invalid node name '%s', node does not exist." % name)
+	if not has_state(name):
+		push_error("Invalid state name '%s', state does not exist." % name)
 		return true
 
 	return false
