@@ -13,12 +13,21 @@ extends FrayState
 ## This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
 ## For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
+## Emitted when a state is added.
+signal state_added(name: StringName, state: FrayState)
 
-## Emitted when the current state is changes
+## Emitted when a state is removed.
+signal state_removed(name: StringName, state: FrayState)
+
+## Emitted when a state is renamed.
+signal state_renamed(name: StringName, state: FrayState)
+
+## Emitted when the current state is changes.
 signal transitioned(from: StringName, to: StringName)
 
 const _AStarGraph = preload("a_star_graph.gd")
 
+## Returns a new builder instance.
 static func builder() -> Builder:
 	return Builder.new()
 
@@ -73,7 +82,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 
 	_states[name] = state
 	_astar.add_point(name)
-	_on_state_added(name, state)
+	state_added.emit(name, state)
 
 ## Removes the specified state.
 func remove_state(name: StringName) -> void:
@@ -85,8 +94,7 @@ func remove_state(name: StringName) -> void:
 	
 	if _tags_by_state.has(name):
 		_tags_by_state.erase(name)
-	
-	_on_state_removed(name, state)
+	state_removed.emit(name, state)
 
 ## Renames the specified state.
 func rename_state(old_name: StringName, new_name: StringName) -> void:
@@ -105,7 +113,7 @@ func rename_state(old_name: StringName, new_name: StringName) -> void:
 		_tags_by_state.erase(old_name)
 		_tags_by_state[new_name] = tags
 	
-	_on_state_renamed(old_name, new_name)
+	state_renamed.emit(old_name, new_name)
 
 ## Replaces the specified state's object.
 func replace_state(name: StringName, replacement_state: FrayState) -> void:
@@ -468,19 +476,7 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 			)
 
 
-func _on_state_added(name: StringName, state: RefCounted) -> void:
-	pass
-
-
-func _on_state_removed(name: StringName, state: RefCounted) -> void:
-	pass
-
-
-func _on_state_renamed(old_name: StringName, new_name: StringName) -> void:
-	pass
-
-
-func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: RefCounted) -> bool:
+func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
 	if name.is_empty():
 		push_error("Failed to add state. Node name can not be empty.")
 		return true
