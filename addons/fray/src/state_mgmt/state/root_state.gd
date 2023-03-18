@@ -3,11 +3,11 @@ extends FrayState
 ## Root state
 ##
 ## Contains multiple [FrayState]s connected through [FrayStateMachineTransition]s.
-## It is recommended to construct this state machine with a [FrayStateMachineBuilder].
+## It is recommended to construct this state machine with a [FratRootState.Builder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
-## Nodes within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
-## Nodes with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
+## States within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
+## States with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'.
 ## A state is considered global if it is used as the 'to' state in a global transition.
 ## [br][br]
 ## This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them.
@@ -101,7 +101,7 @@ func rename_state(old_name: StringName, new_name: StringName) -> void:
 	if _ERR_INVALID_STATE(old_name): return
 	
 	if has_state(new_name):
-		push_warning("Failed to rename state. Node with name %s already exists." % new_name)
+		push_warning("Failed to rename state. State with name %s already exists." % new_name)
 		return
 	
 	_states[new_name] = _states[old_name]
@@ -478,15 +478,15 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 
 func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
 	if name.is_empty():
-		push_error("Failed to add state. Node name can not be empty.")
+		push_error("Failed to add state. State name can not be empty.")
 		return true
 
 	if has_state(name):
-		push_error("Failed to add state. Node with name %s already exists" % name)
+		push_error("Failed to add state. State with name %s already exists" % name)
 		return true
 	
 	if state.has_parent():
-		push_error("Failed to add state. Node object already belongs to parent %s" % state.get_parent())
+		push_error("Failed to add state. State object already belongs to parent %s" % state.get_parent())
 		return true
 	
 	return false
@@ -528,13 +528,13 @@ class Builder:
 	## .build()
 	## [/codeblock]
 	## 
-	##	[br]Note:[/b] '\' is necessary for GDScript to read the next line when multi-line method chaning
+	##	[br]Note:[/b] '\' is necessary for GDScript to read the next line when multi-line method chaning.
 
 
 	## If true then conditions will be cached to prevent identical conditions from being instantiated.
 	var enable_condition_caching: bool = true
 
-	# Type: Dictionary<StringName, StateNode>
+	# Type: Dictionary<StringName, FrayState>
 	# Hint: <state name, >
 	var _state_by_name: Dictionary
 
@@ -551,7 +551,7 @@ class Builder:
 	var _start_state: StringName
 	var _end_state: StringName
 
-	## Returns a newly constructed state machine node.
+	## Returns a newly constructed state machine state.
 	## [br]
 	## Constructs a state machine using the current build configuration.
 	## After building the builder is reset and can be used again. 
@@ -756,19 +756,19 @@ class Builder:
 
 	func _configure_state_machine_impl(root: FrayRootState) -> void:
 		for state_name in _state_by_name:
-			root.add_node(state_name, _state_by_name[state_name])
+			root.add_state(state_name, _state_by_name[state_name])
 		
 		for tr in _transitions:
 			root.add_transition(tr.from, tr.to, tr.transition)
 
 		if not _start_state.is_empty():
-			root.start_node = _start_state
+			root.start_state = _start_state
 		
 		if not _end_state.is_empty():
-			root.end_node = _end_state
+			root.end_state = _end_state
 
 		for state in _tags_by_state:
-			root.set_node_tags(state, _tags_by_state[state])
+			root.set_state_tags(state, _tags_by_state[state])
 		
 		for from_tag in _transition_rules:
 			for to_tag in _transition_rules[from_tag]:

@@ -13,8 +13,7 @@ extends FrayStateMachine
 ## [br][br]
 ## Example:
 ## [codeblock]
-## var builder := FrayRootState.builder()
-## combat_sm.add_situation("on_ground", builder
+## combat_sm.add_situation("on_ground", FrayRootState.builder()
 ## 	.transition_button("idle", "punch1", "square")
 ## 	.transition_button("punch1", "punch2", "square", {prereqs = [FrayCondition.new("on_hit")]})
 ## 	.build()

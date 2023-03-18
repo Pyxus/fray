@@ -1,5 +1,6 @@
 class_name FrayInputTransitionSequence
 extends FrayInputTransition
+## Input transition representing a sequence input.
 
 ## Name of the sequence.
 var sequence: StringName = ""
