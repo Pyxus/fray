@@ -170,8 +170,6 @@ func _clear_impl() -> void:
 class Transition:
 	extends RefCounted
 	
-	const StateMachineTransition = preload("../node/transition/state_machine_transition.gd")
-
 	var from: StringName
 	var to: StringName
-	var transition: StateMachineTransition
+	var transition: FrayStateMachineTransition
