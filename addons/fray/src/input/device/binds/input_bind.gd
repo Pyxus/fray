@@ -2,8 +2,7 @@ class_name FrayInputBind
 extends Resource
 ## Abstract base class for all input binds
 ##
-## @desc:
-##		An input bind is used to map physical device presses to inputs fray input names.
+## An input bind is used to map physical device presses to inputs fray input names.
 
 
 ## Returns true if the bind is pressed

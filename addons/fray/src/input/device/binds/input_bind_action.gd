@@ -3,8 +3,7 @@ class_name FrayInputBindAction
 extends "input_bind_simple.gd"
 ## Action input bind
 ##
-## @desc:
-##		Bind that makes use of godot's actions
+## Bind that makes use of godot's actions
 
 ## Action name
 var action: StringName
