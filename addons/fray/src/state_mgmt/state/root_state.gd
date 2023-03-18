@@ -25,19 +25,19 @@ static func builder() -> Builder:
 ## The state machine's staring state.
 var start_state: StringName = "":
 	set(state):
-		if _ERR_INVALID_NODE(state): return
+		if _ERR_INVALID_STATE(state): return
 		start_state = state
 
 ## The state machine's end state.
 var end_state: StringName = "":
 	set(state):
-		if _ERR_INVALID_NODE(state): return
+		if _ERR_INVALID_STATE(state): return
 		end_state = state
 
 ## The state machine's current state.
 var current_state: StringName = "":
 	set(state):
-		if _ERR_INVALID_NODE(state): return
+		if _ERR_INVALID_STATE(state): return
 		goto(state)
 
 # Type: Dictionary<StringName, FrayState>
@@ -66,7 +66,7 @@ func _is_done_processing_impl() -> bool:
 
 ## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
 func add_state(name: StringName, state: FrayState) -> void:
-	if _ERR_FAILED_TO_ADD_NODE(name, state): return
+	if _ERR_FAILED_TO_ADD_STATE(name, state): return
 	
 	if _states.is_empty():
 		start_state = name
@@ -77,7 +77,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 
 ## Removes the specified state.
 func remove_state(name: StringName) -> void:
-	if _ERR_INVALID_NODE(name): return
+	if _ERR_INVALID_STATE(name): return
 	
 	var state: RefCounted = get_state(name)
 	_states.erase(name)
@@ -90,7 +90,7 @@ func remove_state(name: StringName) -> void:
 
 ## Renames the specified state.
 func rename_state(old_name: StringName, new_name: StringName) -> void:
-	if _ERR_INVALID_NODE(old_name): return
+	if _ERR_INVALID_STATE(old_name): return
 	
 	if has_state(new_name):
 		push_warning("Failed to rename state. Node with name %s already exists." % new_name)
@@ -109,7 +109,7 @@ func rename_state(old_name: StringName, new_name: StringName) -> void:
 
 ## Replaces the specified state's object.
 func replace_state(name: StringName, replacement_state: FrayState) -> void:
-	if _ERR_INVALID_NODE(name): return
+	if _ERR_INVALID_STATE(name): return
 	
 	if replacement_state.has_parent():
 		push_warning("Failed to replace state. Replacement state already belongs to parent state %s" % replacement_state.get_parent())
@@ -123,7 +123,7 @@ func has_state(name: StringName) -> bool:
 
 ## Returns the sub-state with the specified name.
 func get_state(name: StringName) -> FrayState:
-	if _ERR_INVALID_NODE(name): return null
+	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
 
 ## Returns the current state if it is set.
@@ -132,8 +132,8 @@ func get_state_current() -> FrayState:
 	
 ## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
-	if _ERR_INVALID_NODE(from): return
-	if _ERR_INVALID_NODE(to): return
+	if _ERR_INVALID_STATE(from): return
+	if _ERR_INVALID_STATE(to): return
 	
 	var tr := _Transition.new()
 	tr.from = from
@@ -146,8 +146,8 @@ func add_transition(from: StringName, to: StringName, transition: FrayStateMachi
 
 ## Removes transition between the two specified states if one exists.
 func remove_transition(from: StringName, to: StringName) -> void:
-	if _ERR_INVALID_NODE(from): return
-	if _ERR_INVALID_NODE(to): return
+	if _ERR_INVALID_STATE(from): return
+	if _ERR_INVALID_STATE(to): return
 	
 	_astar.disconnect_points(from, to, not has_transition(from, to))
 
@@ -173,7 +173,7 @@ func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransit
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
 ## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
 func travel(to: StringName, args: Dictionary = {}) -> void:
-	if _ERR_INVALID_NODE(to): return
+	if _ERR_INVALID_STATE(to): return
 	
 	if not current_state.is_empty():
 		_astar.compute_travel_path(current_state, to)
@@ -253,7 +253,7 @@ func goto_end(args: Dictionary = {}) -> void:
 
 ## Returns an array of transitions traversable from the given state.
 func get_next_transitions(from: StringName) -> Array[_Transition]:
-	if _ERR_INVALID_NODE(from): return []
+	if _ERR_INVALID_STATE(from): return []
 
 	var transitions: Array[_Transition]
 
@@ -265,13 +265,13 @@ func get_next_transitions(from: StringName) -> Array[_Transition]:
 
 ## Sets the [kbd]tags[/kbd] associated with a [kbd]state[/kbd] if the state exists.
 func set_state_tags(state: StringName, tags: PackedStringArray) -> void:
-	if _ERR_INVALID_NODE(state): return
+	if _ERR_INVALID_STATE(state): return
 	
 	_tags_by_state[state] = tags
 
 ## Gets the tags associated with a [kbd]state[/kbd] if the state exists.
 func get_state_tags(state: StringName) -> PackedStringArray:
-	if _ERR_INVALID_NODE(state) or not _tags_by_state.has(state):
+	if _ERR_INVALID_STATE(state) or not _tags_by_state.has(state):
 		return PackedStringArray([])
 	
 	return _tags_by_state[state]
@@ -280,7 +280,7 @@ func get_state_tags(state: StringName) -> PackedStringArray:
 ## [br]
 ## A state is considered global if a global transition to the state exists.
 func is_state_global(state: StringName) -> bool:
-	if _ERR_INVALID_NODE(state): return false
+	if _ERR_INVALID_STATE(state): return false
 
 	for transition in _global_transitions:
 		if transition.to == state:
@@ -290,7 +290,7 @@ func is_state_global(state: StringName) -> bool:
 
 ## Adds global input transition to a state.
 func add_global_transition(to: StringName, transition: FrayStateMachineTransition) -> void:
-	if _ERR_INVALID_NODE(to): return
+	if _ERR_INVALID_STATE(to): return
 	
 	var tr := _Transition.new()
 	tr.to = to
@@ -339,7 +339,7 @@ func delete_global_transition_rule(from_tag: StringName) -> void:
 
 ## Returns array of next global transitions accessible from this state.
 func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTransition]:
-	if _ERR_INVALID_NODE(from): return []
+	if _ERR_INVALID_STATE(from): return []
 	
 	var transitions: Array[FrayStateMachineTransition]
 	
@@ -411,7 +411,7 @@ func _get_transition_priority(from: StringName, to: StringName) -> float:
 
 
 func _goto(to_state: StringName, args: Dictionary) -> void:
-	if _ERR_INVALID_NODE(to_state): return
+	if _ERR_INVALID_STATE(to_state): return
 
 	var prev_state_name := current_state
 	var prev_state: RefCounted = get_state(to_state)
@@ -480,7 +480,7 @@ func _on_state_renamed(old_name: StringName, new_name: StringName) -> void:
 	pass
 
 
-func _ERR_FAILED_TO_ADD_NODE(name: StringName, state: RefCounted) -> bool:
+func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: RefCounted) -> bool:
 	if name.is_empty():
 		push_error("Failed to add state. Node name can not be empty.")
 		return true
@@ -495,7 +495,8 @@ func _ERR_FAILED_TO_ADD_NODE(name: StringName, state: RefCounted) -> bool:
 	
 	return false
 
-func _ERR_INVALID_NODE(name: StringName) -> bool:
+
+func _ERR_INVALID_STATE(name: StringName) -> bool:
 	if name.is_empty():
 		push_error("Invalid state name, name can not be empty")
 		return true
