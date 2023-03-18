@@ -20,11 +20,15 @@ class Builder:
 	
 	var _input_requirements: Array[FrayInputRequirement]
 	var _is_negative_edge_enabled: bool
+	var _first_input: FrayInputRequirement
 	
 	## Returns newly constructed sequence branch.
 	func build() -> FraySequenceBranch:
 		var branch := FraySequenceBranch.new()
-		branch.input_requirements = _input_requirements
+		branch.input_requirements = (
+			[_first_input] + _input_requirements if _first_input != null 
+			else _input_requirements
+		)
 		branch.is_negative_edge_enabled = _is_negative_edge_enabled
 		return branch
 	
@@ -45,7 +49,19 @@ class Builder:
 		input_requirement.min_time_held = min_time_held
 		_input_requirements.append(input_requirement)
 		return self
-
+	
+	## Sets the first input of this sequence.
+	## [br]
+	## This is an optional method that works similar to [method then] 
+	## except it directly sets the first input, it doest not append.
+	## It also omits the max_delay parameter since the first input in a sequence ignores the delay.
+	## This exists to make the builder read better when chaining calls.
+	func first(input: StringName, min_time_held := 0) -> Builder:
+		_first_input = FrayInputRequirement.new()
+		_first_input.input = input
+		_first_input.max_delay = 0
+		_first_input.min_time_held = min_time_held
+		return self 
 
 	## Used to neable negative edge.
 	##
