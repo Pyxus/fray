@@ -4,12 +4,12 @@ class_name FrayCombatStateMachine
 extends FrayStateMachine
 ## Combat state machine
 ##
-## A state machine which can contain and switch between multiple situations.
-## A situation is a [FrayStateNodeStateMachineGlobal] that represents the set of actions avilable to a combatant.
+## A state machine which can contain and switch between multiple situations based on buffered inputs.
+## A situation is a [FraySituationState] which represents the set of actions avilable to a combatant.
 ## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ## from when they're in the air.
 ## [br]
-## When adding situations it is recommended to build the state node using the [FrayCombatSiutationBuilder].
+## When adding situations it is recommended to build the state using the [FraySituationStateBuilder].
 ## [br][br]
 ## Example:
 ## [codeblock]
@@ -42,16 +42,16 @@ var current_situation: StringName:
 			_root = get_situation(situation_name)
 			_root.goto_start()
 
-# Type: Dictionary<StringName, StateNodeStateMachineGlobal>
+# Type: Dictionary<StringName, FraySituationState>
 # Hint: <situation name, >
 var _situations: Dictionary
 
-var _root: FrayStateNodeStateMachine
+var _root: FraySituationState
 var _input_buffer: Array[BufferedInput]
 var _time_since_last_input_ms: float
 
 
-func _get_root_impl() -> FrayStateNodeStateMachine:
+func _get_root_impl() -> FrayRootState:
 	return _root
 
 
@@ -79,12 +79,12 @@ func goto_start_state() -> void:
 		_root.goto_start()
 
 ## Adds a combat situation to the state machine.
-func add_situation(situation_name: StringName, node: FrayStateNodeStateMachineGlobal) -> void:
+func add_situation(situation_name: StringName, state: FraySituationState) -> void:
 	if has_situation(situation_name):
 		push_warning("Combat situation name '%s' already exists.")
 		return
 
-	_situations[situation_name] = node
+	_situations[situation_name] = state
 
 	if _situations.size() == 1:
 		change_situation(situation_name)
@@ -101,7 +101,7 @@ func change_situation(situation_name: StringName) -> void:
 		_root.goto_start()
 
 ## Returns a situation with the given name if it exists.
-func get_situation(situation_name: StringName) -> FrayStateNodeStateMachineGlobal:
+func get_situation(situation_name: StringName) -> FraySituationState:
 	if has_situation(situation_name):
 		return _situations[situation_name]
 	return null
@@ -136,14 +136,14 @@ func clear_buffer() -> void:
 
 func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> StringName:
 	if buffered_input is BufferedInputButton:
-		return _root.get_next_node({
+		return _root.get_next_state({
 			input = buffered_input.input,
 			input_is_pressed = buffered_input.is_pressed,
 			time_since_last_input = time_since_last_input,
 			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp) / 1000.0
 		})
 	elif buffered_input is BufferedInputSequence:
-		return _root.get_next_node({
+		return _root.get_next_state({
 			sequence = buffered_input.sequence,
 			time_since_last_input = time_since_last_input,
 		})
