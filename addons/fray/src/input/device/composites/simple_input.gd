@@ -19,6 +19,8 @@ static func builder() -> Builder:
 	return Builder.new()
 
 ## Returns a simple input using the given [kbd]bind[/kbd].
+## [br]
+## Shorthand for [code]builder().bind(bind).build()[/code]
 static func from_bind(bind: StringName) -> FraySimpleInput:
 	return builder().bind(bind).build()
 

@@ -11,7 +11,7 @@ extends RefCounted
 ## var sequence_matcher := FraySequenceMatcher.new()
 ## var sequence_list := SequenceList.new()
 ##
-## sequence_list.add("236p", SequencePath.from_first("down").then("down_forward").then("backward").then("punch"))
+## sequence_list.add("236p", Sequencebranch.from_first("down").then("down_forward").then("backward").then("punch"))
 ##
 ## sequence_matcher.initialize(sequence_list)
 ## [/codeblock]
@@ -30,14 +30,14 @@ const _LinkedList = preload("res://addons/fray/lib/data_structures/linked_list.g
 ## then composites will always fail to match due to their binds causing sequence breaks.
 ## This option aims to prevent that by filtering out indistinct inputs. However, this means a composite's
 ## binds are likely to be ignored by the matcher when enabled; the same is true for lower priority composite's that share binds.
-## It is recommend to design sequence path's to only use inputs which will always be distinct.
+## It is recommend to design sequence branch's to only use inputs which will always be distinct.
 ## Alternatively this can be disabled and the user can implement their own input filtration when feeding inputs.
 var can_ignore_indistinct_inputs: bool = true
 
 # Type: LinkedList<InputFrame>
 var _input_queue: _LinkedList
 
-var _match_path: Array[FrayInputEvent]
+var _match_branch: Array[FrayInputEvent]
 var _root: _InputNode
 var _current_node: _InputNode
 var _current_frame: _InputFrame
@@ -67,23 +67,23 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 ## Initialzes the matcher
 ## [br]
 ## [kbd]sequence_list[/kbd] is used to register the sequences recognized by this matcher
-func initialize(sequence_list: FraySequenceList) -> void:
+func initialize(sequence_list: FraySequenceTree) -> void:
 	_root = _InputNode.new()
 	_root.is_root = true
 	_input_queue = _LinkedList.new()
 	_current_node = _root
 
 	for name in sequence_list.get_sequence_names():
-		var path_index := 0
-		for sequence_path in sequence_list.get_sequence_paths(name):
+		var branch_index := 0
+		for sequence_branch in sequence_list.get_sequence_branchs(name):
 			var next_node := _root
 
-			for req in sequence_path.input_requirements:
+			for req in sequence_branch.input_requirements:
 				var parent := next_node
 				next_node = parent.get_next(req.input, not req.is_charge_input())
 
 				if parent != _root and req.is_charge_input():
-					push_warning("Charge inputs should only be the first input of any path. Sequence: '%s', Path Index: '%d'" % [name, path_index] )
+					push_warning("Charge inputs should only be the first input of any branch. Sequence: '%s', branch Index: '%d'" % [name, branch_index] )
 
 				if next_node == null:
 					next_node = _InputNode.new() 
@@ -93,15 +93,15 @@ func initialize(sequence_list: FraySequenceList) -> void:
 			
 			if not next_node.has_sequence():
 				next_node.sequence_name = name
-				next_node.sequence_path = sequence_path
-				next_node.is_negative_edge_enabled = sequence_path.is_negative_edge_enabled
+				next_node.sequence_branch = sequence_branch
+				next_node.is_negative_edge_enabled = sequence_branch.is_negative_edge_enabled
 			else:
 				push_error(
-					"Collision for sequence '%s' at path index '%d' at input '%s'. " % [name, path_index, next_node.input] +
-					"There can only be 1 sequence per path. " +
+					"Collision for sequence '%s' at branch index '%d' at input '%s'. " % [name, branch_index, next_node.input] +
+					"There can only be 1 sequence per branch. " +
 					"This sequence will be ignored"
 					)
-			path_index += 1
+			branch_index += 1
 
 ## Used to feed next inputs to matcher.
 func read(input_event: FrayInputEvent) -> void:
@@ -115,7 +115,7 @@ func read(input_event: FrayInputEvent) -> void:
 	var next_node := _current_node.get_next(input_event.input, input_event.is_pressed)
 	if next_node != null:
 		_current_node = next_node
-		_match_path.append(input_event)
+		_match_branch.append(input_event)
 
 	if _current_frame == null:
 		if next_node != null:
@@ -137,18 +137,18 @@ func read(input_event: FrayInputEvent) -> void:
 			_resolve_sequence_break()
 	
 	if _current_node.has_sequence():
-		if is_match(_match_path, _current_node.sequence_path.input_requirements):
+		if is_match(_match_branch, _current_node.sequence_branch.input_requirements):
 			emit_signal("match_found", _current_node.sequence_name)
 			_reset()
 		else:
 			_resolve_sequence_break()
 
-## Returns current array of inputs used to attempt to match a sequence path
+## Returns current array of inputs used to attempt to match a sequence branch
 ## If called during a [signal match_found] signal callback then this array contains the exact input events that triggered the match.
-func get_match_path() -> Array[FrayInputEvent]:
-	return _match_path
+func get_match_branch() -> Array[FrayInputEvent]:
+	return _match_branch
 
-## Prints a tree visualizing the paths available on the sequence matcher
+## Prints a tree visualizing the branchs available on the sequence matcher
 func print_tree() -> void:
 	if _root == null:
 		push_error("Sequence matcher is not initialized.")
@@ -165,19 +165,19 @@ func _resolve_sequence_break() -> void:
 	while not successful_retrace and not _input_queue.empty():
 		var first_frame: _InputFrame = _input_queue.get_head().data
 		var can_remove_first_frame: bool = (
-			_match_path.is_empty()
-			or not first_frame.try_remove(_match_path.front())
+			_match_branch.is_empty()
+			or not first_frame.try_remove(_match_branch.front())
 			or first_frame.empty()
 			)
 
 		if can_remove_first_frame:
 			_input_queue.remove_first()
 		
-		_match_path.clear()
+		_match_branch.clear()
 
 		var has_break := false
 		for frame in _input_queue:
-			var node: _InputNode = frame.trace(next_node, _match_path)
+			var node: _InputNode = frame.trace(next_node, _match_branch)
 			
 			if node != null:
 				next_node = node
@@ -196,7 +196,7 @@ func _reset() -> void:
 	_current_frame = null
 	_current_node = _root
 	_input_queue.clear()
-	_match_path.clear()
+	_match_branch.clear()
 
 
 func _create_frame(input_event: FrayInputEvent) -> _InputFrame:
@@ -256,12 +256,12 @@ class _InputFrame:
 		return inputs.is_empty()
 
 
-	func trace(start_node: _InputNode, match_path: Array) -> _InputNode:
+	func trace(start_node: _InputNode, match_branch: Array) -> _InputNode:
 		var match_node: _InputNode
 		for input in inputs:
 			var node = start_node.get_next(input.input, input.is_pressed)
 			if node != null:
-				match_path.append(input)
+				match_branch.append(input)
 				match_node = node
 		return match_node
 
@@ -277,7 +277,7 @@ class _InputNode:
 	var is_press_input: bool
 	var is_negative_edge_enabled: bool
 	var sequence_name: StringName
-	var sequence_path: FraySequencePath
+	var sequence_branch: FraySequenceBranch
 	var input: StringName
 
 	var _next_nodes: Array[_InputNode]
@@ -306,7 +306,7 @@ class _InputNode:
 
 	func add_node(node: _InputNode) -> void:
 		if not sequence_name.is_empty():
-			push_warning("There can not be two sequences on the same path. Additional sequences will be ingored")
+			push_warning("There can not be two sequences on the same branch. Additional sequences will be ingored")
 		_next_nodes.append(node)
 
 
@@ -332,7 +332,7 @@ class _InputNode:
 		return false
 
 	func has_sequence() -> bool:
-		return not sequence_name.is_empty() and sequence_path != null
+		return not sequence_name.is_empty() and sequence_branch != null
 
 
 	func get_child_count() -> int:
