@@ -84,14 +84,14 @@ The sequence matcher can then be fed inputs and will emit a signal if any matche
 var sequence_tree := SequenceTree.new()
 
 sequence_tree.add("236p", SequenceBranch.builder()
-	.then("down").then("down_forward").then("forward").then("punch")
+	.first("down").then("down_forward").then("forward").then("punch")
 	.build()
 )
 
 # Sequence inputs can have multiple branches in order to support input leniency.
 # To add a lenient version of the input simply add a new branch under the sequence name.
 sequence_list.add("236p", SequenceBranch.builder()
-	.then("down").then("forward").then("punch")
+	.first("down").then("forward").then("punch")
 	.build()
 )
 ```

@@ -1,13 +1,14 @@
 # Getting Started
 
+Below you'll find introductions to each of  the given modules featured in Fray.
+
 ## Modules
-
-- [State Management](./mod_state/index.md)
-
-- [Input](./mod_input/index.md)
 
 - [Collision](./mod_collision/index.md)
 
+- [Input](./mod_input/index.md)
+
+- [State Management](./mod_state/index.md)
 
 ## Quickstart
 
@@ -66,13 +67,13 @@ func _ready() -> void:
     # The following sequence describes the the input of the famous 'Hadouken' attack.
     # performed by Ryu from Street Fighters.
     sequence_tree.add("hadouken", FraySequenceBranch.builder()
-        .then("down").then("down_right").then("right").then("attack")
+        .first("down").then("down_right").then("right").then("attack")
         .build()
     )
 
     # Simple charge move. This requires left to be held for 200ms before the rest of the sequence is performed.
     sequence_tree.add("sonic_boom", FraySequenceBranch.builder()
-        .then("left", 0, 200).then("right").then("attack")
+        .first("left", 200).then("right").then("attack")
         .build()
     )
 
