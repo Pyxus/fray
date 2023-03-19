@@ -97,7 +97,7 @@
 
 - Updated state machine library to be more flexible. States now have new 'enter', 'process', and 'exit' virtual methods that are invokved by the state machine.
 
-- HitboxAttributes' `can_detect` method now takes attribute instead of hitbox.
+- HitboxAtrribute' `can_detect` method now takes attribute instead of hitbox.
 
 - The `CombatStateMachine` will now default to using the first added situation.
 

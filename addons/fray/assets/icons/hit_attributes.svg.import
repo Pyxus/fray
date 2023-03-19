@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnedynbm3x22h"
-path="res://.godot/imported/hit_attributes.svg-40500fac93b7c74c4cd6715b596c7f3e.ctex"
+path="res://.godot/imported/hit_atrribute.svg-40500fac93b7c74c4cd6715b596c7f3e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/fray/assets/icons/hit_attributes.svg"
-dest_files=["res://.godot/imported/hit_attributes.svg-40500fac93b7c74c4cd6715b596c7f3e.ctex"]
+source_file="res://addons/fray/assets/icons/hit_atrribute.svg"
+dest_files=["res://.godot/imported/hit_atrribute.svg-40500fac93b7c74c4cd6715b596c7f3e.ctex"]
 
 [params]
 

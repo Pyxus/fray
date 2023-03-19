@@ -6,39 +6,39 @@ The Collision module provides tools for hit detection and hitbox management. In 
 
 ## Hitbox2D/3D
 
-The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of attributes. 
+The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of atrribute. 
 
-`HitboxAttributes` are a resource that can be given to hitboxes to provide attribute data for use during hit detection. Attributes can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect attributes are components you can attach to a hitbox to determine their type.
+`HitboxAtrribute` are a resource that can be given to hitboxes to provide attribute data for use during hit detection. Atrribute can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect atrribute are components you can attach to a hitbox to determine their type.
 
 ### Usage
 
 To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_seperated` signals for detecting other hitboxes.
 
-Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAttributes` class to create an `AttackAttributes` and `HurtAttributes` respectively. The attribute attached to the hitbox then essentially determines its type. Attributes can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
+Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAtrribute` class to create an `AttackAtrribute` and `HurtAtrribute` respectively. The attribute attached to the hitbox then essentially determines its type. Atrribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
 
-Example Attributes:
+Example Atrribute:
 
 ```gdscript
-class_name HurtAttributes
-extends FrayHitboxAttributes
+class_name HurtAtrribute
+extends FrayHitboxAtrribute
 
 # In this example we only want hurt boxes to detect attack boxes.
 # We can do this by overriding this virtual method.
-func _allows_detection_of_impl(attributes: FrayHitboxAttributes) -> void:
-    return attributes is AttackAttributes
+func _allows_detection_of_impl(atrribute: FrayHitboxAtrribute) -> void:
+    return atrribute is AttackAtrribute
 
 ```
 
 ```gdscript
-class_name AttackAttributes
-extends FrayHitboxAttributes
+class_name AttackAtrribute
+extends FrayHitboxAtrribute
 
 # Example exports to showcase the kind of data you might associate with an attack.
 export var damage: float
 export var knockback_force: float
 ```
 
-![Inspector view of attributes on hitbox](images/inspector_attributes.png)
+![Inspector view of atrribute on hitbox](images/inspector_atrribute.png)
 
 ## HitState2D/3D
 
