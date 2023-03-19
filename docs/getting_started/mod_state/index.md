@@ -6,7 +6,7 @@ The state management module includes a hierarchical combat state machine for man
 
 ## Using the CombatStateMachine
 
-For this demonstration we will be using the `FrayCombatStateMachine` however all the information regarding building the states and transitions apply to the general purpose `FraySimpleStateMachine` as well. To get started first add a `FrayCombatStateMachine` from the node creation dialog.
+For this demonstration we will be using the `FrayCombatStateMachine` however all the information regarding building the states and transitions apply to the general purpose `FrayGeneralStateMachine` as well. To get started first add a `FrayCombatStateMachine` from the node creation dialog.
 
 Once the state machine is added to the scene you can begin adding situations. A situation is a name to `FrayRootState` mapping which represents the set of actions available to a combatant. To add a new situation call the `add_situation()` method on the combat state machine. It accepts 2 arguments, a string name, and a `FrayRootState`. The root state is what actually contains all the information related to states and transitions.
 
