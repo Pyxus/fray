@@ -6,14 +6,14 @@ extends RefCounted
 ## motion inputs which are common to many fighting games.
 ## Search "fighting game motion inputs" for more info on the concept.
 ## [br]
-## To use you must first initialize the matcher with a sequence list:
+## To use you must first initialize the matcher with a sequence tree:
 ## [codeblock]
 ## var sequence_matcher := FraySequenceMatcher.new()
-## var sequence_list := SequenceList.new()
+## var sequence_tree := SequenceTree.new()
 ##
-## sequence_list.add("236p", Sequencebranch.from_first("down").then("down_forward").then("backward").then("punch"))
+## sequence_tree.add("236p", SequenceBranch.builder().then("down").then("down_forward").then("backward").then("punch").build())
 ##
-## sequence_matcher.initialize(sequence_list)
+## sequence_matcher.initialize(sequence_tree)
 ## [/codeblock]
 ##
 ## @tutorial(What Are Motion Inputs?): https://mugen.fandom.com/wiki/Command_input#Motion_input
@@ -66,16 +66,16 @@ static func is_match(events: Array[FrayInputEvent], input_requirements: Array[Fr
 
 ## Initialzes the matcher
 ## [br]
-## [kbd]sequence_list[/kbd] is used to register the sequences recognized by this matcher
-func initialize(sequence_list: FraySequenceTree) -> void:
+## [kbd]sequence_tree[/kbd] is used to register the sequences recognized by this matcher
+func initialize(sequence_tree: FraySequenceTree) -> void:
 	_root = _InputNode.new()
 	_root.is_root = true
 	_input_queue = _LinkedList.new()
 	_current_node = _root
 
-	for name in sequence_list.get_sequence_names():
+	for name in sequence_tree.get_sequence_names():
 		var branch_index := 0
-		for sequence_branch in sequence_list.get_sequence_branchs(name):
+		for sequence_branch in sequence_tree.get_sequence_branchs(name):
 			var next_node := _root
 
 			for req in sequence_branch.input_requirements:

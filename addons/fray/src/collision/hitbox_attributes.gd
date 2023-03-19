@@ -8,16 +8,15 @@ extends Resource
 func get_color() -> Color:
 	return _get_color_impl()
 
-## Returns true if a hitbox with this attribute should allow detection of a given hitbox.
-func allows_detection_of(attributes: Resource) -> bool:
+## Returns true if a hitbox with this attribute should allow detection of the given attributes.
+func allows_detection_of(attributes: FrayHitboxAttributes) -> bool:
 	return _allows_detection_of_impl(attributes)
 
-## [code]Virtual method[/code] used to implement [method get_color] method
-## Currently this does nothing as godot does not provide
-## an easy way to change the area colors in 2d and 3d.
+## [code]Virtual method[/code] used to implement [method get_color].
+## Currently this does nothing for [FrayHitbox3D].
 func _get_color_impl() -> Color:
 	return Color(0, 0, 0, .5)
 
 ## [code]Virtual method[/code] used to implement [method allows_detection_of] method
-func _allows_detection_of_impl(attributes: Resource) -> bool:
+func _allows_detection_of_impl(attributes: FrayHitboxAttributes) -> bool:
 	return true

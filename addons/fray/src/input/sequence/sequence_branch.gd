@@ -34,7 +34,7 @@ class Builder:
 	
 	## Appends an input requirement to the end of this sequence
 	## [br]
-	## Returns a reference to this sequence branch.
+	## Returns a reference to this builder.
 	## [br][br]
 	## [kbd]max_delay[/kbd] is the maximum time in seconds between two inputs. 
 	## A negative delay means that an infinite amount of time is allowed between inputs.
@@ -65,7 +65,7 @@ class Builder:
 
 	## Used to neable negative edge.
 	##
-	## Returns a reference to this sequence path.
+	## Returns a reference to this sequence builder.
 	## [br]
 	## If true the final input in the sequence is allowed to be triggered by a button release..
 	## Search "fighting game negative edge" for more info on the concept

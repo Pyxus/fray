@@ -5,7 +5,7 @@ extends FrayStateMachine
 ## Combat state machine
 ##
 ## A state machine which can contain and switch between multiple situations based on buffered inputs.
-## A situation is a [FraySituationState] which represents the set of actions avilable to a combatant.
+## A situation is a [FrayRootState] which represents the set of actions avilable to a combatant.
 ## For example, in many fighting games the actions a combatant can perform when situated on the ground differ
 ## from when they're in the air.
 ## [br]
@@ -13,8 +13,7 @@ extends FrayStateMachine
 ## [br][br]
 ## Example:
 ## [codeblock]
-## var builder := FrayRootState.builder()
-## combat_sm.add_situation("on_ground", builder
+## combat_sm.add_situation("on_ground", FrayRootState.builder()
 ## 	.transition_button("idle", "punch1", "square")
 ## 	.transition_button("punch1", "punch2", "square", {prereqs = [FrayCondition.new("on_hit")]})
 ## 	.build()

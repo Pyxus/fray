@@ -1,6 +1,6 @@
 class_name FrayInputRequirement
 extends Resource
-## Used by SequencePath to describe an input sequence.
+## Used by [FraySequenceBranch] to describe a sequence of inputs.
 
 ## The name of the input
 var input: StringName
@@ -11,7 +11,7 @@ var min_time_held: int
 ## The max delay between this input and the last in milliseconds.
 var max_delay: int
 
-## Returns [code]true[/code] if the is a charge input.[br]
+## Returns [code]true[/code] if the input is a charge input.[br]
 ##
 ## An input is considered a charge input if its [member min_time_held] is greater than 0.
 func is_charge_input() -> bool:

@@ -3,9 +3,7 @@ class_name FrayCompositeInput
 extends Resource
 ## Abstract base class for all composite inputs
 ##
-## @desc:
-##      Composite inputs are inputs composed of other composite inputs.
-
+## Composite inputs are inputs composed of other composite inputs.
 
 ## If true, components that are still held when the composite is released
 ## will be treated as if they were just pressed again.
@@ -55,7 +53,7 @@ func decompose(device: int, input_interface: FrayInputInterface) -> Array[String
 	return _decompose_impl(device, input_interface)
 
 ## Returns true if the composite input can decompose into the given binds
-## 'is_exact' If true then the given binds need to exactly match the input's decomposition
+## If [kbd]is_exact[/kbd] is true then the given binds need to exactly match the input's decomposition
 func can_decompose_into(device: int, input_interface: FrayInputInterface, binds: Array[StringName], is_exact := true)  -> bool:
 	var my_components := decompose(device, input_interface)
 
@@ -82,20 +80,12 @@ func can_decompose_into(device: int, input_interface: FrayInputInterface, binds:
 				return false
 	return true
 
-
-## is_virtual setter
-func set_virtual(value: bool) -> void:
-	is_virtual = value
-
-	if get_root() != null:
-		push_warning("Virtual on a non-root component has no affect.") 
-
-## Returns the root of this composite input
-## Returns: CompositeInput
-func get_root() -> Resource:
+## Returns the root of this composite input if it exists.
+func get_root() -> FrayCompositeInput:
 	var ref = _root_wf.get_ref() if _root_wf else null
 	return ref
 
+## Returns the time in milliseconds that this composite was considered pressed.
 func get_time_pressed(device: int, input_interface: FrayInputInterface) -> int:
 	for component in _components:
 		var binds := decompose(device, input_interface)
@@ -109,12 +99,12 @@ func get_time_pressed(device: int, input_interface: FrayInputInterface) -> int:
 			return most_recent_press
 	return -1
 
-## Abstract method used to define press check procedure
+## Abstract method used to define press check procedure.
 func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	assert(false, "Method not implemented")
 	return false
 
-## Abstract method used to define decomposition procedure
+## Abstract method used to define decomposition procedure.
 func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
 	assert(false, "Method not implemented")
 	return []

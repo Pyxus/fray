@@ -3,7 +3,7 @@ class_name FrayStateMachine
 extends Node
 ## Abstract Base Hierarchical State Machine
 ##
-## This class wraps around the [FrayStateRoot] and uses the [SceneTree] to
+## This class wraps around the [FrayRootState] and uses the [SceneTree] to
 ## process the state node.
 ## [br]
 ## The [method _get_root_impl] abstract method must be implemented in order to 
@@ -42,7 +42,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _can_process():
 		_advance_impl()
 		
-
+## Returns the root of this state machine.
 func get_root() -> FrayRootState:
 	return _get_root_impl()
 

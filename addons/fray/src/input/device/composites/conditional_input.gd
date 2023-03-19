@@ -16,12 +16,16 @@ extends FrayCompositeInput
 # Hint: <component index, string condition>
 var _conditions_by_component: Dictionary
 
-## Returns a builder instance
+## Returns a builder instance.
 static func builder() -> Builder:
 	return Builder.new()
 	
-
-func set_condition(component_index: int, condition: StringName) -> void:
+## Sets the condition name associated with a given component.
+## [br]
+## [kbd]component_index[/kbd] is the index of the component based on the order added.
+## [br]
+## [kbd]condition[/kbd] is the name of the condition.
+func set_condition_name(component_index: int, condition: StringName) -> void:
 	if component_index == 0:
 		push_warning("The first component is treated as the default input. Condition will be ignored")
 		return
@@ -88,7 +92,7 @@ class Builder:
 		
 		var component_count := _composite_input.get_component_count() 
 		if component_count != 1:
-			_composite_input.set_condition(component_count - 1, _conditions[component_count - 1])
+			_composite_input.set_condition_name(component_count - 1, _conditions[component_count - 1])
 		
 		return self 
 	

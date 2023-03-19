@@ -44,39 +44,40 @@ func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[
 
 class Builder:
 	extends RefCounted
+	## [FrayGroupInput] builder.
 	
 	var _composite_input = FrayGroupInput.new()
 
-	## Builds the composite input
+	## Builds the composite input.
 	##
-	## Returns a reference to the newly built CompositeInput
+	## Returns a reference to the newly built CompositeInput.
 	func build() -> FrayGroupInput:
 		return _composite_input
 
 	## Sets the minimum number of components that must be pressed.
 	##
-	## Returns a reference to this ComponentBuilder
+	## Returns a reference to this ComponentBuilder.
 	func min_pressed(value: int) -> Builder:
 		_composite_input.min_pressed = value
 		return self
 
-	## Adds a composite input as a component of this combination
+	## Adds a composite input as a component of this combination.
 	##
-	## Returns a reference to this ComponentBuilder
+	## Returns a reference to this ComponentBuilder.
 	func add_component(composite_input: FrayCompositeInput) -> Builder:
 		_composite_input.add_component(composite_input)
 		return self
 
-	## Sets whether the input will be virtual or not
+	## Sets the input as virtual.
 	##
-	## Returns a reference to this ComponentBuilder
-	func is_virtual(value: bool = true) -> Builder:
-		_composite_input.is_virtual = value
+	## Returns a reference to this ComponentBuilder.
+	func is_virtual() -> Builder:
+		_composite_input.is_virtual = true
 		return self
 
-	## Sets the composite input's process priority
+	## Sets the composite input's process priority.
 	##
-	## Returns a reference to this ComponentBuilder
+	## Returns a reference to this ComponentBuilder.
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self

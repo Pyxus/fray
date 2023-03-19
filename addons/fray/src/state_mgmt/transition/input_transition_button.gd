@@ -1,5 +1,6 @@
 class_name FrayInputTransitionButton
 extends FrayInputTransition
+## Input transition representing an atomic input such as a key or button.
 
 ## Input name.
 var input: StringName = ""

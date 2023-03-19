@@ -19,30 +19,31 @@ Fray is an addon for the [Godot Game Engine](https://godotengine.org) that provi
 
 ### Modular Design
 
-Fray is divided into 3 modules: State, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. This means you are not locked in to using Fray's tools and can run your own solutions along side it by interpreting these strings in your current setup.
+Fray is divided into 3 modules: State Management, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. These modules work independently of each other and only communicate through string identifiers, giving you the flexibility to use your own solutions alongside Fray's tools.
 
-### Combat State Management
+### State Management
 
-Fray provides a combat state machine that allows you to keep track of a fighter's state and automatically transition to new states based on the player's inputs.
-Transitions in the state machine can be enabled and disabled through code or the animation player; through this Fray supports the implementation of [chaining](https://glossary.infil.net/?t=Chain). For example, If transitions are allowed early into an attack animation then the attack can, in effect, be canceled into a new attack.
+Fray's combat state machine enables you to manage a fighter's state and transition to new states based on player inputs. With the combat state machine, you have improved control over combat flow, reducing the complexity of implementing state management. Transitions in the state machine can be easily enabled or disabled through code or in the animation player, enabling the implementation of [chaining](https://glossary.infil.net/?t=Chain), where attacks can be canceled into new attacks by allowing early transitions during attack animations.
 
 State machines can be defined declaratively using the included builder classes.
 
 ```gdscript
-# 'attack_button' is an arbitray name
-# Constructs state machine that resembles:
+# This example constructs a state machine which resembles:
 # 	idle -[attack_button]> attack1 -[attack_button]> attack2
-combat_state_machine.add_situation("on_ground", CombatSituationBuilder.new()\
-	.transition_button("idle", "attack1", {input = "attack_button"})\
-	.transition_button("attack1", "attack2", {input = "attack_button"})\
-	.start_at("idle")\
+# 'attack_button' is an arbitray name.
+combat_state_machine.add_situation("on_ground", RootState.builder()
+	.transition_button("idle", "attack1", {input = "attack_button"})
+	.transition_button("attack1", "attack2", {input = "attack_button"})
+	.start_at("idle")
 	.build()
 )
 ```
 
-### Input Buffering
+### State Input Buffering
 
 Inputs fed to fray's combat state machine are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to smoothly perform a sequence of actions.
+
+Below is an example of how these inpust are fed to the state machine.
 
 ```gdscript
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
@@ -52,42 +53,47 @@ func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
 
 ### Complex Input Detection
 
-Fray provides a component based input builder, and sequence analyzer for handling the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
+Fray provides a component based input builder, and sequence matcher for handling the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
 
-Composite inputs can be defined declaratively using the `CompositeInputFactory` class.
+Composite inputs can be defined declaratively using the builder class internal of each composite class. 
+These builders can be accessed through static `builder()` methods which return a new builder instance.
 
 ```gdscript
-const CIF = Fray.Input.CompositeInputFactory
-
 # Binds are used as the 'leafs' of composite input component trees.
 FrayInputMap.add_bind_action("ui_right", "right")
 FrayInputMap.add_bind_action("ui_down", "down")
 
 # This describes a combination input which changes based on what side the player is on.
-FrayInputMap.add_composite_input("down_forward", CIF.new_conditional()\
-	.add_component("", CIF.new_combination_async()\
-		.add_component(CIF.new_simple(["down"]))\
-		.add_component(CIF.new_simple(["right"])))\
-	.add_component("on_right", CIF.new_combination_async()\
-		.add_component(CIF.new_simple(["down"]))\
-		.add_component(CIF.new_simple(["left"])))\
-	.is_virtual()\
+FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
+	.add_component("", FrayCombinationInput.builder()
+		.mode_async()
+		.add_component(CIF.new_simple(["down"]))
+		.add_component(CIF.new_simple(["right"])))
+	.add_component("on_right", CIF.new_combination_async()
+		.add_component(CIF.new_simple(["down"]))
+		.add_component(CIF.new_simple(["left"])))
+	.is_virtual()
 	.build()
 )
 ```
 
-Sequence inputs can be defined using the `SequenceList` class, and then registered to the `SequenceAnalyzer`.
-The sequence analyzer can then be fed inputs and will emit a signal if any matches are found.
+Sequence inputs can be defined using the `SequenceTree` class, and then registered to the `SequenceMatcher`.
+The sequence matcher can then be fed inputs and will emit a signal if any matches are found.
 
 ```gdscript
-var sequence_list := SequenceList.new()
+var sequence_tree := SequenceTree.new()
 
-sequence_list.add("236p", SequencePath.new()\
-	.then("down").then("down_forward").then("forward").then("punch"))
+sequence_tree.add("236p", SequenceBranch.builder()
+	.first("down").then("down_forward").then("forward").then("punch")
+	.build()
+)
 
-# Input leniency can be done by adding a new path with the same sequence name
-sequence_list.add("214p", SequencePath.new()\
-	.then("down").then("forward").then("punch"))
+# Sequence inputs can have multiple branches in order to support input leniency.
+# To add a lenient version of the input simply add a new branch under the sequence name.
+sequence_list.add("236p", SequenceBranch.builder()
+	.first("down").then("forward").then("punch")
+	.build()
+)
 ```
 
 ```gdscript
@@ -115,9 +121,7 @@ If you would like to know more about installing plugins see the [Official Godot 
 ## 📚 Documentation
 
 - [Getting Started](./docs/getting_started/index.md)
-- Fray API (Coming Eventually)
 
 ## 📃 Credits
 
 - Controller Button Images : <https://thoseawesomeguys.com/prompts/>
-- Demo Player Sprite : <https://www.spriters-resource.com/playstation_2/mbaa/sheet/28116/>
