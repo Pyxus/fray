@@ -27,13 +27,13 @@ FrayInputMap.add_bind_action("down", "ui_down")
 
 Composite inputs can be registered in a similar manner to binds using the `FrayInputMap.add_composite_input()` method. The method takes two arguments a name for the composite which must be unique between both composites and binds, and a composite object which can be built using the included builder classes. Fray comes with three composite inputs: Combinations, Conditionals, Groups, and Simple. Simple inputs are effectively just wrappers around binds and are used as the leafs of composition.
 
-Simple inputs are essentialy a composite input wrapper around binds as binds can not diretly be components of a composite input.
+- Simple inputs are essentialy a composite input wrapper around binds as binds can not diretly be components of a composite input.
 
-Combination inputs are composed of 2 or more composite inputs and are triggered when their components are pressed. Combinations can be set to one of three modes: Sync which requires all components to be pressed at the same time, Async which requires all components to be pressed regarldess of time, and Ordered which requires all components to be pressed in the order they were added as components. In regards to fighting games these can be used to create the diagonal direction presses used in motion inputs in additional to just generally adding actions triggered by multiple button presses.
+- Combination inputs are composed of 2 or more composite inputs and are triggered when their components are pressed. Combinations can be set to one of three modes: Sync which requires all components to be pressed at the same time, Async which requires all components to be pressed regarldess of time, and Ordered which requires all components to be pressed in the order they were added as components. In regards to fighting games these can be used to create the diagonal direction presses used in motion inputs in additional to just generally adding actions triggered by multiple button presses.
 
-Conditional inputs change the input they represent based on a string condition defined in the input manager. In regards to fighting games this can be used to add inputs which change depending on the side you are standing on. For example If left of your opponent an attack may be activated with [right + square], If on right the same attack can then be activated with [left + square]. With conditional inputs this can generalized as being [forward + square] and simply update which side the player is on.
+- Conditional inputs change the input they represent based on a string condition defined in the input manager. In regards to fighting games this can be used to add inputs which change depending on the side you are standing on. For example If left of your opponent an attack may be activated with [right + square], If on right the same attack can then be activated with [left + square]. With conditional inputs this can generalized as being [forward + square] and simply update which side the player is on.
 
-Group inputs are considered pressed when a minimum number of components in the group is pressed. This is useful for flexible inputs which require any of a certain set of buttons to be pressed. For example in guilty gear the Roman Cancel mechanic can be triggered by pressing any 3 attack buttons.
+- Group inputs are considered pressed when a minimum number of components in the group is pressed. This is useful for flexible inputs which require any of a certain set of buttons to be pressed. For example in guilty gear the Roman Cancel mechanic can be triggered by pressing any 3 attack buttons.
 
 Examples:
 
@@ -132,7 +132,7 @@ func _ready() -> void:
     sequence_tree.initialize(sequence_tree)
 ```
 
-For this example I named the sequences after the move names for the sake of explanation. However, I recommend choosing names which describe the sequences rather than conceptually "coupling" the name to a specific move. Sequences generally stay the same while moves and their names are subject to change. I recommend using the fighting game Numpad [Notation naming](https://www.dustloop.com/w/Notation) convention.
+For this example I named the sequences after the move names for the sake of explanation. However, I recommend choosing names which describe the sequences rather than conceptually "coupling" the name to a specific move. Sequences generally stay the same while moves and their names are subject to change. I recommend using the fighting game [Numpad Notation](https://www.dustloop.com/w/Notation) as a naming convention.
 
 ### Understanding Negative Edge
 
@@ -143,7 +143,8 @@ Although this is niche, Fray does support it. You just need to set `is_negative_
 ```gdscript
 # The following sequence describes the the input of the famous 'Hadouken' attack performed by Ryu from Street Fighters.
 sequence_tree.add("hadouken", FraySequenceBranch.builder()
-    .first("down").then("down_right").then("right").then("attack").enable_negative_edge()
+    .first("down").then("down_right").then("right").then("attack")
+    .enable_negative_edge()
     .build()
 )
 ```
