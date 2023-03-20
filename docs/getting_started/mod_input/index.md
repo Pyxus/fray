@@ -6,7 +6,7 @@ The input module provides tools which handle input detection, especially for the
 
 ## Registering Inputs to Input Map
 
-Before you can make use of the other tools found in this module you must first register inputs to the input map. Inputs come in the form of binds which wrap around godot's input detection, and composites which make use of other composites to register inputs which involve multiple binds.
+In order to utilize most of the features offered by this module, you need to register inputs to the input map. These inputs can take the form of either binds or composites. Binds wrap around Godot's input detection, while composites use other composites to compose inputs that involve multiple binds.
 
 ### Registering Input Binds
 
