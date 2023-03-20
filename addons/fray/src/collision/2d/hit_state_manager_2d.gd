@@ -16,7 +16,7 @@ signal hitbox_intersected(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHi
 
 ## Emitted when the received [kbd]detected_hitbox[/kbd] enters the child [kbd]detector_hitbox[/kbd]. 
 ## Requires child [FrayHitbox2D.monitoring] to be set to [code]true[/code].
-signal hitbox_seperated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitbox2D)
+signal hitbox_separated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitbox2D)
 
 ## Source of the [FrayHitbox2D]s beneath this node.
 ## [br]
@@ -45,7 +45,7 @@ func _ready() -> void:
 		if child is FrayHitState2D:
 			child.set_hitbox_source(source)
 			child.hitbox_intersected.connect(_on_Hitstate_hitbox_intersected)
-			child.hitbox_intersected.connect(_on_Hitstate_hitbox_seperated)
+			child.hitbox_intersected.connect(_on_Hitstate_hitbox_separated)
 			child.active_hitboxes_changed.connect(_on_HitState_active_hitboxes_changed.bind(child))
 
 
@@ -113,8 +113,8 @@ func _on_Hitstate_hitbox_intersected(detector_hitbox: FrayHitbox2D, detected_hit
 	emit_signal("hitbox_intersected", detector_hitbox, detected_hitbox)
 
 
-func _on_Hitstate_hitbox_seperated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitbox2D) -> void:
-	emit_signal("hitbox_seperated", detector_hitbox, detected_hitbox)
+func _on_Hitstate_hitbox_separated(detector_hitbox: FrayHitbox2D, detected_hitbox: FrayHitbox2D) -> void:
+	emit_signal("hitbox_separated", detector_hitbox, detected_hitbox)
 
 
 func _on_HitState_active_hitboxes_changed(hitstate: FrayHitState2D) -> void:

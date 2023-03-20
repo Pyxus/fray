@@ -6,39 +6,39 @@ The Collision module provides tools for hit detection and hitbox management. In 
 
 ## Hitbox2D/3D
 
-The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of atrribute. 
+The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of `HitboxAttribute`.
 
-`HitboxAtrribute` are a resource that can be given to hitboxes to provide attribute data for use during hit detection. Atrribute can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect atrribute are components you can attach to a hitbox to determine their type.
+`HitboxAttribute` are a resource that can be given to hitboxes to provide attribute data for use during hit detection. Attribute can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect attribute are components you can attach to a hitbox to determine their type.
 
 ### Usage
 
-To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_seperated` signals for detecting other hitboxes.
+To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_separated` signals for detecting other hitboxes.
 
-Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAtrribute` class to create an `AttackAtrribute` and `HurtAtrribute` respectively. The attribute attached to the hitbox then essentially determines its type. Atrribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
+Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAttribute` class to create an `AttackAttribute` and `HurtAttribute` respectively. The attribute attached to the hitbox then essentially determines its type. Attribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
 
-Example Atrribute:
+Example Attribute:
 
 ```gdscript
-class_name HurtAtrribute
-extends FrayHitboxAtrribute
+class_name HurtAttribute
+extends FrayHitboxAttribute
 
 # In this example we only want hurt boxes to detect attack boxes.
 # We can do this by overriding this virtual method.
-func _allows_detection_of_impl(atrribute: FrayHitboxAtrribute) -> void:
-    return atrribute is AttackAtrribute
+func _allows_detection_of_impl(attribute: FrayHitboxAttribute) -> void:
+    return attribute is AttackAttribute
 
 ```
 
 ```gdscript
-class_name AttackAtrribute
-extends FrayHitboxAtrribute
+class_name AttackAttribute
+extends FrayHitboxAttribute
 
 # Example exports to showcase the kind of data you might associate with an attack.
 export var damage: float
 export var knockback_force: float
 ```
 
-![Inspector view of atrribute on hitbox](images/inspector_atrribute.png)
+![Inspector view of attribute on hitbox](images/inspector_attribute.png)
 
 ## HitState2D/3D
 
@@ -52,7 +52,7 @@ Hitboxes added as direct children of the hit state node will appear in the inspe
 
 ![Inspector view of active hitboxes](images/inspector_active_hitbox.png)
 
-The hit state node also features a `hitbox_intersected` and `hitbox_seperated`. Except unlike the version in hitboxes this one includes the hitbox that was detected as well as which hitbox child detected it.
+The hit state node also features a `hitbox_intersected` and `hitbox_separated`. Except unlike the version in hitboxes this one includes the hitbox that was detected as well as which hitbox child detected it.
 
 ## HitStateManager2D/3D
 
@@ -62,7 +62,7 @@ Hit states are intended to represent how a fighter is attacking and/or can be at
 
 When the active hitbox of any of the manager's hit state children changes then the manager will deactive all hit states except the one that changed. Basically, it prevents more than one hit state from being active at a time and automatically enforces discrete hit states.
 
-The hit state manager node also features a `hitbox_intersected` and `hitbox_seperated` that functions identically to the intersect and seperated signal found in the hit state node.
+The hit state manager node also features a `hitbox_intersected` and `hitbox_separated` that functions identically to the intersect and separated signal found in the hit state node.
 
 Below is an example of how your tree may look utilizing all the nodes discussed on this page.
 

@@ -5,7 +5,7 @@ extends Area2D
 ## 2D area intended to detect combat interactions.
 ##
 ## The hitbox node doesn't provide much functionality out of the box.
-## It serves as a template you can expand upon through the use of [FrayHitboxAtrribute]
+## It serves as a template you can expand upon through the use of [FrayHitboxAttribute]
 
 ## Emitted when the received [kbd]hitbox[/kbd] enters this hitbox. Requires monitoring to be set to [code]true[/code].
 signal hitbox_entered(hitbox: FrayHitbox2D)
@@ -16,12 +16,12 @@ signal hitbox_exited(hitbox: FrayHitbox2D)
 ## If true then hitboxes that share the same source as this one will still be detected
 @export var detect_source_hitboxes: bool = false
 
-## The [FrayHitboxAtrribute] assigned to this hitbox
-@export var atrribute: FrayHitboxAtrribute = null:
+## The [FrayHitboxAttribute] assigned to this hitbox
+@export var attribute: FrayHitboxAttribute = null:
 	set(value):
-		atrribute = value
+		attribute = value
 		
-		if atrribute != null:
+		if attribute != null:
 			_update_collision_colors()
 		
 		update_configuration_warnings()
@@ -49,8 +49,8 @@ func _ready() -> void:
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
-	if atrribute == null:
-		warnings.append("Hitboxes without atrribute are effectively just Area2Ds. Consider giving this node a FrayHitboxAtrribute resource.")
+	if attribute == null:
+		warnings.append("Hitboxes without attribute are effectively just Area2Ds. Consider giving this node a FrayHitboxAttribute resource.")
 	return warnings
 
 ## Returns a list of intersecting [FrayHitbox2D]s.
@@ -102,16 +102,16 @@ func can_detect(hitbox: FrayHitbox2D) -> bool:
 		not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
 		and detect_source_hitboxes or hitbox.source != source
-		and atrribute.allows_detection_of(hitbox.atrribute)
-			if atrribute != null else true
+		and attribute.allows_detection_of(hitbox.attribute)
+			if attribute != null else true
 		)
 	
 
 func _update_collision_colors() -> void:
-	if atrribute != null:
+	if attribute != null:
 		for node in get_children():
 			if node is CollisionShape2D:
-				node.debug_color = atrribute.get_color()
+				node.debug_color = attribute.get_color()
 	
 	
 func _on_area_entered(area: Area2D) -> void:
