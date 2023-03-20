@@ -12,7 +12,7 @@ var is_virtual: bool:
 		is_virtual = value
 
 		if get_root() != null:
-			push_warning("Virtual on a non-root component has no affect.") 
+			push_warning("Enabling virtual on a non-root component has no effect.") 
 		
 
 ## The composite input's priority. Higher priority composites are processed first.

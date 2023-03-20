@@ -236,14 +236,14 @@ func _emit_detection_events(device: int) -> void:
 	for input in device_state.get_all_inputs():
 		if is_just_pressed(input, device) or is_just_released(input, device):
 			var input_event := _create_input_event(input, device)
-			input_event.is_echo = false
+			input_event._is_echo = false
 			input_detected.emit(input_event)
 		elif is_pressed(input, device):
 			var input_event := _create_input_event(input, device)
 			var is_same_physics_frame := _last_physics_frame - input_event.physics_frame <= 2
 
 			if not is_same_physics_frame:
-				input_event.is_echo = true
+				input_event._is_echo = true
 				input_detected.emit(input_event)
 
 
@@ -301,7 +301,7 @@ func _create_input_event(input: StringName, device: int) -> FrayInputEvent:
 		input_event.composites_used_in = input_state.composites_used_in
 	elif _input_map.has_composite_input(input):
 		input_event = FrayInputEventComposite.new()
-		input_event.is_virtually_pressed = input_state.is_virtually_pressed
+		input_event._is_virtually_pressed = input_state.is_virtually_pressed
 
 	input_event.device = device
 	input_event.input = input
@@ -309,8 +309,8 @@ func _create_input_event(input: StringName, device: int) -> FrayInputEvent:
 	input_event.physics_frame = input_state.physics_frame
 	input_event.process_frame = input_state.process_frame
 	input_event.time_detected = Time.get_ticks_msec()
-	input_event.is_pressed = input_state.is_pressed
-	input_event.is_distinct = input_state.is_distinct
+	input_event._is_pressed = input_state.is_pressed
+	input_event._is_distinct = input_state.is_distinct
 	
 	return input_event
 

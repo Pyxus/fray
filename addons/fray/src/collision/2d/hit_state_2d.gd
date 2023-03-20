@@ -47,14 +47,6 @@ var active_hitboxes: int = 0:
 
 		active_hitboxes_changed.emit()
 
-## Returns [code]true[/code] if this state is active.
-## [br]
-## [b]Note:[/b] This property is readonly!
-var is_active: bool:
-	get: return _is_active
-	set(value):
-		push_warning("Property is readonly.")
-
 var _is_active: bool
 var _cc_detector: _ChildChangeDetector
 
@@ -143,6 +135,12 @@ func _get_property_list() -> Array[Dictionary]:
 		})
 	
 	return properties
+
+## Returns [code]true[/code] if this state is active.
+## [br]
+## [b]Note:[/b] This property is readonly!
+func is_active() -> bool:
+	return _is_active
 
 ## Returns [code]true[/code] if the hitbox at the given [kbd]index[/kbd] is active.
 func is_hitbox_active(index: int) -> bool:
