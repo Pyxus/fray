@@ -6,7 +6,7 @@ The Collision module provides tools for hit detection and hitbox management. In 
 
 ## Hitbox2D/3D
 
-The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of attributes.
+The hitbox node is the core of the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of attributes.
 
 `HitboxAttribute` is a resource that can be given to hitboxes to provide attribute data for use during hit detection. Attributes can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect, attributes are components you can attach to a hitbox to determine their type.
 
