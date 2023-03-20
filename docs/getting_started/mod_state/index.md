@@ -27,7 +27,7 @@ func _ready() -> void:
 ```
 
 - The `transition_button()` and `transition_sequence()` methods both take 3 arguments. A 'from' state `StringName`, a 'to' state `StringName`, and an config dictionary. Note: the input name is an arbitrary string name and does not inherently reference anything related to the input module.
-- There is also an `add_state()` method, but it is generally unnecessary unless you need to provide a custom `FrayState` object. By default, a state will automatically be created the first time the state name is referenced. Additionally, the first state added to the state machine will be used as the start state. Alternatively, you can use the builder's `start_at()` method to set the start state.
+- The builder also contains a `add_state()` method, but it is generally unnecessary unless you need to provide a custom `FrayState` object. By default, a state will automatically be created the first time the state name is referenced. Additionally, the first state added to the builder will be used as the start state. Alternatively, you can use the builder's `start_at()` method to manually set the start state.
 
 The above situation could be visualized like this:
 
