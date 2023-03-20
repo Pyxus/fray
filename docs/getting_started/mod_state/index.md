@@ -82,7 +82,7 @@ Example:
 
 ```gdscript
 # Reminder! The state management module functions indpedentendly from the input module.
-# In this example I use inputs discovered by tools from the input module but buffered inputs just use arbitrary string ids.
+# In this example I use inputs discovered by tools from the input module but buffered inputs just use arbitrary string names.
 # The input module tools could be substituted for your own input system if you so desired.
 
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
