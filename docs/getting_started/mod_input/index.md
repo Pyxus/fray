@@ -112,7 +112,7 @@ func _on_FrayInput_input_dected(event: FrayInputEvent) -> void:
 
 ## Input Sequence Matching
 
-Fray includes a sequence matcher which can be used for detecting sequences using a tree data structure to match inputs as they are fed to it. To use you will first need to create a `FraySequenceTree` which contains sequences associated with a string name. Each sequence name can be associated with multiple `FraySequenceBranch`s to allow for alternative inputs. Alternative inputs are useful for creating leniancy in a sequence by adding multiple matches for a given sequence name.
+Fray provides a sequence matcher that can be used to detect input sequences. To use this feature, you first  need to create a `FraySequenceTree` object, which contains a mapping of sequence names to branch objects. Each sequence name can be associated with multiple `FraySequenceBranch` objects, which allow for alternative inputs. Alternative inputs are useful for creating leniency in a sequence by adding multiple matches for a given sequence name.
 
 Example Usage:
 
@@ -121,14 +121,16 @@ var sequence_tree := FraySequenceTree.new()
 var sequence_matcher := FraySequenceMatcher.new()
 
 func _ready() -> void:
-    # The following sequence describes the the input of the famous 'Hadouken' attack performed by Ryu from Street Fighters.
+    # The following sequence describes the input for the famous 'Hadouken' attack performed by Ryu from Street Fighter.
     sequence_tree.add("hadouken", FraySequenceBranch.builder()
         .first("down").then("down_right").then("right").then("attack")
         .build()
     )
 
+    # It can be frustating as a player for an attack to not be performed because of overly strict inputs.
     # This is an alternative input for the 'Hadoken' which can match even if the down_right is skipped.
-    # Since this input is easier to perform you could balance this out by setting a short delay like 150ms
+    # This supports leniency by catching the case where a player accidently releases down before pressing right.
+    # Though since this input is easier to perform you could balance it out by setting a short delay like 150ms.
     sequence_tree.add("hadouken", FraySequenceBranch.builder()
         .first("down").then("right", 150).then("attack")
         .build()
@@ -144,7 +146,7 @@ func _ready() -> void:
     sequence_tree.initialize(sequence_tree)
 ```
 
-For this example I named the sequences after the move names for the sake of explanation. However, I recommend choosing names which describe the sequences rather than conceptually "coupling" the name to a specific move. Sequences generally stay the same while moves and their names are subject to change. I recommend using the fighting game [Numpad Notation](https://www.dustloop.com/w/Notation) as a naming convention.
+In this example, I've named the sequences after the moves for the sake of explanation. However, I recommend choosing names that describe the sequences rather than conceptually coupling the name to a specific move. This is because sequences generally stay the same while moves and their names are subject to change. A recommended naming convention is the Numpad Notation used in fighting games, which provides a clear and concise way to describe inputs using numbers that correspond to directions on a numeric keypad. You can find more information about Numpad Notation at https://www.dustloop.com/w/Notation.
 
 ### Understanding Negative Edge
 
