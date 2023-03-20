@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The state management module includes a hierarchical combat state machine for managing the state of combatants in your game, as well as a general-purpose state machine for capturing more general state flows. State management is an essential part of designing complex game  mehchanics as it helps define different states a game entity can be in and what actions can be performed in those states. In regards to fighting games that means defining what buttons transition into what attacks, and what attcks are available during any state.
+The state management module includes two hierarchical state machines: a combat state machine intended for combatants which has built-in support for buffered input transitions, and a general-purpose state machine for capturing more general state flows. State management is an essential part of designing complex game mechanics, as it helps define the different states that a game entity can be in and the actions that can be performed in those states. For fighting games, this means defining which buttons transition into which attacks and what attacks are available during any given state.
 
 ## Using the CombatStateMachine
 
