@@ -16,7 +16,7 @@ signal hitbox_intersected(detector_hitbox: FrayHitbox3D, detected_hitbox: FrayHi
 
 ## Emitted when the received [kbd]detected_hitbox[/kbd] enters the child [kbd]detector_hitbox[/kbd]. 
 ## Requires child [FrayHitbox3D.monitoring] to be set to [code]true[/code].
-signal hitbox_seperated(detector_hitbox: FrayHitbox3D, detected_hitbox: FrayHitbox3D)
+signal hitbox_separated(detector_hitbox: FrayHitbox3D, detected_hitbox: FrayHitbox3D)
 
 ## Emitted when the active hitboxes of this hit state are changed.
 signal active_hitboxes_changed()
@@ -194,7 +194,7 @@ func _on_Hitbox_hitbox_entered(detected_hitbox: FrayHitbox3D, detector_hitbox: F
 
 
 func _on_Hitbox_hitbox_exited(detected_hitbox: FrayHitbox3D, detector_hitbox: FrayHitbox3D) -> void:
-	hitbox_seperated.emit(detector_hitbox, detected_hitbox)
+	hitbox_separated.emit(detector_hitbox, detected_hitbox)
 
 
 func _on_ChildChangeDetector_child_changed(node: Node, change: _ChildChangeDetector.Change) -> void:

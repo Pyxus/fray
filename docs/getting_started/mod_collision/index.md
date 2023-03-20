@@ -38,7 +38,7 @@ export var damage: float
 export var knockback_force: float
 ```
 
-![Inspector view of atrribute on hitbox](images/inspector_atrribute.png)
+![Inspector view of attribute on hitbox](images/inspector_attribute.png)
 
 ## HitState2D/3D
 
