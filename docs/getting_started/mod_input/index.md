@@ -8,15 +8,14 @@ The input module provides tools which handle input detection, especially for the
 
 Before you can make use of the other tools found in this module you must first register inputs to the input map. Inputs come in the form of binds which wrap around godot's input detection, and composites which make use of other composites to register inputs which involve multiple binds.
 
-### Registering Binds
+### Registering Input Binds
 
-To register a bind you just need to call one of the add bind methods on fray's input map singleton. Several bind types exists but for this demonstration we will use the `FrayInputMap.add_bind_action()` method which makes use of godot actions. The method takes two arguments, a name for the bind which must be unique between binds and composites, and the name of the action you wish to bind.
+To register a bind, simply call one of the `add_bind` methods on Fray's input map singleton. There are several types of binds available, but for this demonstration, we'll be using `FrayInputMap.add_bind_action()`, which utilizes Godot actions. This method requires two arguments: a  unique name for the bind (which must be unique between both composites and binds), and the name of the action you wish to bind.
 
 Example:
 
 ```gdscript
-# 'attack' is not a built-in action. I added it using Godot's input map.
-FrayInputMap.add_bind_action("attack", "attack")
+FrayInputMap.add_bind_action("attack", "your_custom_godot_action")
 FrayInputMap.add_bind_action("right", "ui_right")
 FrayInputMap.add_bind_action("left", "ui_left")
 FrayInputMap.add_bind_action("up", "ui_up")
