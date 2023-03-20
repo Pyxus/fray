@@ -52,10 +52,11 @@ FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
     .add_component(FraySimpleInput.from_bind("down"))
     .add_component(FraySimpleInput.from_bind("right"))
     .mode_async()
-    # A virtual input will cause held binds to be repressed upon release. This is useful for motion inputs.
+    # A virtual input will cause held binds to be repressed upon release. 
+    # This is useful for motion inputs:
     # For example, if you press [down] then [down + right], and then release [down] but continue to hold [right] 
-    # you want 'right' to trigger a press even though you technically never pressed it again. 
-    # Otherwise, you would have to release [right] and press it again, which interrupts the motion of the motion input.
+    # you want [right] to trigger a press even though you technically never pressed it again. 
+    # Otherwise, you would have to manually release [right] and press it again, which interrupts the "motion" of the motion input.
     .is_virtual()
     .build()
 )
