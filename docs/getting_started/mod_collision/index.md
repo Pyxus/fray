@@ -12,26 +12,26 @@ The hitbox node is the simplest level of organization within the collision modul
 
 ### Usage
 
-To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_seperated` signals for detecting other hitboxes.
+To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_separated` signals for detecting other hitboxes.
 
-Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAtrribute` class to create an `AttackAtrribute` and `HurtAtrribute` respectively. The attribute attached to the hitbox then essentially determines its type. Atrribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
+Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAttribute` class to create an `AttackAttribute` and `HurtAttribute` respectively. The attribute attached to the hitbox then essentially determines its type. Attribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
 
-Example Atrribute:
+Example Attribute:
 
 ```gdscript
-class_name HurtAtrribute
-extends FrayHitboxAtrribute
+class_name HurtAttribute
+extends FrayHitboxAttribute
 
 # In this example we only want hurt boxes to detect attack boxes.
 # We can do this by overriding this virtual method.
-func _allows_detection_of_impl(atrribute: FrayHitboxAtrribute) -> void:
-    return atrribute is AttackAtrribute
+func _allows_detection_of_impl(attribute: FrayHitboxAttribute) -> void:
+    return attribute is AttackAttribute
 
 ```
 
 ```gdscript
-class_name AttackAtrribute
-extends FrayHitboxAtrribute
+class_name AttackAttribute
+extends FrayHitboxAttribute
 
 # Example exports to showcase the kind of data you might associate with an attack.
 export var damage: float
@@ -52,7 +52,7 @@ Hitboxes added as direct children of the hit state node will appear in the inspe
 
 ![Inspector view of active hitboxes](images/inspector_active_hitbox.png)
 
-The hit state node also features a `hitbox_intersected` and `hitbox_seperated`. Except unlike the version in hitboxes this one includes the hitbox that was detected as well as which hitbox child detected it.
+The hit state node also features a `hitbox_intersected` and `hitbox_separated`. Except unlike the version in hitboxes this one includes the hitbox that was detected as well as which hitbox child detected it.
 
 ## HitStateManager2D/3D
 
