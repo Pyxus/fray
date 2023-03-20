@@ -23,66 +23,71 @@ FrayInputMap.add_bind_action("up", "ui_up")
 FrayInputMap.add_bind_action("down", "ui_down")
 ```
 
-### Registering Composites
+### Registering Composite Inputs
 
-Composite inputs can be registered in a similar manner to binds using the `FrayInputMap.add_composite_input()` method. The method takes two arguments a name for the composite which must be unique between both composites and binds, and a composite object which can be built using the included builder classes. Fray comes with three composite inputs: Combinations, Conditionals, Groups, and Simple. Simple inputs are effectively just wrappers around binds and are used as the leafs of composition.
+You can register composite inputs using the `FrayInputMap.add_composite_input()` method, similar to how binds are registered. The method requires two arguments: a unique name for the composite (which must be unique between both composites and binds) and a composite object, which can built with the included builder classes. Fray includes four composite inputs: Combinations, Conditionals, Groups, and Simple.
 
-- Simple inputs are essentialy a composite input wrapper around binds as binds can not diretly be components of a composite input.
+- Simple inputs are essentially a composite input wrapper around binds since binds cannot be components of a composite input directly.
 
-- Combination inputs are composed of 2 or more composite inputs and are triggered when their components are pressed. Combinations can be set to one of three modes: Sync which requires all components to be pressed at the same time, Async which requires all components to be pressed regarldess of time, and Ordered which requires all components to be pressed in the order they were added as components. In regards to fighting games these can be used to create the diagonal direction presses used in motion inputs in additional to just generally adding actions triggered by multiple button presses.
+- Combination inputs are composed of two or more composite inputs and are triggered when their components are pressed. Combinations can be set to one of three modes: Sync, which requires all components to be pressed at the same time; Async, which requires all components to be pressed regardless of time; and Ordered, which requires all components to be pressed in the order they were added as components. In the context of fighting games, combination inputs can be used to create the diagonal direction presses used in motion inputs, in addition to generally adding actions triggered by multiple button presses.
 
-- Conditional inputs change the input they represent based on a string condition defined in the input manager. In regards to fighting games this can be used to add inputs which change depending on the side you are standing on. For example If left of your opponent an attack may be activated with [right + square], If on right the same attack can then be activated with [left + square]. With conditional inputs this can generalized as being [forward + square] and simply update which side the player is on.
+- Conditional inputs change the input they represent based on string conditions defined in the `FrayInput` input manager. In the context of fighting games, conditional inputs can be used to add inputs that change depending on the side of the player. For example, if the player is on the left side of the opponent, an attack may be activated with [right + button]. If the player is on the right side, the same attack can then be activated with [left + button]. With conditional inputs, this can be generalized as [forward + button] and the 'player side' condition updates to change the physical button 'forward' uses.
 
-- Group inputs are considered pressed when a minimum number of components in the group is pressed. This is useful for flexible inputs which require any of a certain set of buttons to be pressed. For example in guilty gear the Roman Cancel mechanic can be triggered by pressing any 3 attack buttons.
+- Group inputs are considered pressed when a minimum number of components in the group is pressed. This is useful for flexible inputs that require any of a certain set of buttons to be pressed.
 
 Examples:
 
 ```gdscript
-# This describes an ordered combination of buttons. Both right and attack must be pressed however right must be pressed then attack. 
-# Pressing it in reverse order will not work. This is the common behavior of the directional inputs present in fighting games.
+# This describes an ordered combination of buttons where both 'right' and 'attack' must be pressed, but 'right' must be pressed before 'attack'. Pressing them in reverse order will not work. 
+# This is the common behavior of the directional inputs present in fighting games.
 FrayInputMap.add_composite_input("forward_punch", FrayCombinationInput.builder()
     .add_component(FraySimpleInput.from_bind("right"))
-    .add_component(FraySimpleInput.from_bind("attack))
+    .add_component(FraySimpleInput.from_bind("attack"))
     .mode_ordered()
     .build()
 )
 
-# This describes an asynchronous combination of buttons. Both down and right must be pressed but the time and order of the presses do not matter. 
-# Many fighting games make use of motion inputs which rely on treating combinations of directional buttons as real diagonal buttons on the controller
+# This describes an asynchronous combination of buttons where both 'down' and 'right' must be pressed, but the order and timing of the presses do not matter. 
+# Many fighting games make use of motion inputs that rely on treating combinations of directional buttons as diagonal buttons.
 FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
     .add_component(FraySimpleInput.from_bind("down"))
-    .add_component(FraySimpleInput.from_bind("right))
+    .add_component(FraySimpleInput.from_bind("right"))
     .mode_async()
-    # A virtual input will cause held binds to be repressed on release. 
-    # This is useful for motion inputs since, for example, if you press down then down+right, then let go of down and just hold right
-    # You'd want right to trigger a press even though technically you never pressed it again.
+    # A virtual input will cause held binds to be repressed upon release. This is useful for motion inputs.
+    # For example, if you press [down] then [down + right], and then release [down] but continue to hold [right] 
+    # you want 'right' to trigger a press even though you technically never pressed it again. 
+    # Otherwise, you would have to release [right] and press it again, which interrupts the motion of the motion input.
     .is_virtual()
     .build()
 )
 
-# This describes a combination input which changes based on what side the player is on.
-# The condition is just a string name, the actual state of the condition must be updated on the 
-# input singleton using `FrayInput.set_condition()`
+# This uses a conditional input to describe a combination input that changes based on what side the player is on. 
+# The condition is just an arbitrary string name, and the actual state of the condition 
+# must be updated on the input singleton using the `FrayInput.set_condition()` method.
 FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
+  # The first component does not require a condition since it is considered the default component.
 	.add_component("", FrayCombinationInput.builder()
-		.add_component(CIF.new_simple(["down"]))
-		.add_component(CIF.new_simple(["right"])))
-        .mode_async()
-	.add_component("on_right", CIF.new_combination_async()
-		.add_component(CIF.new_simple(["down"]))
-		.add_component(CIF.new_simple(["left"])))
+		.add_component(FraySimpleInput.from_bind("down"))
+		.add_component(FraySimpleInput.from_bind("right"))
+    .mode_async()
+	.add_component("on_right", FrayCombinationInput.builder()
+		.add_component(FraySimpleInput.from_bind("down"))
+		.add_component(FraySimpleInput.from_bind("left"))
+    .mode_async()
 	.is_virtual()
 	.build()
 )
 
 # Roman cancel is the name of a mechanic from the guilty gear series.
-# It can be triggered by pressing any 3 attack buttons which this composite describes.
+# It can be triggered by pressing any 3 attack buttons.
+# This group input describes that behavior.
 FrayInputMap.add_composite_input("roman_cancel", FrayGroupInput.builder()
     .add_component(FraySimpleInput.from_bind("attack1"))
     .add_component(FraySimpleInput.from_bind("attack2"))
     .add_component(FraySimpleInput.from_bind("attack3"))
     .add_component(FraySimpleInput.from_bind("attack4"))
     .min_pressed(3)
+    .build()
 )
 ```
 
