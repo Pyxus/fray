@@ -92,14 +92,22 @@ FrayInputMap.add_composite_input("roman_cancel", FrayGroupInput.builder()
 
 ## Detecting Inputs
 
-`FrayInput` is a singleton similar to the Input singleton provided by Godot. Once the input map is configured this manager can be used to check if binds and composites are pressed using their given names. Inputs can be checked per-device but by default all check methods use device 0 which usually corresponds to the keyboard/mouse and the 'player1' controller. The input manager also contains a 'input_detected' signal which can also be used to check for inputs similar to the input events fed through Godot's `_input()` virtual method.
+`FrayInput` is a singleton similar to Godot's `Input` singleton. After configuring the input map, this manager can be used to check if binds and composites are pressed using their assigned names. While inputs can be checked per-device, the default behavior is to use device 0, which typically corresponds to the keyboard/mouse and the 'player1' controller. The input manager also contains an `input_detected` signal, which can be used to detect inputs in a similar manner to Godot's built-in `_input()` virtual method.
+
+Examples:
+
     
 ```gdscript
-FrayInput.is_pressed(...)
-FrayInput.is_just_pressed(...)
-FrayInput.is_just_released(...)
-FrayInput.get_axis(...)
-FrayInput.get_strength(...)
+FrayInput.is_pressed("input_name")
+FrayInput.is_just_pressed("input_name")
+FrayInput.is_just_released("input_name")
+FrayInput.get_axis("negative_input_name", "positive_input_name")
+FrayInput.get_strength("input_name")
+
+func _on_FrayInput_input_dected(event: FrayInputEvent) -> void:
+  if event.input == "input_name" and event.is_pressed:
+    do_something()
+
 ```
 
 ## Input Sequence Matching
