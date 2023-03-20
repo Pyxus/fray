@@ -145,7 +145,7 @@ func _ready() -> void:
     sequence_matcher.initialize(sequence_tree)
 ```
 
-In this example, I've named the sequences after the moves for the sake of clairty. However, while sequences generally stay the same, moves and their names are subject to change. For this reason it's recommend to choose names which describe the sequences rather than the move. A recommended naming convention is the Numpad Notation used in fighting games, which provides a clear and concise way to describe inputs using numbers that correspond to directions on a numeric keypad. You can find more information about Numpad Notation at https://www.dustloop.com/w/Notation.
+In this example, I've named the sequences after the moves for the sake of clarity. However, while sequences generally stay the same, moves and their names are subject to change. For this reason it's recommend to choose names which describe the sequences rather than the move. A recommended naming convention is the Numpad Notation used in fighting games, which provides a clear and concise way to describe inputs using numbers that correspond to directions on a numeric keypad. You can find more information about Numpad Notation at https://www.dustloop.com/w/Notation.
 
 ### Understanding Negative Edge
 
