@@ -150,12 +150,13 @@ In this example, I've named the sequences after the moves for the sake of explan
 
 ### Understanding Negative Edge
 
-There is an input behavior featured in some fighting games known as negative edge. Ordinarily the input sequence is only considered valid when every button is pressed in succession. However, for inputs that support negative edge the last input in the sequence can be triggered by either a button press or a button release. Then means you can hold the last button down, enter the rest of the sequence, then release to trigger it.
+In some fighting games, there is a special input behavior known as negative edge. Typically, an input sequence is considered valid only when every button is pressed in succession. However, for inputs that support negative edge, the last input in the sequence can be triggered by either a button press or a button release. This means that you can hold the last button down, enter the rest of the sequence, and then release it to complete the input. Fray supports this feature, and you can enable it by calling the `enable_negative_edge()` method when building your `FraySequenceBranch` objects. Although negative edge is a niche feature, it can be useful in certain situations.
 
-Although this is niche, Fray does support it. You just need to set `is_negative_edge_enabled` to true or call the `enable_negative_edge()` when building your `FraySequenceBranch`s.
+Example Usage:
+
 
 ```gdscript
-# The following sequence describes the the input of the famous 'Hadouken' attack performed by Ryu from Street Fighters.
+# The following sequence describes the input of the famous 'Hadouken' attack performed by Ryu from Street Fighters.
 sequence_tree.add("hadouken", FraySequenceBranch.builder()
     .first("down").then("down_right").then("right").then("attack")
     .enable_negative_edge()
