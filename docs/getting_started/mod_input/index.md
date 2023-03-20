@@ -37,7 +37,7 @@ You can register composite inputs using the `FrayInputMap.add_composite_input()`
 Examples:
 
 ```gdscript
-# This describes an ordered combination of buttons where both 'right' and 'attack' must be pressed, but 'right' must be pressed before 'attack'. Pressing them in reverse order will not work. 
+# This describes an ordered combination of buttons where 'right' must be pressed, and then 'attack' must be pressed. Pressing them in reverse order will not work. 
 # This is the common behavior of the directional inputs present in fighting games.
 FrayInputMap.add_composite_input("forward_punch", FrayCombinationInput.builder()
     .add_component(FraySimpleInput.from_bind("right"))
