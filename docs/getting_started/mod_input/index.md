@@ -166,7 +166,9 @@ sequence_tree.add("hadouken", FraySequenceBranch.builder()
 
 ### Detecting Sequence Matches
 
-The sequence matcher uses fray input events for its match procedure. Events can be fed to the analyzer using the `FrayInput` singleton's `input_detected` signal. If a match is found the sequence matcher will emit a `match_found` signal.
+To perform the match procedure, the sequence matcher uses `FrayInputEvent`s. You can feed events to the analyzer using the `FrayInput` singleton's `input_detected` signal. If the sequence matcher finds a match, it will emit a `match_found` signal.
+
+Example Usage:
 
 ```gdscript
 func _ready() -> void:
