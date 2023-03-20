@@ -32,6 +32,26 @@ The above situation could be visualized like this:
 
 ![Visulization of described situation](images/situation_visualization.svg)
 
+### Buffering inputs
+
+The combat state machine automatically transitions to new states based on the buffered inputs and sequences given to it, if allowed. In this context, buffering refers to allowing inputs pressed when transitions were not allowed to persist for a certain amount of time and attempting to transition using them when transitions are allowed, as if they were just pressed. Put another way, buffering repeats the input until either its time in the buffer expires or the state machine consumes it. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action/fighting games because 
+without it, players would need frame-perfect inputs to perform a sequence of actions smoothly.
+
+Example:
+
+```gdscript
+# Reminder! The state management module functions indpedentendly from the input module.
+# In this example I use inputs discovered by tools from the input module but buffered inputs just use arbitrary string ids.
+# The input module tools could be substituted for your own input system if you so desired.
+
+func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
+	if input_event.is_just_pressed():
+		combat_state_machine.buffer_button(input_event.input, input_event.pressed)
+
+func _on_SequenceMatcher_match_found(sequence_name: StringName):
+  combat_state_machine.buffer_sequence(sequence_name)
+```
+
 ### Transition configs
 
 The optional config dictionary allows for additional customization of the transition. Each key in the config dict corresponds to a property on the `FrayStateMachineTransition` object it uses.
@@ -78,6 +98,6 @@ To change situations you just need to update the `current_situation` property on
 combat_state_machine.current_situation = "on_ground"
 ```
 
-## Restricting transitions
+### Restricting transitions
 
 The combat state machine has an `allow_transitions` property. Enabling and disabling this property allows you to control when a combatant is allowed to switch states. For example, if this property is set to false for the entire duration of an attack animation and set to true at the end, the player is functionally unable to interrupt or cancel into another combat state. Conversely, if the property is set to true during the attack, the player could cancel into another combat state. This property can be keyed in the animation player allowing for easy syncing with animations.
