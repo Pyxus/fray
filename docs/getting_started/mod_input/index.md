@@ -24,7 +24,7 @@ FrayInputMap.add_bind_action("down", "ui_down")
 
 ### Registering Composite Inputs
 
-You can register composite inputs using the `FrayInputMap.add_composite_input()` method, similar to how binds are registered. The method requires two arguments: a unique name for the composite (which must be unique between both composites and binds) and a composite object, which can built with the included builder classes. Fray includes four composite inputs: Combinations, Conditionals, Groups, and Simple.
+You can register composite inputs using the `FrayInputMap.add_composite_input()` method, similar to how binds are registered. The method requires two arguments: a unique name for the composite (which must be unique between both composites and binds) and a composite object, which can be built with the included builder classes. Fray includes four composite inputs: Combinations, Conditionals, Groups, and Simple.
 
 - Simple inputs are essentially a composite input wrapper around binds since binds cannot be components of a composite input directly.
 
