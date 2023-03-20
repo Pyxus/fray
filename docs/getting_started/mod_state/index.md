@@ -6,27 +6,28 @@ The state management module includes two hierarchical state machines: a combat s
 
 ## Using the CombatStateMachine
 
-For this demonstration we will be using the `FrayCombatStateMachine` however all the information regarding building the states and transitions apply to the general purpose `FrayGeneralStateMachine` as well. To get started first add a `FrayCombatStateMachine` from the node creation dialog.
+For this demonstration we will be using the `FrayCombatStateMachine`. However, all the information regarding building the states and transitions apply to the general-purpose `FrayGeneralStateMachine` as well. To get started, first add a `FrayCombatStateMachine` to the scene tree from the node creation dialog.
 
-Once the state machine is added to the scene you can begin adding situations. A situation is a name to `FrayRootState` mapping which represents the set of actions available to a combatant. To add a new situation call the `add_situation()` method on the combat state machine. It accepts 2 arguments, a string name, and a `FrayRootState`. The root state is what actually contains all the information related to states and transitions.
+Once the state machine is added to the scene, you can begin adding situations. A situation is a name-to-`FrayRootState` mapping which represents the set of actions available to a combatant in a given circumstance. To add a new situation call the `add_situation()` method on the combat state machine. It accepts 2 arguments: a string name and a `FrayRootState`, which is what actually contains all the information related to states and transitions.
 
-Using the the root state builder the state machine can be assembled inline like so:
+Using the root state builder the state machine can be assembled inline like so:
 
 ```gdscript
 
-@onready var combat_state_machine = $CombatStateMachine
+@onready var combat_state_machine: FrayCombatStateMachine = $CombatStateMachine
 
 func _ready() -> void:
     combat_state_machine.add_situation("on_ground", FrayRootState.builder()
         .transition_button("idle", "attack_1", {input="btn_punch"})
         .transition_sequence("idle", "attack_2", {sequence="seq_236p"})
-        .build("idle")
+        .start_at("idle")
+        .build()
     )
 ```
 
-- The `transition_button()` and `transition_sequence()` method both take 4 arguments. A 'from' state string, a 'to' state string, a string representing the input name, and an optional config dictionary. Note the input name is an arbitrary string name and does not inherently reference anything related to the input module.
+- The `transition_button()` and `transition_sequence()` methods both take 3 arguments. A 'from' state string, a 'to' state string, and a config dictionary. Note: the input name is an arbitrary string name and does not inherently reference anything related to the input module.
+- There is also an `add_state()` method, but it is generally unnecessary unless you need to provide a custom `FrayState` object. By default, a state will automatically be created the first time the state name is referenced. Additionally, the first state added to the state machine will be used as the start state. Alternatively, you can use the builder's `start_at()` method to set the start state.
 
-- The `build()` method will return a root node built using the current build configuration. The first state added to the system will be used for the start state but you can optionally set the start state using the builder's `start_at()` method.
 The above situation could be visualized like this:
 
 ![Visulization of described situation](images/situation_visualization.svg)
