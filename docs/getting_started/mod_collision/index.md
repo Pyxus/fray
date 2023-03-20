@@ -56,13 +56,13 @@ The hit state node also features a `hitbox_intersected` and `hitbox_separated`. 
 
 ## HitStateManager2D/3D
 
-Hit states are intended to represent how a fighter is attacking and/or can be attacked at a given moment. In a game with many actions, you'll likey want to use many hit states. For this fray provides a third and final level of organization in the form of hit state managers.
+Hit states are intended to represent how a fighter is attacking and/or can be attacked at a given moment. In a game with many actions, you'll likely want to use many hit states. For this, Fray provides a third and final level of organization in the form of hit state managers.
 
 ## Usage
 
-When the active hitbox of any of the manager's hit state children changes then the manager will deactive all hit states except the one that changed. Basically, it prevents more than one hit state from being active at a time and automatically enforces discrete hit states.
+When the active hitbox of any of the manager's hit state children changes then the manager will deactivate all hit states except the one that changed. Basically, it prevents more than one hit state from being active at a time and automatically enforces discrete hit states.
 
-The hit state manager node also features a `hitbox_intersected` and `hitbox_seperated` that functions identically to the intersect and seperated signal found in the hit state node.
+The hit state manager node also features a `hitbox_intersected` and `hitbox_separated` that functions identically to the intersect and separated signal found in the hit state node.
 
 Below is an example of how your tree may look utilizing all the nodes discussed on this page.
 
