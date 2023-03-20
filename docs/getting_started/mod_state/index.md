@@ -34,9 +34,9 @@ The above situation could be visualized like this:
 
 ### Transition configs
 
-The optional config dictionary allows for additional customization of the transition. Each key in the config dict corresponds to a property on the transition it uses.
+The optional config dictionary allows for additional customization of the transition. Each key in the config dict corresponds to a property on the `FrayStateMachineTransition` object it uses.
 
-Below demonstates usage of the `prereqs` config. Prereqs take an array of conditions and only allow the transition to occur when all are true. To update the value of the condition the `set_condition()` method can be called on the `GraphNodeStateMachine`.
+Below demonstrates usage of the `prereqs` config. Prereqs take an array of conditions and only allow the transition to occur when all are true. To update the value of the condition the `set_condition()` method can be called on the `GraphNodeStateMachine`.
 
 ```gdscript
     combat_state_machine.add_situation("on_ground", FrayRootState.builder()
@@ -48,8 +48,7 @@ Below demonstates usage of the `prereqs` config. Prereqs take an array of condit
 combat_state_machine.get_root().set_condition("on_hit", true)
 ```
 
-The above situation could be interpreted as the follow up attack only being performable if the previous attack hit.
-
+The above situation could be interpreted as the subsequent attack only being performable if the previous attack hit.
 
 ### Global transitions
 
