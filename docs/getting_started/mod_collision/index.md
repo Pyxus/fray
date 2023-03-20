@@ -62,7 +62,7 @@ When the active hitbox of any of the manager's hit state children changes then t
 
 ## Usage
 
-To use the manager, you just need to add hit states as direct children to it. Once done, you can connect the manager's `hitbox_intersected` and `hitbox_separated` signals. These function identically to the 'intersect' and 'separated' signals found in the hit state node and allow you to know when any hitbox belonging to this system detects a hit from a single access point.
+To use the manager, you just need to add hit states as direct children to it. Once done, you can connect the manager's `hitbox_intersected` and `hitbox_separated` signals. These function identically to the 'intersect' and 'separated' signals found in the hit state node and allow you to know when any hitbox belonging to this system detects a hit, from a single access point.
 
 Below is an example of how your tree may look utilizing all the nodes discussed on this page.
 
