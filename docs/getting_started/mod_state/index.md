@@ -72,7 +72,7 @@ The above situation could be interpreted as all normal attacks can transition in
 
 ### Changing situations
 
-To change situations you simply need to update the `current_situation` property on the combat state machine.
+To change situations you just need to update the `current_situation` property on the combat state machine.
 
 ```gdscript
 combat_state_machine.current_situation = "on_ground"
