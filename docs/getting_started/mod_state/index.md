@@ -47,7 +47,8 @@ combat_state_machine.add_situation("on_ground", FrayRootState.builder()
     .multi_tag(["idle", "attack_1", "attack_2"], ["normal"])
     .tag("special_attack", ["special"])
     .add_rule("normal", "special")
-    .build("idle")
+    .start_at("idle")
+    .build()
 )
 ```
 
@@ -63,7 +64,8 @@ Below demonstrates usage of the `prereqs` config. Prereqs take an array of condi
     combat_state_machine.add_situation("on_ground", FrayRootState.builder()
         .transition_button("idle", "attack_1", {input="btn_punch"})
         .transition_button("idle", "attack_2", {sequence="btn_punch", prereqs=FrayCondition.new("on_hit")})
-        .build("idle")
+	.start_at("idle")
+        .build()
     )
 
 combat_state_machine.get_root().set_condition("on_hit", true)
