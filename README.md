@@ -19,7 +19,7 @@ Fray is an addon for the [Godot Game Engine](https://godotengine.org) that provi
 
 ### Modular Design
 
-Fray is divided into 3 modules: State Management, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. These modules work independently of each other and only communicate through string identifiers, giving you the flexibility to use your own solutions alongside Fray's tools.
+Fray is divided into 3 modules: State Management, Input, and Collision. These modules act independent of one another and only communicate through strings giving you the flexibility to use your own solutions alongside Fray's tools.
 
 ### State Management
 
