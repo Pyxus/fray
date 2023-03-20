@@ -52,7 +52,7 @@ The above situation could be interpreted as the subsequent attack only being per
 
 ### Global transitions
 
-Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules. If a rule exists. States with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'. This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them. For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
+Global transitions are a convenience feature that allows you to automatically connect states based on global transition rules. If a rule exists. States with a given 'from_tag' will automatically have a transition setup to global states with a given 'to_tag'. This is useful for setting up transitions which need to be available from multiple states without needing to manually connect them. For example, in many fighting games you could say all attacks tagged as 'normal' may transition into attacks tagged as 'special'
 
 
 ```gdscript
