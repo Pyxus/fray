@@ -6,15 +6,15 @@ The Collision module provides tools for hit detection and hitbox management. In 
 
 ## Hitbox2D/3D
 
-The hitbox node is the simplest level of organization within the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of `HitboxAttribute`.
+The hitbox node is the core of the collision module. It doesn't provide much functionality out of the box and is essentially just an Area. But what it does provide is a template that you can expand upon through the use of `FrayHitboxAttribute`s.
 
-`HitboxAttribute` are a resource that can be given to hitboxes to provide attribute data for use during hit detection. Attribute can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect attribute are components you can attach to a hitbox to determine their type.
+`FrayHitboxAttribute` is a resource that can be given to hitboxes to provide attribute data for use during hit detection. Attributes can also determine what hitboxes the parent hitbox can interact with by overriding the `_allows_detection_of_impl()` virtual method. In effect, attributes are components you can attach to a hitbox to determine their type.
 
 ### Usage
 
 To use the hitbox node first add it to your desired scene. The hitbox node can be found by searching `FrayHitbox2D` and `FrayHitbox3D` in the node creation dialog. Once added you set the node up identical to an area node meaning a collision shape node must be added as a child. When that is done you use can then connect the `hitbox_intersected` and `hitbox_separated` signals for detecting other hitboxes.
 
-Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `HitboxAttribute` class to create an `AttackAttribute` and `HurtAttribute` respectively. The attribute attached to the hitbox then essentially determines its type. Attribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
+Now suppose you wanted to distinguish between a hurt box (box that detects attacks), and attack box (box that causes damage). Rather than extend the hitbox class, instead extend the `FrayHitboxAttribute` class to create an `AttackAttribute` and `HurtAttribute` respectively. The attribute attached to the hitbox then essentially determines its type. Attribute can then be referenced during hit detection and their data used to influence the response such as how much damage an attack deals.
 
 Example Attribute:
 
@@ -42,7 +42,7 @@ export var knockback_force: float
 
 ## HitState2D/3D
 
-Hit states are the 2nd level of organization the collision module provides. In fighting games you'll often see single actions with multiple discrete hitbox confiugrations. Managing multiple hitboxes in the scene tree can get tedious. To handle this fray includes a hit state node which allows you to manage multiple hitboxes from a single access point.
+Hit states are the simplest level of organization the collision module provides. In fighting games you'll often see single actions with multiple discrete hitbox confiugrations. Managing multiple hitboxes in the scene tree can get tedious. To handle this fray includes a hit state node which allows you to manage multiple hitboxes from a single access point.
 
 ![Tree view of hit state with hitbox children](images/tree_hit_state.png)
 
@@ -56,13 +56,13 @@ The hit state node also features a `hitbox_intersected` and `hitbox_separated`. 
 
 ## HitStateManager2D/3D
 
-Hit states are intended to represent how a fighter is attacking and/or can be attacked at a given moment. In a game with many actions, you'll likey want to use many hit states. For this fray provides a third and final level of organization in the form of hit state managers.
+Hit states are intended to represent how a fighter is attacking and/or can be attacked at a given moment. In a game with many actions, you'll likely want to use many hit states and organizing them all can again get tedious. For this, Fray provides another level of organization in the form of hit state managers.
+
+When the active hitbox of any of the manager's hit state children changes then the manager will deactivate all hit states except the one that changed. Basically, it prevents more than one hit state from being active at a time and automatically enforces discrete hit states.
 
 ## Usage
 
-When the active hitbox of any of the manager's hit state children changes then the manager will deactive all hit states except the one that changed. Basically, it prevents more than one hit state from being active at a time and automatically enforces discrete hit states.
-
-The hit state manager node also features a `hitbox_intersected` and `hitbox_separated` that functions identically to the intersect and separated signal found in the hit state node.
+To use the manager, you just need to add hit states as direct children to it. Once done, you can connect the manager's `hitbox_intersected` and `hitbox_separated` signals. These function identically to the 'intersect' and 'separated' signals found in the hit state node and allow you to know when any hitbox belonging to this system detects a hit, from a single access point.
 
 Below is an example of how your tree may look utilizing all the nodes discussed on this page.
 

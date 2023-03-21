@@ -19,7 +19,7 @@ Fray is an addon for the [Godot Game Engine](https://godotengine.org) that provi
 
 ### Modular Design
 
-Fray is divided into 3 modules: State Management, Input, and Collision. These modules act independent of one another and only communicate through string identifiers. These modules work independently of each other and only communicate through string identifiers, giving you the flexibility to use your own solutions alongside Fray's tools.
+Fray is divided into 3 modules: State Management, Input, and Collision. These modules act independent of one another and only communicate through strings giving you the flexibility to use your own solutions alongside Fray's tools.
 
 ### State Management
 
@@ -30,7 +30,7 @@ State machines can be defined declaratively using the included builder classes.
 ```gdscript
 # This example constructs a state machine which resembles:
 # 	idle -[attack_button]> attack1 -[attack_button]> attack2
-# 'attack_button' is an arbitray name.
+# 'attack_button' is an arbitrary name.
 combat_state_machine.add_situation("on_ground", RootState.builder()
 	.transition_button("idle", "attack1", {input = "attack_button"})
 	.transition_button("attack1", "attack2", {input = "attack_button"})
@@ -41,9 +41,9 @@ combat_state_machine.add_situation("on_ground", RootState.builder()
 
 ### State Input Buffering
 
-Inputs fed to fray's combat state machine are buffered allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to smoothly perform a sequence of actions.
+Inputs fed to Fray's combat state machine are buffered, allowing a player to queue their next action before the current action has finished. [Buffering](https://en.wiktionary.org/wiki/Appendix:Glossary_of_fighting_games#Buffering) is an important feature in action / fighting games as without it players would need frame perfect inputs to smoothly perform a sequence of actions.
 
-Below is an example of how these inpust are fed to the state machine.
+Below is an example of how these inputs are fed to the state machine.
 
 ```gdscript
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
@@ -53,10 +53,10 @@ func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
 
 ### Complex Input Detection
 
-Fray provides a component based input builder, and sequence matcher for handling the 'complex' inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
+Fray provides a component-based input builder, and sequence matcher for handling the complex inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
 
 Composite inputs can be defined declaratively using the builder class internal of each composite class. 
-These builders can be accessed through static `builder()` methods which return a new builder instance.
+These builders can be accessed through static `builder()` methods, which return a new builder instance.
 
 ```gdscript
 # Binds are used as the 'leafs' of composite input component trees.
@@ -90,7 +90,7 @@ sequence_tree.add("236p", SequenceBranch.builder()
 
 # Sequence inputs can have multiple branches in order to support input leniency.
 # To add a lenient version of the input simply add a new branch under the sequence name.
-sequence_list.add("236p", SequenceBranch.builder()
+sequence_tree.add("236p", SequenceBranch.builder()
 	.first("down").then("forward").then("punch")
 	.build()
 )
@@ -104,7 +104,7 @@ func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
 
 ### Hitbox Management
 
-Fray provides a template hitbox which is an `Area` node with an `attribute` property. Attribute can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in animations for easy syncing.
+Fray provides a template hitbox which is an `Area` node with an `attribute` property. Attributes can be extended to determine the properties of the hitbox they are attached to. In addition, Fray provides tools for managing these hitboxes in the form of hit states. Hit states can control which hitbox child node is active through a single property in the inspector which can be keyed in the animation player for easy syncing.
 
 <img src="assets/hitbox_tree.png" width="400" alt="Tree view of hitbox management">
 
