@@ -14,11 +14,11 @@
 
 ### Changed
 
-- Switched from using `String`s to `StringName`s in multiple places such as for input and state names.
+- Switched from using `String`s to `StringName`s in various places such as for input and state names.
 
 - Switched from using packed arrays to godot 4's new typed arrays in various places.
 
-- Gave every class now has a class_name prefixed with `Fray`.
+- Gave every class a class_name prefixed with `Fray`.
 
 - Changed functionally read-only `is_X` variables to methods.
 
@@ -46,7 +46,7 @@
 
 - State Management: Replaced state machine builders with internal builder on `FrayRootState`. The builder can be created with a static method call like so `FrayRootState.builder()`.
 
-- State Management: Made `FrayStateMachine` node pseudo-abstract.
+- State Management: Made `FrayStateMachine` node pseudo-abstract. Its functionality is now implemented in `FrayGeneralStateMachine`.
 
 ### Fixed
 
@@ -54,11 +54,11 @@
 
 - Fixed several documentation typos.
 
-- Rewrote 'getting started' documentation.
+- Rewrote 'getting started' documentation to fix typos and provide a better introduction into Fray.
 
 ### Removed
 
-- Removed pseudo-namespaces: `Fray.StateMgt`, `Fray.Input`, and `Fray.Collision`. In order to take advantage of class referencing in doc comments and exporting custom resource types all classes must not use actual class names.
+- Removed pseudo-namespaces: `Fray.StateMgt`, `Fray.Input`, and `Fray.Collision`. In order to take advantage of class referencing in doc comments and exporting custom resource types all classes must now use actual class names.
 
 ### Fixed
 
