@@ -1,5 +1,67 @@
 # Changelog
 
+## v2.0.0-alpha
+
+### Added
+
+- Collision: Added exported `source` property to `FrayHitState` 2D/3D.
+
+- Input: Added `FrayGroupInput` composite input.
+
+- Input: Added EXPERIMENTAL input buffer node. The way in which this node functions is very subject to change.
+
+- State Management: Added general purpose `FrayGeneralStateMachine`.
+
+### Changed
+
+- Switched from using `String`s to `StringName`s in multiple places such as for input and state names.
+
+- Switched from using packed arrays to godot 4's new typed arrays in various places.
+
+- Gave every class now has a class_name prefixed with `Fray`.
+
+- Changed functionally read-only `is_X` variables to methods.
+
+- Collision: Renamed `HitboxAttributes` to `FrayHitboxAttribute`.
+
+- Input: Changed `FraySimpleInput` to use a single bind rather than an array of binds. The features related to the simple input having multiple binds have now been spread between `FrayInputBindFrayAction` and `FrayGroupInput`.
+
+- Input: Replaced `CompositeInputFactory` with builder classes internal to each composite input. Builders can be created with a static method call like so `FrayCombinationInput.builder()`.
+
+- Input: Renamed `SequenceList` to `FraySequenceTree`.
+
+- Input: Renamed `SequencePath` to `FraySequenceBranch`.
+
+- Input: Renamed `SequenceAnalyzer` to `FraySequenceMatcher`.
+
+- State Management: Changed state builder transition config to now directly check the properties of `FrayStateMachineTransition` objects. Any object property can be used as a dict key in order to set the value when building.
+
+- State Management: Renamed 'state' module folder to 'state_mgmt'.
+
+- State Management: Renamed `StateNode` to `FrayState`.
+
+- State Management: Replaced `StateNodeStateMachine` and `StateNodeStateMachineGlobal` with `FrayRootState`. This new class has the functionality of both.
+
+- State Management: Replaced all use of 'node' with 'state'. For example what was previously `StateNodeStateMachine.add_node()` is now `FrayRootState.add_state()`.
+
+- State Management: Replaced state machine builders with internal builder on `FrayRootState`. The builder can be created with a static method call like so `FrayRootState.builder()`.
+
+- State Management: Made `FrayStateMachine` node pseudo-abstract.
+
+### Fixed
+
+- Resolved issues with in-line doc comments. Many doc comments were written prior to Godot 4, they've been updated to correctly display in the in-engine documentation.
+
+- Fixed several documentation typos.
+
+- Rewrote 'getting started' documentation.
+
+### Removed
+
+- Removed pseudo-namespaces: `Fray.StateMgt`, `Fray.Input`, and `Fray.Collision`. In order to take advantage of class referencing in doc comments and exporting custom resource types all classes must not use actual class names.
+
+### Fixed
+
 ## v1.0.1
 
 ### Removed
