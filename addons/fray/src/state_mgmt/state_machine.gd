@@ -15,12 +15,11 @@ enum AdvanceMode{
 	MANUAL, ## Advance manually
 }
 
-## The process mode of this state machine.
-@export var advance_mode: AdvanceMode = AdvanceMode.PROCESS
-
 ## If true the combat state machine will be processing.
 @export var active: bool = false
 
+## The process mode of this state machine.
+@export var advance_mode: AdvanceMode = AdvanceMode.PROCESS
 
 func _process(delta: float) -> void:
 	if _can_process():
