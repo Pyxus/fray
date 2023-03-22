@@ -9,6 +9,7 @@ The state management module includes two hierarchical state machines: a combat s
 For this demonstration we will be using the `FrayCombatStateMachine`. However, all the information regarding building the states and transitions apply to the general-purpose `FrayGeneralStateMachine` as well. To get started, first add a `FrayCombatStateMachine` to the scene tree from the node creation dialog.
 
 ### Building the state machine
+
 Once the state machine is added to the scene, you can begin adding situations. A situation is a `StringName`-to-`FrayRootState` mapping which represents the set of actions available to a combatant in a given circumstance. To add a new situation call the `add_situation()` method on the combat state machine. It accepts 2 arguments: a `StringName` and a `FrayRootState`, which is what actually contains all the information related to states and transitions.
 
 Using the root state builder the state machine can be assembled inline like so:
@@ -96,6 +97,8 @@ func _on_SequenceMatcher_match_found(sequence_name: StringName):
 ### Restricting transitions
 
 The combat state machine has an `allow_transitions` property. Enabling and disabling this property allows you to control when a combatant is allowed to switch states. For example, if this property is set to false for the entire duration of an attack animation and set to true at the end, the player is functionally unable to interrupt or cancel into another combat state. Conversely, if the property is set to true during the attack, the player could cancel into another combat state. This property can be keyed in the animation player allowing for easy syncing with animations.
+
+Note: State machines also possess an `active` property. This determines whether or not the state machine will be processing whatsoever.
 
 ### Changing situations
 
