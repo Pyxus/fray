@@ -45,8 +45,8 @@ var end_state: StringName = "":
 
 ## The state machine's current state.
 var current_state: StringName = "":
+	get: return _current_state
 	set(state):
-		if _ERR_INVALID_STATE(state): return
 		goto(state)
 
 # Type: Dictionary<StringName, FrayState>
@@ -64,24 +64,28 @@ var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
 var _global_transitions: Array[FrayStateMachineTransition]
+var _current_state: StringName
 
 
 func _enter_impl(args: Dictionary) -> void:
+	super(args)
 	goto_start(args)
 
 
 func _is_done_processing_impl() -> bool:
-	return end_state.is_empty() or current_state == end_state
+	super()
+	return end_state.is_empty() or _current_state == end_state
 
 ## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
 func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state): return
 	
-	if _states.is_empty():
-		start_state = name
-
 	_states[name] = state
 	_astar.add_point(name)
+
+	if _states.size() == 1:
+		start_state = name
+
 	state_added.emit(name, state)
 
 ## Removes the specified state.
@@ -136,7 +140,7 @@ func get_state(name: StringName) -> FrayState:
 
 ## Returns the current state if it is set.
 func get_state_current() -> FrayState:
-	return _states.get(current_state)
+	return _states.get(_current_state)
 	
 ## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
@@ -148,7 +152,8 @@ func add_transition(from: StringName, to: StringName, transition: FrayStateMachi
 	tr.to = to
 	tr.transition = transition
 
-	_add_conditions(transition.prereqs + transition.advance_conditions)
+	_add_conditions(transition.prereqs)
+	_add_conditions(transition.advance_conditions)
 	_astar.connect_points(from, to, has_transition(from, to))
 	_transitions.append(tr)
 
@@ -162,7 +167,8 @@ func remove_transition(from: StringName, to: StringName) -> void:
 	for transition in _transitions:
 		if transition.from == from and transition.to == to:
 			_transitions.erase(transition)
-			_remove_conditions(transition.prereqs + transition.advance_conditions)
+			_remove_conditions(transition.prereqs)
+			_remove_conditions(transition.advance_conditions)
 			return
 
 ## Returns [code]true[/code] if transition between specified states exists.
@@ -183,11 +189,11 @@ func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransit
 func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_STATE(to): return
 	
-	if not current_state.is_empty():
-		_astar.compute_travel_path(current_state, to)
+	if not _current_state.is_empty():
+		_astar.compute_travel_path(_current_state, to)
 		_travel_args = args
 
-		if not _astar.has_next_travel_state():
+		if not _astar.has_next_travel_point():
 			goto(to, args)
 
 ## Advances to next reachable state.
@@ -208,37 +214,37 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 		if cur_state is FrayRootState:
 			cur_state.advance(input, args)
 		
-		if _astar.has_next_travel_state():
+		if _astar.has_next_travel_point():
 			var travel_state = cur_state
-			while travel_state.is_done_processing() and _astar.has_next_travel_state():
-				_goto(_astar.get_next_travel_state(), _travel_args)
-				travel_state = get_state(current_state)
+			while travel_state.is_done_processing() and _astar.has_next_travel_point():
+				_goto(_astar.get_next_travel_point(), _travel_args)
+				travel_state = get_state(_current_state)
 		else:
 			var next_state := get_next_state(input)
 			if not next_state.is_empty():
 				goto(next_state, args)
 
-	return cur_state != null and cur_state != _states.get(current_state, null)
+	return cur_state != null and cur_state != _states.get(_current_state, null)
 
 
 ## Returns the name of the next reachable state.
 func get_next_state(input: Dictionary = {}) -> StringName:
-	
-	if current_state.is_empty():
+	if _current_state.is_empty():
 		push_warning("No current state is set.")
 		return ""
 
-	for tr in get_next_transitions(current_state):
+	for tr in get_next_transitions(_current_state):
 		var transition: FrayStateMachineTransition = tr.transition
 		if _can_transition(transition) and _can_advance(transition, input):
 			return tr.to
-
 	return ""
 
 ## Goes directly to the given state if it exists.
 ## If a travel is being performed it will be interupted.
 func goto(to_state: StringName, args: Dictionary = {}) -> void:
-	if _astar.has_next_travel_state():
+	if _ERR_INVALID_STATE(to_state): return
+
+	if _astar.has_next_travel_point():
 		_astar.clear_travel_path()
 	
 	_goto(to_state, args)
@@ -269,7 +275,8 @@ func get_next_transitions(from: StringName) -> Array[_Transition]:
 		if transition.from == from:
 			transitions.append(transition)
 
-	return transitions + get_next_global_transitions(from)
+	transitions.append_array(get_next_global_transitions(from))
+	return transitions
 
 ## Sets the [kbd]tags[/kbd] associated with a [kbd]state[/kbd] if the state exists.
 func set_state_tags(state: StringName, tags: PackedStringArray) -> void:
@@ -363,14 +370,14 @@ func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTran
 
 ## Process child states then this state.
 func process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(current_state)
+	var cur_state: RefCounted = _states.get(_current_state)
 	if cur_state != null:
 		cur_state._process_impl(delta)
 	_process_impl(delta)
 
 ## Physics process child states then this state.
 func physics_process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(current_state)
+	var cur_state: RefCounted = _states.get(_current_state)
 	if cur_state != null:
 		cur_state._physics_process_impl(delta)
 	_physics_process_impl(delta)
@@ -387,7 +394,7 @@ func print_adj() -> void:
 	for state in _states.keys():
 		var next_transitions := get_next_transitions(state)
 		var modifiers := "%s%s%s" % [
-			"c" if state == current_state else "-",
+			"c" if state == _current_state else "-",
 			"s" if state == start_state else "-",
 			"e" if state == end_state else "-",
 		]
@@ -421,15 +428,15 @@ func _get_transition_priority(from: StringName, to: StringName) -> float:
 func _goto(to_state: StringName, args: Dictionary) -> void:
 	if _ERR_INVALID_STATE(to_state): return
 
-	var prev_state_name := current_state
+	var prev_state_name := _current_state
 	var prev_state: RefCounted = get_state(to_state)
 
 	if prev_state != null:
 		prev_state._exit_impl()
 	
-	current_state = to_state
-	get_state(current_state)._enter_impl(args)
-	emit_signal("transitioned", prev_state_name, current_state)
+	_current_state = to_state
+	get_state(_current_state)._enter_impl(args)
+	emit_signal("transitioned", prev_state_name, _current_state)
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
@@ -550,6 +557,7 @@ class Builder:
 	var _transitions: Array[_Transition]
 	var _start_state: StringName
 	var _end_state: StringName
+	var _first_state_added: StringName
 
 	## Returns a newly constructed state machine state.
 	## [br]
@@ -572,6 +580,9 @@ class Builder:
 			push_error("State name can not be empty")
 		else:
 			_state_by_name[name] = state
+
+			if _first_state_added.is_empty():
+				_first_state_added = name
 		return self
 
 	## Creates a new transition from one state to another.
@@ -763,6 +774,8 @@ class Builder:
 
 		if not _start_state.is_empty():
 			root.start_state = _start_state
+		else:
+			root.start_state = _first_state_added
 		
 		if not _end_state.is_empty():
 			root.end_state = _end_state

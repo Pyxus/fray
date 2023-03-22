@@ -75,13 +75,13 @@ func get_computed_travel_path() -> PackedStringArray:
 func clear_travel_path() -> void:
 	_travel_path = PackedStringArray()
 
-## Returns [code]true[/code] if there is a next node to fetch using [member get_next_travel_node].
-func has_next_travel_node() -> bool:
+## Returns [code]true[/code] if there is a next point to fetch using [member get_next_travel_node].
+func has_next_travel_point() -> bool:
 	return _travel_index < _travel_path.size()
 
 ## Returns the name of the next node on the calculated travel path.
-func get_next_travel_node() -> StringName:
-	if not has_next_travel_node():
+func get_next_travel_point() -> StringName:
+	if not has_next_travel_point():
 		return ""
 	var next_state := _travel_path[_travel_index]
 	_travel_index += 1
