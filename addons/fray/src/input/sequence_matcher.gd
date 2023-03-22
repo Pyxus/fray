@@ -210,7 +210,7 @@ func _create_frame(input_event: FrayInputEvent) -> _InputFrame:
 func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 	return(
 		input_event.is_echo()
-		or can_ignore_indistinct_inputs and not input_event.is_distinct
+		or can_ignore_indistinct_inputs and not input_event.is_distinct()
 	)
 
 
