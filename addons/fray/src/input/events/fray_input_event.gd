@@ -58,12 +58,12 @@ func get_time_between_sec(fray_input_event: RefCounted, use_time_pressed: bool =
 	return get_time_between_msec(fray_input_event, use_time_pressed) / 1000.0
 
 ## returns how long this input was held in miliseconds
-func get_time_held_ms() -> int:
+func get_time_held_msec() -> int:
 	return time_detected - time_pressed
 
 ## returns how long this input was held in seconds
 func get_time_held_sec() -> float:
-	return get_time_held_ms() / 1000.0
+	return get_time_held_msec() / 1000.0
 
 ## Returns true if input was pressed with no echo
 func is_just_pressed() -> bool:

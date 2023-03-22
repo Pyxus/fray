@@ -47,7 +47,7 @@ var _situations: Dictionary
 
 var _root: FrayRootState
 var _input_buffer: Array[BufferedInput]
-var _time_since_last_input_ms: float
+var _time_since_last_input_msec: float
 
 
 func _get_root_impl() -> FrayRootState:
@@ -60,13 +60,13 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 	var current_time := Time.get_ticks_msec()
 	while not _input_buffer.is_empty() and allow_transitions:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
-		var time_since_last_input = (current_time - _time_since_last_input_ms) / 1000.0
+		var time_since_last_input = (current_time - _time_since_last_input_msec) / 1000.0
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		var next_state := _get_next_state(buffered_input, time_since_last_input)
 		
 		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_ms:
 			_root.goto(next_state)
-			_time_since_last_input_ms = current_time
+			_time_since_last_input_msec = current_time
 			break
 
 
