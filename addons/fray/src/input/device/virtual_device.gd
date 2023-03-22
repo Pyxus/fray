@@ -48,4 +48,4 @@ func get_id() -> int:
 ## Disconnects the virtual device by removing it from the FrayInput singleton.
 ## Is automatically called when the virtual device is no longer being referenced.
 func unplug() -> void:
-	emit_signal("disconnect_requested")
+	disconnect_requested.emit()

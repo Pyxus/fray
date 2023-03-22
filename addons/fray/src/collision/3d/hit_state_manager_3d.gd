@@ -110,11 +110,11 @@ func _on_ChildChangeDetector_child_changed(node: Node, change: _ChildChangeDetec
 
 
 func _on_Hitstate_hitbox_intersected(detector_hitbox: FrayHitbox3D, detected_hitbox: FrayHitbox3D) -> void:
-	emit_signal("hitbox_intersected", detector_hitbox, detected_hitbox)
+	hitbox_intersected.emit(detector_hitbox, detected_hitbox)
 
 
 func _on_Hitstate_hitbox_separated(detector_hitbox: FrayHitbox3D, detected_hitbox: FrayHitbox3D) -> void:
-	emit_signal("hitbox_separated", detector_hitbox, detected_hitbox)
+	hitbox_separated.emit(detector_hitbox, detected_hitbox)
 
 
 func _on_HitState_active_hitboxes_changed(hitstate: FrayHitState3D) -> void:

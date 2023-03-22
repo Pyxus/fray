@@ -138,7 +138,7 @@ func read(input_event: FrayInputEvent) -> void:
 	
 	if _current_node.has_sequence():
 		if is_match(_match_branch, _current_node.sequence_branch.input_requirements):
-			emit_signal("match_found", _current_node.sequence_name)
+			match_found.emit(_current_node.sequence_name)
 			_reset()
 		else:
 			_resolve_sequence_break()

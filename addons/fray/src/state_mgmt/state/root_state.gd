@@ -436,7 +436,7 @@ func _goto(to_state: StringName, args: Dictionary) -> void:
 	
 	_current_state = to_state
 	get_state(_current_state)._enter_impl(args)
-	emit_signal("transitioned", prev_state_name, _current_state)
+	transitioned.emit(prev_state_name, _current_state)
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
