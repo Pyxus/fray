@@ -27,7 +27,7 @@ extends FrayStateMachine
 @export var allow_transitions: bool = false
 
 ## The max time a detected input can exist in the buffer before it is ignored in milliseconds.
-@export var input_max_buffer_time_ms: int = 1000
+@export_range(0, 5000, 1, "suffix:ms") var input_max_buffer_time: int = 1000
 
 ## Name of the state machine's surrent situation
 var current_situation: StringName:
@@ -64,7 +64,7 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		var next_state := _get_next_state(buffered_input, time_since_last_input)
 		
-		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time_ms:
+		if not next_state.is_empty() and time_since_inputted <= input_max_buffer_time:
 			_root.goto(next_state)
 			_time_since_last_input_msec = current_time
 			break
