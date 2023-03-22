@@ -52,7 +52,7 @@ func _can_process() -> bool:
 
 ## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if get_root().current_node.is_empty():
+	if get_root().current_state.is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	
