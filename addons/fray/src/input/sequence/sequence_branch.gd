@@ -24,11 +24,11 @@ class Builder:
 	
 	## Returns newly constructed sequence branch.
 	func build() -> FraySequenceBranch:
+		if _first_input != null:
+			_input_requirements.push_front(_first_input)
+
 		var branch := FraySequenceBranch.new()
-		branch.input_requirements = (
-			[_first_input] + _input_requirements if _first_input != null 
-			else _input_requirements
-		)
+		branch.input_requirements = _input_requirements
 		branch.is_negative_edge_enabled = _is_negative_edge_enabled
 		return branch
 	
