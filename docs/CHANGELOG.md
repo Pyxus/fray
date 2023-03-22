@@ -14,6 +14,8 @@
 
 ### Changed
 
+- Changed methods methods and properties with `_ms` suffix to use `_msec` suffix.
+
 - Switched from using `String`s to `StringName`s in various places such as for input and state names.
 
 - Switched from using packed arrays to godot 4's new typed arrays in various places.
