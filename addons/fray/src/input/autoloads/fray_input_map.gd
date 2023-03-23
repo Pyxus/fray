@@ -72,11 +72,11 @@ func add_bind_joy_button(name: StringName, button: int) -> void:
 	add_bind_input(name, bind)
 
 ## Binds joystick axis input.
-func add_bind_joy_axis(name: StringName, axis: int, check_positive: bool = true, deadzone: float = 0.5) -> void:
+func add_bind_joy_axis(name: StringName, axis: int, use_positive_axis: bool = true, deadzone: float = 0.5) -> void:
 	var bind := FrayInputBindJoyAxis.new()
 	bind.axis = axis
 	bind.deadzone = deadzone
-	bind.check_positive = check_positive
+	bind.use_positive_axis = use_positive_axis
 	add_bind_input(name, bind)
 
 ## Binds key input.
