@@ -101,7 +101,7 @@ func can_detect(hitbox: FrayHitbox2D) -> bool:
 	return (
 		not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
-		and detect_source_hitboxes or source == null or hitbox.source != source
+		and (detect_source_hitboxes or source == null or hitbox.source != source)
 		and attribute.allows_detection_of(hitbox.attribute) if attribute != null else true
 		)
 	
