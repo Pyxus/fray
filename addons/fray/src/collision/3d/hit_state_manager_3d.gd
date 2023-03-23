@@ -118,5 +118,6 @@ func _on_Hitstate_hitbox_separated(detector_hitbox: FrayHitbox3D, detected_hitbo
 
 
 func _on_HitState_active_hitboxes_changed(hitstate: FrayHitState3D) -> void:
-	_set_current_state(hitstate.name)
+	if hitstate.active_hitboxes != 0:
+		_set_current_state(hitstate.name)
 	hitstate.activate()
