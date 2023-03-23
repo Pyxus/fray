@@ -20,6 +20,12 @@ extends FrayStateMachine
 ## 	)
 ##  [/codeblock]
 
+## TODO: Write docs
+signal situation_changed(from: StringName, to: StringName)
+
+## TODO: Write docs
+signal state_changed(from: StringName, to: StringName)
+
 ## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
 ## is allowed to transition into the next buffered state.
@@ -37,9 +43,11 @@ var current_situation: StringName:
 			return
 		
 		if situation_name != current_situation:
+			var prev_sitch := current_situation
 			current_situation = situation_name
 			_root = get_situation(situation_name)
 			_root.goto_start()
+			situation_changed.emit(prev_sitch, current_situation)
 
 # Type: Dictionary<StringName, FraySituationState>
 # Hint: <situation name, >
@@ -84,6 +92,8 @@ func add_situation(situation_name: StringName, state: FrayRootState) -> void:
 		return
 
 	_situations[situation_name] = state
+
+	state.transitioned.connect(_on_RootState_transitioned)
 
 	if _situations.size() == 1:
 		change_situation(situation_name)
@@ -148,6 +158,9 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 		})
 	return ""
 
+
+func _on_RootState_transitioned(from: StringName, to: StringName) -> void:
+	state_changed.emit(from, to)
 
 class BufferedInput:
 	extends RefCounted
