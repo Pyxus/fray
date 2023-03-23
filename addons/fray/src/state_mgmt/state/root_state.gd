@@ -63,7 +63,7 @@ var _tags_by_state: Dictionary
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
-var _global_transitions: Array[FrayStateMachineTransition]
+var _global_transitions: Array[_Transition]
 var _current_state: StringName
 
 
@@ -353,14 +353,15 @@ func delete_global_transition_rule(from_tag: StringName) -> void:
 		_global_transition_rules.erase(from_tag)
 
 ## Returns array of next global transitions accessible from this state.
-func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTransition]:
+func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 	if _ERR_INVALID_STATE(from): return []
 	
-	var transitions: Array[FrayStateMachineTransition]
+	var transitions: Array[_Transition]
 	
 	for from_tag in get_state_tags(from):
 		if _global_transition_rules.has(from_tag):
-			var to_tags: Array[StringName] = _global_transition_rules[from_tag]
+			var to_tags: Array[StringName] = []
+			to_tags.assign(_global_transition_rules[from_tag])
 
 			for transition in _global_transitions:
 				for to_tag in to_tags:
@@ -552,8 +553,8 @@ class Builder:
 	# Type: Dictionary<StringName, StringName[]>
 	var _tags_by_state: Dictionary
 
-	var _global_transitions: Array[FrayInputTransition]
 	var _condition_cache: Array[FrayCondition]
+	var _global_transitions: Array[_Transition]
 	var _transitions: Array[_Transition]
 	var _start_state: StringName
 	var _end_state: StringName
