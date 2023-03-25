@@ -184,9 +184,7 @@ func activate() -> void:
 func deactivate() -> void:
 	if _is_active:
 		_is_active = false
-		for child in get_children():
-			if child is FrayHitbox3D:
-				child.deactivate()
+		active_hitboxes = 0
 	hide()
 
 

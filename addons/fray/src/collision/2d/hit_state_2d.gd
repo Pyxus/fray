@@ -59,7 +59,6 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-
 	for child in get_children():
 		if child is FrayHitbox2D:
 			child.hitbox_entered.connect(_on_Hitbox_hitbox_entered.bind(child))
@@ -184,9 +183,7 @@ func activate() -> void:
 func deactivate() -> void:
 	if _is_active:
 		_is_active = false
-		for child in get_children():
-			if child is FrayHitbox2D:
-				child.deactivate()
+		active_hitboxes = 0
 	hide()
 
 

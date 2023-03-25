@@ -102,16 +102,15 @@ func can_detect(hitbox: FrayHitbox3D) -> bool:
 	return (
 		not _hitbox_exceptions.has(hitbox)
 		and not _source_exceptions.has(hitbox.source)
-		and detect_source_hitboxes or source == null or hitbox.source != source
-		and attribute.allows_detection_of(hitbox.attribute)
-			if attribute != null else true
+		and (detect_source_hitboxes or source == null or hitbox.source != source)
+		and attribute.allows_detection_of(hitbox.attribute) if attribute != null else true
 		)
 	
 
 func _update_collision_colors() -> void:
 	# 3D debug colors are planned for Godot 4.x
 	# I was going to do my own implementation but since it's
-	# that important i'll leave it for now
+	# not that important i'll leave it for now
 	pass
 		
 		
