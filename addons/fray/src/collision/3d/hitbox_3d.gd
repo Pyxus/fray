@@ -110,7 +110,7 @@ func can_detect(hitbox: FrayHitbox3D) -> bool:
 func _update_collision_colors() -> void:
 	# 3D debug colors are planned for Godot 4.x
 	# I was going to do my own implementation but since it's
-	# that important i'll leave it for now
+	# not that important i'll leave it for now
 	pass
 		
 		
