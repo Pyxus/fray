@@ -40,6 +40,9 @@ func add_component(component: FrayCompositeInput) -> void:
 		if comp == component:
 			push_warning("Component '%s' has already been added." % comp)
 			return
+	
+	if component.is_virtual:
+		push_warning("Enabling virtual on a child component has no effect.")
 
 	component._root_wf = weakref(get_root())
 	_components.append(component)
