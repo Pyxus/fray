@@ -44,6 +44,7 @@ var end_state: StringName = "":
 		end_state = state
 
 ## The state machine's current state.
+## Updating this value is the equivalent to calling [code]goto(state)[/code].
 var current_state: StringName = "":
 	get: return _current_state
 	set(state):
@@ -133,14 +134,14 @@ func replace_state(name: StringName, replacement_state: FrayState) -> void:
 func has_state(name: StringName) -> bool:
 	return _states.has(name)
 
-## Returns the sub-state with the specified name.
+## Returns the sub-state object with the specified name if it exists.
 func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
 
-## Returns the current state if it is set.
+## Returns the current state object if it is set.
 func get_state_current() -> FrayState:
-	return _states.get(_current_state)
+	return get_state(_current_state)
 	
 ## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
