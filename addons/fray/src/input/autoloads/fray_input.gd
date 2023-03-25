@@ -34,9 +34,14 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	for device in get_connected_devices():
-		_update_bind_input_states(device)
-		_update_composite_input_states(device)
-		_emit_detection_events(device)
+		var device_state := _get_device_state(device)
+
+		if not device_state.is_valid():
+			_disconnect_device(device)
+		else:
+			_update_bind_input_states(device)
+			_update_composite_input_states(device)
+			_emit_detection_events(device)
 
 	_last_physics_frame = Engine.get_physics_frames()
 
@@ -175,13 +180,12 @@ func clear_conditions(device: int = DEVICE_KBM_JOY1) -> void:
 		null:
 			push_error("Failed to clear conditions. Unrecognized device '%d'" % device)
 
-## Retruns a newly created virtual device.
+## Returns a newly created virtual device.
 ## By convention all virtual devices are assigned a negative number.
 func create_virtual_device() -> FrayVirtualDevice:
 	# WARN: If I understand correctly hash is not truly unique so perhaps this could be an issue? Future me problem.
 	var id := -_device_state_by_id.hash()
 	var vd := FrayVirtualDevice.new(_connect_device(id), id)
-	vd.disconnect_requested.connect(_on_VirtualDevice_disconnect_requested.bind(id))
 	return vd
 
 
@@ -350,7 +354,3 @@ func _on_Input_joy_connection_changed(device: int, connected: bool) -> void:
 			_connect_device(device)
 		else:
 			_disconnect_device(device)
-
-
-func _on_VirtualDevice_disconnect_requested(id: int) -> void:
-	_disconnect_device(id)
