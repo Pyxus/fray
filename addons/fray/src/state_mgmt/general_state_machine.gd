@@ -5,8 +5,6 @@ extends FrayStateMachine
 ## Contains a root propety, which can be updated to set  the root state. Once the root state is set, the state machine
 ## can begin processing state transitions.
 
-signal state_changed(from: StringName, to: StringName)
-
 ## The root of this state machine.
 var root: FrayRootState:
 	set(value):

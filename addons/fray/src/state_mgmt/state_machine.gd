@@ -9,6 +9,9 @@ extends Node
 ## The [method _get_root_impl] abstract method must be implemented in order to 
 ## determine the root state of this state machine.
 
+## TODO: Write docs
+signal state_changed(from: StringName, to: StringName)
+
 enum AdvanceMode{
 	PROCESS, ## Advance during the physics process
 	PHYSICS, ## Advance during the idle process
