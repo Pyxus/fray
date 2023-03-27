@@ -41,6 +41,7 @@ var _match_branch: Array[FrayInputEvent]
 var _root: _InputNode
 var _current_node: _InputNode
 var _current_frame: _InputFrame
+var _last_matched_node: _InputNode
 
 ## Returns [code]true[/code] if the given sequence of inputs meets the input requirements of the sequence data.
 static func is_match(events: Array[FrayInputEvent], input_requirements: Array[FrayInputRequirement]) -> bool:
@@ -98,7 +99,7 @@ func initialize(sequence_tree: FraySequenceTree) -> void:
 			else:
 				push_error(
 					"Collision for sequence '%s' at branch index '%d' at input '%s'. " % [name, branch_index, next_node.input] +
-					"There can only be 1 sequence per branch. " +
+					"There can only be 1 sequence name per branch leaf. " +
 					"This sequence will be ignored"
 					)
 			branch_index += 1
@@ -113,6 +114,7 @@ func read(input_event: FrayInputEvent) -> void:
 		return
 	
 	var next_node := _current_node.get_next(input_event.input, input_event.is_pressed())
+
 	if next_node != null:
 		_current_node = next_node
 		_match_branch.append(input_event)
@@ -123,23 +125,17 @@ func read(input_event: FrayInputEvent) -> void:
 	elif _current_frame.physics_frame == input_event.physics_frame:
 		_current_frame.add(input_event)
 	else:
-		# NOTE: Unexpected behavior discovered
-		# If the first input in a new frame is a release input then even if
-		# the following input would break the sequence it gets ignored if its within the newly created frame.
-		# This behavior was unexpected but it allows inputs like 623P to accept 6236P.
-		# Im keeping it for now as this result is somewhat desireable as a sort of input leniancy.
-		# In an older itteration the approach to leniancy was to create sort of 'alias' branches that accepted 'bad' inputs.
-		# If problems occur while testing let this note serve as a reminder of a possible source.
-		# To remove this 'accidental feature' just move the sequence break resolution check outside of this else statement
 		_current_frame = _create_frame(input_event)
+		
+	if next_node == null and input_event.is_pressed():
+		_resolve_sequence_break()
 
-		if next_node == null and input_event.is_pressed():
-			_resolve_sequence_break()
-	
-	if _current_node.has_sequence():
+	if _current_node.has_sequence() and _current_node != _last_matched_node:
 		if is_match(_match_branch, _current_node.sequence_branch.input_requirements):
 			match_found.emit(_current_node.sequence_name)
-			_reset()
+			_last_matched_node = _current_node
+			if _current_node.get_child_count() == 0:
+				_reset()
 		else:
 			_resolve_sequence_break()
 
@@ -155,6 +151,31 @@ func print_tree() -> void:
 		return
 
 	_root.print_tree()
+
+## Returns a debug string containing the current state of the matcher
+func get_debug_str() -> String:
+	var str := "Input Queue: \n"
+
+	for frame in _input_queue:
+		var s := ""
+		for input in frame.inputs:
+			s += " {name: %s, " % input.input
+			s += "pressed: %s}" % input.is_pressed()
+
+		str += "-> [frame: %d|%s]\n" % [frame.physics_frame, s]
+	
+	str += "\n"
+
+	str += "Match Branch: \n"
+	
+	var s := ""
+	for input in _match_branch:
+		s += " {name: %s, " % input.input
+		s += "pressed: %s}" % input.is_pressed()
+
+	str += "-> [%s]\n" % [s]
+
+	return str
 
 
 func _resolve_sequence_break() -> void:
@@ -190,10 +211,12 @@ func _resolve_sequence_break() -> void:
 		successful_retrace = not has_break
 
 	_current_node = new_current_node
+	_last_matched_node = null
 
 
 func _reset() -> void:
 	_current_frame = null
+	_last_matched_node = null
 	_current_node = _root
 	_input_queue.clear()
 	_match_branch.clear()
@@ -210,7 +233,7 @@ func _create_frame(input_event: FrayInputEvent) -> _InputFrame:
 func _can_ignore_input(input_event: FrayInputEvent) -> bool:
 	return(
 		input_event.is_echo()
-		or can_ignore_indistinct_inputs and not input_event.is_distinct()
+		or (can_ignore_indistinct_inputs and not input_event.is_distinct())
 	)
 
 
