@@ -153,7 +153,7 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 		})
 	elif buffered_input is BufferedInputSequence:
 		return _root.get_next_state({
-			sequence = buffered_input.sequence,
+			sequence = buffered_input.sequence_name,
 			time_since_last_input = time_since_last_input,
 		})
 	return ""
