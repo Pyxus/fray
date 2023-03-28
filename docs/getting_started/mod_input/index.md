@@ -39,18 +39,20 @@ Examples:
 ```gdscript
 # This describes an ordered combination of buttons where 'right' must be pressed, and then 'attack' must be pressed. Pressing them in reverse order will not work. 
 # This is the behavior of the directional inputs present in fighting games.
-FrayInputMap.add_composite_input("forward_punch", FrayCombinationInput.builder()
-    .add_component(FraySimpleInput.from_bind("right"))
-    .add_component(FraySimpleInput.from_bind("attack"))
+FrayInputMap.add_composite_input("forward_punch", 
+    FrayCombinationInput.builder()
+        .add_component(FraySimpleInput.from_bind("right"))
+        .add_component(FraySimpleInput.from_bind("attack"))
     .mode_ordered()
     .build()
 )
 
 # This describes an asynchronous combination of buttons where both 'down' and 'right' must be pressed, but the order and timing of the presses do not matter. 
 # Many fighting games make use of motion inputs that rely on treating combinations of directional buttons as diagonal buttons.
-FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
-    .add_component(FraySimpleInput.from_bind("down"))
-    .add_component(FraySimpleInput.from_bind("right"))
+FrayInputMap.add_composite_input("down_right", 
+    FrayCombinationInput.builder()
+        .add_component(FraySimpleInput.from_bind("down"))
+        .add_component(FraySimpleInput.from_bind("right"))
     .mode_async()
     # A virtual input will cause held binds to be repressed upon release. 
     # This is useful for motion inputs:
@@ -64,29 +66,34 @@ FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
 # This uses a conditional input to describe a combination input that changes based on what side the player is on. 
 # The condition is just an arbitrary string name, and the actual state of the condition 
 # must be updated on the input singleton using the `FrayInput.set_condition()` method.
-FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
-  # The first component does not require a condition since it is considered the default component.
-	.add_component("", FrayCombinationInput.builder()
-		.add_component(FraySimpleInput.from_bind("down"))
-		.add_component(FraySimpleInput.from_bind("right")
-		.mode_async()
-	)
-	.add_component("on_right", FrayCombinationInput.builder()
-		.add_component(FraySimpleInput.from_bind("down"))
-		.add_component(FraySimpleInput.from_bind("left")
-		.mode_async()
-	)
+FrayInputMap.add_composite_input("down_forward", 
+    FrayConditionalInput.builder()
+        .add_component("", 
+            FrayCombinationInput.builder()
+                .add_component(FraySimpleInput.from_bind("down"))
+                .add_component(FraySimpleInput.from_bind("right"))
+            .mode_async()
+            .build()
+        )
+        .add_component("on_right", 
+            FrayCombinationInput.builder()
+                .add_component(FraySimpleInput.from_bind("down"))
+                .add_component(FraySimpleInput.from_bind("left"))
+            .mode_async()
+            .build()
+        )
     .is_virtual()
     .build()
 )
 
 # This is registering a roman cancel input from the Guilty Gear series.
 # It can be triggered by pressing any 3 attack buttons, which is a behavior this group input describes.
-FrayInputMap.add_composite_input("roman_cancel", FrayGroupInput.builder()
-    .add_component(FraySimpleInput.from_bind("attack1"))
-    .add_component(FraySimpleInput.from_bind("attack2"))
-    .add_component(FraySimpleInput.from_bind("attack3"))
-    .add_component(FraySimpleInput.from_bind("attack4"))
+FrayInputMap.add_composite_input("roman_cancel", 
+    FrayGroupInput.builder()
+        .add_component(FraySimpleInput.from_bind("attack1"))
+        .add_component(FraySimpleInput.from_bind("attack2"))
+        .add_component(FraySimpleInput.from_bind("attack3"))
+        .add_component(FraySimpleInput.from_bind("attack4"))
     .min_pressed(3)
     .build()
 )
