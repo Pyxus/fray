@@ -451,8 +451,7 @@ func _can_transition(transition: FrayStateMachineTransition) -> bool:
 func _can_switch(transition: FrayStateMachineTransition) -> bool:
 	return ( 
 		transition.switch_mode == FrayStateMachineTransition.SwitchMode.IMMEDIATE
-		or transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END
-		and is_done_processing()
+		or (transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END and is_done_processing())
 		)
 
 
