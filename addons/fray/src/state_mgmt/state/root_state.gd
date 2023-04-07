@@ -724,6 +724,7 @@ class Builder:
 		var tr := _Transition.new()
 		tr.to = to
 		tr.transition = transition
+		_add_state_once(to)
 		_global_transitions.append(tr)
 		return tr
 
