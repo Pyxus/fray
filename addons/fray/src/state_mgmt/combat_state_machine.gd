@@ -20,11 +20,8 @@ extends FrayStateMachine
 ## 	)
 ##  [/codeblock]
 
-## TODO: Write docs
+## Emitted when the current situation changes
 signal situation_changed(from: StringName, to: StringName)
-
-## TODO: Write docs
-signal state_changed(from: StringName, to: StringName)
 
 ## Allow transitions transitions to occur in the root state machine.
 ## Enabling and disabling this property allows you to control when a combatant
