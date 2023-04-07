@@ -40,42 +40,43 @@ Examples:
 # This describes an ordered combination of buttons where 'right' must be pressed, and then 'attack' must be pressed. Pressing them in reverse order will not work. 
 # This is the behavior of the directional inputs present in fighting games.
 FrayInputMap.add_composite_input("forward_punch", FrayCombinationInput.builder()
-    .add_component(FraySimpleInput.from_bind("right"))
-    .add_component(FraySimpleInput.from_bind("attack"))
-    .mode_ordered()
-    .build()
+	.add_component(FraySimpleInput.from_bind("right"))
+	.add_component(FraySimpleInput.from_bind("attack"))
+	.mode_ordered()
+	.build()
 )
 
 # This describes an asynchronous combination of buttons where both 'down' and 'right' must be pressed, but the order and timing of the presses do not matter. 
 # Many fighting games make use of motion inputs that rely on treating combinations of directional buttons as diagonal buttons.
 FrayInputMap.add_composite_input("down_right", FrayCombinationInput.builder()
-    .add_component(FraySimpleInput.from_bind("down"))
-    .add_component(FraySimpleInput.from_bind("right"))
-    .mode_async()
-    # A virtual input will cause held binds to be repressed upon release. 
-    # This is useful for motion inputs:
-    # For example, if you press [down] then [down + right], and then release [down] but continue to hold [right] 
-    # you want [right] to trigger a press even though you technically never pressed it again. 
-    # Otherwise, you would have to manually release [right] and press it again, which interrupts the "motion" of the motion input.
-    .is_virtual()
-    .build()
+	.add_component(FraySimpleInput.from_bind("down"))
+	.add_component(FraySimpleInput.from_bind("right"))
+    	.mode_async()
+	# A virtual input will cause held binds to be repressed upon release. 
+	# This is useful for motion inputs:
+	# For example, if you press [down] then [down + right], and then release [down] but continue to hold [right] 
+	# you want [right] to trigger a press even though you technically never pressed it again. 
+	# Otherwise, you would have to manually release [right] and press it again, which interrupts the "motion" of the motion input.
+    	.is_virtual()
+    	.build()
 )
 
 # This uses a conditional input to describe a combination input that changes based on what side the player is on. 
 # The condition is just an arbitrary string name, and the actual state of the condition 
 # must be updated on the input singleton using the `FrayInput.set_condition()` method.
 FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
-  # The first component does not require a condition since it is considered the default component.
-	.add_component("", FrayCombinationInput.builder()
+        .add_component("", FrayCombinationInput.builder()
 		.add_component(FraySimpleInput.from_bind("down"))
-		.add_component(FraySimpleInput.from_bind("right")
+		.add_component(FraySimpleInput.from_bind("right"))
 		.mode_async()
-	)
-	.add_component("on_right", FrayCombinationInput.builder()
+		.build()
+        )
+        .add_component("on_right", FrayCombinationInput.builder()
 		.add_component(FraySimpleInput.from_bind("down"))
-		.add_component(FraySimpleInput.from_bind("left")
+		.add_component(FraySimpleInput.from_bind("left"))
 		.mode_async()
-	)
+		.build()
+        )
     .is_virtual()
     .build()
 )
@@ -83,12 +84,12 @@ FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
 # This is registering a roman cancel input from the Guilty Gear series.
 # It can be triggered by pressing any 3 attack buttons, which is a behavior this group input describes.
 FrayInputMap.add_composite_input("roman_cancel", FrayGroupInput.builder()
-    .add_component(FraySimpleInput.from_bind("attack1"))
-    .add_component(FraySimpleInput.from_bind("attack2"))
-    .add_component(FraySimpleInput.from_bind("attack3"))
-    .add_component(FraySimpleInput.from_bind("attack4"))
-    .min_pressed(3)
-    .build()
+	.add_component(FraySimpleInput.from_bind("attack1"))
+	.add_component(FraySimpleInput.from_bind("attack2"))
+	.add_component(FraySimpleInput.from_bind("attack3"))
+	.add_component(FraySimpleInput.from_bind("attack4"))
+	.min_pressed(3)
+	.build()
 )
 ```
 
@@ -107,8 +108,8 @@ FrayInput.get_axis("negative_input_name", "positive_input_name")
 FrayInput.get_strength("input_name")
 
 func _on_FrayInput_input_dected(event: FrayInputEvent) -> void:
-  if event.input == "input_name" and event.is_pressed:
-    do_something()
+	if event.input == "input_name" and event.is_pressed:
+		do_something()
 
 ```
 
@@ -133,15 +134,15 @@ func _ready() -> void:
     # This is an alternative input for the 'Hadoken' which can match even if the 'down_right' is skipped.
     # This supports leniency by catching the case where a player accidently releases 'down' before pressing 'right'.
     sequence_tree.add("hadouken", FraySequenceBranch.builder()
-        .first("down").then("right").then("attack")
-        .build()
+	.first("down").then("right").then("attack")
+	.build()
     )
 
     # This sequence describes Guile's Sonic Boom attack.
     # This type of sequence is known as a "charge input" since it requires 'left' to be held for a certain amount of time, 200ms in this example, before the rest of the sequence is performed.
     sequence_tree.add("sonic_boom", FraySequenceBranch.builder()
-        .first("left", 200).then("right").then("attack")
-        .build()
+	.first("left", 200).then("right").then("attack")
+	.build()
     )
 
     sequence_matcher.initialize(sequence_tree)
@@ -158,9 +159,9 @@ Example Usage:
 ```gdscript
 # The following sequence describes the input for Ryu's famous 'Hadouken' attack.
 sequence_tree.add("hadouken", FraySequenceBranch.builder()
-    .first("down").then("down_right").then("right").then("attack")
-    .enable_negative_edge()
-    .build()
+	.first("down").then("down_right").then("right").then("attack")
+	.enable_negative_edge()
+	.build()
 )
 ```
 
@@ -174,8 +175,8 @@ Example Usage:
 var sequence_matcher := SequenceMatcher.new()
 
 func _ready() -> void:
-    FrayInput.input_detected.connect(_on_FrayInput_input_detected)
-    sequence_matcher.match_found(_on_SequenceMatcher_match_found)
+	FrayInput.input_detected.connect(_on_FrayInput_input_detected)
+	sequence_matcher.match_found(_on_SequenceMatcher_match_found)
 
 func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent) -> void:
 	sequence_matcher.read(input_event)
