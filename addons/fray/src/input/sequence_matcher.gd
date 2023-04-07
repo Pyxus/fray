@@ -328,8 +328,6 @@ class _InputNode:
 
 
 	func add_node(node: _InputNode) -> void:
-		if not sequence_name.is_empty():
-			push_warning("There can not be two sequences on the same branch. Additional sequences will be ingored")
 		_next_nodes.append(node)
 
 
