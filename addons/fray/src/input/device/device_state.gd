@@ -1,12 +1,22 @@
 class_name FrayDeviceState
 extends RefCounted
-## Used by FrayInput to track device state
+## Used by [_FrayInput] to track device state
 
 # Type: Dictionary<StringName, InputState>
 var _input_state_by_name: Dictionary
 
 # Type: Dictionary<StringName, bool>
 var _bool_by_condition: Dictionary
+
+var _is_valid := true
+
+## Returns [code]true[/code] if the input state is still valid.
+func is_valid() -> bool:
+	return _is_valid
+
+## Invalidates this input state resulting in it being removed from the [_FrayInput] singleton.
+func invalidate() -> void:
+	_is_valid = false
 
 ## Returns an array containing the names of every pressed input in this device state.
 func get_pressed_inputs() -> PackedStringArray:

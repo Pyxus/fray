@@ -75,7 +75,7 @@ class Builder:
 		_composite_input.is_virtual = true
 		return self
 
-	## Sets the composite input's process priority.
+	## Sets the composite input's process priority. Higher priority composites are processed first.
 	##
 	## Returns a reference to this ComponentBuilder.
 	func priority(value: int) -> Builder:

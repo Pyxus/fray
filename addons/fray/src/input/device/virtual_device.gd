@@ -4,10 +4,6 @@ extends RefCounted
 ##
 ## A device's whos inputs must be manually controlled through code.
 
-## Emitted when this virtual device request a disconnect
-signal disconnect_requested()
-
-
 var _device_state: FrayDeviceState
 var _id: int
 
@@ -17,7 +13,7 @@ func _init(device_state: FrayDeviceState, id: int):
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
-		unplug()
+		_device_state.invalidate()
 
 ## presses given input on virtual device
 func press(input: StringName, press_strength: float = 1.0) -> void:
@@ -45,7 +41,7 @@ func unpress(input: StringName) -> void:
 func get_id() -> int:
 	return _id
 
-## Disconnects the virtual device by removing it from the FrayInput singleton.
-## Is automatically called when the virtual device is no longer being referenced.
+## Disconnects the virtual device by invalidating the input state whichs removes it from the FrayInput singleton.
+## The input state is automatically invalidated when the virtual device is no longer being referenced.
 func unplug() -> void:
-	disconnect_requested.emit()
+	_device_state.invalidate()
