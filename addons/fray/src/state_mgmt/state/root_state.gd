@@ -431,11 +431,11 @@ func _goto(to_state: StringName, args: Dictionary) -> void:
 	if _ERR_INVALID_STATE(to_state): return
 
 	var prev_state_name := _current_state
-	var prev_state: RefCounted = get_state(to_state)
+	var target_state: RefCounted = get_state(to_state)
 
-	if prev_state != null:
-		prev_state._exit_impl()
-	
+	if target_state != null && not _current_state.is_empty(): 
+		get_state(_current_state)._exit_impl()
+
 	_current_state = to_state
 	get_state(_current_state)._enter_impl(args)
 	transitioned.emit(prev_state_name, _current_state)
@@ -449,9 +449,10 @@ func _can_transition(transition: FrayStateMachineTransition) -> bool:
 
 
 func _can_switch(transition: FrayStateMachineTransition) -> bool:
-	return ( 
+	return (
 		transition.switch_mode == FrayStateMachineTransition.SwitchMode.IMMEDIATE
-		or (transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END and is_done_processing())
+		or (transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END 
+		and get_state_current()._is_done_processing_impl()) 
 		)
 
 
