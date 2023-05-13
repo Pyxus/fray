@@ -112,6 +112,12 @@ func get_situation(situation_name: StringName) -> FrayRootState:
 		return _situations[situation_name]
 	return null
 
+## Returns the current situation
+func get_current_situation() -> FrayRootState:
+	if has_situation(current_situation):
+		return _situations[current_situation]
+	return null
+
 ## Returns true if a situation with the given name exists
 func has_situation(situation_name: StringName) -> bool:
 	return _situations.has(situation_name)
