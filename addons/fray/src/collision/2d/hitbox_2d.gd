@@ -51,6 +51,8 @@ func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
 	if attribute == null:
 		warnings.append("Hitboxes without attribute are effectively just Area2Ds. Consider giving this node a FrayHitboxAttribute resource.")
+	elif not attribute.get_script().is_tool():
+		warnings.append("Custom attribute must be a tool script to avoid editor errors. Consider adding the @tool annotation to the top of the script.")
 	return warnings
 
 ## Returns a list of intersecting [FrayHitbox2D]s.
