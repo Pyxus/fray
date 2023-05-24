@@ -431,7 +431,7 @@ func _goto(to_state: StringName, args: Dictionary) -> void:
 	if _ERR_INVALID_STATE(to_state): return
 
 	var prev_state_name := _current_state
-	var target_state: RefCounted = get_state(to_state)
+	var target_state := get_state(to_state)
 
 	if target_state != null && not _current_state.is_empty(): 
 		get_state(_current_state)._exit_impl()
