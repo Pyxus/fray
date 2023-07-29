@@ -1,6 +1,9 @@
 class_name FrayCondition
 extends RefCounted
-## Abstract base condition class.
+## Base Condition class.
+##
+## This class represents a named boolean value to be checked for and is used to define
+## conditions within state machines.
 
 ## If [code]true[/code] condition will be satisfied when false.
 var invert: bool = false
