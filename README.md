@@ -114,8 +114,11 @@ Fray provides a template hitbox which is an `Area` node with an `attribute` prop
 ## 📦 Installation
 
 1. Clone or download a copy of this repository.
-2. Copy the contents of `addons/` into your `res://addons/` directory.
+2. Copy the contents of the repo into `res://addons/fray` directory.
 3. Enable `Fray - Combat Framework` in your project plugins.
+
+Alternatively if using git the project can be added as a sub module like so:
+`git submodule add https://github.com/Pyxus/fray.git ./addons/fray`
 
 If you would like to know more about installing plugins see the [Official Godot Docs](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html).
 
