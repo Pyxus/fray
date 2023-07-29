@@ -44,6 +44,7 @@ var end_state: StringName = "":
 		end_state = state
 
 ## The state machine's current state.
+## Updating this value is the equivalent to calling [code]goto(state)[/code].
 var current_state: StringName = "":
 	get: return _current_state
 	set(state):
@@ -63,7 +64,7 @@ var _tags_by_state: Dictionary
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
-var _global_transitions: Array[FrayStateMachineTransition]
+var _global_transitions: Array[_Transition]
 var _current_state: StringName
 
 
@@ -133,14 +134,14 @@ func replace_state(name: StringName, replacement_state: FrayState) -> void:
 func has_state(name: StringName) -> bool:
 	return _states.has(name)
 
-## Returns the sub-state with the specified name.
+## Returns the sub-state object with the specified name if it exists.
 func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
 
-## Returns the current state if it is set.
+## Returns the current state object if it is set.
 func get_state_current() -> FrayState:
-	return _states.get(_current_state)
+	return get_state(_current_state)
 	
 ## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
@@ -353,14 +354,15 @@ func delete_global_transition_rule(from_tag: StringName) -> void:
 		_global_transition_rules.erase(from_tag)
 
 ## Returns array of next global transitions accessible from this state.
-func get_next_global_transitions(from: StringName) -> Array[FrayStateMachineTransition]:
+func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 	if _ERR_INVALID_STATE(from): return []
 	
-	var transitions: Array[FrayStateMachineTransition]
+	var transitions: Array[_Transition]
 	
 	for from_tag in get_state_tags(from):
 		if _global_transition_rules.has(from_tag):
-			var to_tags: Array[StringName] = _global_transition_rules[from_tag]
+			var to_tags: Array[StringName] = []
+			to_tags.assign(_global_transition_rules[from_tag])
 
 			for transition in _global_transitions:
 				for to_tag in to_tags:
@@ -429,11 +431,11 @@ func _goto(to_state: StringName, args: Dictionary) -> void:
 	if _ERR_INVALID_STATE(to_state): return
 
 	var prev_state_name := _current_state
-	var prev_state: RefCounted = get_state(to_state)
+	var target_state := get_state(to_state)
 
-	if prev_state != null:
-		prev_state._exit_impl()
-	
+	if target_state != null && not _current_state.is_empty(): 
+		get_state(_current_state)._exit_impl()
+
 	_current_state = to_state
 	get_state(_current_state)._enter_impl(args)
 	transitioned.emit(prev_state_name, _current_state)
@@ -447,10 +449,10 @@ func _can_transition(transition: FrayStateMachineTransition) -> bool:
 
 
 func _can_switch(transition: FrayStateMachineTransition) -> bool:
-	return ( 
+	return (
 		transition.switch_mode == FrayStateMachineTransition.SwitchMode.IMMEDIATE
-		or transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END
-		and is_done_processing()
+		or (transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END 
+		and get_state_current()._is_done_processing_impl()) 
 		)
 
 
@@ -552,8 +554,8 @@ class Builder:
 	# Type: Dictionary<StringName, StringName[]>
 	var _tags_by_state: Dictionary
 
-	var _global_transitions: Array[FrayInputTransition]
 	var _condition_cache: Array[FrayCondition]
+	var _global_transitions: Array[_Transition]
 	var _transitions: Array[_Transition]
 	var _start_state: StringName
 	var _end_state: StringName
@@ -723,6 +725,7 @@ class Builder:
 		var tr := _Transition.new()
 		tr.to = to
 		tr.transition = transition
+		_add_state_once(to)
 		_global_transitions.append(tr)
 		return tr
 
