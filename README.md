@@ -74,8 +74,8 @@ FrayInputMap.add_composite_input("down_forward", FrayConditionalInput.builder()
 		.add_component(FraySimpleInput.from_bind("left"))
 		.mode_async()
 	.is_virtual()
-	.build()
-)
+	.build())
+))
 ```
 
 Sequence inputs can be defined using the `SequenceTree` class, and then registered to the `SequenceMatcher`.
