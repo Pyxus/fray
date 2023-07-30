@@ -250,6 +250,8 @@ func goto(to_state: StringName, args: Dictionary = {}) -> void:
 	
 	_goto(to_state, args)
 
+## Goes directly to the start state.
+## [br]
 ## Short hand for 'state.goto(state.start_state, args)'.
 func goto_start(args: Dictionary = {}) -> void:
 	if start_state.is_empty():
@@ -258,6 +260,8 @@ func goto_start(args: Dictionary = {}) -> void:
 	
 	goto(start_state)
 
+## Goes directly to the end state.
+## [br]
 ## Short hand for 'state.goto(state.end_state, args)'.
 func goto_end(args: Dictionary = {}) -> void:
 	if end_state.is_empty():
@@ -349,7 +353,7 @@ func remove_global_transition_rule(from_tag: StringName, to_tag: StringName) -> 
 		_global_transition_rules.erase(to_tag)
 
 ## Removes all global transitions from given tag.
-func delete_global_transition_rule(from_tag: StringName) -> void:
+func remove_all_global_transition_rule(from_tag: StringName) -> void:
 	if _global_transition_rules.has(from_tag):
 		_global_transition_rules.erase(from_tag)
 
