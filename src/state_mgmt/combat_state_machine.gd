@@ -69,14 +69,6 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 			_time_since_last_input_msec = current_time
 			break
 
-
-## Returns the current situation to its start state.
-## [br]
-## Shorthand for _root.goto_start()
-func goto_start_state() -> void:
-	if _root != null:
-		_root.goto_start()
-
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: StringName, state: FrayRootState) -> void:
 	if has_situation(situation_name):

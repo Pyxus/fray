@@ -48,7 +48,38 @@ func _physics_process(delta: float) -> void:
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _can_process():
 		_advance_impl()
-	
+
+## Transitions from the current state to another one, following the shortest path.
+## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
+## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
+func travel(to: StringName, args: Dictionary = {}) -> void:
+		if _root != null:
+			_root.travel(to, args)
+
+## Goes directly to the given state if it exists.
+## If a travel is being performed it will be interupted.
+## [br]
+## Shorthand for _root.goto_start()
+func goto(to_state: StringName, args: Dictionary = {}) -> void:
+	if _root != null:
+		_root.goto(to_state, args)
+
+## Goes directly to the start state.
+## [br]
+## Shorthand for _root.goto_start()
+func goto_start(args: Dictionary = {}) -> void:
+	if _root != null:
+		_root.goto_start(args)
+
+
+## Goes directly to the end state.
+## [br]
+## Shorthand for _root.goto_start()
+func goto_end(args: Dictionary = {}) -> void:
+	if _root != null:
+		_root.goto_end(args)
+
+
 ## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _root.current_state.is_empty():
