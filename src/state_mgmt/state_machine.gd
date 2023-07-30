@@ -1,13 +1,10 @@
 @icon("res://addons/fray/assets/icons/state_machine.svg")
 class_name FrayStateMachine
 extends Node
-## Abstract Base Hierarchical State Machine
+## General purpose hierarchical state machine
 ##
 ## This class wraps around the [FrayRootState] and uses the [SceneTree] to
-## process the state node.
-## [br]
-## The [method _get_root_impl] abstract method must be implemented in order to 
-## determine the root state of this state machine.
+## process state nodes.
 
 ## Emitted when the current state within the root changes.
 signal state_changed(from: StringName, to: StringName)
@@ -24,9 +21,17 @@ enum AdvanceMode{
 ## The process mode of this state machine.
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
 
+## The root of this state machine.
+var root: FrayRootState:
+	get: return _root
+	set(value): _set_root(value)
+
+
+var _root: FrayRootState
+
 func _process(delta: float) -> void:
 	if _can_process():
-		get_root().process(delta)
+		_root.process(delta)
 		
 		if advance_mode == AdvanceMode.IDLE:
 			advance()
@@ -34,7 +39,7 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _can_process():
-		get_root().physics_process(delta)
+		_root.physics_process(delta)
 
 		if advance_mode == AdvanceMode.PHYSICS:
 			advance()
@@ -43,27 +48,28 @@ func _physics_process(delta: float) -> void:
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _can_process():
 		_advance_impl()
-		
-## Returns the root of this state machine.
-func get_root() -> FrayRootState:
-	return _get_root_impl()
-
-
-func _can_process() -> bool:
-	return get_root() != null and active
-
+	
 ## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if get_root().current_state.is_empty():
+	if _root.current_state.is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	
-	get_root().advance(input, args)
+	_root.advance(input, args)
 
-## [code]Abstract method[/code] used to implement [method get_root] method.
-## [br]
-## The return value of this method is used to determine what this state machine's
-## current root node is.
-func _get_root_impl() -> FrayRootState:
-	assert(false, "Method not implemented")
-	return null
+
+func _can_process() -> bool:
+	return _root != null and active
+
+
+func _set_root(value: FrayRootState):
+	if _root != null and _root.transitioned.is_connected(_on_RootState_transitioned):
+		_root.transitioned.disconnect(_on_RootState_transitioned)
+	
+	_root = value
+
+	_root.transitioned.connect(_on_RootState_transitioned)
+
+
+func _on_RootState_transitioned(from: StringName, to: StringName) -> void:
+	state_changed.emit(from, to)
