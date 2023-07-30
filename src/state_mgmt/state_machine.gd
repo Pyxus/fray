@@ -13,8 +13,8 @@ extends Node
 signal state_changed(from: StringName, to: StringName)
 
 enum AdvanceMode{
-	PROCESS, ## Advance during the physics process
-	PHYSICS, ## Advance during the idle process
+	IDLE, ## Advance during the idle process
+	PHYSICS, ## Advance during the physics process
 	MANUAL, ## Advance manually
 }
 
@@ -22,13 +22,13 @@ enum AdvanceMode{
 @export var active: bool = false
 
 ## The process mode of this state machine.
-@export var advance_mode: AdvanceMode = AdvanceMode.PROCESS
+@export var advance_mode: AdvanceMode = AdvanceMode.IDLE
 
 func _process(delta: float) -> void:
 	if _can_process():
 		get_root().process(delta)
 		
-		if advance_mode == AdvanceMode.PROCESS:
+		if advance_mode == AdvanceMode.IDLE:
 			advance()
 
 
