@@ -140,6 +140,7 @@ func get_state(name: StringName) -> FrayState:
 	return _states[name]
 
 ## Returns the current state object if it is set.
+## This is equivalent to calling [code]root.get_state(root.current_state)[/code].
 func get_state_current() -> FrayState:
 	return get_state(_current_state)
 	
@@ -250,8 +251,6 @@ func goto(to_state: StringName, args: Dictionary = {}) -> void:
 	
 	_goto(to_state, args)
 
-## Goes directly to the start state.
-## [br]
 ## Short hand for 'state.goto(state.start_state, args)'.
 func goto_start(args: Dictionary = {}) -> void:
 	if start_state.is_empty():
@@ -260,8 +259,6 @@ func goto_start(args: Dictionary = {}) -> void:
 	
 	goto(start_state)
 
-## Goes directly to the end state.
-## [br]
 ## Short hand for 'state.goto(state.end_state, args)'.
 func goto_end(args: Dictionary = {}) -> void:
 	if end_state.is_empty():
