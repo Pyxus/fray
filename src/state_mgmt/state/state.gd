@@ -45,24 +45,6 @@ func get_parent() -> FrayState:
 func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
-
-func _add_conditions(conditions: Array[FrayCondition]) -> void:
-	for condition in conditions:
-		if not has_condition(condition.name):
-			_condition_usage_count[condition.name] = 1
-			_conditions[condition.name] = false
-		else:
-			_condition_usage_count[condition.name] += 1
-
-
-func _remove_conditions(conditions: Array[FrayCondition]) -> void:
-	for condition in conditions:
-		_condition_usage_count[condition.name] -= 1
-
-		if _condition_usage_count[condition.name] < 1:
-			_conditions.erase(condition.name)
-			_condition_usage_count.erase(condition.name)
-
 ## [code]Virtual method[/code] used to implement [method is_done_processing].
 func _is_done_processing_impl() -> bool:
 	return true
@@ -85,3 +67,21 @@ func _physics_process_impl(_delta: float) -> void:
 ## [code]Virtual method[/code] invoked when the state is existed.
 func _exit_impl() -> void:
 	pass
+
+
+func _add_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		if not has_condition(condition.name):
+			_condition_usage_count[condition.name] = 1
+			_conditions[condition.name] = false
+		else:
+			_condition_usage_count[condition.name] += 1
+
+
+func _remove_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		_condition_usage_count[condition.name] -= 1
+
+		if _condition_usage_count[condition.name] < 1:
+			_conditions.erase(condition.name)
+			_condition_usage_count.erase(condition.name)
