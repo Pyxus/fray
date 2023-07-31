@@ -18,7 +18,10 @@ enum AdvanceMode{
 ## If true the combat state machine will be processing.
 @export var active: bool = false
 
-## The process mode of this state machine.
+## Determines the process during which the state machine can advance.
+## Advancing only relates to transitions. 
+## If the state machine is active then the current state is still processed
+## during both idle and physics frames regardless of advance mode.
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
 
 ## The root of this state machine.
@@ -98,7 +101,7 @@ func _set_root(value: FrayRootState):
 		_root.transitioned.disconnect(_on_RootState_transitioned)
 	
 	_root = value
-
+	_root.goto_start()
 	_root.transitioned.connect(_on_RootState_transitioned)
 
 
