@@ -61,6 +61,14 @@ var _global_transition_rules: Dictionary
 # Hint: <state name, tags>
 var _tags_by_state: Dictionary
 
+# Type: Dictionary<StringName, bool>
+# Hint: <condition name, condition status>
+var _conditions: Dictionary
+
+# Type: Dictionary<StringName, int>
+# Hint: <condition name, usage count>
+var _condition_usage_count: Dictionary
+
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
@@ -138,6 +146,27 @@ func has_state(name: StringName) -> bool:
 func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
+
+## Returns [code]true[/code] if state has the given [kbd]condition[/kbd].
+func has_condition(condition: StringName) -> bool:
+	return _conditions.has(condition)
+
+## Returns the value of a [kbd]condition[/kbd] if it exists.
+func is_condition_true(condition: StringName) -> bool:
+	if not has_condition(condition):
+		push_warning("Failed to check condition. Condition with name '%s' does not exist" % condition)
+		return false
+
+	return _conditions[condition]
+
+## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
+func set_condition(condition: StringName, value: bool) -> void:
+	if not has_condition(condition):
+		push_warning("Condition '%s' does not exist")
+		return
+	
+	_conditions[condition] = value
+
 
 ## Returns the current state object if it is set.
 ## This is equivalent to calling [code]root.get_state(root.current_state)[/code].
@@ -484,6 +513,24 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 			is_condition_true(condition.name) and not condition.invert 
 			or not is_condition_true(condition.name) and condition.invert
 			)
+
+
+func _add_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		if not has_condition(condition.name):
+			_condition_usage_count[condition.name] = 1
+			_conditions[condition.name] = false
+		else:
+			_condition_usage_count[condition.name] += 1
+
+
+func _remove_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		_condition_usage_count[condition.name] -= 1
+
+		if _condition_usage_count[condition.name] < 1:
+			_conditions.erase(condition.name)
+			_condition_usage_count.erase(condition.name)
 
 
 func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
