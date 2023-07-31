@@ -4,7 +4,7 @@ extends RefCounted
 
 enum SwitchMode{
 	IMMEDIATE, ## Switch to the next state immediately.
-	AT_END, ## Wait for the current state to end, then switch to the beginning of the next state.
+	AT_END, ## Wait for the current state to finish processing, then switch to the beginning of the next state.
 }
 
 ## If [member auto_advance] is enabled then the transition will occur automatically when all advance conditions are true.
@@ -20,7 +20,7 @@ var auto_advance: bool = false
 var priority: int = 0
 
 ## The transition type.
-var switch_mode: SwitchMode = SwitchMode.IMMEDIATE
+var switch_mode: SwitchMode = SwitchMode.AT_END
 
 ## Returns true if the transition accepts the given input.
 func accepts(input: Dictionary) -> bool:

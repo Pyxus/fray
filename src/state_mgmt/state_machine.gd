@@ -29,7 +29,8 @@ var root: FrayRootState:
 	get: return _root
 	set(value): _set_root(value)
 
-
+## The state machine's current state.
+## Updating this value is the equivalent to calling [code]goto(state)[/code].
 var current_state: StringName = "":
 	get: 
 		if _ERR_ROOT_NOT_SET("Failed to get current state"): return ""
