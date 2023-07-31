@@ -30,6 +30,15 @@ var root: FrayRootState:
 	set(value): _set_root(value)
 
 
+var current_state: StringName = "":
+	get: 
+		if _ERR_ROOT_NOT_SET("Failed to get current state"): return ""
+		return _root.current_state
+	set(value):
+		if _ERR_ROOT_NOT_SET("Failed to set current state"): return
+
+		root.current_state = value
+
 var _root: FrayRootState
 
 func _process(delta: float) -> void:
@@ -56,31 +65,36 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
 ## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
 func travel(to: StringName, args: Dictionary = {}) -> void:
-		if _root != null:
-			_root.travel(to, args)
+	if _ERR_ROOT_NOT_SET("Failed to travel"): return
+
+	_root.travel(to, args)
 
 ## Goes directly to the given state if it exists.
 ## If a travel is being performed it will be interupted.
 ## [br]
 ## Shorthand for _root.goto_start()
 func goto(to_state: StringName, args: Dictionary = {}) -> void:
-	if _root != null:
-		_root.goto(to_state, args)
+	if _ERR_ROOT_NOT_SET("Failed to go to state"): return
+
+	_root.goto(to_state, args)
+		
 
 ## Goes directly to the start state.
 ## [br]
 ## Shorthand for _root.goto_start()
 func goto_start(args: Dictionary = {}) -> void:
-	if _root != null:
-		_root.goto_start(args)
+	if _ERR_ROOT_NOT_SET("Failed to go to start state"): return
+	
+	_root.goto_start(args)
 
 
 ## Goes directly to the end state.
 ## [br]
 ## Shorthand for _root.goto_start()
 func goto_end(args: Dictionary = {}) -> void:
-	if _root != null:
-		_root.goto_end(args)
+	if _ERR_ROOT_NOT_SET("Failed to go to end state"): return
+
+	_root.goto_end(args)
 
 
 ## [code]Virtual method[/code] used to implement [method advance] method.
@@ -104,6 +118,13 @@ func _set_root(value: FrayRootState):
 	_root.goto_start()
 	_root.transitioned.connect(_on_RootState_transitioned)
 
+
+func _ERR_ROOT_NOT_SET(msg: String = "") -> bool:
+	if _root == null:
+		push_error("%s. Current state not set." % msg)
+		return true
+	
+	return false
 
 func _on_RootState_transitioned(from: StringName, to: StringName) -> void:
 	state_changed.emit(from, to)
