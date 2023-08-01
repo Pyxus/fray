@@ -147,6 +147,10 @@ func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
 
+## Similar to [method get_state], but does not log an error if the state does not exist.
+func get_state_or_null(name: StringName) -> FrayState:
+	return _states.get(name, null) as FrayState
+
 ## Returns [code]true[/code] if state has the given [kbd]condition[/kbd].
 func has_condition(condition: StringName) -> bool:
 	return _conditions.has(condition)
