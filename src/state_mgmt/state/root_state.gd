@@ -33,15 +33,17 @@ static func builder() -> Builder:
 
 ## The state machine's staring state.
 var start_state: StringName = "":
+	get: return _start_state
 	set(state):
 		if _ERR_INVALID_STATE(state): return
-		start_state = state
+		_start_state = state
 
 ## The state machine's end state.
 var end_state: StringName = "":
+	get: return _end_state
 	set(state):
 		if _ERR_INVALID_STATE(state): return
-		end_state = state
+		_end_state = state
 
 ## The state machine's current state.
 ## Updating this value is the equivalent to calling [code]goto(state)[/code].
@@ -74,7 +76,8 @@ var _travel_args: Dictionary
 var _transitions: Array[_Transition]
 var _global_transitions: Array[_Transition]
 var _current_state: StringName
-
+var _start_state: StringName
+var _end_state: StringName
 
 func _enter_impl(args: Dictionary) -> void:
 	super(args)
@@ -83,7 +86,7 @@ func _enter_impl(args: Dictionary) -> void:
 
 func _is_done_processing_impl() -> bool:
 	super()
-	return end_state.is_empty() or _current_state == end_state
+	return _end_state.is_empty() or _current_state == _end_state
 
 ## Advances to next reachable state.
 ## Will only transition if a travel was initiated. 
@@ -140,19 +143,19 @@ func goto(to_state: StringName, args: Dictionary = {}) -> void:
 
 ## Short hand for 'state.goto(state.start_state, args)'.
 func goto_start(args: Dictionary = {}) -> void:
-	if start_state.is_empty():
+	if _start_state.is_empty():
 		push_warning("Failed to go to start. Start state not set.")
 		return
 	
-	goto(start_state)
+	goto(_start_state)
 
 ## Short hand for 'state.goto(state.end_state, args)'.
 func goto_end(args: Dictionary = {}) -> void:
-	if end_state.is_empty():
+	if _end_state.is_empty():
 		push_warning("Failed to go to end. End state not set.")
 		return
 	
-	goto(end_state)
+	goto(_end_state)
 
 ## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
 func add_state(name: StringName, state: FrayState) -> void:
@@ -162,7 +165,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	_astar.add_point(name)
 
 	if _states.size() == 1:
-		start_state = name
+		_start_state = name
 
 	state_added.emit(name, state)
 
@@ -406,6 +409,20 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 						transitions.append(transition)
 	return transitions
 
+## Clears all states and transitions on this state.
+func clear() -> void:
+	_states.clear()
+	_global_transition_rules.clear()
+	_tags_by_state.clear()
+	_conditions.clear()
+	_condition_usage_count.clear()
+	_travel_args.clear()
+	_transitions.clear()
+	_global_transitions.clear()
+	_current_state = ""
+	_start_state = ""
+	_end_state = ""
+
 ## Process child states then this state.
 func process(delta: float) -> void:
 	if not _states.is_empty():
@@ -442,8 +459,8 @@ func print_adj() -> void:
 		var next_transitions := get_next_transitions(state)
 		var modifiers := "%s%s%s" % [
 			"c" if state == _current_state else "-",
-			"s" if state == start_state else "-",
-			"e" if state == end_state else "-",
+			"s" if state == _start_state else "-",
+			"e" if state == _end_state else "-",
 		]
 
 		if modifiers == "---":
@@ -623,6 +640,7 @@ class Builder:
 	var _start_state: StringName
 	var _end_state: StringName
 	var _first_state_added: StringName
+	var _root = FrayRootState.new()
 
 	## Returns a newly constructed state machine state.
 	## [br]
@@ -631,6 +649,14 @@ class Builder:
 	## Keep in mind that the condition cache does not reset autoatmically.
 	func build() -> FrayRootState:
 		return _build_impl()
+	
+	## Sets the root object that this builder will use. Root will be cleared before use.
+	## [br]
+	## Returns a reference to this builder
+	## [br][br]
+	func set_root(root: FrayRootState) -> Builder:
+		_root = root
+		return self
 
 	## Adds a new state to the state machine.
 	## [br]
@@ -858,9 +884,9 @@ class Builder:
 
 
 	func _build_impl() -> FrayRootState:
-		var root := FrayRootState.new()
-		_configure_state_machine_impl(root)
-		return root
+		_root.clear()
+		_configure_state_machine_impl(_root)
+		return _root
 
 
 	func _clear_impl() -> void:
