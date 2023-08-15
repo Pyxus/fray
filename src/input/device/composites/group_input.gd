@@ -49,35 +49,38 @@ class Builder:
 	var _composite_input = FrayGroupInput.new()
 
 	## Builds the composite input.
-	##
+	## [br]
 	## Returns a reference to the newly built CompositeInput.
 	func build() -> FrayGroupInput:
 		return _composite_input
 
 	## Sets the minimum number of components that must be pressed.
-	##
+	## [br]
 	## Returns a reference to this ComponentBuilder.
 	func min_pressed(value: int) -> Builder:
 		_composite_input.min_pressed = value
 		return self
 
 	## Adds a composite input as a component of this combination.
-	##
+	## [br]
 	## Returns a reference to this ComponentBuilder.
 	func add_component(composite_input: FrayCompositeInput) -> Builder:
 		_composite_input.add_component(composite_input)
 		return self
 
-	## Sets the input as virtual.
-	##
-	## Returns a reference to this ComponentBuilder.
-	func is_virtual() -> Builder:
-		_composite_input.is_virtual = true
+	## Sets whether the input will be virtual or not.
+	## If true, components that are still held when the composite is released
+	## will be treated as if they were just pressed again.
+	## [br]
+	## Returns a reference to this ComponentBuilder
+	func is_virtual(value: bool = true) -> Builder:
+		_composite_input.is_virtual = value
 		return self
 
 	## Sets the composite input's process priority. Higher priority composites are processed first.
-	##
-	## Returns a reference to this ComponentBuilder.
+	## [br]
+	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self
+

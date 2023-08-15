@@ -78,13 +78,13 @@ class Builder:
 	var _conditions: PackedStringArray
 
 	## Builds the composite input
-	##
+	## [br]
 	## Returns a reference to the newly built CompositeInput
 	func build() -> FrayCompositeInput:
 		return _composite_input
 
 	## Adds a composite input as a component of this conditional input
-	##
+	## [br]
 	## Returns a reference to this ComponentBuilder
 	func add_component(condition: StringName, composite_input: FrayCompositeInput) -> Builder:
 		_conditions.append(condition)
@@ -96,15 +96,17 @@ class Builder:
 		
 		return self 
 	
-	## Sets whether the input will be virtual or not
-	##
+	## Sets whether the input will be virtual or not.
+	## If true, components that are still held when the composite is released
+	## will be treated as if they were just pressed again.
+	## [br]
 	## Returns a reference to this ComponentBuilder
 	func is_virtual(value: bool = true) -> Builder:
 		_composite_input.is_virtual = value
 		return self
 
 	## Sets the composite input's process priority. Higher priority composites are processed first.
-	##
+	## [br]
 	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
