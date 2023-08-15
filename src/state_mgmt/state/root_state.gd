@@ -408,22 +408,24 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 
 ## Process child states then this state.
 func process(delta: float) -> void:
-	var cur_state: FrayState = get_state_current()
-	if cur_state is FrayRootState:
-		cur_state.process(delta)
-	else:
-		cur_state._process_impl(delta)
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state is FrayRootState:
+			cur_state.process(delta)
+		else:
+			cur_state._process_impl(delta)
 
 	_process_impl(delta)
 
 ## Physics process child states then this state.
 func physics_process(delta: float) -> void:
-	var cur_state: FrayState = get_state_current()
-	if cur_state != null:
-		if cur_state is FrayRootState:
-			cur_state.physics_process(delta)
-		else:
-			cur_state._physics_process_impl(delta)
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state != null:
+			if cur_state is FrayRootState:
+				cur_state.physics_process(delta)
+			else:
+				cur_state._physics_process_impl(delta)
 
 	_physics_process_impl(delta)
 
