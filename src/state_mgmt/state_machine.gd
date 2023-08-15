@@ -1,13 +1,10 @@
 @icon("res://addons/fray/assets/icons/state_machine.svg")
 class_name FrayStateMachine
 extends Node
-## Abstract Base Hierarchical State Machine
+## General purpose hierarchical state machine
 ##
 ## This class wraps around the [FrayRootState] and uses the [SceneTree] to
-## process the state node.
-## [br]
-## The [method _get_root_impl] abstract method must be implemented in order to 
-## determine the root state of this state machine.
+## process state nodes.
 
 ## Emitted when the current state within the root changes.
 signal state_changed(from: StringName, to: StringName)
@@ -21,12 +18,33 @@ enum AdvanceMode{
 ## If true the combat state machine will be processing.
 @export var active: bool = false
 
-## The process mode of this state machine.
+## Determines the process during which the state machine can advance.
+## Advancing only relates to transitions. 
+## If the state machine is active then the current state is still processed
+## during both idle and physics frames regardless of advance mode.
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
+
+## The root of this state machine.
+var root: FrayRootState:
+	get: return _root
+	set(value): _set_root(value)
+
+## The state machine's current state.
+## Updating this value is the equivalent to calling [code]goto(state)[/code].
+var current_state: StringName = "":
+	get: 
+		if _ERR_ROOT_NOT_SET("Failed to get current state"): return ""
+		return _root.current_state
+	set(value):
+		if _ERR_ROOT_NOT_SET("Failed to set current state"): return
+
+		root.current_state = value
+
+var _root: FrayRootState
 
 func _process(delta: float) -> void:
 	if _can_process():
-		get_root().process(delta)
+		_root.process(delta)
 		
 		if advance_mode == AdvanceMode.IDLE:
 			advance()
@@ -34,7 +52,7 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _can_process():
-		get_root().physics_process(delta)
+		_root.physics_process(delta)
 
 		if advance_mode == AdvanceMode.PHYSICS:
 			advance()
@@ -43,27 +61,71 @@ func _physics_process(delta: float) -> void:
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _can_process():
 		_advance_impl()
+
+## Transitions from the current state to another one, following the shortest path.
+## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
+## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
+func travel(to: StringName, args: Dictionary = {}) -> void:
+	if _ERR_ROOT_NOT_SET("Failed to travel"): return
+
+	_root.travel(to, args)
+
+## Goes directly to the given state if it exists.
+## If a travel is being performed it will be interupted.
+## [br]
+## Shorthand for _root.goto_start()
+func goto(to_state: StringName, args: Dictionary = {}) -> void:
+	if _ERR_ROOT_NOT_SET("Failed to go to state"): return
+
+	_root.goto(to_state, args)
 		
-## Returns the root of this state machine.
-func get_root() -> FrayRootState:
-	return _get_root_impl()
+
+## Goes directly to the start state.
+## [br]
+## Shorthand for _root.goto_start()
+func goto_start(args: Dictionary = {}) -> void:
+	if _ERR_ROOT_NOT_SET("Failed to go to start state"): return
+	
+	_root.goto_start(args)
 
 
-func _can_process() -> bool:
-	return get_root() != null and active
+## Goes directly to the end state.
+## [br]
+## Shorthand for _root.goto_start()
+func goto_end(args: Dictionary = {}) -> void:
+	if _ERR_ROOT_NOT_SET("Failed to go to end state"): return
+
+	_root.goto_end(args)
+
 
 ## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if get_root().current_state.is_empty():
+	if _root.current_state.is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	
-	get_root().advance(input, args)
+	_root.advance(input, args)
 
-## [code]Abstract method[/code] used to implement [method get_root] method.
-## [br]
-## The return value of this method is used to determine what this state machine's
-## current root node is.
-func _get_root_impl() -> FrayRootState:
-	assert(false, "Method not implemented")
-	return null
+
+func _can_process() -> bool:
+	return _root != null and active
+
+
+func _set_root(value: FrayRootState):
+	if _root != null and _root.transitioned.is_connected(_on_RootState_transitioned):
+		_root.transitioned.disconnect(_on_RootState_transitioned)
+	
+	_root = value
+	_root.goto_start()
+	_root.transitioned.connect(_on_RootState_transitioned)
+
+
+func _ERR_ROOT_NOT_SET(msg: String = "") -> bool:
+	if _root == null:
+		push_error("%s. Current state not set." % msg)
+		return true
+	
+	return false
+
+func _on_RootState_transitioned(from: StringName, to: StringName) -> void:
+	state_changed.emit(from, to)

@@ -50,13 +50,8 @@ var current_situation: StringName:
 # Hint: <situation name, >
 var _situations: Dictionary
 
-var _root: FrayRootState
 var _input_buffer: Array[BufferedInput]
 var _time_since_last_input_msec: float
-
-
-func _get_root_impl() -> FrayRootState:
-	return _root
 
 
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
@@ -73,14 +68,6 @@ func _advance_impl(input: Dictionary = {}, args: Dictionary = {})  -> void:
 			_root.goto(next_state)
 			_time_since_last_input_msec = current_time
 			break
-
-
-## Returns the current situation to its start state.
-## [br]
-## Shorthand for _root.goto_start()
-func goto_start_state() -> void:
-	if _root != null:
-		_root.goto_start()
 
 ## Adds a combat situation to the state machine.
 func add_situation(situation_name: StringName, state: FrayRootState) -> void:
@@ -146,6 +133,10 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
+func _set_root(value: FrayRootState) -> void:
+	assert(false, "The root is managed by the CombatStateMachine. See the `add_situation` and `change_situation` methods to update it.")
+	pass
+
 func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> StringName:
 	if buffered_input is BufferedInputButton:
 		return _root.get_next_state({
@@ -164,6 +155,7 @@ func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float
 
 func _on_RootState_transitioned(from: StringName, to: StringName) -> void:
 	state_changed.emit(from, to)
+
 
 class BufferedInput:
 	extends RefCounted

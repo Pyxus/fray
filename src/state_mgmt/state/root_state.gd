@@ -33,15 +33,17 @@ static func builder() -> Builder:
 
 ## The state machine's staring state.
 var start_state: StringName = "":
+	get: return _start_state
 	set(state):
 		if _ERR_INVALID_STATE(state): return
-		start_state = state
+		_start_state = state
 
 ## The state machine's end state.
 var end_state: StringName = "":
+	get: return _end_state
 	set(state):
 		if _ERR_INVALID_STATE(state): return
-		end_state = state
+		_end_state = state
 
 ## The state machine's current state.
 ## Updating this value is the equivalent to calling [code]goto(state)[/code].
@@ -61,12 +63,21 @@ var _global_transition_rules: Dictionary
 # Hint: <state name, tags>
 var _tags_by_state: Dictionary
 
+# Type: Dictionary<StringName, bool>
+# Hint: <condition name, condition status>
+var _conditions: Dictionary
+
+# Type: Dictionary<StringName, int>
+# Hint: <condition name, usage count>
+var _condition_usage_count: Dictionary
+
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
 var _global_transitions: Array[_Transition]
 var _current_state: StringName
-
+var _start_state: StringName
+var _end_state: StringName
 
 func _enter_impl(args: Dictionary) -> void:
 	super(args)
@@ -75,7 +86,76 @@ func _enter_impl(args: Dictionary) -> void:
 
 func _is_done_processing_impl() -> bool:
 	super()
-	return end_state.is_empty() or _current_state == end_state
+	return _end_state.is_empty() or _current_state == _end_state
+
+## Advances to next reachable state.
+## Will only transition if a travel was initiated. 
+## Or if a travel was not initiated and a reachable transition has `auto_advance` enabled
+## [br][br]
+## [kbd]input[/kbd] is optional user-defined data used to determine if a transition can occur.
+##	The [method _accept_input_impl] virtual method can be overidden to determine what input is accepted.
+## [br][br]
+## [kbd]args[/kbd] is user-defined data which is passed to the advanced state on enter.
+## If a state advances due to traveling the args provided to the initial travel call will be used instead.
+##
+## Returns true if the input was accepted and state advanced.
+func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
+	var cur_state: FrayState = get_state_current()
+
+	if cur_state != null:
+		if cur_state is FrayRootState:
+			cur_state.advance(input, args)
+		
+		if _astar.has_next_travel_point():
+			var travel_state = cur_state
+			while travel_state.is_done_processing() and _astar.has_next_travel_point():
+				_goto(_astar.get_next_travel_point(), _travel_args)
+				travel_state = get_state(_current_state)
+		else:
+			var next_state := get_next_state(input)
+			if not next_state.is_empty():
+				goto(next_state, args)
+
+	return cur_state != null and cur_state != get_state_current()
+
+## Transitions from the current state to another one, following the shortest path.
+## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
+## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
+func travel(to: StringName, args: Dictionary = {}) -> void:
+	if _ERR_INVALID_STATE(to): return
+	
+	if not _current_state.is_empty():
+		_astar.compute_travel_path(_current_state, to)
+		_travel_args = args
+
+		if not _astar.has_next_travel_point():
+			goto(to, args)
+
+## Goes directly to the given state if it exists.
+## If a travel is being performed it will be interupted.
+func goto(to_state: StringName, args: Dictionary = {}) -> void:
+	if _ERR_INVALID_STATE(to_state): return
+
+	if _astar.has_next_travel_point():
+		_astar.clear_travel_path()
+	
+	_goto(to_state, args)
+
+## Short hand for 'state.goto(state.start_state, args)'.
+func goto_start(args: Dictionary = {}) -> void:
+	if _start_state.is_empty():
+		push_warning("Failed to go to start. Start state not set.")
+		return
+	
+	goto(_start_state)
+
+## Short hand for 'state.goto(state.end_state, args)'.
+func goto_end(args: Dictionary = {}) -> void:
+	if _end_state.is_empty():
+		push_warning("Failed to go to end. End state not set.")
+		return
+	
+	goto(_end_state)
 
 ## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
 func add_state(name: StringName, state: FrayState) -> void:
@@ -85,7 +165,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	_astar.add_point(name)
 
 	if _states.size() == 1:
-		start_state = name
+		_start_state = name
 
 	state_added.emit(name, state)
 
@@ -139,10 +219,39 @@ func get_state(name: StringName) -> FrayState:
 	if _ERR_INVALID_STATE(name): return null
 	return _states[name]
 
+## Similar to [method get_state], but does not log an error if the state does not exist.
+func get_state_or_null(name: StringName) -> FrayState:
+	return _states.get(name, null) as FrayState
+
 ## Returns the current state object if it is set.
+## This is equivalent to calling [code]root.get_state(root.current_state)[/code].
 func get_state_current() -> FrayState:
+	if _current_state.is_empty():
+		push_error("Current state not set")
+		return null
+
 	return get_state(_current_state)
 	
+## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
+func set_condition(condition: StringName, value: bool) -> void:
+	if not has_condition(condition):
+		push_warning("Condition '%s' does not exist")
+		return
+	
+	_conditions[condition] = value
+
+## Returns the value of a [kbd]condition[/kbd] if it exists.
+func is_condition_true(condition: StringName) -> bool:
+	if not has_condition(condition):
+		push_warning("Failed to check condition. Condition with name '%s' does not exist" % condition)
+		return false
+
+	return _conditions[condition]
+
+## Returns [code]true[/code] if state has the given [kbd]condition[/kbd].
+func has_condition(condition: StringName) -> bool:
+	return _conditions.has(condition)
+
 ## Adds a transition between specified states.
 func add_transition(from: StringName, to: StringName, transition: FrayStateMachineTransition) -> void:
 	if _ERR_INVALID_STATE(from): return
@@ -184,50 +293,6 @@ func get_transition(from: StringName, to: StringName) -> FrayStateMachineTransit
 
 	return null
 
-## Transitions from the current state to another one, following the shortest path.
-## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
-## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
-func travel(to: StringName, args: Dictionary = {}) -> void:
-	if _ERR_INVALID_STATE(to): return
-	
-	if not _current_state.is_empty():
-		_astar.compute_travel_path(_current_state, to)
-		_travel_args = args
-
-		if not _astar.has_next_travel_point():
-			goto(to, args)
-
-## Advances to next reachable state.
-## Will only transition if a travel was initiated. 
-## Or if a travel was not initiated and a reachable transition has `auto_advance` enabled
-## [br][br]
-## [kbd]input[/kbd] is optional user-defined data used to determine if a transition can occur.
-##	The [method _accept_input_impl] virtual method can be overidden to determine what input is accepted.
-## [br][br]
-## [kbd]args[/kbd] is user-defined data which is passed to the advanced state on enter.
-## If a state advances due to traveling the args provided to the initial travel call will be used instead.
-##
-## Returns true if the input was accepted and state advanced.
-func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var cur_state: RefCounted = get_state_current()
-
-	if cur_state != null:
-		if cur_state is FrayRootState:
-			cur_state.advance(input, args)
-		
-		if _astar.has_next_travel_point():
-			var travel_state = cur_state
-			while travel_state.is_done_processing() and _astar.has_next_travel_point():
-				_goto(_astar.get_next_travel_point(), _travel_args)
-				travel_state = get_state(_current_state)
-		else:
-			var next_state := get_next_state(input)
-			if not next_state.is_empty():
-				goto(next_state, args)
-
-	return cur_state != null and cur_state != _states.get(_current_state, null)
-
-
 ## Returns the name of the next reachable state.
 func get_next_state(input: Dictionary = {}) -> StringName:
 	if _current_state.is_empty():
@@ -239,32 +304,6 @@ func get_next_state(input: Dictionary = {}) -> StringName:
 		if _can_transition(transition) and _can_advance(transition, input):
 			return tr.to
 	return ""
-
-## Goes directly to the given state if it exists.
-## If a travel is being performed it will be interupted.
-func goto(to_state: StringName, args: Dictionary = {}) -> void:
-	if _ERR_INVALID_STATE(to_state): return
-
-	if _astar.has_next_travel_point():
-		_astar.clear_travel_path()
-	
-	_goto(to_state, args)
-
-## Short hand for 'state.goto(state.start_state, args)'.
-func goto_start(args: Dictionary = {}) -> void:
-	if start_state.is_empty():
-		push_warning("Failed to go to start. Start state not set.")
-		return
-	
-	goto(start_state)
-
-## Short hand for 'state.goto(state.end_state, args)'.
-func goto_end(args: Dictionary = {}) -> void:
-	if end_state.is_empty():
-		push_warning("Failed to go to end. End state not set.")
-		return
-	
-	goto(end_state)
 
 ## Returns an array of transitions traversable from the given state.
 func get_next_transitions(from: StringName) -> Array[_Transition]:
@@ -349,7 +388,7 @@ func remove_global_transition_rule(from_tag: StringName, to_tag: StringName) -> 
 		_global_transition_rules.erase(to_tag)
 
 ## Removes all global transitions from given tag.
-func delete_global_transition_rule(from_tag: StringName) -> void:
+func remove_all_global_transition_rule(from_tag: StringName) -> void:
 	if _global_transition_rules.has(from_tag):
 		_global_transition_rules.erase(from_tag)
 
@@ -370,18 +409,41 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 						transitions.append(transition)
 	return transitions
 
+## Clears all states and transitions on this state.
+func clear() -> void:
+	_states.clear()
+	_global_transition_rules.clear()
+	_tags_by_state.clear()
+	_conditions.clear()
+	_condition_usage_count.clear()
+	_travel_args.clear()
+	_transitions.clear()
+	_global_transitions.clear()
+	_current_state = ""
+	_start_state = ""
+	_end_state = ""
+
 ## Process child states then this state.
 func process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(_current_state)
-	if cur_state != null:
-		cur_state._process_impl(delta)
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state is FrayRootState:
+			cur_state.process(delta)
+		else:
+			cur_state._process_impl(delta)
+
 	_process_impl(delta)
 
 ## Physics process child states then this state.
 func physics_process(delta: float) -> void:
-	var cur_state: RefCounted = _states.get(_current_state)
-	if cur_state != null:
-		cur_state._physics_process_impl(delta)
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state != null:
+			if cur_state is FrayRootState:
+				cur_state.physics_process(delta)
+			else:
+				cur_state._physics_process_impl(delta)
+
 	_physics_process_impl(delta)
 
 ## Prints this state machine in adjacency list form.
@@ -397,8 +459,8 @@ func print_adj() -> void:
 		var next_transitions := get_next_transitions(state)
 		var modifiers := "%s%s%s" % [
 			"c" if state == _current_state else "-",
-			"s" if state == start_state else "-",
-			"e" if state == end_state else "-",
+			"s" if state == _start_state else "-",
+			"e" if state == _end_state else "-",
 		]
 
 		if modifiers == "---":
@@ -485,6 +547,24 @@ func _is_condition_true(condition: FrayCondition) -> bool:
 			)
 
 
+func _add_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		if not has_condition(condition.name):
+			_condition_usage_count[condition.name] = 1
+			_conditions[condition.name] = false
+		else:
+			_condition_usage_count[condition.name] += 1
+
+
+func _remove_conditions(conditions: Array[FrayCondition]) -> void:
+	for condition in conditions:
+		_condition_usage_count[condition.name] -= 1
+
+		if _condition_usage_count[condition.name] < 1:
+			_conditions.erase(condition.name)
+			_condition_usage_count.erase(condition.name)
+
+
 func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
 	if name.is_empty():
 		push_error("Failed to add state. State name can not be empty.")
@@ -560,6 +640,7 @@ class Builder:
 	var _start_state: StringName
 	var _end_state: StringName
 	var _first_state_added: StringName
+	var _root = FrayRootState.new()
 
 	## Returns a newly constructed state machine state.
 	## [br]
@@ -568,6 +649,14 @@ class Builder:
 	## Keep in mind that the condition cache does not reset autoatmically.
 	func build() -> FrayRootState:
 		return _build_impl()
+	
+	## Sets the root object that this builder will use. Root will be cleared before use.
+	## [br]
+	## Returns a reference to this builder
+	## [br][br]
+	func set_root(root: FrayRootState) -> Builder:
+		_root = root
+		return self
 
 	## Adds a new state to the state machine.
 	## [br]
@@ -795,9 +884,9 @@ class Builder:
 
 
 	func _build_impl() -> FrayRootState:
-		var root := FrayRootState.new()
-		_configure_state_machine_impl(root)
-		return root
+		_root.clear()
+		_configure_state_machine_impl(_root)
+		return _root
 
 
 	func _clear_impl() -> void:
