@@ -250,7 +250,7 @@ class _InputFrame:
 
 			string += input.input
 			if not input.is_pressed():
-				string += ".r"
+				string += "^"
 			
 			if i != inputs.size() - 1:
 				string += ", "
@@ -311,12 +311,10 @@ class _InputNode:
 
 		var string := ""
 		if sequence_name.is_empty():
-			string = "[%s]" % input
+			string = "[%s]" % [input + ("^" if not is_press_input else "")]
 		else:
-			string = "[%s] -> %s" % [input, sequence_name]
-		
-		if not is_press_input:
-			string += ".r"
+			string = "[%s] → %s" % [input, sequence_name]
+
 		return string
 
 
