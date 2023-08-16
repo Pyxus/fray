@@ -114,7 +114,7 @@ func read(input_event: FrayInputEvent) -> void:
 		return
 	
 	var next_node := _current_node.get_next(input_event.input, input_event.is_pressed())
-
+	
 	if next_node != null:
 		_current_node = next_node
 		_match_branch.append(input_event)
@@ -313,7 +313,7 @@ class _InputNode:
 		if sequence_name.is_empty():
 			string = "[%s]" % [input + ("^" if not is_press_input else "")]
 		else:
-			string = "[%s] → %s" % [input, sequence_name]
+			string = "[%s] ⟶ %s" % [input + ("~" if is_negative_edge_enabled else ""), sequence_name]
 
 		return string
 
