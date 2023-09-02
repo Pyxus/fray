@@ -147,7 +147,7 @@ func goto_start(args: Dictionary = {}) -> void:
 		push_warning("Failed to go to start. Start state not set.")
 		return
 	
-	goto(_start_state)
+	goto(_start_state, args)
 
 ## Short hand for 'state.goto(state.end_state, args)'.
 func goto_end(args: Dictionary = {}) -> void:
@@ -155,18 +155,19 @@ func goto_end(args: Dictionary = {}) -> void:
 		push_warning("Failed to go to end. End state not set.")
 		return
 	
-	goto(_end_state)
+	goto(_end_state, args)
 
 ## Adds a new [kbd]state[/kbd] under a given [kbd]name[/kbd].
 func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state): return
 	
+	state._parent_ref = weakref(self)
 	_states[name] = state
 	_astar.add_point(name)
 
 	if _states.size() == 1:
 		_start_state = name
-
+	
 	state_added.emit(name, state)
 
 ## Removes the specified state.
@@ -179,6 +180,15 @@ func remove_state(name: StringName) -> void:
 	
 	if _tags_by_state.has(name):
 		_tags_by_state.erase(name)
+	
+	_transitions = _transitions.filter(func(transition: _Transition):
+		return transition.from != name and transition.to != name
+	)
+
+	_global_transitions = _global_transitions.filter(func(transition: _Transition):
+		return transition.from != name and transition.to != name
+	)
+
 	state_removed.emit(name, state)
 
 ## Renames the specified state.
@@ -208,20 +218,20 @@ func replace_state(name: StringName, replacement_state: FrayState) -> void:
 		push_warning("Failed to replace state. Replacement state already belongs to parent state %s" % replacement_state.get_parent())
 		return
 	
+	replacement_state._parent_ref = weakref(self)
 	_states[name] = replacement_state
 
 ## Returns [code]true[/code] if the machine contains the specified state.
-func has_state(name: StringName) -> bool:
-	return _states.has(name)
+func has_state(path: StringName) -> bool:
+	return get_state_or_null(path) != null
 
 ## Returns the sub-state object with the specified name if it exists.
-func get_state(name: StringName) -> FrayState:
-	if _ERR_INVALID_STATE(name): return null
-	return _states[name]
+func get_state(path: StringName) -> FrayState:
+	return _get_state(path)
 
 ## Similar to [method get_state], but does not log an error if the state does not exist.
-func get_state_or_null(name: StringName) -> FrayState:
-	return _states.get(name, null) as FrayState
+func get_state_or_null(path: StringName) -> FrayState:
+	return _get_state(path, false)
 
 ## Returns the current state object if it is set.
 ## This is equivalent to calling [code]root.get_state(root.current_state)[/code].
@@ -409,7 +419,7 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 						transitions.append(transition)
 	return transitions
 
-## Clears all states and transitions on this state.
+## Clears all states, transitions, rules, and conditions on this root state.
 func clear() -> void:
 	_states.clear()
 	_global_transition_rules.clear()
@@ -484,14 +494,48 @@ func print_adj() -> void:
 	print(string)
 
 
+func _get_state(path: StringName, can_push_errors: bool = true) -> FrayState:
+	var state_path := path.split('/')
+
+	if state_path.is_empty():
+		if can_push_errors:
+			push_error("Invalid state path. Path can not be empty")
+		return null
+	
+	if state_path.size() == 1:
+		if _ERR_INVALID_STATE(state_path[0]): return null
+		return _states[state_path[0]]
+	
+	var traversed_path: String = ""
+	var next_state: FrayState = self
+	for i in len(state_path):
+		var state_name := state_path[i]
+		var state: FrayState = next_state._states.get(state_name)
+		traversed_path += state_name
+
+		if state == null:
+			if can_push_errors:
+				push_error("Invalid state '%s'. State does not exist." % traversed_path)
+			return null
+		
+		if not state is FrayRootState and i < len(state_path) - 1:
+			push_warning("State '%s' is atomic and can not have sub-states" % traversed_path)
+			return null
+		
+		next_state = state
+		traversed_path += "/"
+	
+	return next_state
+
 func _get_transition_priority(from: StringName, to: StringName) -> float:
 	var tr := get_transition(from, to)
 	return float(tr.transition.priority) if tr else 0.0
 
 
 func _goto(to_state: StringName, args: Dictionary) -> void:
+	
 	if _ERR_INVALID_STATE(to_state): return
-
+	
 	var prev_state_name := _current_state
 	var target_state := get_state(to_state)
 
@@ -499,6 +543,7 @@ func _goto(to_state: StringName, args: Dictionary) -> void:
 		get_state(_current_state)._exit_impl()
 
 	_current_state = to_state
+	
 	get_state(_current_state)._enter_impl(args)
 	transitioned.emit(prev_state_name, _current_state)
 
@@ -570,7 +615,7 @@ func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
 		push_error("Failed to add state. State name can not be empty.")
 		return true
 
-	if has_state(name):
+	if _states.has(name):
 		push_error("Failed to add state. State with name %s already exists" % name)
 		return true
 	
@@ -586,7 +631,7 @@ func _ERR_INVALID_STATE(name: StringName) -> bool:
 		push_error("Invalid state name, name can not be empty")
 		return true
 	
-	if not has_state(name):
+	if not _states.has(name):
 		push_error("Invalid state name '%s', state does not exist." % name)
 		return true
 

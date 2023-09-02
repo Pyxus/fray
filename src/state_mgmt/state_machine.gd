@@ -23,7 +23,7 @@ enum AdvanceMode{
 ## If the state machine is active then the current state is still processed
 ## during both idle and physics frames regardless of advance mode.
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
-
+ 
 ## The root of this state machine.
 var root: FrayRootState:
 	get: return _root
@@ -116,7 +116,7 @@ func _set_root(value: FrayRootState):
 		_root.transitioned.disconnect(_on_RootState_transitioned)
 	
 	_root = value
-	_root.goto_start()
+	_root._enter_impl({})
 	_root.transitioned.connect(_on_RootState_transitioned)
 
 
