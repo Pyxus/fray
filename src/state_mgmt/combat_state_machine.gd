@@ -83,15 +83,16 @@ func add_situation(situation_name: StringName, state: FrayRootState) -> void:
 		change_situation(situation_name)
 
 ## Changes the currently activate situation
-func change_situation(situation_name: StringName) -> void:
+func change_situation(situation_name: StringName, reset_previous_situation :bool = false)  -> void:
 	if not has_situation(situation_name):
 		push_error("Failed to change situation. State machine does not contain situation named '%s'" % situation_name)
 		return
-	
+
 	if situation_name != current_situation:
+		if(_root != null and reset_previous_situation):
+			_root._exit_impl()
+			_root._current_state = ''
 		current_situation = situation_name
-		_root = get_situation(situation_name)
-		_root.goto_start()
 
 ## Returns a situation with the given name if it exists.
 func get_situation(situation_name: StringName) -> FrayRootState:

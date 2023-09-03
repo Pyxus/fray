@@ -53,6 +53,14 @@ func is_pressed(input: StringName, device: int = DEVICE_KBM_JOY1) -> bool:
 		null:
 			return false
 
+## Returns [code]true[/code] if the [kbd]input[/kbd] is being held for [kdb]min_time_frame[/kdb] .
+func is_held(input: StringName, min_time_frame: int = 500, device: int = DEVICE_KBM_JOY1) -> bool:
+	match _get_input_state(input, device):
+		var input_state:
+			return input_state.is_pressed && (Time.get_ticks_msec() - input_state.time_pressed) > min_time_frame
+		null:
+			return false
+
 ## Returns [code]true[/code] if any of the [kbd]inputs[/kbd] given are being pressed.
 func is_any_pressed(inputs: PackedStringArray, device: int = DEVICE_KBM_JOY1) -> bool:
 	for input in inputs:
