@@ -74,10 +74,10 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 ## If a travel is being performed it will be interupted.
 ## [br]
 ## Shorthand for _root.goto_start()
-func goto(to_state: StringName, args: Dictionary = {}) -> void:
+func goto(path: StringName, args: Dictionary = {}) -> void:
 	if _ERR_ROOT_NOT_SET("Failed to go to state"): return
 
-	_root.goto(to_state, args)
+	_root.goto(path, args)
 		
 
 ## Goes directly to the start state.
