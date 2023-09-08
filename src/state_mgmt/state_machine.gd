@@ -103,7 +103,7 @@ func goto_end(args: Dictionary = {}) -> void:
 
 ## [code]Virtual method[/code] used to implement [method advance] method.
 func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
-	if root.current_state.is_empty():
+	if get_current_state_name().is_empty():
 		push_warning("Failed to advance. Current state not set.")
 		return
 	
