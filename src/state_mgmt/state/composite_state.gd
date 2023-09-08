@@ -45,14 +45,6 @@ var end_state: StringName = "":
 		if _ERR_INVALID_STATE(state): return
 		_end_state = state
 
-## The state machine's current state.
-## Updating this value is the equivalent to calling [code]goto(state)[/code].
-## TODO: Change to getter
-var current_state: StringName = "":
-	get: return _current_state
-	set(state):
-		goto(state)
-
 # Type: Dictionary<StringName, FrayState>
 var _states: Dictionary
 
@@ -102,7 +94,7 @@ func _is_done_processing_impl() -> bool:
 ##
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
-	var cur_state: FrayState = get_state_current()
+	var cur_state: FrayState = get_current_state()
 
 	if cur_state != null:
 		if cur_state is FrayCompositeState:
@@ -118,7 +110,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 			if not next_state.is_empty():
 				goto(next_state, args)
 
-	return cur_state != null and cur_state != get_state_current()
+	return cur_state != null and cur_state != get_current_state()
 
 ## Transitions from the current state to another one, following the shortest path.
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
@@ -238,8 +230,12 @@ func get_state_or_null(path: StringName) -> FrayState:
 
 ## Returns the current state object if it is set.
 ## This is equivalent to calling [code]root.get_state_or_null(root.current_state)[/code].
-func get_state_current() -> FrayState:
+func get_current_state() -> FrayState:
 	return get_state_or_null(_current_state)
+
+
+func get_current_state_name() -> StringName:
+	return _current_state
 	
 ## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
 func set_condition(condition: StringName, value: bool) -> void:
@@ -425,14 +421,14 @@ func get_nested_current_states() -> Array[FrayState]:
 
 	while active_state != null and active_state is FrayCompositeState:
 		active_states.append(active_state)
-		active_state = active_state.get_state_or_null(active_state.current_state)
+		active_state = active_state.get_current_state()
 	
 	return active_states
 
 ## Process child states then this state.
 func process(delta: float) -> void:
 	if not _states.is_empty():
-		var cur_state: FrayState = get_state_current()
+		var cur_state: FrayState = get_current_state()
 		if cur_state is FrayCompositeState:
 			cur_state.process(delta)
 		elif cur_state != null:
@@ -443,7 +439,7 @@ func process(delta: float) -> void:
 ## Physics process child states then this state.
 func physics_process(delta: float) -> void:
 	if not _states.is_empty():
-		var cur_state: FrayState = get_state_current()
+		var cur_state: FrayState = get_current_state()
 		if cur_state != null:
 			if cur_state is FrayCompositeState:
 				cur_state.physics_process(delta)
@@ -591,7 +587,7 @@ func _can_switch(transition: FrayStateMachineTransition) -> bool:
 	return (
 		transition.switch_mode == FrayStateMachineTransition.SwitchMode.IMMEDIATE
 		or (transition.switch_mode == FrayStateMachineTransition.SwitchMode.AT_END 
-		and get_state_current()._is_done_processing_impl()) 
+		and get_current_state()._is_done_processing_impl()) 
 		)
 
 
