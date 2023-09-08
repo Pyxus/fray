@@ -98,22 +98,26 @@ func _is_done_processing_impl() -> bool:
 ## Returns true if the input was accepted and state advanced.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var cur_state: FrayState = get_current_state()
+	var has_substate_advanced := false
 
-	if cur_state != null:
-		if cur_state is FrayCompositeState:
-			cur_state.advance(input, args)
-		
+	if cur_state != null:		
 		if _astar.has_next_travel_point():
+			#TODO: This likely needs to be rethought
 			var travel_state = cur_state
 			while travel_state.is_done_processing() and _astar.has_next_travel_point():
 				_goto(_astar.get_next_travel_point(), _travel_args)
 				travel_state = get_state(_current_state)
 		else:
 			var next_state := get_next_state(input)
+			
 			if not next_state.is_empty():
 				goto(next_state, args)
+				return true
+		
+		if cur_state is FrayCompositeState:
+			return cur_state.advance(input, args)
 
-	return cur_state != null and cur_state != get_current_state()
+	return false
 
 ## Transitions from the current state to another one, following the shortest path.
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
