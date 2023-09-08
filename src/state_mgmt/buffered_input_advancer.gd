@@ -67,33 +67,31 @@ func get_buffer() -> Array[BufferedInput]:
 
 func _advance()  -> void:
 	var current_time := Time.get_ticks_msec()
+
 	while not _input_buffer.is_empty() and allow_transitions:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
 		var time_since_last_input = (current_time - _time_since_last_input_msec) / 1000.0
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
-		#TODO: Consider replacing this with root.advance() calls
-		var next_state := _get_next_state(buffered_input, time_since_last_input)
-		
-		if not next_state.is_empty() and time_since_inputted <= max_buffer_time:
-			state_machine.root.goto(next_state)
+		var advance_input := _create_advance_input(buffered_input, time_since_last_input)
+	
+		if state_machine.advance(advance_input):
 			_time_since_last_input_msec = current_time
 			break
 
-
-func _get_next_state(buffered_input: BufferedInput, time_since_last_input: float) -> StringName:
+func _create_advance_input(buffered_input: BufferedInput, time_since_last_input: float) -> Dictionary:
 	if buffered_input is BufferedInputButton:
-		return state_machine.root.get_next_state({
+		return {
 			input = buffered_input.input,
 			input_is_pressed = buffered_input.is_pressed,
 			time_since_last_input = time_since_last_input,
 			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp) / 1000.0
-		})
+		}
 	elif buffered_input is BufferedInputSequence:
-		return state_machine.root.get_next_state({
+		return {
 			sequence = buffered_input.sequence_name,
 			time_since_last_input = time_since_last_input,
-		})
-	return ""
+		}
+	return {}
 
 class BufferedInput:
 	extends RefCounted
