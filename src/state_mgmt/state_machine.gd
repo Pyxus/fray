@@ -35,16 +35,6 @@ var root: FrayCompositeState:
 		root._enter_impl({})
 		root.transitioned.connect(_on_RootState_transitioned)
 
-## The state machine's current state.
-## Updating this value is the equivalent to calling [code]goto(state)[/code].
-var current_state: StringName = "":
-	get: 
-		if _ERR_ROOT_NOT_SET("Failed to get current state"): return ""
-		return root.current_state
-	set(value):
-		if _ERR_ROOT_NOT_SET("Failed to set current state"): return
-
-		root.current_state = value
 
 func _process(delta: float) -> void:
 	if _can_process():
@@ -66,9 +56,18 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
 	if _can_process():
 		_advance_impl()
 
+## Returns the name of the root's current state.
+## [br]
+## Shorthand for root.get_current_state_name()
+func get_current_state_name() -> StringName:
+	if _ERR_ROOT_NOT_SET("Failed to travel"): return ""
+	return root.get_current_state_name()
+
 ## Transitions from the current state to another one, following the shortest path.
 ## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
 ## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
+## [br]
+## Shorthand for root.travel(input, args)
 func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_ROOT_NOT_SET("Failed to travel"): return
 
@@ -77,7 +76,7 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 ## Goes directly to the given state if it exists.
 ## If a travel is being performed it will be interupted.
 ## [br]
-## Shorthand for root.goto_start()
+## Shorthand for root.goto(path, args)
 func goto(path: StringName, args: Dictionary = {}) -> void:
 	if _ERR_ROOT_NOT_SET("Failed to go to state"): return
 
