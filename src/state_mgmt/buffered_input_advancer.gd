@@ -2,7 +2,7 @@
 @icon("res://addons/fray/assets/icons/combat_state_machine.svg")
 class_name FrayBufferedInputAdvancer
 extends Node
-#TODO: Write description for this node
+## A node which attempts to advance a given state machine using buffered inputs.
 
 enum AdvanceMode{
 	IDLE, ## Advance during the idle process
