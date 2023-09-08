@@ -47,6 +47,7 @@ var end_state: StringName = "":
 
 ## The state machine's current state.
 ## Updating this value is the equivalent to calling [code]goto(state)[/code].
+## TODO: Change to getter
 var current_state: StringName = "":
 	get: return _current_state
 	set(state):
@@ -81,7 +82,8 @@ var _end_state: StringName
 
 func _enter_impl(args: Dictionary) -> void:
 	super(args)
-	goto_start(args)
+	_current_state = start_state
+	print(start_state)
 
 
 func _is_done_processing_impl() -> bool:
@@ -133,13 +135,14 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 
 ## Goes directly to the given state if it exists.
 ## If a travel is being performed it will be interupted.
-func goto(to_state: StringName, args: Dictionary = {}) -> void:
-	if _ERR_INVALID_STATE(to_state): return
-
+func goto(path: StringName, args: Dictionary = {}) -> void:
+	if not has_state(path): return
+	
+	#TODO: May have to rethink traveling with this new approach.
 	if _astar.has_next_travel_point():
 		_astar.clear_travel_path()
 	
-	_goto(to_state, args)
+	_goto(path, args)
 
 ## Short hand for 'state.goto(state.start_state, args)'.
 func goto_start(args: Dictionary = {}) -> void:
@@ -234,13 +237,9 @@ func get_state_or_null(path: StringName) -> FrayState:
 	return _get_state(path, false)
 
 ## Returns the current state object if it is set.
-## This is equivalent to calling [code]root.get_state(root.current_state)[/code].
+## This is equivalent to calling [code]root.get_state_or_null(root.current_state)[/code].
 func get_state_current() -> FrayState:
-	if _current_state.is_empty():
-		push_error("Current state not set")
-		return null
-
-	return get_state(_current_state)
+	return get_state_or_null(_current_state)
 	
 ## Sets the [kbd]value[/kbd] of a [kbd]condition[/kbd] if it exists.
 func set_condition(condition: StringName, value: bool) -> void:
@@ -419,6 +418,40 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 						transitions.append(transition)
 	return transitions
 
+## Returns a list of all current states from root to leaf.
+func get_nested_current_states() -> Array[FrayState]:
+	var active_states: Array[FrayState] = []
+	var active_state: FrayState = self
+
+	while active_state != null and active_state is FrayRootState:
+		active_states.append(active_state)
+		active_state = active_state.get_state_or_null(active_state.current_state)
+	
+	return active_states
+
+## Process child states then this state.
+func process(delta: float) -> void:
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state is FrayRootState:
+			cur_state.process(delta)
+		elif cur_state != null:
+			cur_state._process_impl(delta)
+
+	_process_impl(delta)
+
+## Physics process child states then this state.
+func physics_process(delta: float) -> void:
+	if not _states.is_empty():
+		var cur_state: FrayState = get_state_current()
+		if cur_state != null:
+			if cur_state is FrayRootState:
+				cur_state.physics_process(delta)
+			elif cur_state != null:
+				cur_state._physics_process_impl(delta)
+
+	_physics_process_impl(delta)
+
 ## Clears all states, transitions, rules, and conditions on this root state.
 func clear() -> void:
 	_states.clear()
@@ -432,29 +465,6 @@ func clear() -> void:
 	_current_state = ""
 	_start_state = ""
 	_end_state = ""
-
-## Process child states then this state.
-func process(delta: float) -> void:
-	if not _states.is_empty():
-		var cur_state: FrayState = get_state_current()
-		if cur_state is FrayRootState:
-			cur_state.process(delta)
-		else:
-			cur_state._process_impl(delta)
-
-	_process_impl(delta)
-
-## Physics process child states then this state.
-func physics_process(delta: float) -> void:
-	if not _states.is_empty():
-		var cur_state: FrayState = get_state_current()
-		if cur_state != null:
-			if cur_state is FrayRootState:
-				cur_state.physics_process(delta)
-			else:
-				cur_state._physics_process_impl(delta)
-
-	_physics_process_impl(delta)
 
 ## Prints this state machine in adjacency list form.
 ## [br]
@@ -503,7 +513,7 @@ func _get_state(path: StringName, can_push_errors: bool = true) -> FrayState:
 		return null
 	
 	if state_path.size() == 1:
-		if _ERR_INVALID_STATE(state_path[0]): return null
+		if _ERR_INVALID_STATE(state_path[0], can_push_errors): return null
 		return _states[state_path[0]]
 	
 	var traversed_path: String = ""
@@ -527,26 +537,48 @@ func _get_state(path: StringName, can_push_errors: bool = true) -> FrayState:
 	
 	return next_state
 
+
 func _get_transition_priority(from: StringName, to: StringName) -> float:
 	var tr := get_transition(from, to)
 	return float(tr.transition.priority) if tr else 0.0
 
 
-func _goto(to_state: StringName, args: Dictionary) -> void:
-	
-	if _ERR_INVALID_STATE(to_state): return
-	
-	var prev_state_name := _current_state
-	var target_state := get_state(to_state)
+func _goto(path: StringName, args: Dictionary = {}) -> void:
+	var target_state := get_state(path)
 
-	if target_state != null && not _current_state.is_empty(): 
-		get_state(_current_state)._exit_impl()
-
-	_current_state = to_state
+	if target_state == null: 
+		push_error("State not found. Failed to go to target state.")
+		return
 	
-	get_state(_current_state)._enter_impl(args)
-	transitioned.emit(prev_state_name, _current_state)
+	# Find most common active ancestor of target and current active state.
+	var active_states: Array[FrayState] = get_nested_current_states()
+	var common_active_ancestor: FrayState = target_state
 
+	while common_active_ancestor != null and not common_active_ancestor in active_states:
+		common_active_ancestor = common_active_ancestor.get_parent()
+
+	# Exit all active states leading up to common ancestor excluding common ancestor
+	for i in range(active_states.size() - 1, -1, -1):
+		var state: FrayState = active_states[i]
+		if state == common_active_ancestor:
+			break
+		
+		state._current_state = ""
+		state._exit_impl()
+	
+	# Enter all states leading to target state excluding common ancestor
+	var ancestor_path_index := active_states.find(common_active_ancestor)
+	var new_active_state: FrayState = common_active_ancestor
+	var state_paths := path.split("/")
+	
+	for i in range(ancestor_path_index, state_paths.size()):
+		var next_state_name := state_paths[i]
+		new_active_state._current_state = next_state_name
+		new_active_state = new_active_state.get_state(next_state_name)
+		new_active_state._enter_impl(args)
+	
+	#TODO: Decide what to emit with `transitioned` signal
+	
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
 	return (
@@ -626,13 +658,15 @@ func _ERR_FAILED_TO_ADD_STATE(name: StringName, state: FrayState) -> bool:
 	return false
 
 
-func _ERR_INVALID_STATE(name: StringName) -> bool:
+func _ERR_INVALID_STATE(name: StringName, can_push_errors: bool = true) -> bool:
 	if name.is_empty():
-		push_error("Invalid state name, name can not be empty")
+		if can_push_errors:
+			push_error("Invalid state name, name can not be empty")
 		return true
 	
 	if not _states.has(name):
-		push_error("Invalid state name '%s', state does not exist." % name)
+		if can_push_errors:
+			push_error("Invalid state name '%s', state does not exist." % name)
 		return true
 
 	return false
