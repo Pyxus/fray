@@ -52,9 +52,10 @@ func _physics_process(delta: float) -> void:
 			advance()
 
 ## Used to manually advance the state machine.
-func advance(input: Dictionary = {}, args: Dictionary = {}) -> void:
+func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	if _can_process():
-		_advance_impl()
+		return _advance_impl(input, args)
+	return false
 
 ## Returns the name of the root's current state.
 ## [br]
@@ -102,12 +103,12 @@ func goto_end(args: Dictionary = {}) -> void:
 
 
 ## [code]Virtual method[/code] used to implement [method advance] method.
-func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> void:
+func _advance_impl(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	if get_current_state_name().is_empty():
 		push_warning("Failed to advance. Current state not set.")
-		return
+		return false
 	
-	root.advance(input, args)
+	return root.advance(input, args)
 
 
 func _can_process() -> bool:
