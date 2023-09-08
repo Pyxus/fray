@@ -38,4 +38,10 @@ func _equals_impl(input_bind: Resource) -> bool:
 
 
 func _get_strength_impl(device: int = 0) -> float:
-	return Input.get_joy_axis(device, axis)
+	var joy_axis := Input.get_joy_axis(device, axis)
+	var is_positive_dir: bool = sign(joy_axis) == 1
+
+	if abs(joy_axis) < deadzone or use_positive_axis != is_positive_dir:
+		return 0.0
+
+	return abs(joy_axis)
