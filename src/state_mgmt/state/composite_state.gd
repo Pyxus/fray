@@ -75,7 +75,6 @@ var _end_state: StringName
 func _enter_impl(args: Dictionary) -> void:
 	super(args)
 	_current_state = start_state
-	print(start_state)
 
 
 func _is_done_processing_impl() -> bool:
@@ -739,7 +738,8 @@ class Builder:
 	## [br][br]
 	## [b]Note[/b]: 
 	## States are added automatically when making transitions.
-	## So unless you need to provide a specific state object,
+	## So unless you need to provide a specific state object
+	## or add a state with no transitions
 	## calling this method is unncessary.
 	func add_state(name: StringName, state := FrayState.new()) -> Builder:
 		if name.is_empty():
