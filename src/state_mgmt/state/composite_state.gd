@@ -1,9 +1,9 @@
-class_name FrayRootState
+class_name FrayCompositeState
 extends FrayState
-## Root state
+## Composite state
 ##
 ## Contains multiple [FrayState]s connected through [FrayStateMachineTransition]s.
-## It is recommended to construct this state machine with a [FrayRootState.Builder].
+## It is recommended to construct this state machine with a [FrayCompositeState.Builder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
 ## States within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
@@ -105,7 +105,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	var cur_state: FrayState = get_state_current()
 
 	if cur_state != null:
-		if cur_state is FrayRootState:
+		if cur_state is FrayCompositeState:
 			cur_state.advance(input, args)
 		
 		if _astar.has_next_travel_point():
@@ -423,7 +423,7 @@ func get_nested_current_states() -> Array[FrayState]:
 	var active_states: Array[FrayState] = []
 	var active_state: FrayState = self
 
-	while active_state != null and active_state is FrayRootState:
+	while active_state != null and active_state is FrayCompositeState:
 		active_states.append(active_state)
 		active_state = active_state.get_state_or_null(active_state.current_state)
 	
@@ -433,7 +433,7 @@ func get_nested_current_states() -> Array[FrayState]:
 func process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_state_current()
-		if cur_state is FrayRootState:
+		if cur_state is FrayCompositeState:
 			cur_state.process(delta)
 		elif cur_state != null:
 			cur_state._process_impl(delta)
@@ -445,7 +445,7 @@ func physics_process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_state_current()
 		if cur_state != null:
-			if cur_state is FrayRootState:
+			if cur_state is FrayCompositeState:
 				cur_state.physics_process(delta)
 			elif cur_state != null:
 				cur_state._physics_process_impl(delta)
@@ -528,7 +528,7 @@ func _get_state(path: StringName, can_push_errors: bool = true) -> FrayState:
 				push_error("Invalid state '%s'. State does not exist." % traversed_path)
 			return null
 		
-		if not state is FrayRootState and i < len(state_path) - 1:
+		if not state is FrayCompositeState and i < len(state_path) - 1:
 			push_warning("State '%s' is atomic and can not have sub-states" % traversed_path)
 			return null
 		
@@ -682,7 +682,7 @@ class _Transition:
 
 class Builder:
 	extends RefCounted
-	## Root state builder
+	## Composite state builder
 	##
 	## The state machine builder can be used to create state machines programatically.
 	## The builder supports using optional method chaining for the construction.
@@ -719,21 +719,21 @@ class Builder:
 	var _start_state: StringName
 	var _end_state: StringName
 	var _first_state_added: StringName
-	var _root = FrayRootState.new()
+	var _root = FrayCompositeState.new()
 
 	## Returns a newly constructed state machine state.
 	## [br]
 	## Constructs a state machine using the current build configuration.
 	## After building the builder is reset and can be used again. 
 	## Keep in mind that the condition cache does not reset autoatmically.
-	func build() -> FrayRootState:
+	func build() -> FrayCompositeState:
 		return _build_impl()
 	
 	## Sets the root object that this builder will use. Root will be cleared before use.
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]
-	func set_root(root: FrayRootState) -> Builder:
+	func set_root(root: FrayCompositeState) -> Builder:
 		_root = root
 		return self
 
@@ -936,7 +936,7 @@ class Builder:
 		return c
 
 
-	func _configure_state_machine_impl(root: FrayRootState) -> void:
+	func _configure_state_machine_impl(root: FrayCompositeState) -> void:
 		for state_name in _state_by_name:
 			root.add_state(state_name, _state_by_name[state_name])
 		
@@ -962,7 +962,7 @@ class Builder:
 			root.add_global_transition(g_tr.to, g_tr.transition)
 
 
-	func _build_impl() -> FrayRootState:
+	func _build_impl() -> FrayCompositeState:
 		_root.clear()
 		_configure_state_machine_impl(_root)
 		return _root

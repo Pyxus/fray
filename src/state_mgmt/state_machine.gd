@@ -3,7 +3,7 @@ class_name FrayStateMachine
 extends Node
 ## General purpose hierarchical state machine
 ##
-## This class wraps around the [FrayRootState] and uses the [SceneTree] to
+## This class wraps around the [FrayCompositeState] and uses the [SceneTree] to
 ## process state nodes.
 
 ## Emitted when the current state within the root changes.
@@ -25,7 +25,7 @@ enum AdvanceMode{
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
  
 ## The root of this state machine.
-var root: FrayRootState:
+var root: FrayCompositeState:
 	get: return _root
 	set(value): _set_root(value)
 
@@ -40,7 +40,7 @@ var current_state: StringName = "":
 
 		root.current_state = value
 
-var _root: FrayRootState
+var _root: FrayCompositeState
 
 func _process(delta: float) -> void:
 	if _can_process():
@@ -111,7 +111,7 @@ func _can_process() -> bool:
 	return _root != null and active
 
 
-func _set_root(value: FrayRootState):
+func _set_root(value: FrayCompositeState):
 	if _root != null and _root.transitioned.is_connected(_on_RootState_transitioned):
 		_root.transitioned.disconnect(_on_RootState_transitioned)
 	
