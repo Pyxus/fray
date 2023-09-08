@@ -76,6 +76,10 @@ func _enter_impl(args: Dictionary) -> void:
 	super(args)
 	_current_state = start_state
 
+	var cur_state := get_current_state()
+	if cur_state is FrayCompositeState:
+		cur_state._enter_impl(args)
+
 
 func _is_done_processing_impl() -> bool:
 	super()
