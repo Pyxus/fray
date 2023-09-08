@@ -15,7 +15,7 @@ enum AdvanceMode{
 	MANUAL, ## Advance manually
 }
 
-## If true the combat state machine will be processing.
+## If true the [FrayStateMachine] will be processing.
 @export var active: bool = false
 
 ## Determines the process during which the state machine can advance.
