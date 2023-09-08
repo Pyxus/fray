@@ -59,6 +59,11 @@ func buffer_sequence(sequence_name: StringName) -> void:
 func clear_buffer() -> void:
 	_input_buffer.clear()
 
+## Returns the current state of the buffer.
+## The returned buffer objects are not copies.
+func get_buffer() -> Array[BufferedInput]:
+	return _input_buffer.duplicate()
+
 
 func _advance()  -> void:
 	var current_time := Time.get_ticks_msec()
