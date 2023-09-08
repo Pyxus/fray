@@ -12,11 +12,10 @@ enum AdvanceMode{
 ## The state machine to be controlled by the advancer
 @export var state_machine: FrayStateMachine
 
-## If true buffer is allowed to attempt to transition.
-## Enabling and disabling this property enables you to control when a combatant
-## is allowed to transition into the next buffered state.
-## This can be used to control when a player is allowed to 'cancel' an attack.
-@export var allow_transitions: bool = false
+## If true buffer is allowed to attempt to advance by feeding state machine inputs.
+## Enabling and disabling this property allows you to control when buffered inputs are consumed.
+## This can be used to control when a player is able to 'cancel' an attack using the inputs they buffered.
+@export var paused: bool = true
 
 ## The max time a detected input can exist in the buffer before it is ignored, in milliseconds.
 @export_range(0, 5000, 1, "suffix:ms") var max_buffer_time: int = 1000
@@ -68,7 +67,7 @@ func get_buffer() -> Array[BufferedInput]:
 func _advance()  -> void:
 	var current_time := Time.get_ticks_msec()
 
-	while not _input_buffer.is_empty() and allow_transitions:
+	while not _input_buffer.is_empty() and not paused:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
 		var time_since_last_input = (current_time - _time_since_last_input_msec) / 1000.0
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
