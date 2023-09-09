@@ -11,7 +11,7 @@ enum AdvanceMode{
 ## The state machine to be controlled by the advancer
 @export var state_machine: FrayStateMachine
 
-## If true buffer is allowed to attempt to advance by feeding state machine inputs.
+## If true buffer is not allowed to attempt to advance by feeding state machine inputs.
 ## Enabling and disabling this property allows you to control when buffered inputs are consumed.
 ## This can be used to control when a player is able to 'cancel' an attack using the inputs they buffered.
 @export var paused: bool = true
