@@ -119,9 +119,9 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 
 	return false
 
-## Transitions from the current state to another one, following the shortest path.
-## Transitions will ignore prerequisites and advance conditions, but will wait until a state is done processing.
-## If no travel path can be formed then the [kbd]to[/kbd] state will be visted directly.
+## Transitions from the current state to another state, following the shortest path.
+## This transition bypasses prerequisites and advance conditions, but waits until the current state finishes processing.
+## If no valid travel path can be established, the [kbd]to[/kbd] state will be visited directly.
 func travel(to: StringName, args: Dictionary = {}) -> void:
 	if _ERR_INVALID_STATE(to): return
 	
@@ -132,7 +132,10 @@ func travel(to: StringName, args: Dictionary = {}) -> void:
 		if not _astar.has_next_travel_point():
 			goto(to, args)
 
-## Goes directly to the given state if it exists.
+## Transitions from the current state to the target state by navigating the state hierarchy vertically.
+## This method exits states leading up to the most common ancestor of the current state and the target state,
+## and then enters states leading towards the target state.
+## In a non-hierarchical system, it exits the current state and directly enters the specified state.
 ## If a travel is being performed it will be interupted.
 func goto(path: StringName, args: Dictionary = {}) -> void:
 	if not has_state(path): return
