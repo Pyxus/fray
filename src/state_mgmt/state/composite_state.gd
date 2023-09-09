@@ -772,7 +772,7 @@ class Builder:
 
 	## Creates a new global transtion to the specified state. 
 	func transition_global(to: StringName, config: Dictionary = {}, sm_transition := FrayStateMachineTransition.new()) -> Builder:
-		var tr := _create_global_transition(to, FrayStateMachineTransition.new())
+		var tr := _create_global_transition(to, sm_transition)
 		_configure_transition(tr.transition, config)
 		return self
 
