@@ -45,6 +45,9 @@ var end_state: StringName = "":
 		if _ERR_INVALID_STATE(state): return
 		_end_state = state
 
+## If [code]true[/code] this state does not reset to its start state on enter.
+var is_persistent := false
+
 # Type: Dictionary<StringName, FrayState>
 var _states: Dictionary
 
@@ -74,7 +77,9 @@ var _end_state: StringName
 
 func _enter_impl(args: Dictionary) -> void:
 	super(args)
-	_current_state = start_state
+
+	if not is_persistent or _current_state.is_empty():
+		_current_state = start_state
 
 	var cur_state := get_current_state()
 	if cur_state is FrayCompositeState:
@@ -724,6 +729,7 @@ class Builder:
 	var _transitions: Array[_Transition]
 	var _start_state: StringName
 	var _end_state: StringName
+	var _is_persistent: bool = false
 	var _first_state_added: StringName
 	var _root = FrayCompositeState.new()
 
@@ -826,7 +832,7 @@ class Builder:
 
 	## Sets the starting state.
 	## State used will automatically be added.
-	##
+	## [br]
 	## Returns a reference to this builder
 	func start_at(state: StringName) -> Builder:
 		_add_state_once(state)
@@ -835,13 +841,19 @@ class Builder:
 
 	## Sets the end state.
 	## State used will automatically be added.
-	##
+	## [br]
 	## Returns a reference to this builder
 	func end_at(state: StringName) -> Builder:
 		_add_state_once(state)
 		_end_state = state
 		return self
-
+	
+	## Enables persistence.
+	## [br]
+	## Returns a reference to this builder.
+	func is_persistent() -> Builder:
+		_is_persistent = true
+		return self
 	## Adds a new transition rule to be used by global transitions.
 	## [br]
 	## Returns a reference to this builder.
@@ -967,6 +979,8 @@ class Builder:
 		
 		for g_tr in _global_transitions:
 			root.add_global_transition(g_tr.to, g_tr.transition)
+		
+		root.is_persistent = _is_persistent
 
 
 	func _build_impl() -> FrayCompositeState:
