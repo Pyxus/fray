@@ -765,13 +765,13 @@ class Builder:
 	## Returns a reference to this builder
 	## [br][br]
 	## [kbd]config[/kbd] is an optional dictionary used to configure [FrayStateMachineTransition] properties.
-	func transition(from: StringName, to: StringName, config: Dictionary = {}) -> Builder:
-		var tr := _create_transition(from, to, FrayStateMachineTransition.new())
+	func transition(from: StringName, to: StringName, config: Dictionary = {}, sm_transition := FrayStateMachineTransition.new()) -> Builder:
+		var tr := _create_transition(from, to, sm_transition)
 		_configure_transition(tr.transition, config)
 		return self
 
 	## Creates a new global transtion to the specified state. 
-	func transition_global(to: StringName, config: Dictionary = {}) -> Builder:
+	func transition_global(to: StringName, config: Dictionary = {}, sm_transition := FrayStateMachineTransition.new()) -> Builder:
 		var tr := _create_global_transition(to, FrayStateMachineTransition.new())
 		_configure_transition(tr.transition, config)
 		return self
