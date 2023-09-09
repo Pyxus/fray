@@ -1,5 +1,4 @@
-#TODO: Design new icon for this node
-@icon("res://addons/fray/assets/icons/combat_state_machine.svg")
+@icon("res://addons/fray/assets/icons/buffered_input_advancer.svg")
 class_name FrayBufferedInputAdvancer
 extends Node
 ## A node which attempts to advance a given state machine using buffered inputs.
