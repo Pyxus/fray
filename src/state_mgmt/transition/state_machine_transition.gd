@@ -8,10 +8,10 @@ enum SwitchMode{
 }
 
 ## If [member auto_advance] is enabled then the transition will occur automatically when all advance conditions are true.
-var advance_conditions: Array[FrayCondition]
+var advance_conditions: PackedStringArray
 
 ## Prevents transition from occuring unless all prerequisite conditions are true.
-var prereqs: Array[FrayCondition]
+var prereqs: PackedStringArray
 
 ## If true then the transition can advance automatically.
 var auto_advance: bool = false
