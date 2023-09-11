@@ -289,7 +289,7 @@ func get_state_or_null(path: StringName) -> FrayState:
 func get_current_state() -> FrayState:
 	return get_state_or_null(_current_state)
 
-
+## Returns the name of the current state 
 func get_current_state_name() -> StringName:
 	return _current_state
 
