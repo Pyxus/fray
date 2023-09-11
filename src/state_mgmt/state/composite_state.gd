@@ -344,8 +344,14 @@ func is_condition_true(condition: String) -> bool:
 				"Failed to check condition. Condition with name '%s' does not exist" % condition
 			)
 			return false
+		
+		var function: Callable = _condition_func_by_name[condition]
 
-		var condition_status: bool = _condition_func_by_name[condition].call()
+		if not function.is_valid():
+			push_error("Failed to check condition. Condition function is no longer valid.")
+			return false
+
+		var condition_status: bool = function.call()
 		return condition_status and not is_inverted or not condition_status and is_inverted
 
 ## Returns [code]true[/code] if the condition exists within the hiearchy.
