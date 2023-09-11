@@ -22,6 +22,9 @@ signal state_removed(name: StringName, state: FrayState)
 ## Emitted when a state is renamed.
 signal state_renamed(name: StringName, state: FrayState)
 
+#TODO: The transitioned signal may need to be rethought.
+# It seems fine for simple systems but when hierarchies are involved i'm not sure
+# what the most useful way to represent changes might be.
 ## Emitted when the current state is changes.
 signal transitioned(from: StringName, to: StringName)
 
@@ -113,7 +116,8 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 
 	if cur_state != null:
 		if _astar.has_next_travel_point():
-			#TODO: This likely needs to be rethought
+			#TODO: Traveling may need to be reapproach due to the _goto changes
+			# further testing is required.
 			var travel_state = cur_state
 			while travel_state.is_done_processing() and _astar.has_next_travel_point():
 				_goto(_astar.get_next_travel_point(), _travel_args)
@@ -155,7 +159,6 @@ func goto(path: StringName, args: Dictionary = {}) -> void:
 	if not has_state(path):
 		return
 
-	#TODO: May have to rethink traveling with this new approach.
 	if _astar.has_next_travel_point():
 		_astar.clear_travel_path()
 
@@ -543,17 +546,27 @@ func get_next_global_transitions(from: StringName) -> Array[_Transition]:
 	return transitions
 
 
-## Returns a list of all current states from root to leaf.
-func get_nested_current_states() -> Array[FrayState]:
-	var active_states: Array[FrayState] = []
+## Retrieve the active state path from root to leaf and state object references.
+## [br]
+## Returns a dictionary with the following entries:
+## [br] [br]
+## - [code]path[/code] is a [String] path;
+## [br] [br]
+## - [code]states[/code] is an [Array] of [FrayState] containing a reference to every state object along the path;
+func get_active_states_info() -> Dictionary:
+	var active_state_names: PackedStringArray = []
+	var active_state_objects: Array[FrayState] = []
 	var active_state: FrayState = self
 
 	while active_state != null and active_state is FrayCompositeState:
-		active_states.append(active_state)
+		active_state_names.append(active_state.get_current_state_name())
+		active_state_objects.append(active_state)
 		active_state = active_state.get_current_state()
 
-	return active_states
-
+	return {
+		path = "/".join(active_state_names),
+		states = active_state_objects
+	}
 
 ## Process child states then this state.
 func process(delta: float) -> void:
@@ -683,7 +696,9 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		return
 
 	# Find most common active ancestor of target and current active state.
-	var active_states: Array[FrayState] = get_nested_current_states()
+	var active_path_info := get_active_states_info()
+	var active_state_path = active_path_info.path
+	var active_states: Array[FrayState] = active_path_info.states
 	var common_active_ancestor: FrayState = target_state
 
 	while common_active_ancestor != null and not common_active_ancestor in active_states:
@@ -709,7 +724,7 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		new_active_state = new_active_state.get_state(next_state_name)
 		new_active_state._enter_impl(args)
 
-	#TODO: Decide how to handle `transitioned` signal
+	transitioned.emit(active_state_path, path)
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
