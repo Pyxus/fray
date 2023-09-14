@@ -68,7 +68,7 @@ func _advance()  -> void:
 
 	while not _input_buffer.is_empty() and not paused:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
-		var time_since_last_input = (current_time - _time_since_last_input_msec) / 1000.0
+		var time_since_last_input = (current_time - _time_since_last_input_msec)
 		var time_since_inputted: int = current_time - buffered_input.time_stamp
 		var advance_input := _create_advance_input(buffered_input, time_since_last_input)
 	
@@ -82,7 +82,7 @@ func _create_advance_input(buffered_input: BufferedInput, time_since_last_input:
 			input = buffered_input.input,
 			input_is_pressed = buffered_input.is_pressed,
 			time_since_last_input = time_since_last_input,
-			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp) / 1000.0
+			time_held = (Time.get_ticks_msec() - buffered_input.time_stamp)
 		}
 	elif buffered_input is BufferedInputSequence:
 		return {
