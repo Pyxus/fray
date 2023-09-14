@@ -1,6 +1,14 @@
 class_name FrayInputTransitionButton
 extends FrayInputTransition
 ## Input transition representing an atomic input such as a key or button.
+##
+## Accepts input dictionary that contains these entires:
+## [br] [br]
+## - [code]input[/code] is the name of the input, as a [StringName];
+## [br] [br]
+## - [code]is_pressed[/code] is the state of the input, as a [bool];
+## [br] [br]
+## - [code]time_held[/code] is the time in milliseconds that the input was held for, as a [int].
 
 ## Input name.
 var input: StringName = ""
@@ -19,7 +27,7 @@ func _accepts_impl(sm_input: Dictionary) -> bool:
 	return (
 		super(sm_input)
 		and sm_input.get("input", null) == input
-		and sm_input.get("input_is_pressed", false) != is_triggered_on_release
+		and sm_input.get("is_pressed", false) != is_triggered_on_release
 		and (_can_ignore_min_time_held() or sm_input.get("time_held", 0) >= min_time_held)
 		and (_can_ignore_max_time_held() or sm_input.get("time_held", 0) <= max_time_held)
 	)
