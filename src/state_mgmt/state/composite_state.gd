@@ -1043,14 +1043,39 @@ class Builder:
 			add_state(state)
 
 	func _configure_transition(transition: FrayStateMachineTransition, config: Dictionary) -> void:
-		for property in transition.get_property_list():
-			if config.has(property.name):
-				var data = config.get(property.name)
+		for property in config:
+			if transition.get(property) != null:
+				var data = config[property]
 
 				if data is Array and data.is_typed():
-					transition[property.name].assign(data)
+					transition[property].assign(data)
 				else:
-					transition[property.name] = data
+					transition[property] = data
+			else:
+				var transition_properties: Array = transition.get_property_list().map(func(prop): return prop.name)
+				var most_similar_prop := ""
+
+				if not transition_properties.is_empty():
+					var greatest_sim_index := 0.0
+		
+					for prop in transition_properties:
+						var sim_index: float = property.similarity(prop)
+		
+						if sim_index > greatest_sim_index and sim_index >= .4:
+							most_similar_prop = prop
+							greatest_sim_index = sim_index
+					
+					print(greatest_sim_index)
+				
+				var warning: String = ""
+				
+				warning += "Failed to set transition property."
+				warning += "\nTransition does not contain a property named: '%s'" % property
+
+				if not most_similar_prop.is_empty():
+					warning += "\nDid you mean: '%s'" % most_similar_prop
+				
+				push_warning(warning)
 
 	func _configure_state_machine_impl(root: FrayCompositeState) -> void:
 		for state_name in _state_by_name:
