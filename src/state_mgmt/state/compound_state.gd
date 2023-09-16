@@ -197,7 +197,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state):
 		return
 
-	if state is FrayCompoundState and state._condition_func_by_name.is_empty():
+	if state is FrayCompoundState and not state._condition_func_by_name.is_empty():
 		push_warning("Sub state contains conditions. These conditions will be ignored.")
 
 	state._root_ref = _root_ref if _root_ref else weakref(self)
@@ -839,7 +839,9 @@ class Builder:
 	var _end_state: StringName
 	var _is_persistent: bool = false
 	var _first_state_added: StringName
-	var _root = FrayCompoundState.new()
+	var _root := FrayCompoundState.new()
+	var _default_state_script: GDScript = FrayState
+	var _default_transition_script: GDScript = FrayStateMachineTransition
 
 	## Returns a newly constructed state machine state.
 	## [br]
@@ -857,6 +859,23 @@ class Builder:
 		_root = root
 		return self
 
+	## Forces the builder to instatiate states with the given type for every state added after this call.
+	## [br]
+	## Returns a reference to this builder
+	## [br][br]	
+	func set_default_state(script: GDScript) -> Builder:
+		_default_state_script = script
+		return self
+	
+	## Forces the builder to instatiate transitions with the given type for every transition added after this call.
+	## This includes both local and global transitions.
+	## [br]
+	## Returns a reference to this builder
+	## [br][br]	
+	func set_default_transition(script: GDScript) -> Builder:
+		_default_transition_script = script
+		return self
+		
 	## Adds a new state to the state machine.
 	## [br]
 	## Returns a reference to this builder
@@ -866,7 +885,7 @@ class Builder:
 	## So unless you need to provide a specific state object
 	## or add a state with no transitions
 	## calling this method is unncessary.
-	func add_state(name: StringName, state := FrayState.new()) -> Builder:
+	func add_state(name: StringName, state := _default_state_script.new()) -> Builder:
 		if name.is_empty():
 			push_error("State name can not be empty")
 		else:
@@ -886,7 +905,7 @@ class Builder:
 		from: StringName,
 		to: StringName,
 		config: Dictionary = {},
-		sm_transition := FrayStateMachineTransition.new()
+		sm_transition := _default_transition_script.new()
 	) -> Builder:
 		var tr := _create_transition(from, to, sm_transition)
 		_configure_transition(tr.transition, config)
@@ -894,7 +913,7 @@ class Builder:
 
 	## Creates a new global transtion to the specified state.
 	func transition_global(
-		to: StringName, config: Dictionary = {}, sm_transition := FrayStateMachineTransition.new()
+		to: StringName, config: Dictionary = {}, sm_transition := _default_transition_script.new()
 	) -> Builder:
 		var tr := _create_global_transition(to, sm_transition)
 		_configure_transition(tr.transition, config)
