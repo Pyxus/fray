@@ -42,6 +42,11 @@ func _enter_impl(args: Dictionary) -> void:
 	pass
 
 
+## [code]Virtual method[/code] invoked when the state is existed.
+func _exit_impl() -> void:
+	pass
+
+
 ## [code]Virtual method[/code] invoked when the state is being processed.
 func _process_impl(_delta: float) -> void:
 	pass
@@ -52,6 +57,11 @@ func _physics_process_impl(_delta: float) -> void:
 	pass
 
 
-## [code]Virtual method[/code] invoked when the state is existed.
-func _exit_impl() -> void:
+## [code]Virtual method[/code] invoked when there is a godot input event.
+func _input_impl(event: InputEvent) -> void:
+	pass
+
+
+## [code]Virtual method[/code] invoked when there is a godot input event that has not been consumed by [method Node._input].
+func _unhandled_input_impl(event: InputEvent) -> void:
 	pass

@@ -71,7 +71,6 @@ var _tags_by_state: Dictionary
 # Type: Dictionary<StringName, func() -> bool>
 var _condition_func_by_name: Dictionary
 
-
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
@@ -90,6 +89,18 @@ func _enter_impl(args: Dictionary) -> void:
 	var cur_state := get_current_state()
 	if cur_state is FrayCompositeState:
 		cur_state._enter_impl(args)
+
+
+func _input_impl(event: InputEvent) -> void:
+	var cur_state := get_current_state()
+	if cur_state is FrayCompositeState:
+		cur_state._input_impl(event)
+
+
+func _unhandled_input_impl(event: InputEvent) -> void:
+	var cur_state := get_current_state()
+	if cur_state is FrayCompositeState:
+		cur_state._input_impl(event)
 
 
 func _is_done_processing_impl() -> bool:
@@ -272,7 +283,6 @@ func get_state(path: StringName) -> FrayState:
 	return _get_state(path)
 
 
-
 ## Similar to [method get_state], but does not log an error if the state does not exist.
 func get_state_or_null(path: StringName) -> FrayState:
 	return _get_state(path, false)
@@ -283,9 +293,11 @@ func get_state_or_null(path: StringName) -> FrayState:
 func get_current_state() -> FrayState:
 	return get_state_or_null(_current_state)
 
-## Returns the name of the current state 
+
+## Returns the name of the current state
 func get_current_state_name() -> StringName:
 	return _current_state
+
 
 ## Sets condition in this composite state.
 ## [br]
@@ -309,6 +321,7 @@ func set_condition(condition_name: String, function: Callable) -> void:
 			return
 
 		_condition_func_by_name[condition_name] = function
+
 
 ## Returns the value of a [kbd]condition[/kbd] if it exists.
 ## [br]
@@ -338,7 +351,7 @@ func is_condition_true(condition: String) -> bool:
 				"Failed to check condition. Condition with name '%s' does not exist" % condition
 			)
 			return false
-		
+
 		var function: Callable = _condition_func_by_name[condition]
 
 		if not function.is_valid():
@@ -347,6 +360,7 @@ func is_condition_true(condition: String) -> bool:
 
 		var condition_status: bool = function.call()
 		return condition_status and not is_inverted or not condition_status and is_inverted
+
 
 ## Returns [code]true[/code] if the condition exists within the hiearchy.
 func has_condition(condition: String) -> bool:
@@ -554,10 +568,8 @@ func get_active_states_info() -> Dictionary:
 		active_state_objects.append(active_state)
 		active_state = active_state.get_current_state()
 
-	return {
-		path = "/".join(active_state_names),
-		states = active_state_objects
-	}
+	return {path = "/".join(active_state_names), states = active_state_objects}
+
 
 ## Process child states then this state.
 func process(delta: float) -> void:
@@ -719,7 +731,7 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
-	return _is_conditions_true(transition.prereqs) and _can_switch(transition)
+	return _is_all_conditions_true(transition.prereqs) and _can_switch(transition)
 
 
 func _can_switch(transition: FrayStateMachineTransition) -> bool:
@@ -735,12 +747,11 @@ func _can_switch(transition: FrayStateMachineTransition) -> bool:
 func _can_advance(transition: FrayStateMachineTransition, input: Dictionary) -> bool:
 	return (
 		transition.accepts(input)
-		and
-		(not transition.auto_advance or _is_conditions_true(transition.advance_conditions))
+		and (not transition.auto_advance or _is_all_conditions_true(transition.advance_conditions))
 	)
 
 
-func _is_conditions_true(conditions: PackedStringArray) -> bool:
+func _is_all_conditions_true(conditions: PackedStringArray) -> bool:
 	for condition in conditions:
 		if not is_condition_true(condition):
 			return false
