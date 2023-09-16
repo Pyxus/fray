@@ -1,8 +1,13 @@
 @icon("res://addons/fray/assets/icons/buffered_input_advancer.svg")
 class_name FrayBufferedInputAdvancer
 extends Node
-## A node which attempts to advance a designated state machine using buffered inputs.
-
+## A node designed to advance a specified state machine using buffered inputs.
+##
+## This node automatically feeds buffered inputs to the designated state machine to trigger state transitions.
+## When an input is accepted by the state machine, the advancer stops processing new inputs for the current frame.
+## The advancer can be paused to control the timing of input feeding, but note that pausing doesn't affect the input buffer.
+## Inputs can still be buffered during pauses, and they will expire if they exceed the maximum buffer time.
+## This behavior allows you to define the timeframe during which user inputs can trigger state transitions.
 
 enum AdvanceMode {
 	IDLE,  ## Advance during the idle process
