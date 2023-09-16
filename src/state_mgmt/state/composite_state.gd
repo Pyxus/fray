@@ -71,8 +71,6 @@ var _tags_by_state: Dictionary
 # Type: Dictionary<StringName, func() -> bool>
 var _condition_func_by_name: Dictionary
 
-# Type: WeakRef<State>
-var _root_ref: WeakRef
 
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
@@ -188,12 +186,10 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state):
 		return
 
-	if state is FrayCompositeState:
-		state._root_ref = _root_ref if _root_ref != null else weakref(self)
-		
-		if not state._condition_func_by_name.is_empty():
-			push_warning("Sub state contains conditions. These conditions will be ignored.")
+	if state is FrayCompositeState and state._condition_func_by_name.is_empty():
+		push_warning("Sub state contains conditions. These conditions will be ignored.")
 
+	state._root_ref = _root_ref if _root_ref else weakref(self)
 	state._parent_ref = weakref(self)
 	_states[name] = state
 	_astar.add_point(name)
@@ -275,11 +271,6 @@ func has_state(path: StringName) -> bool:
 func get_state(path: StringName) -> FrayState:
 	return _get_state(path)
 
-
-## Returns the root of of this state's hierarchy.
-## If this state is the root then null will be returned.
-func get_root() -> FrayCompositeState:
-	return _root_ref.get_ref() if _root_ref != null else null
 
 
 ## Similar to [method get_state], but does not log an error if the state does not exist.
