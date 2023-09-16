@@ -2,10 +2,10 @@ class_name FrayState
 extends RefCounted
 ## Base state class
 
-# Type: WeakRef<CompositeState>
+# Type: WeakRef<CompoundState>
 var _root_ref: WeakRef
 
-# Type: WeakRef<CompositeState>
+# Type: WeakRef<CompoundState>
 var _parent_ref: WeakRef
 
 
@@ -15,13 +15,13 @@ func has_parent() -> bool:
 
 
 ## Returns the parent of this state if it exists.
-func get_parent() -> FrayCompositeState:
+func get_parent() -> FrayCompoundState:
 	return _parent_ref.get_ref() if has_parent() else null
 
 
 ## Returns the root of of this state's hierarchy.
 ## If this state is has no root then null will be returned.
-func get_root() -> FrayCompositeState:
+func get_root() -> FrayCompoundState:
 	return _root_ref.get_ref() if _root_ref != null else null
 
 

@@ -1,9 +1,9 @@
-class_name FrayCompositeState
+class_name FrayCompoundState
 extends FrayState
-## Composite state
+## Compound state
 ##
 ## Contains multiple [FrayState]s connected through [FrayStateMachineTransition]s.
-## It is recommended to construct this state machine with a [FrayCompositeState.Builder].
+## It is recommended to construct this state machine with a [FrayCompoundState.Builder].
 ## [br][br]
 ## Global transitions are a convinience feature that allows you to automatically connect states based on global transition rules.
 ## States within this state machine can be assigned tags, transition rules can then be set from one tag to another tag.
@@ -87,19 +87,19 @@ func _enter_impl(args: Dictionary) -> void:
 		_current_state = start_state
 
 	var cur_state := get_current_state()
-	if cur_state is FrayCompositeState:
+	if cur_state is FrayCompoundState:
 		cur_state._enter_impl(args)
 
 
 func _input_impl(event: InputEvent) -> void:
 	var cur_state := get_current_state()
-	if cur_state is FrayCompositeState:
+	if cur_state is FrayCompoundState:
 		cur_state._input_impl(event)
 
 
 func _unhandled_input_impl(event: InputEvent) -> void:
 	var cur_state := get_current_state()
-	if cur_state is FrayCompositeState:
+	if cur_state is FrayCompoundState:
 		cur_state._input_impl(event)
 
 
@@ -138,7 +138,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 				goto(next_state, args)
 				return true
 
-		if cur_state is FrayCompositeState:
+		if cur_state is FrayCompoundState:
 			return cur_state.advance(input, args)
 
 	return false
@@ -197,7 +197,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state):
 		return
 
-	if state is FrayCompositeState and state._condition_func_by_name.is_empty():
+	if state is FrayCompoundState and state._condition_func_by_name.is_empty():
 		push_warning("Sub state contains conditions. These conditions will be ignored.")
 
 	state._root_ref = _root_ref if _root_ref else weakref(self)
@@ -300,7 +300,7 @@ func get_current_state_name() -> StringName:
 	return _current_state
 
 
-## Sets condition in this composite state.
+## Sets condition in this compound state.
 ## [br]
 ## [kbd]condition_name[/kbd] may contain only letters, digits, and underscores, and the first character may not be a digit.
 ## [br]
@@ -564,7 +564,7 @@ func get_active_states_info() -> Dictionary:
 	var active_state_objects: Array[FrayState] = []
 	var active_state: FrayState = self
 
-	while active_state != null and active_state is FrayCompositeState:
+	while active_state != null and active_state is FrayCompoundState:
 		active_state_names.append(active_state.get_current_state_name())
 		active_state_objects.append(active_state)
 		active_state = active_state.get_current_state()
@@ -576,7 +576,7 @@ func get_active_states_info() -> Dictionary:
 func process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()
-		if cur_state is FrayCompositeState:
+		if cur_state is FrayCompoundState:
 			cur_state.process(delta)
 		elif cur_state != null:
 			cur_state._process_impl(delta)
@@ -589,7 +589,7 @@ func physics_process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()
 		if cur_state != null:
-			if cur_state is FrayCompositeState:
+			if cur_state is FrayCompoundState:
 				cur_state.physics_process(delta)
 			elif cur_state != null:
 				cur_state._physics_process_impl(delta)
@@ -677,7 +677,7 @@ func _get_state(path: StringName, can_push_errors: bool = true) -> FrayState:
 				push_error("Invalid state '%s'. State does not exist." % traversed_path)
 			return null
 
-		if not state is FrayCompositeState and i < len(state_path) - 1:
+		if not state is FrayCompoundState and i < len(state_path) - 1:
 			push_warning("State '%s' is atomic and can not have sub-states" % traversed_path)
 			return null
 
@@ -801,7 +801,7 @@ class _Transition:
 
 class Builder:
 	extends RefCounted
-	## Composite state builder
+	## Compound state builder
 	##
 	## The state machine builder can be used to create state machines programatically.
 	## The builder supports using optional method chaining for the construction.
@@ -839,21 +839,21 @@ class Builder:
 	var _end_state: StringName
 	var _is_persistent: bool = false
 	var _first_state_added: StringName
-	var _root = FrayCompositeState.new()
+	var _root = FrayCompoundState.new()
 
 	## Returns a newly constructed state machine state.
 	## [br]
 	## Constructs a state machine using the current build configuration.
 	## After building the builder is reset and can be used again.
 	## Keep in mind that the condition cache does not reset autoatmically.
-	func build() -> FrayCompositeState:
+	func build() -> FrayCompoundState:
 		return _build_impl()
 
 	## Sets the root object that this builder will use. Root will be cleared before use.
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]
-	func set_root(root: FrayCompositeState) -> Builder:
+	func set_root(root: FrayCompoundState) -> Builder:
 		_root = root
 		return self
 
@@ -1002,7 +1002,7 @@ class Builder:
 				_tags_by_state[state].append(tag)
 		return self
 
-	## Registers conditions for use within this composite state.
+	## Registers conditions for use within this compound state.
 	## A condition is a string name mapped to a parameterless function that returns a bool.
 	## All composite stats within a hiearchy reference the root's conditions.
 	## Conditions should only be declared once on the root.
@@ -1080,7 +1080,7 @@ class Builder:
 				
 				push_warning(warning)
 
-	func _configure_state_machine_impl(root: FrayCompositeState) -> void:
+	func _configure_state_machine_impl(root: FrayCompoundState) -> void:
 		for state_name in _state_by_name:
 			root.add_state(state_name, _state_by_name[state_name])
 
@@ -1111,7 +1111,7 @@ class Builder:
 
 		root.is_persistent = _is_persistent
 
-	func _build_impl() -> FrayCompositeState:
+	func _build_impl() -> FrayCompoundState:
 		_root.clear()
 		_configure_state_machine_impl(_root)
 		return _root

@@ -3,7 +3,7 @@ class_name FrayStateMachine
 extends Node
 ## General purpose hierarchical state machine
 ##
-## This class wraps around the [FrayCompositeState] and uses the [SceneTree] to
+## This class wraps around the [FrayCompoundState] and uses the [SceneTree] to
 ## process state nodes.
 
 ## Emitted when the current state within the root changes.
@@ -25,7 +25,7 @@ enum AdvanceMode {
 @export var advance_mode: AdvanceMode = AdvanceMode.IDLE
 
 ## The root of this state machine.
-var root: FrayCompositeState:
+var root: FrayCompoundState:
 	get:
 		return root
 	set(value):
