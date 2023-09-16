@@ -208,6 +208,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _states.size() == 1:
 		_start_state = name
 
+	state._init_state_impl()
 	state_added.emit(name, state)
 
 
