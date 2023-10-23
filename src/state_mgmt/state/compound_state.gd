@@ -100,7 +100,7 @@ func _input_impl(event: InputEvent) -> void:
 func _unhandled_input_impl(event: InputEvent) -> void:
 	var cur_state := get_current_state()
 	if cur_state is FrayCompoundState:
-		cur_state._input_impl(event)
+		cur_state._unhandled_input_impl(event)
 
 
 func _is_done_processing_impl() -> bool:
