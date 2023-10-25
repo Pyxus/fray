@@ -817,9 +817,6 @@ class Builder:
 	##
 	##	[br]Note:[/b] '\' is necessary for GDScript to read the next line when multi-line method chaning.
 
-	## If true then conditions will be cached to prevent identical conditions from being instantiated.
-	var enable_condition_caching: bool = true
-
 	# Type: Dictionary<StringName, FrayState>
 	var _state_by_name: Dictionary
 
