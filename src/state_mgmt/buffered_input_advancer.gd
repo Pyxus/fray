@@ -17,20 +17,19 @@ enum AdvanceMode {
 ## The state machine to be controlled by the advancer
 @export var state_machine: FrayStateMachine
 
-## If true buffer is not allowed to attempt to advance by feeding state machine inputs.
-## Enabling and disabling this property allows you to control when buffered inputs are consumed.
-## This can be used to control when a player is able to 'cancel' an attack using the inputs they buffered.
+## If [code]false[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
+## Enabling or disabling this property allows control over when buffered inputs are consumed.
+## This can be useful for managing when a player can 'cancel' an attack using their buffered inputs.
 @export var paused: bool = true
 
-## The max time a detected input can exist in the buffer before it is ignored, in milliseconds.
-@export_range(0, 5000, 1, "suffix:ms") var max_buffer_time: int = 1000
+## The max time an input can exist in the buffer before it is ignored, in seconds.
+@export_range(0.0, 5.0, 0.01, "suffix:sec") var max_buffer_time: float = 1.0
 
 ## Determines the process during which the advancer machine can advance the state machine.
 @export var advance_mode: AdvanceMode
 
 var _input_buffer: Array[BufferedInput]
-var _time_since_last_input_msec: float
-
+var _accepted_input_time_stamp: int
 
 func _process(delta: float) -> void:
 	if advance_mode == AdvanceMode.IDLE:
@@ -67,27 +66,24 @@ func clear_buffer() -> void:
 	_input_buffer.clear()
 
 
-## Returns the current state of the buffer.
-## The returned buffer objects are not copies.
+## Returns a shallow copy of the current buffer.
 func get_buffer() -> Array[BufferedInput]:
 	return _input_buffer.duplicate()
 
 
 func _advance() -> void:
-	var current_time := Time.get_ticks_msec()
-
 	while not _input_buffer.is_empty() and not paused:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
-		var time_since_last_input = current_time - _time_since_last_input_msec
-		var time_since_inputted: int = current_time - buffered_input.time_stamp
-		var advance_input := _create_advance_input(buffered_input, time_since_last_input)
+		var is_input_within_buffer := buffered_input.calc_elapsed_time_msec() <= Fray.sec_to_msec(max_buffer_time)
+		var accepted_input_age_sec := Fray.msec_to_sec(Time.get_ticks_msec() - _accepted_input_time_stamp)
+		var state_machine_input := _create_state_machine_input(buffered_input, accepted_input_age_sec)
 
-		if time_since_inputted <= max_buffer_time and state_machine.advance(advance_input):
-			_time_since_last_input_msec = current_time
+		if is_input_within_buffer and state_machine.advance(state_machine_input):
+			_accepted_input_time_stamp = Time.get_ticks_msec()
 			break
 
 
-func _create_advance_input(
+func _create_state_machine_input(
 	buffered_input: BufferedInput, time_since_last_input: float
 ) -> Dictionary:
 	if buffered_input is BufferedInputButton:
@@ -95,7 +91,7 @@ func _create_advance_input(
 			input = buffered_input.input,
 			is_pressed = buffered_input.is_pressed,
 			time_since_last_input = time_since_last_input,
-			time_held = Time.get_ticks_msec() - buffered_input.time_stamp
+			time_held = buffered_input.calc_elapsed_time_msec()
 		}
 	elif buffered_input is BufferedInputSequence:
 		return {
@@ -108,14 +104,21 @@ func _create_advance_input(
 class BufferedInput:
 	extends RefCounted
 
+	var time_stamp: int
+
 	func _init(input_time_stamp: int = 0) -> void:
 		time_stamp = input_time_stamp
 
-	var time_stamp: int
+
+	func calc_elapsed_time_msec() -> int:
+		return Time.get_ticks_msec() - time_stamp
 
 
 class BufferedInputButton:
 	extends BufferedInput
+
+	var input: StringName
+	var is_pressed: bool
 
 	func _init(
 		input_time_stamp: int = 0, input_name: StringName = "", input_is_pressed: bool = true
@@ -124,15 +127,12 @@ class BufferedInputButton:
 		input = input_name
 		is_pressed = input_is_pressed
 
-	var input: StringName
-	var is_pressed: bool
-
 
 class BufferedInputSequence:
 	extends BufferedInput
 
+	var sequence_name: StringName
+
 	func _init(input_time_stamp: int = 0, input_sequence_name: StringName = "") -> void:
 		super(input_time_stamp)
 		sequence_name = input_sequence_name
-
-	var sequence_name: StringName

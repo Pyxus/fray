@@ -8,7 +8,7 @@ extends FrayInputTransition
 ## [br] [br]
 ## - [code]is_pressed[/code] is the state of the input, as a [bool];
 ## [br] [br]
-## - [code]time_held[/code] is the time in milliseconds that the input was held for, as a [int].
+## - [code]time_held[/code] is the time in seconds that the input was held for, as a [float].
 
 ## Input name.
 var input: StringName = ""
@@ -16,11 +16,11 @@ var input: StringName = ""
 ## If [code]true[/code] the input is only accepted on release.
 var is_triggered_on_release: bool = false
 
-## Minimum time the input must be held in milliseconds. If negative then this check is ignored.
-var min_time_held: int = -1
+## Minimum time the input must be held in seconds. If negative then this check is ignored.
+var min_time_held: float = -1.0
 
-## Maximum time the input is allowed to be held in milliseconds. If negative then this check is ignored.
-var max_time_held: int = -1
+## Maximum time the input is allowed to be held in seconds. If negative then this check is ignored.
+var max_time_held: float = -1.0
 
 
 func _accepts_impl(sm_input: Dictionary) -> bool:
@@ -28,14 +28,14 @@ func _accepts_impl(sm_input: Dictionary) -> bool:
 		super(sm_input)
 		and sm_input.get("input", null) == input
 		and sm_input.get("is_pressed", false) != is_triggered_on_release
-		and (_can_ignore_min_time_held() or sm_input.get("time_held", 0) >= min_time_held)
-		and (_can_ignore_max_time_held() or sm_input.get("time_held", 0) <= max_time_held)
+		and (_can_ignore_min_time_held() or sm_input.get("time_held", 0.0) >= min_time_held)
+		and (_can_ignore_max_time_held() or sm_input.get("time_held", 0.0) <= max_time_held)
 	)
 
 
 func _can_ignore_min_time_held() -> bool:
-	return sign(min_time_held) == -1
+	return min_time_held < 0
 
 
 func _can_ignore_max_time_held() -> bool:
-	return sign(max_time_held) == -1
+	return max_time_held < 0
