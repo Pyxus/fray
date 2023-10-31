@@ -1,5 +1,5 @@
 class_name FrayState
-extends RefCounted
+extends Resource
 ## Base state class
 
 # Type: WeakRef<CompoundState>

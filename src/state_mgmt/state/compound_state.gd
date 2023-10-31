@@ -837,8 +837,8 @@ class Builder:
 	var _is_persistent: bool = false
 	var _first_state_added: StringName
 	var _root := FrayCompoundState.new()
-	var _default_state_script: GDScript = FrayState
-	var _default_transition_script: GDScript = FrayStateMachineTransition
+	var _default_state := FrayState.new()
+	var _default_transition := FrayStateMachineTransition.new()
 
 	## Returns a newly constructed state machine state.
 	## [br]
@@ -856,21 +856,21 @@ class Builder:
 		_root = root
 		return self
 
-	## Forces the builder to instatiate states with the given type for every state added after this call.
+	## Forces the builder to instatiate states with duplicates of the given [kdb]state[/kdb] for every state added after this call.
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]	
-	func set_default_state(script: GDScript) -> Builder:
-		_default_state_script = script
+	func set_default_state(state: FrayState) -> Builder:
+		_default_state = state
 		return self
 	
-	## Forces the builder to instatiate transitions with the given type for every transition added after this call.
+	## Forces the builder to instatiate transitions with duplicates of the given [kdb]transition[/kdb] for every transition added after this call.
 	## This includes both local and global transitions.
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]	
-	func set_default_transition(script: GDScript) -> Builder:
-		_default_transition_script = script
+	func set_default_transition(sm_transition: FrayStateMachineTransition) -> Builder:
+		_default_transition = sm_transition
 		return self
 		
 	## Adds a new state to the state machine.
@@ -882,7 +882,7 @@ class Builder:
 	## So unless you need to provide a specific state object
 	## or add a state with no transitions
 	## calling this method is unncessary.
-	func add_state(name: StringName, state := _default_state_script.new()) -> Builder:
+	func add_state(name: StringName, state: FrayState = _default_state.duplicate()) -> Builder:
 		if name.is_empty():
 			push_error("State name can not be empty")
 		else:
@@ -902,7 +902,7 @@ class Builder:
 		from: StringName,
 		to: StringName,
 		config: Dictionary = {},
-		sm_transition := _default_transition_script.new()
+		sm_transition: FrayStateMachineTransition = _default_transition.duplicate()
 	) -> Builder:
 		var tr := _create_transition(from, to, sm_transition)
 		_configure_transition(tr.transition, config)
@@ -910,7 +910,8 @@ class Builder:
 
 	## Creates a new global transtion to the specified state.
 	func transition_global(
-		to: StringName, config: Dictionary = {}, sm_transition := _default_transition_script.new()
+		to: StringName, config: Dictionary = {}, 
+		sm_transition: FrayStateMachineTransition = _default_transition.duplicate()
 	) -> Builder:
 		var tr := _create_global_transition(to, sm_transition)
 		_configure_transition(tr.transition, config)
