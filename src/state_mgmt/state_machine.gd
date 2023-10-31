@@ -33,8 +33,8 @@ var root: FrayCompoundState:
 			root.transitioned.disconnect(_on_RootState_transitioned)
 
 		root = value
+		root._ready_impl()
 		root._enter_impl({})
-		root._init_state_impl()
 		root.transitioned.connect(_on_RootState_transitioned)
 
 

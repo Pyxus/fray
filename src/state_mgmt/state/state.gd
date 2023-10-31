@@ -35,12 +35,12 @@ func _is_done_processing_impl() -> bool:
 	return true
 
 
-## [code]Virtual method[/code] invoked when this state is added to the state machine system.
-func _init_state_impl() -> void:
+## [code]Virtual method[/code] invoked when this state is added to the state machine tree.
+func _ready_impl() -> void:
 	pass
 
 
-## [code]Virtual method[/code] invoked when the state is first entered.
+## [code]Virtual method[/code] invoked when the state is entered.
 ## [br]
 ## [kbd]args[/kbd] is user-defined data which is passed to the advanced state on enter.
 func _enter_impl(args: Dictionary) -> void:
