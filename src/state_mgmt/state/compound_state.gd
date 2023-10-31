@@ -564,10 +564,14 @@ func get_active_states_info() -> Dictionary:
 	var active_state_objects: Array[FrayState] = []
 	var active_state: FrayState = self
 
-	while active_state != null and active_state is FrayCompoundState:
-		active_state_names.append(active_state.get_current_state_name())
+	while active_state != null:
 		active_state_objects.append(active_state)
-		active_state = active_state.get_current_state()
+
+		if active_state is FrayCompoundState:
+			active_state_names.append(active_state.get_current_state_name())
+			active_state = active_state.get_current_state()
+		else:
+			break
 
 	return {path = "/".join(active_state_names), states = active_state_objects}
 
@@ -696,12 +700,11 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 	var target_state := get_state(path)
 
 	if target_state == null:
-		push_error("State not found. Failed to go to target state.")
+		push_error("Failed to go to target state. State not found.")
 		return
 
 	# Find most common active ancestor of target and current active state.
 	var active_path_info := get_active_states_info()
-	var active_state_path = active_path_info.path
 	var active_states: Array[FrayState] = active_path_info.states
 	var common_active_ancestor: FrayState = target_state
 
@@ -713,10 +716,12 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		var state: FrayState = active_states[i]
 		if state == common_active_ancestor:
 			break
+		
+		if state is FrayCompoundState:
+			state._current_state = ""
 
-		state._current_state = ""
 		state._exit_impl()
-
+	
 	# Enter all states leading to target state excluding common ancestor
 	var ancestor_path_index := active_states.find(common_active_ancestor)
 	var new_active_state: FrayState = common_active_ancestor
@@ -728,7 +733,7 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		new_active_state = new_active_state.get_state(next_state_name)
 		new_active_state._enter_impl(args)
 
-	transitioned.emit(active_state_path, path)
+	transitioned.emit(active_path_info.path, path)
 
 
 func _can_transition(transition: FrayStateMachineTransition) -> bool:
@@ -1084,8 +1089,6 @@ class Builder:
 						if sim_index > greatest_sim_index and sim_index >= .4:
 							most_similar_prop = prop
 							greatest_sim_index = sim_index
-					
-					print(greatest_sim_index)
 				
 				var warning: String = ""
 				
