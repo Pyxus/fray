@@ -28,8 +28,10 @@ signal state_renamed(name: StringName, state: FrayState)
 ## Emitted when the current state is changes.
 signal transitioned(from: StringName, to: StringName)
 
-const _AStarGraph = preload("a_star_graph.gd")
+const _SYMBOL_NEGATION = '!'
+const _SYMBOL_STRICTLY_GLOBAL = '$'
 
+const _AStarGraph = preload("a_star_graph.gd")
 
 ## Returns a new builder instance.
 static func builder() -> Builder:
@@ -106,6 +108,18 @@ func _unhandled_input_impl(event: InputEvent) -> void:
 func _is_done_processing_impl() -> bool:
 	super()
 	return _end_state.is_empty() or _current_state == _end_state
+
+
+## Returns the root of of this state's hierarchy.
+## If this state is the root it will return its self.
+func get_root() -> FrayCompoundState:
+	var root := super.get_root()
+	return root if root else self
+
+
+## Returns [code]true[/code] if this state is the root of a hierarchy.
+func is_root() -> bool:
+	return super.get_root() == null
 
 
 ## Advances to next reachable state.
@@ -306,22 +320,17 @@ func get_current_state_name() -> StringName:
 ## [br]
 ## [kbd]function[/kbd] is a parameterless function which returns a bool.
 func set_condition(condition_name: String, function: Callable) -> void:
-	var root := get_root()
+	if not condition_name.is_valid_identifier():
+		push_error(
+			"Failed to register condition named '%s'. Names may contain only letters, digits, and underscores, and the first character may not be a digit."
+		)
+		return
 
-	if root != null:
-		return root.set_condition(condition_name, function)
-	else:
-		if not condition_name.is_valid_identifier():
-			push_error(
-				"Failed to register condition named '%s'. Names may contain only letters, digits, and underscores, and the first character may not be a digit."
-			)
-			return
+	if not function.is_valid():
+		push_error("Failed to register function. Function is invalid.")
+		return
 
-		if not function.is_valid():
-			push_error("Failed to register function. Function is invalid.")
-			return
-
-		_condition_func_by_name[condition_name] = function
+	_condition_func_by_name[condition_name] = function
 
 
 ## Returns the value of a [kbd]condition[/kbd] if it exists.
@@ -335,24 +344,25 @@ func set_condition(condition_name: String, function: Callable) -> void:
 func is_condition_true(condition: String) -> bool:
 	var root := get_root()
 
-	if root != null:
+	# region Strictly check global
+	var is_checking_global := condition.begins_with(_SYMBOL_STRICTLY_GLOBAL)
+	condition = StringName(condition.trim_prefix(_SYMBOL_STRICTLY_GLOBAL))
+
+	if is_checking_global:
 		return root.is_condition_true(condition)
-	else:
-		var is_inverted := condition[0] == "!"
-		condition = StringName(condition.trim_prefix("!"))
+	# endregion
 
-		if not condition.is_valid_identifier():
-			push_error(
-				"Failed to check condition. Excludind the '!' prefix names can only contain letters, digits, and underscores, and the first character may not be a digit."
-			)
-			return false
+	# region Check local, then check global if it doesn't exist locally
+	var is_inverted := condition.begins_with(_SYMBOL_NEGATION)
+	condition = StringName(condition.trim_prefix(_SYMBOL_NEGATION))
 
-		if not has_condition(condition):
-			push_error(
-				"Failed to check condition. Condition with name '%s' does not exist" % condition
-			)
-			return false
+	if not condition.is_valid_identifier():
+		push_error(
+			"Failed to check condition. Excluding the '$' and '!' prefix, names can only contain letters, digits, and underscores, and the first character may not be a digit."
+		)
+		return false
 
+	if has_condition(condition):
 		var function: Callable = _condition_func_by_name[condition]
 
 		if not function.is_valid():
@@ -361,12 +371,17 @@ func is_condition_true(condition: String) -> bool:
 
 		var condition_status: bool = function.call()
 		return condition_status and not is_inverted or not condition_status and is_inverted
+	elif not is_root():
+		return root.is_condition_true(condition)
+	else:
+		push_warning("Failed to check condition. Condition with name '%s' does not exist locally or globally" % condition)
+		return false
+	# endregion
 
 
 ## Returns [code]true[/code] if the condition exists within the hiearchy.
 func has_condition(condition: String) -> bool:
-	var root := get_root()
-	return root.has_condition(condition) if root != null else _condition_func_by_name.has(condition)
+	return _condition_func_by_name.has(condition)
 
 
 ## Adds a transition between specified states.
@@ -1099,6 +1114,7 @@ class Builder:
 					warning += "\nDid you mean: '%s'" % most_similar_prop
 				
 				push_warning(warning)
+
 
 	func _configure_state_machine_impl(root: FrayCompoundState) -> void:
 		for state_name in _state_by_name:

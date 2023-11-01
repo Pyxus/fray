@@ -20,7 +20,6 @@ func get_parent() -> FrayCompoundState:
 
 
 ## Returns the root of of this state's hierarchy.
-## If this state is has no root then null will be returned.
 func get_root() -> FrayCompoundState:
 	return _root_ref.get_ref() if _root_ref != null else null
 
