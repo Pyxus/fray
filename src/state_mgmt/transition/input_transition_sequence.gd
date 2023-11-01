@@ -7,7 +7,7 @@ extends FrayInputTransition
 ## - [code]sequence[/code] is the name of the input, as a [StringName];
 
 ## Name of the sequence.
-var sequence: StringName = ""
+@export var sequence: StringName = ""
 
 func _accepts_impl(sm_input: Dictionary) -> bool:
 	return (

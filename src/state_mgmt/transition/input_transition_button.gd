@@ -11,16 +11,16 @@ extends FrayInputTransition
 ## - [code]time_held[/code] is the time in seconds that the input was held for, as a [float].
 
 ## Input name.
-var input: StringName = ""
+@export var input: StringName = ""
 
 ## If [code]true[/code] the input is only accepted on release.
-var is_triggered_on_release: bool = false
+@export var is_triggered_on_release: bool = false
 
 ## Minimum time the input must be held in seconds. If negative then this check is ignored.
-var min_time_held: float = -1.0
+@export var min_time_held: float = -1.0
 
 ## Maximum time the input is allowed to be held in seconds. If negative then this check is ignored.
-var max_time_held: float = -1.0
+@export var max_time_held: float = -1.0
 
 
 func _accepts_impl(sm_input: Dictionary) -> bool:

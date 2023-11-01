@@ -7,7 +7,7 @@ extends FrayStateMachineTransition
 ## - [code]time_since_last_input[/code] is the time in seconds since the last input was provided, as a [float].
 
 ## Minimum time that must have elapsed since the last input, in seconds. If negative then this check is ignored.
-var min_input_delay: float = -1.0
+@export var min_input_delay: float = -1.0
 
 
 func _accepts_impl(input: Dictionary) -> bool:
