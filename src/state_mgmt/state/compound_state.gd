@@ -93,6 +93,13 @@ func _enter_impl(args: Dictionary) -> void:
 		cur_state._enter_impl(args)
 
 
+func _exit_impl() -> void:
+	super()
+	
+	if not is_persistent:
+		_current_state = ""
+
+
 func _input_impl(event: InputEvent) -> void:
 	var cur_state := get_current_state()
 	if cur_state is FrayCompoundState:
@@ -732,9 +739,6 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		if state == common_active_ancestor:
 			break
 		
-		if state is FrayCompoundState:
-			state._current_state = ""
-
 		state._exit_impl()
 	
 	# Enter all states leading to target state excluding common ancestor
