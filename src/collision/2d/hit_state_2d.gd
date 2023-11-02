@@ -156,7 +156,7 @@ func set_hitbox_active(index: int, is_active: bool) -> void:
 	if is_active:
 		active_hitboxes |= flag
 	else:
-		active_hitboxes &= flag
+		active_hitboxes &= ~flag
 
 ## Returns a list of all hitbox children belonging to this hit state.
 func get_hitboxes() -> Array[FrayHitbox2D]:
