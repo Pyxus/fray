@@ -1,5 +1,5 @@
 class_name FrayStateMachineTransition
-extends RefCounted
+extends Resource
 ## Represents transition from one state to another.
 
 enum SwitchMode{
@@ -8,19 +8,19 @@ enum SwitchMode{
 }
 
 ## If [member auto_advance] is enabled then the transition will occur automatically when all advance conditions are true.
-var advance_conditions: Array[FrayCondition]
+@export var advance_conditions: PackedStringArray
 
 ## Prevents transition from occuring unless all prerequisite conditions are true.
-var prereqs: Array[FrayCondition]
+@export var prereqs: PackedStringArray
 
 ## If true then the transition can advance automatically.
-var auto_advance: bool = false
+@export var auto_advance: bool = false
 
 ## Lower priority transitions are be preffered when determining next transitions.
-var priority: int = 0
+@export var priority: int = 0
 
 ## The transition type.
-var switch_mode: SwitchMode = SwitchMode.AT_END
+@export var switch_mode: SwitchMode = SwitchMode.AT_END
 
 ## Returns true if the transition accepts the given input.
 func accepts(input: Dictionary) -> bool:
