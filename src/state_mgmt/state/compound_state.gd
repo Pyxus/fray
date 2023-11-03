@@ -611,6 +611,8 @@ func input(event: InputEvent) -> void:
 
 ## Propogates unhandled input to this state then child states.
 func unhandled_input(event: InputEvent) -> void:
+	_unhandled_input_impl(event)
+	
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()
 		if cur_state != null:
@@ -618,8 +620,6 @@ func unhandled_input(event: InputEvent) -> void:
 				cur_state.unhandled_input(event)
 			elif cur_state != null:
 				cur_state._unhandled_input_impl(event)
-
-	_unhandled_input_impl(event)
 
 ## Process child states then this state.
 ## This method is intended to only be used by the [FrayStateMachine].
