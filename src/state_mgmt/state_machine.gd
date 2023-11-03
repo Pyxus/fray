@@ -58,8 +58,6 @@ func _physics_process(delta: float) -> void:
 ## [br]
 ## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
 func initialize(context: Dictionary, root: FrayCompoundState) -> void:
-	context.make_read_only()
-
 	_root = root
 	_root.ready(context)
 	_root._enter_impl({})

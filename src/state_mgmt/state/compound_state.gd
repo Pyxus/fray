@@ -581,7 +581,12 @@ func get_active_states_info() -> Dictionary:
 
 ## Readies child states then this state.
 ## This method is intended to only be used by the [FrayStateMachine].
+## [br]
+## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
 func ready(context: Dictionary) -> void:
+	if not context.is_read_only():
+		context.make_read_only()
+
 	for state_name in _states:
 		var state: FrayState = _states[state_name]
 		
