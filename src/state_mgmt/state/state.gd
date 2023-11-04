@@ -58,12 +58,12 @@ func _enter_tree_impl() -> void:
 
 
 ## [code]Virtual method[/code] invoked when the state is being processed. [kbd]delta[/kbd] is in seconds.
-func _process_impl(_delta: float) -> void:
+func _process_impl(delta: float) -> void:
 	pass
 
 
 ## [code]Virtual method[/code] invoked when the state is being physics processed. [kbd]delta[/kbd] is in seconds.
-func _physics_process_impl(_delta: float) -> void:
+func _physics_process_impl(delta: float) -> void:
 	pass
 
 
