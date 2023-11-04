@@ -22,9 +22,6 @@ signal state_removed(name: StringName, state: FrayState)
 ## Emitted when a state is renamed.
 signal state_renamed(name: StringName, state: FrayState)
 
-#TODO: The transitioned signal may need to be rethought.
-# It seems fine for simple systems but when hierarchies are involved i'm not sure
-# what the most useful way to represent changes might be.
 ## Emitted when the current state is changes.
 signal transitioned(from: StringName, to: StringName)
 
@@ -98,18 +95,6 @@ func _exit_impl() -> void:
 	
 	if not is_persistent:
 		_current_state = ""
-
-
-func _input_impl(event: InputEvent) -> void:
-	var cur_state := get_current_state()
-	if cur_state is FrayCompoundState:
-		cur_state._input_impl(event)
-
-
-func _unhandled_input_impl(event: InputEvent) -> void:
-	var cur_state := get_current_state()
-	if cur_state is FrayCompoundState:
-		cur_state._unhandled_input_impl(event)
 
 
 func _is_done_processing_impl() -> bool:
@@ -218,9 +203,6 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _ERR_FAILED_TO_ADD_STATE(name, state):
 		return
 
-	if state is FrayCompoundState and not state._condition_func_by_name.is_empty():
-		push_warning("Sub state contains conditions. These conditions will be ignored.")
-
 	state._root_ref = _root_ref if _root_ref else weakref(self)
 	state._parent_ref = weakref(self)
 	_states[name] = state
@@ -229,7 +211,7 @@ func add_state(name: StringName, state: FrayState) -> void:
 	if _states.size() == 1:
 		_start_state = name
 
-	state._ready_impl()
+	state._enter_tree_impl()
 	state_added.emit(name, state)
 
 
@@ -597,8 +579,50 @@ func get_active_states_info() -> Dictionary:
 
 	return {path = "/".join(active_state_names), states = active_state_objects}
 
+## Readies child states then this state.
+## This method is intended to only be used by the [FrayStateMachine].
+## [br]
+## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
+func ready(context: Dictionary) -> void:
+	if not context.is_read_only():
+		context.make_read_only()
+
+	for state_name in _states:
+		var state: FrayState = _states[state_name]
+		
+		if state is FrayCompoundState:
+			state.ready(context)
+		else:
+			state._ready_impl(context)
+
+	_ready_impl(context)
+
+## Propogates input to this state then child states.
+func input(event: InputEvent) -> void:
+	_input_impl(event)
+
+	if not _states.is_empty():
+		var cur_state: FrayState = get_current_state()
+		if cur_state != null:
+			if cur_state is FrayCompoundState:
+				cur_state.input(event)
+			elif cur_state != null:
+				cur_state._input_impl(event)
+
+## Propogates unhandled input to this state then child states.
+func unhandled_input(event: InputEvent) -> void:
+	_unhandled_input_impl(event)
+	
+	if not _states.is_empty():
+		var cur_state: FrayState = get_current_state()
+		if cur_state != null:
+			if cur_state is FrayCompoundState:
+				cur_state.unhandled_input(event)
+			elif cur_state != null:
+				cur_state._unhandled_input_impl(event)
 
 ## Process child states then this state.
+## This method is intended to only be used by the [FrayStateMachine].
 func process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()
@@ -611,6 +635,7 @@ func process(delta: float) -> void:
 
 
 ## Physics process child states then this state.
+## This method is intended to only be used by the [FrayStateMachine].
 func physics_process(delta: float) -> void:
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()

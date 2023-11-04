@@ -34,10 +34,11 @@ func _is_done_processing_impl() -> bool:
 	return true
 
 
-## [code]Virtual method[/code] invoked when this state is added to the state machine tree.
-func _ready_impl() -> void:
+## [code]Virtual method[/code] invoked when the state machine is initialized. Child states are readied before parent states.
+## [br]
+## [kbd]context[/kbd] is read-only dictionary which provides a way to pass data which is available to all states within a hierachy.
+func _ready_impl(context: Dictionary) -> void:
 	pass
-
 
 ## [code]Virtual method[/code] invoked when the state is entered.
 ## [br]
@@ -51,13 +52,18 @@ func _exit_impl() -> void:
 	pass
 
 
-## [code]Virtual method[/code] invoked when the state is being processed.
-func _process_impl(_delta: float) -> void:
+## [code]Virtual method[/code] invokved when the state is added to the state machine hierarchy.
+func _enter_tree_impl() -> void:
 	pass
 
 
-## [code]Virtual method[/code] invoked when the state is being physics processed.
-func _physics_process_impl(_delta: float) -> void:
+## [code]Virtual method[/code] invoked when the state is being processed. [kbd]delta[/kbd] is in seconds.
+func _process_impl(delta: float) -> void:
+	pass
+
+
+## [code]Virtual method[/code] invoked when the state is being physics processed. [kbd]delta[/kbd] is in seconds.
+func _physics_process_impl(delta: float) -> void:
 	pass
 
 
