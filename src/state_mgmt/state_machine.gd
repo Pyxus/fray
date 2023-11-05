@@ -62,6 +62,7 @@ func _physics_process(delta: float) -> void:
 func initialize(context: Dictionary, root: FrayCompoundState) -> void:
 	_root = root
 	_root._fn_get_component = get_component
+	_root._fn_get_components = get_components
 	_root.ready(context)
 	_root._enter_impl({})
 	_root.transitioned.connect(_on_RootState_transitioned)
@@ -91,6 +92,21 @@ func get_component(type: GDScript) -> FrayStateMachineComponent:
 			return child
 
 	return null
+
+
+func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
+	assert(
+		Fray.is_of_type_script(type, FrayStateMachineComponent),
+		"Type must be a script which extends FrayStateMachineComponent"
+	)
+
+	var components: Array[FrayStateMachineComponent] = []
+
+	for child in get_children():
+		if Fray.is_of_type(child, type):
+			components.append(child)
+
+	return components
 
 
 ## Returns the name of the root's current state.

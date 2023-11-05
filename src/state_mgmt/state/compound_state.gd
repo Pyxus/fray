@@ -70,9 +70,13 @@ var _tags_by_state: Dictionary
 # Type: Dictionary<StringName, func() -> bool>
 var _condition_func_by_name: Dictionary
 
-# Type: func(Script) -> bool
+# Type: func(Script) -> FrayStateMachineComponent
 # Note: Must be set externally, typically by the state machine node
 var _fn_get_component: Callable
+
+# Type: func(Script) -> Array[FrayStateMachineComponent]
+# Note: Must be set externally, typically by the state machine node
+var _fn_get_components: Callable
 
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
@@ -108,6 +112,10 @@ func _is_done_processing_impl() -> bool:
 
 func get_component(type: GDScript) -> Object:
 	return get_root()._fn_get_component.call(type)
+
+
+func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
+	return get_root()._fn_get_components.call(type)
 
 
 ## Returns the root of of this state's hierarchy.
