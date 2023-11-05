@@ -70,6 +70,10 @@ var _tags_by_state: Dictionary
 # Type: Dictionary<StringName, func() -> bool>
 var _condition_func_by_name: Dictionary
 
+# Type: func(Script) -> bool
+# Note: Must be set externally, typically by the state machine node
+var _fn_get_component: Callable
+
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
 var _transitions: Array[_Transition]
@@ -100,6 +104,10 @@ func _exit_impl() -> void:
 func _is_done_processing_impl() -> bool:
 	super()
 	return _end_state.is_empty() or _current_state == _end_state
+
+
+func get_component(type: GDScript) -> Object:
+	return get_root()._fn_get_component.call(type)
 
 
 ## Returns the root of of this state's hierarchy.

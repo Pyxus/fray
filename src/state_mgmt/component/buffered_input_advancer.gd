@@ -1,6 +1,7 @@
+@tool
 @icon("res://addons/fray/assets/icons/buffered_input_advancer.svg")
 class_name FrayBufferedInputAdvancer
-extends Node
+extends FrayStateMachineComponent
 ## A node designed to advance a specified state machine using buffered inputs.
 ##
 ## This node automatically feeds buffered inputs to the designated state machine to trigger state transitions.
@@ -14,9 +15,6 @@ enum AdvanceMode {
 	PHYSICS,  ## Advance during the physics process
 }
 
-## The state machine to be controlled by the advancer
-@export var state_machine: FrayStateMachine
-
 ## If [code]false[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
 ## Enabling or disabling this property allows control over when buffered inputs are consumed.
 ## This can be useful for managing when a player can 'cancel' an attack using their buffered inputs.
@@ -28,15 +26,29 @@ enum AdvanceMode {
 ## Determines the process during which the advancer machine can advance the state machine.
 @export var advance_mode: AdvanceMode
 
+var _state_machine: FrayStateMachine
 var _input_buffer: Array[BufferedInput]
 var _accepted_input_time_stamp: int
 
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+		
+	_state_machine = get_state_machine()
+
+
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+		
 	if advance_mode == AdvanceMode.IDLE:
 		_advance()
 
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+	
 	if advance_mode == AdvanceMode.PHYSICS:
 		_advance()
 
@@ -78,7 +90,7 @@ func _advance() -> void:
 		var accepted_input_age_sec := Fray.msec_to_sec(Time.get_ticks_msec() - _accepted_input_time_stamp)
 		var state_machine_input := _create_state_machine_input(buffered_input, accepted_input_age_sec)
 
-		if is_input_within_buffer and state_machine.advance(state_machine_input):
+		if is_input_within_buffer and _state_machine.advance(state_machine_input):
 			_accepted_input_time_stamp = Time.get_ticks_msec()
 			break
 

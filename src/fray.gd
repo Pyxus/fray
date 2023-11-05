@@ -45,3 +45,17 @@ static func msec_to_sec(msec: int) -> float:
 ## Converts time in [kdb]seconds[/kbd] to time in milliseconds.
 static func sec_to_msec(sec: float) -> int:
 	return roundi(sec * 1000)
+
+## Returns true if given value is of the expected type.
+static func is_of_type(value, expected_type: Script) -> bool:
+	if not value is Object:
+		return false
+
+	return is_of_type_script(value.get_script(), expected_type)
+
+## Returns true if given scripts are of the same type.
+static func is_of_type_script(script: Script, expected_type: Script) -> bool:
+	if script == null:
+		return false
+
+	return true if script == expected_type else is_of_type_script(script.get_base_script(), expected_type)

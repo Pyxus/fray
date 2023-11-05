@@ -26,6 +26,7 @@ enum AdvanceMode {
 
 var _root: FrayCompoundState
 
+
 func _input(event: InputEvent) -> void:
 	if _can_process():
 		_root.input(event)
@@ -51,27 +52,45 @@ func _physics_process(delta: float) -> void:
 		if advance_mode == AdvanceMode.PHYSICS:
 			advance()
 
+
 ## Used to initialize the root of the state machine.
 ## [br]
-## [kbd]context[/kbd] is an optional dictionary which can pass read-only data to all states within the hierarchy. 
+## [kbd]context[/kbd] is an optional dictionary which can pass read-only data to all states within the hierarchy.
 ## This data is accessible within a state's [method FrayState._ready_impl] method when it is invoked.
 ## [br]
-## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
+## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only.
 func initialize(context: Dictionary, root: FrayCompoundState) -> void:
 	_root = root
+	_root._fn_get_component = get_component
 	_root.ready(context)
 	_root._enter_impl({})
 	_root.transitioned.connect(_on_RootState_transitioned)
 
+
 ## Returns the state machine root.
 func get_root() -> FrayCompoundState:
 	return _root
+
 
 ## Used to manually advance the state machine.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	if _can_process():
 		return _advance_impl(input, args)
 	return false
+
+
+## Returns the first component of a given [kbd]type[/kbd] attached to this state machine.
+func get_component(type: GDScript) -> FrayStateMachineComponent:
+	assert(
+		Fray.is_of_type_script(type, FrayStateMachineComponent),
+		"Type must be a script which extends FrayStateMachineComponent"
+	)
+
+	for child in get_children():
+		if Fray.is_of_type(child, type):
+			return child
+
+	return null
 
 
 ## Returns the name of the root's current state.

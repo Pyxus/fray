@@ -29,6 +29,11 @@ func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
 
+## Returns the first component of a given [kbd]type[/kbd] attached to this state machine.
+func get_component(type: GDScript) -> Object:
+	return get_root().get_component(type)
+
+
 ## [code]Virtual method[/code] used to implement [method is_done_processing].
 func _is_done_processing_impl() -> bool:
 	return true
