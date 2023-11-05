@@ -4,7 +4,7 @@ extends FrayAnimatorTracker
 var _tween: Tween = null
 
 
-func _get_animation_list_impl() -> Array[String]:
+func _get_animation_list_impl() -> PackedStringArray:
 	return ["tween"]
 
 

@@ -15,12 +15,17 @@ signal animation_updated(animation: StringName, play_position: float)
 ## Returns the path from a given node to the tracker property of the observer containing this tracker..
 var fn_get_path_from: Callable = Callable()
 
+## func(path: [NodePath]) -> [Node]
+## [br]
+## Fetches a node relative to the observer containing this tracker.
+var fn_get_node: Callable = Callable()
+
 ## Readies this tracker.
 ## [br]
 ## This method is only intended to be used by the [FrayAnimationObserver].
 func ready() -> void:
-	_add_anim_signals(_get_animation_list_impl())
 	_ready_impl()
+	_add_anim_signals(_get_animation_list_impl())
 
 ## Processes this tracker.
 ## [br]
@@ -91,7 +96,7 @@ func format_usignal_updated(animation: StringName) -> StringName:
 
 ## [code]Abstract method[/code] used to return the list of animations beloning to the tracked animator.
 ## This list is used to initialize the per-animation user signals.
-func _get_animation_list_impl() -> Array[String]:
+func _get_animation_list_impl() -> PackedStringArray:
 	assert(false, "Method not implemented")
 	return []
 

@@ -1,19 +1,25 @@
 class_name FrayAnimatorTrackerAnimationPlayer
 extends FrayAnimatorTracker
 
-@export var anim_player: AnimationPlayer
+@export_node_path("AnimationPlayer") var anim_player_path: NodePath
+
+var _anim_player: AnimationPlayer
 
 
-func _get_animation_list_impl() -> Array[String]:
-	return anim_player.get_animation_list()
+func _get_animation_list_impl() -> PackedStringArray:
+	return _anim_player.get_animation_list()
+
+
+func _ready_impl() -> void:
+	_anim_player = fn_get_node.call(anim_player_path)
 
 
 func _process_impl(delta: float) -> void:
-	if anim_player.is_playing():
-		if anim_player.current_animation_position == 0:
-			emit_anim_started(anim_player.current_animation)
+	if _anim_player.is_playing():
+		if _anim_player.current_animation_position == 0:
+			emit_anim_started(_anim_player.current_animation)
 
-		emit_anim_updated(anim_player.current_animation, anim_player.current_animation_position)
+		emit_anim_updated(_anim_player.current_animation, _anim_player.current_animation_position)
 
-		if anim_player.current_animation_position + delta >= anim_player.current_animation_length:
-			emit_anim_finished(anim_player.current_animation)
+		if _anim_player.current_animation_position + delta >= _anim_player.current_animation_length:
+			emit_anim_finished(_anim_player.current_animation)
