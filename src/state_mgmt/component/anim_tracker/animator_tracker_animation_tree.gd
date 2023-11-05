@@ -1,6 +1,6 @@
 class_name FrayAnimatorTrackerAnimationTree
 extends FrayAnimatorTracker
-## EXPERIMENTAL
+## EXPERIMENTAL [AnimationTree] tracker
 ##
 ## This tracker works by modifying the animations on the player used by the given tree.
 ## Specifically it adds a method call track which invoke the tracker's emit methods.

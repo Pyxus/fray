@@ -1,5 +1,6 @@
 class_name FrayAnimatorTrackerAnimationPlayer
 extends FrayAnimatorTracker
+## [AnimationPlayer] tracker
 
 @export_node_path("AnimationPlayer") var anim_player_path: NodePath
 

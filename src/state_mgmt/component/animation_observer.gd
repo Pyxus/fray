@@ -1,6 +1,11 @@
 @tool
 class_name FrayAnimationObserver
 extends FrayStateMachineComponent
+## A node used to observe animation events
+##
+## The animation player can observe animation events from animators provided by the `FrayAnimatorTracker` resource.
+## These events can be subscribed to per-animation using the included 'on' methods.
+## The tracker also has event signals which can be connected to in a way that isn't per-animation.
 
 ## Used to determine which animator to observe
 @export var tracker: FrayAnimatorTracker:
@@ -46,6 +51,8 @@ func on_finish(animation: String, callable: Callable) -> void:
 
 
 ## Used to connect to the update event of a given anmiation.
+## The update event is emitted with a 'play_position' argument.
+## The meaning of this argument depends on the tracker as it could represent either seconds or frames.
 ## [br]
 ## [kbd]callable[/kbd] must be of type [code]func(float) -> void[/code]
 func on_update(animation: String, callable: Callable) -> void:

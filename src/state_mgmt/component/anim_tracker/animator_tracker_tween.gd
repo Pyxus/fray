@@ -1,5 +1,6 @@
 class_name FrayAnimatorTrackerTween
 extends FrayAnimatorTracker
+## [Tween] tracker
 
 var _tween: Tween = null
 

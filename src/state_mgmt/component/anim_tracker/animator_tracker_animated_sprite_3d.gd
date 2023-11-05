@@ -1,5 +1,6 @@
 class_name FrayAnimatorTrackerAnimatedSprite3D
 extends FrayAnimatorTracker
+## [AnimatedSprite3D] tracker
 
 @export_node_path("AnimatedSprite3D") var anim_sprite_path: NodePath
 
