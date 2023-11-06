@@ -780,7 +780,7 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		if state == common_active_ancestor:
 			break
 		
-		state._exit_impl()
+		state.exit()
 	
 	# Enter all states leading to target state excluding common ancestor
 	var ancestor_path_index := active_states.find(common_active_ancestor)
