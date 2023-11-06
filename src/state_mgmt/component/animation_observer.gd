@@ -52,7 +52,7 @@ func usignal_finished(animation: String) -> Signal:
 
 ## Returns a user defined signal which is used to connect to the update event of a given animation.
 ## [br]
-## Signal excepts a method of type [code]func(float) -> void[/code]
+## Signal excepts a method of type [code]func(play_position: float) -> void[/code]
 func usignal_updated(animation: String) -> Signal:
 	return Signal(tracker, tracker.format_usignal_updated(animation))
 
