@@ -15,10 +15,10 @@ enum AdvanceMode {
 	PHYSICS,  ## Advance during the physics process
 }
 
-## If [code]false[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
+## If [code]true[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
 ## Enabling or disabling this property allows control over when buffered inputs are consumed.
 ## This can be useful for managing when a player can 'cancel' an attack using their buffered inputs.
-@export var paused: bool = true
+@export var paused: bool = false
 
 ## The max time an input can exist in the buffer before it is ignored, in seconds.
 @export_range(0.0, 5.0, 0.01, "suffix:sec") var max_buffer_time: float = 1.0
