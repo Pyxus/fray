@@ -49,7 +49,8 @@ func exit() -> void:
 		for callable in _callables_by_signal[sig]:
 			if sig.is_connected(callable):
 				sig.disconnect(callable)
-
+	
+	_callables_by_signal.clear()
 	_exit_impl()
 
 
