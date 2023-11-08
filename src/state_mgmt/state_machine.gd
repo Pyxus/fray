@@ -60,6 +60,10 @@ func _physics_process(delta: float) -> void:
 ## [br]
 ## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only.
 func initialize(context: Dictionary, root: FrayCompoundState) -> void:
+	if root.has_parent():
+		push_error("Failed to initialize statemachine. Provided root has parent state.")
+		return
+
 	_root = root
 	_root._fn_get_component = get_component
 	_root._fn_get_components = get_components
