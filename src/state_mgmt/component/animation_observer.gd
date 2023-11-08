@@ -57,29 +57,6 @@ func usignal_updated(animation: String) -> Signal:
 	return Signal(tracker, tracker.format_usignal_updated(animation))
 
 
-## Used to connect to the start event of a given animation.
-## [br]
-## [kbd]callable[/kbd] must be of type [code]func() -> void[/code]
-func on_start(animation: String, callable: Callable) -> void:
-	tracker.connect(tracker.format_usignal_started(animation), callable)
-
-
-## Used to connect to the finish event of a given animation.
-## [br]
-## [kbd]callable[/kbd] must be of type [code]func() -> void[/code]
-func on_finish(animation: String, callable: Callable) -> void:
-	tracker.connect(tracker.format_usignal_finished(animation), callable)
-
-
-## Used to connect to the update event of a given anmiation.
-## The update event is emitted with a 'play_position' argument.
-## The meaning of this argument depends on the tracker as it could represent either seconds or frames.
-## [br]
-## [kbd]callable[/kbd] must be of type [code]func(float) -> void[/code]
-func on_update(animation: String, callable: Callable) -> void:
-	tracker.connect(tracker.format_usignal_updated(animation), callable)
-
-
 func _get_path_from(from_node: Node) -> NodePath:
 	return NodePath(from_node.get_path_to(self))
 
