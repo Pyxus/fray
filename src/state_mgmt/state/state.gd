@@ -54,17 +54,14 @@ func exit() -> void:
 
 
 ## Connects a signal which disconnects when this state is no longer active.
-func connect_while_active(sig: Signal, callable: Callable, flags: int = 0) -> void:
-	if sig.is_connected(callable):
-		var warning := "Signal %s already connected to callable %s:%s"
-		push_warning(warning % [sig.get_name(), callable.get_object(), callable.get_method()])
-		return
+func connect_while_active(sig: Signal, callable: Callable, flags: int = 0) -> Error:
+	if not sig.is_connected(callable):
+		if not _callables_by_signal.has(sig):
+			_callables_by_signal[sig] = []
 
-	if not _callables_by_signal.has(sig):
-		_callables_by_signal[sig] = []
+		_callables_by_signal[sig].append(callable)
 
-	sig.connect(callable, flags)
-	_callables_by_signal[sig].append(callable)
+	return sig.connect(callable, flags)
 
 
 ## [code]Virtual method[/code] used to implement [method is_done_processing].
