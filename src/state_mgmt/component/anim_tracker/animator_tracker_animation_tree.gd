@@ -1,3 +1,4 @@
+@tool
 class_name FrayAnimatorTrackerAnimationTree
 extends FrayAnimatorTracker
 ## EXPERIMENTAL [AnimationTree] tracker
@@ -9,10 +10,11 @@ extends FrayAnimatorTracker
 
 var _anim_tree: AnimationTree
 
+
 func _ready_impl() -> void:
 	super()
-	
-	_anim_tree = fn_get_node.call(anim_tree_path)
+
+	_anim_tree = fn_get_node_or_null.call(anim_tree_path)
 
 	var anim_player: AnimationPlayer = _anim_tree.get_node(_anim_tree.anim_player)
 	var root_node: Node = anim_player.get_node(anim_player.root_node)
@@ -29,24 +31,35 @@ func _ready_impl() -> void:
 
 			while t < animation.length:
 				if t == 0:
-					animation.track_insert_key(track_idx, t, {
-						"args": [animation_name],
-						"method": &"_emit_anim_started"
-					})
+					animation.track_insert_key(
+						track_idx, t, {"args": [animation_name], "method": &"_emit_anim_started"}
+					)
 				elif t + animation.step >= animation.length:
-					animation.track_insert_key(track_idx, t, {
-						"args": [animation_name],
-						"method": &"_emit_anim_finished"
-					})
+					animation.track_insert_key(
+						track_idx, t, {"args": [animation_name], "method": &"_emit_anim_finished"}
+					)
 				else:
-					animation.track_insert_key(track_idx, t, {
-						"args": [animation_name, t],
-						"method": &"_emit_anim_updated"
-					})
+					animation.track_insert_key(
+						track_idx, t, {"args": [animation_name, t], "method": &"_emit_anim_updated"}
+					)
 
-				t += animation.step 
+				t += animation.step
 
 
 func _get_animation_list_impl() -> PackedStringArray:
 	var anim_player: AnimationPlayer = _anim_tree.get_node(_anim_tree.anim_player)
 	return anim_player.get_animation_list()
+
+
+func _get_configuration_warnings_impl() -> PackedStringArray:
+	var anim_tree := fn_get_node_or_null.call(anim_tree_path)
+
+	if anim_tree == null:
+		return ["Path to animation tree not set."]
+
+	if not anim_tree.tree_root is AnimationNodeStateMachine:
+		return [
+			"Due to interface limitations only the AnimationNodeStateMachine tree root is supported for tracking."
+		]
+
+	return []

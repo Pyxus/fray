@@ -1,3 +1,4 @@
+@tool
 class_name FrayAnimatorTrackerAnimatedSprite2D
 extends FrayAnimatorTracker
 ## [AnimatedSprite2D] tracker
@@ -10,7 +11,15 @@ var _prev_frame: int = -1
 
 
 func _ready_impl() -> void:
-	_anim_sprite = fn_get_node.call(anim_sprite_path)
+	_anim_sprite = fn_get_node_or_null.call(anim_sprite_path)
+
+func _get_configuration_warnings_impl() -> PackedStringArray:
+	var anim_sprite = fn_get_node_or_null.call(anim_sprite_path)
+
+	if anim_sprite == null:
+		return ["Path to animated sprite not set."] 
+	
+	return []
 
 
 func _process_impl(delta: float) -> void:

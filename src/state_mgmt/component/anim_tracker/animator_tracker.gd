@@ -1,3 +1,4 @@
+@tool
 class_name FrayAnimatorTracker
 extends Resource
 
@@ -18,7 +19,7 @@ var fn_get_path_from: Callable = Callable()
 ## func(path: [NodePath]) -> [Node]
 ## [br]
 ## Fetches a node relative to the observer containing this tracker.
-var fn_get_node: Callable = Callable()
+var fn_get_node_or_null: Callable = Callable()
 
 ## Readies this tracker.
 ## [br]
@@ -54,7 +55,10 @@ func _process_impl(delta: float) -> void:
 func _physics_process_impl(delta: float) -> void:
 	pass
 
-
+## [code]Virtual method[/code] used to report configuration warnings to the [FrayAnimationObserver].
+func _get_configuration_warnings_impl() -> PackedStringArray:
+	return []
+	
 ## Used to emit an animation started signal. Emits both built-in signal and per-animation user signal.
 func emit_anim_started(animation: StringName) -> void:
 	animation_started.emit(animation)

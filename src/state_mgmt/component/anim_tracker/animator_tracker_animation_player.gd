@@ -1,3 +1,4 @@
+@tool
 class_name FrayAnimatorTrackerAnimationPlayer
 extends FrayAnimatorTracker
 ## [AnimationPlayer] tracker
@@ -11,8 +12,17 @@ func _get_animation_list_impl() -> PackedStringArray:
 	return _anim_player.get_animation_list()
 
 
+func _get_configuration_warnings_impl() -> PackedStringArray:
+	var anim_player := fn_get_node_or_null.call(anim_player_path)
+
+	if anim_player == null:
+		return ["Path to animation player not set."]
+
+	return []
+
+
 func _ready_impl() -> void:
-	_anim_player = fn_get_node.call(anim_player_path)
+	_anim_player = fn_get_node_or_null.call(anim_player_path)
 
 
 func _process_impl(delta: float) -> void:

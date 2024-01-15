@@ -12,7 +12,7 @@ extends FrayStateMachineComponent
 	set(value):
 		tracker = value
 		tracker.fn_get_path_from = _get_path_from
-		tracker.fn_get_node = get_node
+		tracker.fn_get_node_or_null = get_node_or_null
 
 
 func _ready() -> void:
@@ -35,6 +35,15 @@ func _physics_process(delta: float) -> void:
 
 	tracker.physics_process(delta)
 
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings := super()
+	
+	if tracker:
+		warnings += tracker._get_configuration_warnings_impl()
+		#print(tracker._get_configuration_warnings_impl())
+	
+	return warnings
 
 ## Returns a user defined signal which is used to connect to the start event of a given animation.
 ## [br]
