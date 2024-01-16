@@ -1,14 +1,12 @@
 @tool
-class_name FrayAnimatorTrackerAnimationTree
+
 extends FrayAnimatorTracker
 ## EXPERIMENTAL [AnimationTree] tracker
-##
-## This tracker works by modifying the animations on the player used by the given tree.
-## Specifically it adds a method call track which invoke the tracker's emit methods.
 
 @export_node_path("AnimationTree") var anim_tree_path: NodePath
 
-var _anim_tree: AnimationTree
+var _anim_tree: AnimationTree = null
+var _playback_state := _PlaybackState.new()
 
 
 func _ready_impl() -> void:
@@ -16,34 +14,42 @@ func _ready_impl() -> void:
 
 	_anim_tree = fn_get_node_or_null.call(anim_tree_path)
 
-	var anim_player: AnimationPlayer = _anim_tree.get_node(_anim_tree.anim_player)
-	var root_node: Node = anim_player.get_node(anim_player.root_node)
 
-	for animation_name in anim_player.get_animation_list():
-		var animation := anim_player.get_animation(animation_name)
-		var track_idx := animation.add_track(Animation.TYPE_METHOD)
+func _process_impl(delta: float) -> void:
+	if not _anim_tree.tree_root is AnimationNodeStateMachine:
+		push_warning(
+			"Due to interface limitations only the AnimationNodeStateMachine tree root is supported for tracking."
+		)
+		return
 
-		print(fn_get_path_from.call(root_node))
-		animation.track_set_path(track_idx, fn_get_path_from.call(root_node))
+	var playback_path := "parameters/playback"
+	var anim_node_path := ""
+	var current_playback_state := _playback_state
+	var current_playback = _anim_tree.get(playback_path)
+	var current_node: StringName = current_playback.get_current_node()
 
-		if animation.length > 0.001 and animation.step > 0:
-			var t := 0.0
+	while current_playback != null:
+		anim_node_path += "%s" % current_node
 
-			while t < animation.length:
-				if t == 0:
-					animation.track_insert_key(
-						track_idx, t, {"args": [animation_name], "method": &"_emit_anim_started"}
-					)
-				elif t + animation.step >= animation.length:
-					animation.track_insert_key(
-						track_idx, t, {"args": [animation_name], "method": &"_emit_anim_finished"}
-					)
-				else:
-					animation.track_insert_key(
-						track_idx, t, {"args": [animation_name, t], "method": &"_emit_anim_updated"}
-					)
+		if current_playback_state.current_node != current_node:
+			if not current_playback_state.current_node.is_empty():
+				emit_anim_finished(anim_node_path)
 
-				t += animation.step
+			current_playback_state.child = null
+			current_playback_state.current_node = current_node
+
+			emit_anim_started(anim_node_path)
+
+		emit_anim_updated(anim_node_path, current_playback.current_play_position)
+
+		playback_path += "/%s/playback" % current_node
+		current_playback = _anim_tree.get(playback_path)
+
+		if current_playback:
+			anim_node_path += "/"
+			current_playback_state.child = _PlaybackState.new()
+			current_playback_state = current_playback_state.child
+			current_node = current_playback.get_current_node()
 
 
 func _get_animation_list_impl() -> PackedStringArray:
@@ -63,3 +69,10 @@ func _get_configuration_warnings_impl() -> PackedStringArray:
 		]
 
 	return []
+
+
+class _PlaybackState:
+	extends RefCounted
+
+	var current_node: StringName = ""
+	var child: _PlaybackState = null
