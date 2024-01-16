@@ -1,9 +1,9 @@
 @tool
 class_name FrayAnimationObserver
-extends FrayStateMachineComponent
+extends Node
 ## A node used to observe animation events
 ##
-## The animation player can observe animation events from animators provided by the `FrayAnimatorTracker` resource.
+## The animation observer can observe animation events from animators provided by the `FrayAnimatorTracker` resource.
 ## These events can be subscribed to per-animation using the included 'on' methods.
 ## The tracker also has event signals which can be connected to in a way that isn't per-animation.
 

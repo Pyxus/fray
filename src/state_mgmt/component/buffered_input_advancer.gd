@@ -1,7 +1,7 @@
 @tool
 @icon("res://addons/fray/assets/icons/buffered_input_advancer.svg")
 class_name FrayBufferedInputAdvancer
-extends FrayStateMachineComponent
+extends Node
 ## A node designed to advance a specified state machine using buffered inputs.
 ##
 ## This node automatically feeds buffered inputs to the designated state machine to trigger state transitions.
@@ -30,17 +30,18 @@ var _state_machine: FrayStateMachine
 var _input_buffer: Array[BufferedInput]
 var _accepted_input_time_stamp: int
 
+
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
-		
+
 	_state_machine = get_state_machine()
 
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-		
+
 	if advance_mode == AdvanceMode.IDLE:
 		_advance()
 
@@ -48,9 +49,15 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-	
+
 	if advance_mode == AdvanceMode.PHYSICS:
 		_advance()
+
+
+func _get_configuration_warnings() -> PackedStringArray:
+	if get_state_machine() == null:
+		return ["This node is expected to be the the child of a FrayStateMachine."]
+	return []
 
 
 ## Buffers an input button to be processed by the state machine
@@ -83,12 +90,23 @@ func get_buffer() -> Array[BufferedInput]:
 	return _input_buffer.duplicate()
 
 
+## Returns the state machine this component belongs to if it exists.
+func get_state_machine() -> FrayStateMachine:
+	return get_parent() as FrayStateMachine
+
+
 func _advance() -> void:
 	while not _input_buffer.is_empty() and not paused:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
-		var is_input_within_buffer := buffered_input.calc_elapsed_time_msec() <= Fray.sec_to_msec(max_buffer_time)
-		var accepted_input_age_sec := Fray.msec_to_sec(Time.get_ticks_msec() - _accepted_input_time_stamp)
-		var state_machine_input := _create_state_machine_input(buffered_input, accepted_input_age_sec)
+		var is_input_within_buffer := (
+			buffered_input.calc_elapsed_time_msec() <= Fray.sec_to_msec(max_buffer_time)
+		)
+		var accepted_input_age_sec := Fray.msec_to_sec(
+			Time.get_ticks_msec() - _accepted_input_time_stamp
+		)
+		var state_machine_input := _create_state_machine_input(
+			buffered_input, accepted_input_age_sec
+		)
 
 		if is_input_within_buffer and _state_machine.advance(state_machine_input):
 			_accepted_input_time_stamp = Time.get_ticks_msec()
@@ -120,7 +138,6 @@ class BufferedInput:
 
 	func _init(input_time_stamp: int = 0) -> void:
 		time_stamp = input_time_stamp
-
 
 	func calc_elapsed_time_msec() -> int:
 		return Time.get_ticks_msec() - time_stamp

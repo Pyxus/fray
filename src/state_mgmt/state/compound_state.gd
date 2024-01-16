@@ -25,10 +25,11 @@ signal state_renamed(name: StringName, state: FrayState)
 ## Emitted when the current state is changes.
 signal transitioned(from: StringName, to: StringName)
 
-const _SYMBOL_NEGATION = '!'
-const _SYMBOL_STRICTLY_GLOBAL = '$'
+const _SYMBOL_NEGATION = "!"
+const _SYMBOL_STRICTLY_GLOBAL = "$"
 
 const _AStarGraph = preload("a_star_graph.gd")
+
 
 ## Returns a new builder instance.
 static func builder() -> Builder:
@@ -70,13 +71,17 @@ var _tags_by_state: Dictionary
 # Type: Dictionary<StringName, func() -> bool>
 var _condition_func_by_name: Dictionary
 
-# Type: func(Script) -> FrayStateMachineComponent
+# Type: func(NodePath) -> Node
 # Note: Must be set externally, typically by the state machine node
-var _fn_get_component: Callable
+var _fn_get_node: Callable
 
-# Type: func(Script) -> Array[FrayStateMachineComponent]
+# Type: func(GDScript | GDScriptNativeClass) -> Node
 # Note: Must be set externally, typically by the state machine node
-var _fn_get_components: Callable
+var _fn_get_node_of_type: Callable
+
+# Type: func(GDScript | GDScriptNativeClass) -> Array[Node]
+# Note: Must be set externally, typically by the state machine node
+var _fn_get_nodes_of_type: Callable
 
 var _astar := _AStarGraph.new(_get_transition_priority)
 var _travel_args: Dictionary
@@ -100,7 +105,7 @@ func _enter_impl(args: Dictionary) -> void:
 
 func _exit_impl() -> void:
 	super()
-	
+
 	if not is_persistent:
 		_current_state = ""
 
@@ -110,12 +115,16 @@ func _is_done_processing_impl() -> bool:
 	return _end_state.is_empty() or _current_state == _end_state
 
 
-func get_component(type: GDScript) -> Object:
-	return get_root()._fn_get_component.call(type)
+func get_node(path: NodePath) -> Node:
+	return get_root()._fn_get_node.call(path)
 
 
-func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
-	return get_root()._fn_get_components.call(type)
+func get_node_of_type(type: GDScript) -> Node:
+	return get_root()._fn_get_node_of_type.call(type)
+
+
+func get_nodes_of_type(type: GDScript) -> Array[Node]:
+	return get_root()._fn_get_nodes_of_type.call(type)
 
 
 ## Returns the root of of this state's hierarchy.
@@ -379,7 +388,12 @@ func is_condition_true(condition: String) -> bool:
 	elif not is_root():
 		return root.is_condition_true(condition)
 	else:
-		push_warning("Failed to check condition. Condition with name '%s' does not exist locally or globally" % condition)
+		push_warning(
+			(
+				"Failed to check condition. Condition with name '%s' does not exist locally or globally"
+				% condition
+			)
+		)
 		return false
 	# endregion
 
@@ -595,23 +609,25 @@ func get_active_states_info() -> Dictionary:
 
 	return {path = "/".join(active_state_names), states = active_state_objects}
 
+
 ## Readies child states then this state.
 ## This method is intended to only be used by the [FrayStateMachine].
 ## [br]
-## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
+## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only.
 func ready(context: Dictionary) -> void:
 	if not context.is_read_only():
 		context.make_read_only()
 
 	for state_name in _states:
 		var state: FrayState = _states[state_name]
-		
+
 		if state is FrayCompoundState:
 			state.ready(context)
 		else:
 			state._ready_impl(context)
 
 	_ready_impl(context)
+
 
 ## Propogates input to this state then child states.
 func input(event: InputEvent) -> void:
@@ -625,10 +641,11 @@ func input(event: InputEvent) -> void:
 			elif cur_state != null:
 				cur_state._input_impl(event)
 
+
 ## Propogates unhandled input to this state then child states.
 func unhandled_input(event: InputEvent) -> void:
 	_unhandled_input_impl(event)
-	
+
 	if not _states.is_empty():
 		var cur_state: FrayState = get_current_state()
 		if cur_state != null:
@@ -636,6 +653,7 @@ func unhandled_input(event: InputEvent) -> void:
 				cur_state.unhandled_input(event)
 			elif cur_state != null:
 				cur_state._unhandled_input_impl(event)
+
 
 ## Process child states then this state.
 ## This method is intended to only be used by the [FrayStateMachine].
@@ -779,9 +797,9 @@ func _goto(path: StringName, args: Dictionary = {}) -> void:
 		var state: FrayState = active_states[i]
 		if state == common_active_ancestor:
 			break
-		
+
 		state.exit()
-	
+
 	# Enter all states leading to target state excluding common ancestor
 	var ancestor_path_index := active_states.find(common_active_ancestor)
 	var new_active_state: FrayState = common_active_ancestor
@@ -924,20 +942,20 @@ class Builder:
 	## Forces the builder to instatiate states with duplicates of the given [kdb]state[/kdb] for every state added after this call.
 	## [br]
 	## Returns a reference to this builder
-	## [br][br]	
+	## [br][br]
 	func set_default_state(state: FrayState) -> Builder:
 		_default_state = state
 		return self
-	
+
 	## Forces the builder to instatiate transitions with duplicates of the given [kdb]transition[/kdb] for every transition added after this call.
 	## This includes both local and global transitions.
 	## [br]
 	## Returns a reference to this builder
-	## [br][br]	
+	## [br][br]
 	func set_default_transition(sm_transition: FrayStateMachineTransition) -> Builder:
 		_default_transition = sm_transition
 		return self
-		
+
 	## Adds a new state to the state machine.
 	## [br]
 	## Returns a reference to this builder
@@ -975,7 +993,8 @@ class Builder:
 
 	## Creates a new global transtion to the specified state.
 	func transition_global(
-		to: StringName, config: Dictionary = {}, 
+		to: StringName,
+		config: Dictionary = {},
 		sm_transition: FrayStateMachineTransition = _default_transition.duplicate()
 	) -> Builder:
 		var tr := _create_global_transition(to, sm_transition)
@@ -1137,29 +1156,30 @@ class Builder:
 				else:
 					transition[property] = data
 			else:
-				var transition_properties: Array = transition.get_property_list().map(func(prop): return prop.name)
+				var transition_properties: Array = transition.get_property_list().map(
+					func(prop): return prop.name
+				)
 				var most_similar_prop := ""
 
 				if not transition_properties.is_empty():
 					var greatest_sim_index := 0.0
-		
+
 					for prop in transition_properties:
 						var sim_index: float = property.similarity(prop)
-		
+
 						if sim_index > greatest_sim_index and sim_index >= .4:
 							most_similar_prop = prop
 							greatest_sim_index = sim_index
-				
+
 				var warning: String = ""
-				
+
 				warning += "Failed to set transition property."
 				warning += "\nTransition does not contain a property named: '%s'" % property
 
 				if not most_similar_prop.is_empty():
 					warning += "\nDid you mean: '%s'" % most_similar_prop
-				
-				push_warning(warning)
 
+				push_warning(warning)
 
 	func _configure_state_machine_impl(root: FrayCompoundState) -> void:
 		for state_name in _state_by_name:
@@ -1185,7 +1205,7 @@ class Builder:
 
 		for g_tr in _global_transitions:
 			root.add_global_transition(g_tr.to, g_tr.transition)
-		
+
 		for condition_name in _condition_func_by_name:
 			var function: Callable = _condition_func_by_name[condition_name]
 			root.set_condition(condition_name, function)

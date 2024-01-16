@@ -65,8 +65,9 @@ func initialize(context: Dictionary, root: FrayCompoundState) -> void:
 		return
 
 	_root = root
-	_root._fn_get_component = get_component
-	_root._fn_get_components = get_components
+	_root._fn_get_node = get_node
+	_root._fn_get_node_of_type = get_node_of_type
+	_root._fn_get_nodes_of_type = get_nodes_of_type
 	_root.ready(context)
 	_root._enter_impl({})
 	_root.transitioned.connect(_on_RootState_transitioned)
@@ -84,33 +85,24 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	return false
 
 
-## Returns the first component of a given [kbd]type[/kbd] attached to this state machine.
-func get_component(type: GDScript) -> FrayStateMachineComponent:
-	assert(
-		Fray.is_of_type_script(type, FrayStateMachineComponent),
-		"Type must be a script which extends FrayStateMachineComponent"
-	)
-
+## Returns the first node of a given [kbd]type[/kbd] attached to this state machine. Types can either be scripts or native classes.
+func get_node_of_type(type: Variant) -> FrayStateMachineComponent:
 	for child in get_children():
-		if Fray.is_of_type(child, type):
+		if is_instance_of(child, type):
 			return child
 
 	return null
 
 
-func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
-	assert(
-		Fray.is_of_type_script(type, FrayStateMachineComponent),
-		"Type must be a script which extends FrayStateMachineComponent"
-	)
-
-	var components: Array[FrayStateMachineComponent] = []
+## Returns all nodes of a given [kbd]type[/kbd] attached to this state machine. Types can either be scripts or native classes.
+func get_nodes_of_type(type: Variant) -> Array[Node]:
+	var nodes: Array[Node] = []
 
 	for child in get_children():
-		if Fray.is_of_type(child, type):
-			components.append(child)
+		if is_instance_of(child, type):
+			nodes.append(child)
 
-	return components
+	return nodes
 
 
 ## Returns the name of the root's current state.
