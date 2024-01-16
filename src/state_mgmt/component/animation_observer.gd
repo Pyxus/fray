@@ -38,12 +38,13 @@ func _physics_process(delta: float) -> void:
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings := super()
-	
+
 	if tracker:
 		warnings += tracker._get_configuration_warnings_impl()
 		#print(tracker._get_configuration_warnings_impl())
-	
+
 	return warnings
+
 
 ## Returns a user defined signal which is used to connect to the start event of a given animation.
 ## [br]
@@ -68,19 +69,3 @@ func usignal_updated(animation: String) -> Signal:
 
 func _get_path_from(from_node: Node) -> NodePath:
 	return NodePath(from_node.get_path_to(self))
-
-
-# region Help wanted
-# These emit methods exist solely because I can't figure out how to call the AnimatorTracker methods on an animation track.
-# Which is necessary for my approach to animation tree tracking.
-func _emit_anim_started(animation: StringName) -> void:
-	tracker.emit_anim_started(animation)
-
-
-func _emit_anim_finished(animation: StringName) -> void:
-	tracker.emit_anim_finished(animation)
-
-
-func _emit_anim_updated(animation: StringName, play_position: float) -> void:
-	tracker.emit_anim_updated(animation, play_position)
-# endregion
