@@ -1,6 +1,7 @@
 @tool
 class_name FrayAnimatorTracker
 extends Resource
+## Abstract base class for animator trackers.
 
 ## Emitted when the observed animation controller reaches the start of the animation.
 signal animation_started(animation: StringName)
@@ -21,6 +22,7 @@ var fn_get_path_from: Callable = Callable()
 ## Fetches a node relative to the observer containing this tracker.
 var fn_get_node_or_null: Callable = Callable()
 
+
 ## Readies this tracker.
 ## [br]
 ## This method is only intended to be used by the [FrayAnimationObserver].
@@ -28,11 +30,13 @@ func ready() -> void:
 	_ready_impl()
 	_add_anim_signals(_get_animation_list_impl())
 
+
 ## Processes this tracker.
 ## [br]
 ## This method is only intended to be used by the [FrayAnimationObserver].
 func process(delta: float) -> void:
 	_process_impl(delta)
+
 
 ## Physics process this tracker.
 ## [br]
@@ -55,10 +59,12 @@ func _process_impl(delta: float) -> void:
 func _physics_process_impl(delta: float) -> void:
 	pass
 
+
 ## [code]Virtual method[/code] used to report configuration warnings to the [FrayAnimationObserver].
 func _get_configuration_warnings_impl() -> PackedStringArray:
 	return []
-	
+
+
 ## Used to emit an animation started signal. Emits both built-in signal and per-animation user signal.
 func emit_anim_started(animation: StringName) -> void:
 	animation_started.emit(animation)
