@@ -1,3 +1,4 @@
+@tool
 @icon("res://addons/fray/assets/icons/buffered_input_advancer.svg")
 class_name FrayBufferedInputAdvancer
 extends Node
@@ -14,13 +15,10 @@ enum AdvanceMode {
 	PHYSICS,  ## Advance during the physics process
 }
 
-## The state machine to be controlled by the advancer
-@export var state_machine: FrayStateMachine
-
-## If [code]false[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
+## If [code]true[/code], the buffer does not attempt to advance by feeding inputs to the state machine.
 ## Enabling or disabling this property allows control over when buffered inputs are consumed.
 ## This can be useful for managing when a player can 'cancel' an attack using their buffered inputs.
-@export var paused: bool = true
+@export var paused: bool = false
 
 ## The max time an input can exist in the buffer before it is ignored, in seconds.
 @export_range(0.0, 5.0, 0.01, "suffix:sec") var max_buffer_time: float = 1.0
@@ -28,17 +26,38 @@ enum AdvanceMode {
 ## Determines the process during which the advancer machine can advance the state machine.
 @export var advance_mode: AdvanceMode
 
+var _state_machine: FrayStateMachine
 var _input_buffer: Array[BufferedInput]
 var _accepted_input_time_stamp: int
 
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+
+	_state_machine = get_state_machine()
+
+
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
 	if advance_mode == AdvanceMode.IDLE:
 		_advance()
 
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
 	if advance_mode == AdvanceMode.PHYSICS:
 		_advance()
+
+
+func _get_configuration_warnings() -> PackedStringArray:
+	if get_state_machine() == null:
+		return ["This node is expected to be the the child of a FrayStateMachine."]
+	return []
 
 
 ## Buffers an input button to be processed by the state machine
@@ -71,14 +90,25 @@ func get_buffer() -> Array[BufferedInput]:
 	return _input_buffer.duplicate()
 
 
+## Returns the state machine this component belongs to if it exists.
+func get_state_machine() -> FrayStateMachine:
+	return get_parent() as FrayStateMachine
+
+
 func _advance() -> void:
 	while not _input_buffer.is_empty() and not paused:
 		var buffered_input: BufferedInput = _input_buffer.pop_front()
-		var is_input_within_buffer := buffered_input.calc_elapsed_time_msec() <= Fray.sec_to_msec(max_buffer_time)
-		var accepted_input_age_sec := Fray.msec_to_sec(Time.get_ticks_msec() - _accepted_input_time_stamp)
-		var state_machine_input := _create_state_machine_input(buffered_input, accepted_input_age_sec)
+		var is_input_within_buffer := (
+			buffered_input.calc_elapsed_time_msec() <= Fray.sec_to_msec(max_buffer_time)
+		)
+		var accepted_input_age_sec := Fray.msec_to_sec(
+			Time.get_ticks_msec() - _accepted_input_time_stamp
+		)
+		var state_machine_input := _create_state_machine_input(
+			buffered_input, accepted_input_age_sec
+		)
 
-		if is_input_within_buffer and state_machine.advance(state_machine_input):
+		if is_input_within_buffer and _state_machine.advance(state_machine_input):
 			_accepted_input_time_stamp = Time.get_ticks_msec()
 			break
 
@@ -108,7 +138,6 @@ class BufferedInput:
 
 	func _init(input_time_stamp: int = 0) -> void:
 		time_stamp = input_time_stamp
-
 
 	func calc_elapsed_time_msec() -> int:
 		return Time.get_ticks_msec() - time_stamp

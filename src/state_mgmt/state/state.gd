@@ -8,6 +8,9 @@ var _root_ref: WeakRef
 # Type: WeakRef<CompoundState>
 var _parent_ref: WeakRef
 
+# Type: Dictionary<Signal, Array[Callable]>
+var _callables_by_signal: Dictionary
+
 
 ## Returns [code]true[/code] if this state is child of another state.
 func has_parent() -> bool:
@@ -29,6 +32,39 @@ func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
 
+## Returns the first component of a given [kbd]type[/kbd] attached to this state machine.
+func get_component(type: GDScript) -> Object:
+	return get_root().get_component(type)
+
+
+## Returns the all components of a given [kbd]type[/kbd] attached to this state machine.
+func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
+	return get_root().get_components(type)
+
+
+## Process child states then this state.
+## This method is intended to only be used by the [FrayCompoundState] when exiting sub-states.
+func exit() -> void:
+	for sig in _callables_by_signal:
+		for callable in _callables_by_signal[sig]:
+			if sig.is_connected(callable):
+				sig.disconnect(callable)
+	
+	_callables_by_signal.clear()
+	_exit_impl()
+
+
+## Connects a signal which disconnects when this state is no longer active.
+func connect_while_active(sig: Signal, callable: Callable, flags: int = 0) -> Error:
+	if not sig.is_connected(callable):
+		if not _callables_by_signal.has(sig):
+			_callables_by_signal[sig] = []
+
+		_callables_by_signal[sig].append(callable)
+
+	return sig.connect(callable, flags)
+
+
 ## [code]Virtual method[/code] used to implement [method is_done_processing].
 func _is_done_processing_impl() -> bool:
 	return true
@@ -39,6 +75,7 @@ func _is_done_processing_impl() -> bool:
 ## [kbd]context[/kbd] is read-only dictionary which provides a way to pass data which is available to all states within a hierachy.
 func _ready_impl(context: Dictionary) -> void:
 	pass
+
 
 ## [code]Virtual method[/code] invoked when the state is entered.
 ## [br]

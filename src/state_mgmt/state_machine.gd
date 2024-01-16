@@ -26,6 +26,7 @@ enum AdvanceMode {
 
 var _root: FrayCompoundState
 
+
 func _input(event: InputEvent) -> void:
 	if _can_process():
 		_root.input(event)
@@ -51,27 +52,57 @@ func _physics_process(delta: float) -> void:
 		if advance_mode == AdvanceMode.PHYSICS:
 			advance()
 
+
 ## Used to initialize the root of the state machine.
 ## [br]
-## [kbd]context[/kbd] is an optional dictionary which can pass read-only data to all states within the hierarchy. 
+## [kbd]context[/kbd] is an optional dictionary which can pass read-only data to all states within the hierarchy.
 ## This data is accessible within a state's [method FrayState._ready_impl] method when it is invoked.
 ## [br]
-## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only. 
+## [b]WARN:[/b] The dictionary provided to the context argument will be made read-only.
 func initialize(context: Dictionary, root: FrayCompoundState) -> void:
+	if root.has_parent():
+		push_error("Failed to initialize statemachine. Provided root has parent state.")
+		return
+
 	_root = root
+	_root._fn_get_node = get_node
+	_root._fn_get_node_of_type = get_node_of_type
+	_root._fn_get_nodes_of_type = get_nodes_of_type
 	_root.ready(context)
 	_root._enter_impl({})
 	_root.transitioned.connect(_on_RootState_transitioned)
 
+
 ## Returns the state machine root.
 func get_root() -> FrayCompoundState:
 	return _root
+
 
 ## Used to manually advance the state machine.
 func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 	if _can_process():
 		return _advance_impl(input, args)
 	return false
+
+
+## Returns the first node of a given [kbd]type[/kbd] attached to this state machine. Types can either be scripts or native classes.
+func get_node_of_type(type: Variant) -> FrayStateMachineComponent:
+	for child in get_children():
+		if is_instance_of(child, type):
+			return child
+
+	return null
+
+
+## Returns all nodes of a given [kbd]type[/kbd] attached to this state machine. Types can either be scripts or native classes.
+func get_nodes_of_type(type: Variant) -> Array[Node]:
+	var nodes: Array[Node] = []
+
+	for child in get_children():
+		if is_instance_of(child, type):
+			nodes.append(child)
+
+	return nodes
 
 
 ## Returns the name of the root's current state.
