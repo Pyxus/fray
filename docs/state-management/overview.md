@@ -1,9 +1,9 @@
 ---
 layout: doc
-outline: [1, 6]
+outline: [2, 6]
 ---
 
-# Overview
+# State Management Module
 
 ## Purpose of Module
 
@@ -13,4 +13,4 @@ Fray provides an extendable general purpose hierarchical state machine which can
 
 ## What is a State Machine?
 
-A state machine is a model that represents an entity's various states and the transitions between them in a finite and structured away. You can visualize a state machine as a graph where each point is a state and the connecting lines transitions. To be hierarchical means that each state _can_ contain within it an entire state machine which is useful to model more complex behaviors.
+A state machine is a model that represents an entity's various states and the transitions between them in a finite and structured way. You can visualize a state machine as a graph where each point is a state and the connecting lines are transitions. To be hierarchical means that within each state there can exist entire state machines, which is useful when modeling more complex behaviors.

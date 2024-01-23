@@ -1,6 +1,6 @@
 ---
 layout: doc
-outline: [1, 6]
+outline: [2, 6]
 ---
 
 # What is Fray?
