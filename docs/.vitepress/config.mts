@@ -24,8 +24,8 @@ export default defineConfig({
       {
         text: "State Management Module",
         collapsed: false,
+        link: "/state-management/overview",
         items: [
-          { text: "Overview", link: "/state-management/overview" },
           {
             text: "Guide",
             collapsed: false,
