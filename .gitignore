@@ -13,3 +13,7 @@ export_presets.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Doc-specific ignores
+docs/.vitepress/cache/
+docs/node_modules/
