@@ -4,8 +4,7 @@
 	<img src="assets/images/fray_banner.gif" alt="Fray Logo">
 </p>
 
-
-![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v4.0-blue)  ![License](https://img.shields.io/badge/license-MIT-informational)
+![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v4.0-blue) ![License](https://img.shields.io/badge/license-MIT-informational)
 
 ## 📖 About
 
@@ -55,7 +54,7 @@ func _on_FrayInput_input_detected(input_event: Fray.Input.FrayInputEvent):
 
 Fray provides a component-based input builder, and sequence matcher for handling the complex inputs featured in many fighting games such as [directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs).
 
-Composite inputs can be defined declaratively using the builder class internal of each composite class. 
+Composite inputs can be defined declaratively using the builder class internal of each composite class.
 These builders can be accessed through static `builder()` methods, which return a new builder instance.
 
 ```gdscript
@@ -124,7 +123,7 @@ If you would like to know more about installing plugins see the [Official Godot 
 
 ## 📚 Documentation
 
-- [Getting Started](./docs/getting_started/index.md)
+- WIP
 
 ## 📃 Credits
 
