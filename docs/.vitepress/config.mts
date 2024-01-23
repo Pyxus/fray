@@ -3,7 +3,6 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Fray",
-  base: "/fray",
   description: "Modular combat framework for Godot 4",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
