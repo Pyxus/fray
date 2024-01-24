@@ -38,12 +38,12 @@ func get_node(path: NodePath) -> Node:
 
 
 ## Returns the first node of a given [kbd]type[/kbd] attached to this state machine.
-func get_node_of_type(type: GDScript) -> Node:
+func get_node_of_type(type: Variant) -> Node:
 	return get_root().get_node_of_type(type)
 
 
 ## Returns all nodes of a given [kbd]type[/kbd] attached to this state machine.
-func get_nodes_of_type(type: GDScript) -> Array[Node]:
+func get_nodes_of_type(type: Variant) -> Array[Node]:
 	return get_root().get_node_of_type(type)
 
 
