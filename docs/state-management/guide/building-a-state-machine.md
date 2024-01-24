@@ -48,7 +48,7 @@ var root := (FrayCompoundState.builder()
 
 [comment]: <Show visualization of this state machine>
 
-With the exception of `build()` all builder methods return an instance of the builder allowing for chain methods calls. Additionally, the builder will create a state instance whenever a state is mentioned, meaning it is not required to add a state before using it in a transition.
+With the exception of `build()`, all builder methods return an instance of the builder, allowing for chain method calls. Additionally, the builder will create a state instance whenever a state is mentioned, meaning it is not required to add a state before using it in a transition. However, the builder's `add_state()` is required if you wish to add a custom state.
 
 ## 3. Initialize State Machine
 
