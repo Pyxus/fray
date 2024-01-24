@@ -2,8 +2,6 @@
 
 ## What Are Global Transitions?
 
-Global transitions provide a convenient solution when multiple states need to perform the same transition to another state. In scenarios such as fighting games, where 'normal' moves can transition into any 'special move,' configuring these transitions manually can be tedious. It often involves duplicating conditions across multiple states, leading to redundant code. To address this, global transitions offer a streamlined approach.
-
 Global transitions are a feature designed for convenience, enabling automatic connections between states based on transition rules. Within the state machine, states can be assigned tags, and transition rules can be established between tags. States with a specified 'from_tag' will automatically have transitions set up to states with a corresponding 'to_tag.' This simplifies the process of managing common transitions and reduces the need for repetitive code.
 
 ## How To Use Global Transitions
@@ -18,6 +16,20 @@ state_machine.initialize({}, FrayCompoundState.builder()
     .add_rule("normal", "special")
     .transition_global("sp_attack")
     .transition("idle", "attack")
+    .build()
+)
+```
+
+Global versions also exist for the builder's `transition_press()` and `transition_sequence()` methods.
+
+```gdscript
+state_machine.initialize({}, FrayCompoundState.builder()
+    .tag("idle", "normal")
+    .tag("attack", "normal")
+    .tag("sp_attack", "special")
+    .add_rule("normal", "special")
+    .transition_sequence_global("sp_attack", {sequence="214K"})
+    .transition_press("idle", "attack", {input="punch_button"})
     .build()
 )
 ```
