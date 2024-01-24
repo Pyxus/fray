@@ -60,15 +60,15 @@ func _get_configuration_warnings() -> PackedStringArray:
 	return []
 
 
-## Buffers an input button to be processed by the state machine
+## Buffers an input press to be processed by the state machine
 ##
 ## [kbd]input[/kbd] is the name of the input.
 ## This is just an identifier used in input transitions.
 ## It is not default associated with any actions in godot or inputs in fray.
 ##
 ## If [kbd]is_presse[/kbd] is true then a pressed input is buffered, else a released input is buffered.
-func buffer_button(input: StringName, is_pressed: bool = true) -> void:
-	_input_buffer.append(BufferedInputButton.new(Time.get_ticks_msec(), input, is_pressed))
+func buffer_press(input: StringName, is_pressed: bool = true) -> void:
+	_input_buffer.append(BufferedInputPress.new(Time.get_ticks_msec(), input, is_pressed))
 
 
 ## Buffers an input sequence to be processed by the state machine
@@ -116,7 +116,7 @@ func _advance() -> void:
 func _create_state_machine_input(
 	buffered_input: BufferedInput, time_since_last_input: float
 ) -> Dictionary:
-	if buffered_input is BufferedInputButton:
+	if buffered_input is BufferedInputPress:
 		return {
 			input = buffered_input.input,
 			is_pressed = buffered_input.is_pressed,
@@ -143,7 +143,7 @@ class BufferedInput:
 		return Time.get_ticks_msec() - time_stamp
 
 
-class BufferedInputButton:
+class BufferedInputPress:
 	extends BufferedInput
 
 	var input: StringName

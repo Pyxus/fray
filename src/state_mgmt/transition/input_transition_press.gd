@@ -1,6 +1,6 @@
-class_name FrayInputTransitionButton
+class_name FrayInputTransitionPress
 extends FrayInputTransition
-## Input transition representing an atomic input such as a key or button.
+## Input transition representing an atomic press input such as a key or button.
 ##
 ## Accepts input dictionary that contains these entires:
 ## [br] [br]

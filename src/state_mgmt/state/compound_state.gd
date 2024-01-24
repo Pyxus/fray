@@ -1001,14 +1001,14 @@ class Builder:
 		_configure_transition(tr.transition, config)
 		return self
 
-	## Creates a new input button transition from one state to another.
+	## Creates a new input press transition from one state to another.
 	## States used will automatically be added.
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]
-	## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionButton] properties.
-	func transition_button(from: StringName, to: StringName, config: Dictionary = {}) -> Builder:
-		var transition := _create_transition(from, to, FrayInputTransitionButton.new()).transition
+	## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionPress] properties.
+	func transition_press(from: StringName, to: StringName, config: Dictionary = {}) -> Builder:
+		var transition := _create_transition(from, to, FrayInputTransitionPress.new()).transition
 		_configure_transition(transition, config)
 		return self
 
@@ -1028,9 +1028,9 @@ class Builder:
 	## [br]
 	## Returns a reference to this builder
 	## [br][br]
-	## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionButton] properties.
-	func transition_button_global(to: StringName, config: Dictionary = {}) -> Builder:
-		var tr := _create_global_transition(to, FrayInputTransitionButton.new())
+	## [kbd]config[/kbd] is an optional dictionary used to configure [FrayInputTransitionPress] properties.
+	func transition_press_global(to: StringName, config: Dictionary = {}) -> Builder:
+		var tr := _create_global_transition(to, FrayInputTransitionPress.new())
 		_configure_transition(tr.transition, config)
 		return self
 
