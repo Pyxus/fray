@@ -34,6 +34,10 @@ export default defineConfig({
                 text: "Building A State Machine",
                 link: "/state-management/guide/building-a-state-machine",
               },
+              {
+                text: "Controlling State Transitions",
+                link: "/state-management/guide/controlling-state-transitions",
+              },
             ],
           },
         ],
