@@ -32,14 +32,19 @@ func is_done_processing() -> bool:
 	return _is_done_processing_impl()
 
 
-## Returns the first component of a given [kbd]type[/kbd] attached to this state machine.
-func get_component(type: GDScript) -> Object:
-	return get_root().get_component(type)
+## Returns the node located at the given [kbd]path[/kbd] relative to the state machine.
+func get_node(path: NodePath) -> Node:
+	return get_root().get_node(path)
 
 
-## Returns the all components of a given [kbd]type[/kbd] attached to this state machine.
-func get_components(type: GDScript) -> Array[FrayStateMachineComponent]:
-	return get_root().get_components(type)
+## Returns the first node of a given [kbd]type[/kbd] attached to this state machine.
+func get_node_of_type(type: GDScript) -> Node:
+	return get_root().get_node_of_type(type)
+
+
+## Returns all nodes of a given [kbd]type[/kbd] attached to this state machine.
+func get_nodes_of_type(type: GDScript) -> Array[Node]:
+	return get_root().get_node_of_type(type)
 
 
 ## Process child states then this state.
@@ -49,7 +54,7 @@ func exit() -> void:
 		for callable in _callables_by_signal[sig]:
 			if sig.is_connected(callable):
 				sig.disconnect(callable)
-	
+
 	_callables_by_signal.clear()
 	_exit_impl()
 
