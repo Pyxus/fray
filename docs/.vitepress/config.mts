@@ -43,12 +43,12 @@ export default defineConfig({
                 link: "/state-management/guide/controlling-state-transitions",
               },
               {
-                text: "Using Global Transitions",
-                link: "/state-management/guide/using-global-transitions",
-              },
-              {
                 text: "Using Input Transitions",
                 link: "/state-management/guide/using-input-transitions",
+              },
+              {
+                text: "Using Global Transitions",
+                link: "/state-management/guide/using-global-transitions",
               },
             ],
           },
