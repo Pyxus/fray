@@ -42,6 +42,10 @@ export default defineConfig({
                 text: "Providing Data To States",
                 link: "/state-management/guide/providing-data-to-states",
               },
+              {
+                text: "Using Global Transitions",
+                link: "/state-management/guide/using-global-transitions",
+              },
             ],
           },
         ],
