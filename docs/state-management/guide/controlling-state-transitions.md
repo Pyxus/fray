@@ -7,30 +7,30 @@ outline: [2, 6]
 
 ## What Is A Transition?
 
-Visualizing the state machine as a graph, a transition is the connecting line from one state to another. Whether or not the state machine can access another state is dependent on the conditions defined within these transitions. Within fray only deterministic transitions are allowed, meaning there can only be one connecting line btween any two states.
+When visualizing the state machine as a graph, a transition represents the connecting line from one state to another. The ability of the state machine to access another state depends on the conditions specified within these transitions. In Fray, only deterministic transitions are permitted, meaning that there can be only one connecting line between any two states.
 
 [comment]: <Show picture depicting transition allowing one flow and not another>
 
 ## When Do Transitions Occur?
 
-State transitions can only occur under the following conditions:
+Transitions can only occur under the following conditions:
 
 1. All transition prerequisites are true.
-2. Auto advance is disabled, or if it is enabled all advance conditions are true.
+2. Auto advance is disabled, or if it is enabled, all advance conditions are true.
 3. The transition accepts the given input.
-4. And the transition swtich mode is `SwitchMode.Immediate`, or switch mode is `SwitchMode.AtEnd` and the current state is done processing.
+4. And the transition switch mode is SwitchMode.Immediate, or the switch mode is SwitchMode.AtEnd and the current state is done processing.
 
-This being the case there are 4 ways to control the flow from one state to another.
+Given these conditions, there are four ways to control the flow from one state to another.
 
 ## Defining Prerequisite and Advance Conditions
 
 ### What Are Conditions?
 
-In fray a condition is a parameterless function which returns a boolean mapped to a string name. These conditions are used to define the prerequisites and advance conditions of a transition. Prerequisites are a set of conditions which must be satisfied before a transition is allowed to occur. In contrast advance conditions are a set of conditions which if satisfied, and auto-advance is enabled, will cause a transition to occur. You can think of prerequisites as declaring "this must before true before you are allowed to transition", and advance conditions declaring "if this is true then try to transition."
+In Fray, a condition is a parameterless function that returns a boolean mapped to a string name. These conditions are utilized to define the prerequisite and advance conditions of a transition. Prerequisites consist of conditions that must be satisfied before a transition is allowed to occur. On the other hand, advance conditions are conditions that, if satisfied and with auto-advance enabled, trigger a transition. You can imagine prerequisites as stating "this must be true before you are allowed to transition," and advance conditions as declaring "if this is true, then try to transition."
 
 ### How Are Conditions Used?
 
-In order to use conditions they must first be registered within the state machine which can be done using the builders `register_conditions()` method. Once registered the condition can be used through the string name you give to it.
+To utilize conditions, they must first be registered within the state machine. This can be accomplished using the builder's `register_conditions()` method. Once registered, conditions can be accessed using the string name assigned to them.
 
 ```gdscript
 state_machine.initialize({},FrayCompositeState.builder()
@@ -47,11 +47,13 @@ state_machine.initialize({},FrayCompositeState.builder()
 )
 ```
 
+In this example, the conditions "is_hungry" and "has_food" are registered and later applied to control the transition from the "idle" state to the "eating" state based on specified prerequisites and advance conditions.
+
 ### Condition Scope
 
-Conditions defined on the root of a state machine hierarchy are available globally to the entire system. Conditions defined within a nested state machine will be treated as local to that state machine and will shadow any globally defined state machine. However, the `$` symbol can be used to strictly refer to the global definition of a condition.
+Conditions defined at the root of a state machine hierarchy are available globally to the entire system. Conditions defined within a nested state machine will be treated as local to that state machine and will shadow any globally defined condition. However, the `$` symbol can be used to explicitly refer to the global definition of a condition.
 
-In the example provided below 'a' would be allowed to transition into 'b'. And 'b/1' would be allowed to transition into 'b/2' even though the local condition returns false since the global condition is being referenced.
+In the provided example, 'a' would be allowed to transition into 'b'. Additionally, 'b/1' would be allowed to transition into 'b/2' even though the local condition returns false, as the global condition is being referenced using the $ symbol.
 
 ```gdscript
 state_machine.initialize({},FrayCompoundState.builder()
@@ -94,15 +96,17 @@ state_machine.initialize({},FrayCompositeState.builder()
 )
 ```
 
+In this example, the transition from "eating" to "idle" occurs when the inverse condition of "is_hungry" is satisfied. The !is_hungry condition signifies the opposite state, allowing for control over state transitions based on the absence of a specified condition.
+
 ## Define Accepted Input (Custom Transitions)
 
 ::: tip Note
-Input can be thought of as a transition specific prerequisite.
+Input can be thought of as a transition-specific prerequisite.
 :::
 
 Input is an optional dictionary provided to the `FrayCompoundState`'s `advance()` method. The base `FrayStateMachineTransition` class accepts any input by default. Input is only relevant when attempting to manually advance the state machine along a custom transition.
 
-To define the input that a transition accepts first extend `FrayStateMachineTransition` and override `_accepts_impl()` to return true when the desired input is supplied. Below is a transition which can only occur when a `is_jumping` input is supplied to the system.
+To define the input that a transition accepts, first, extend `FrayStateMachineTransition` and override `_accepts_impl()` to return true when the desired input is supplied. Below is a transition that can only occur when an `is_jumping` input is supplied to the system.
 
 ```gdscript
 class_name CustomTransition
@@ -112,7 +116,7 @@ func _accepts_impl(input: Dictionary) -> bool:
     return input.get("is_jumping", false)
 ```
 
-To use a custom transition within your state machine you must pass in an instance of the transition when adding a new transition like so:
+To use a custom transition within your state machine, you must pass in an instance of the transition when adding a new transition like so:
 
 ```gdscript
 state_machine.initialize({},FrayStateCompound.builder()
@@ -125,9 +129,9 @@ state_machine.advance({is_jumping=true})
 
 ## Define When State Is Done Processing (Custom State)
 
-If a transition's switch is set to `SwitchMode.AtEnd` then the transition will only advance when the current state is done processing. By default `FrayCompoundState` is considered to be done processing when its current state is equal to its end state, whereas the base `FrayState` is always considered to be done processing.
+If a transition's switch is set to `SwitchMode.AtEnd`, then the transition will only advance when the current state is done processing. By default, `FrayCompoundState` is considered done processing when its current state is equal to its end state, whereas the base `FrayState` is always considered done processing.
 
-To define when a state is considered done processing. First extend `FrayState` and ovveride `_is_done_processing_impl()` to return true when the state is considered to be done processing.
+To define when a state is considered done processing, first extend `FrayState` and override `_is_done_processing_impl()` to return true when the state is considered to be done processing.
 
 ```gdscript
 class_name CustomState
@@ -137,7 +141,7 @@ func _is_done_processing_impl() -> bool:
     return ...
 ```
 
-To use a custom state within your state machine you must add an instance of the state when defining your state machine like so:
+To use a custom state within your state machine, you must add an instance of the state when defining your state machine like so:
 
 ```gdscript
 const SwitchMode = FrayStateMachineTransition.SwitchMode
