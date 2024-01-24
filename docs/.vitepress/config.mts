@@ -35,16 +35,20 @@ export default defineConfig({
                 link: "/state-management/guide/building-a-state-machine",
               },
               {
-                text: "Controlling State Transitions",
-                link: "/state-management/guide/controlling-state-transitions",
-              },
-              {
                 text: "Providing Data To States",
                 link: "/state-management/guide/providing-data-to-states",
               },
               {
+                text: "Controlling State Transitions",
+                link: "/state-management/guide/controlling-state-transitions",
+              },
+              {
                 text: "Using Global Transitions",
                 link: "/state-management/guide/using-global-transitions",
+              },
+              {
+                text: "Using Input Transitions",
+                link: "/state-management/guide/using-input-transitions",
               },
             ],
           },
