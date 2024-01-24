@@ -38,6 +38,10 @@ export default defineConfig({
                 text: "Controlling State Transitions",
                 link: "/state-management/guide/controlling-state-transitions",
               },
+              {
+                text: "Providing Data To States",
+                link: "/state-management/guide/providing-data-to-states",
+              },
             ],
           },
         ],

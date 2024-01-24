@@ -119,11 +119,11 @@ func get_node(path: NodePath) -> Node:
 	return get_root()._fn_get_node.call(path)
 
 
-func get_node_of_type(type: GDScript) -> Node:
+func get_node_of_type(type: Variant) -> Node:
 	return get_root()._fn_get_node_of_type.call(type)
 
 
-func get_nodes_of_type(type: GDScript) -> Array[Node]:
+func get_nodes_of_type(type: Variant) -> Array[Node]:
 	return get_root()._fn_get_nodes_of_type.call(type)
 
 
