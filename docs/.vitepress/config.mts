@@ -2,16 +2,26 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Fray",
+  title: "Fray Documentation",
   description: "Modular combat framework for Godot 4",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    logo: "/assets/icons/fray-logo-2.png",
+    logo: "/public/assets/icons/fray-logo-2.png",
     search: {
       provider: "local",
     },
     nav: [{ text: "Docs", link: "/introduction/what-is-fray" }],
-
+    editLink: {
+      pattern: "https://github.com/Pyxus/fray/tree/main/docs/:path",
+      text: "Edit this page on GitHub",
+    },
+    lastUpdated: {
+      text: "Updated at",
+      formatOptions: {
+        dateStyle: "full",
+        timeStyle: "medium",
+      },
+    },
     sidebar: [
       {
         text: "Introduction",
@@ -27,30 +37,24 @@ export default defineConfig({
         link: "/state-management/overview",
         items: [
           {
-            text: "Guide",
-            collapsed: false,
-            items: [
-              {
-                text: "Building A State Machine",
-                link: "/state-management/guide/building-a-state-machine",
-              },
-              {
-                text: "Providing Data To States",
-                link: "/state-management/guide/providing-data-to-states",
-              },
-              {
-                text: "Controlling State Transitions",
-                link: "/state-management/guide/controlling-state-transitions",
-              },
-              {
-                text: "Using Input Transitions",
-                link: "/state-management/guide/using-input-transitions",
-              },
-              {
-                text: "Using Global Transitions",
-                link: "/state-management/guide/using-global-transitions",
-              },
-            ],
+            text: "Building A State Machine",
+            link: "/state-management/building-a-state-machine",
+          },
+          {
+            text: "Providing Data To States",
+            link: "/state-management/providing-data-to-states",
+          },
+          {
+            text: "Controlling State Transitions",
+            link: "/state-management/controlling-state-transitions",
+          },
+          {
+            text: "Using Input Transitions",
+            link: "/state-management/using-input-transitions",
+          },
+          {
+            text: "Using Global Transitions",
+            link: "/state-management/using-global-transitions",
           },
         ],
       },
@@ -60,22 +64,16 @@ export default defineConfig({
         link: "/input/overview",
         items: [
           {
-            text: "Guide",
-            collapsed: false,
-            items: [
-              {
-                text: "Registering Inputs",
-                link: "/input/guide/registering-inputs",
-              },
-              {
-                text: "Detecting Inputs",
-                link: "/input/guide/detecting-inputs",
-              },
-              {
-                text: "Detecting Input Sequences",
-                link: "/input/guide/detecting-input-sequences",
-              },
-            ],
+            text: "Registering Inputs",
+            link: "/input/registering-inputs",
+          },
+          {
+            text: "Detecting Inputs",
+            link: "/input/detecting-inputs",
+          },
+          {
+            text: "Detecting Input Sequences",
+            link: "/input/detecting-input-sequences",
           },
         ],
       },
@@ -83,7 +81,16 @@ export default defineConfig({
         text: "Hit Module",
         collapsed: false,
         link: "/hit/overview",
-        items: [],
+        items: [
+          {
+            text: "Creating Hitboxes",
+            link: "/hit/creating-hitboxes",
+          },
+          {
+            text: "Managing Hitboxes",
+            link: "/hit/managing-hitboxes",
+          },
+        ],
       },
     ],
 
