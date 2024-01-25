@@ -92,6 +92,10 @@ export default defineConfig({
           },
         ],
       },
+      {
+        text: "Mixed Module Examples",
+        collapsed: false,
+      },
     ],
 
     socialLinks: [
