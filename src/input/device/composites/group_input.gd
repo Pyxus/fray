@@ -2,7 +2,7 @@ class_name FrayGroupInput
 extends FrayCompositeInput
 ## A composite input used to create group inputs
 ##
-## A group will be considered press when the 
+## A group will be considered press when the
 ## minimum number of components in the group is pressed.
 
 ## The minimum number of components that must be pressed for the input to
@@ -17,18 +17,19 @@ extends FrayCompositeInput
 # Type: Dictionary<int, PackedStringArray>
 var _last_inputs_by_device: Dictionary
 
+
 ## Returns a builder instance.
 static func builder() -> Builder:
 	return Builder.new()
 
 
-func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
+func _is_pressed_impl(device: int) -> bool:
 	var press_count := 0
 	var last_inputs: Array[StringName] = []
-	
+
 	for component in _components:
-		if component.is_pressed(device, input_interface):
-			last_inputs.append_array(component.decompose(device, input_interface))
+		if component.is_pressed(device):
+			last_inputs.append_array(component.decompose(device))
 			press_count += 1
 
 			if press_count >= min(min_pressed, _components.size()):
@@ -38,14 +39,14 @@ func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+func _decompose_impl(device: int) -> Array[StringName]:
 	return _last_inputs_by_device[device] if _last_inputs_by_device.has(device) else []
 
 
 class Builder:
 	extends RefCounted
 	## [FrayGroupInput] builder.
-	
+
 	var _composite_input = FrayGroupInput.new()
 
 	## Builds the composite input.
@@ -83,4 +84,3 @@ class Builder:
 	func priority(value: int) -> Builder:
 		_composite_input.priority = value
 		return self
-

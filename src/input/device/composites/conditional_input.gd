@@ -11,71 +11,77 @@ extends FrayCompositeInput
 ##
 ##      If no condition is true then the input will default to checking the first component.
 
+# Type: Array[func(device: int) -> bool]; index=component_index
+var _conditions: Array[Callable]
 
-# Type: Dictionary<int, StringName
-# Hint: <component index, string condition>
-var _conditions_by_component: Dictionary
 
 ## Returns a builder instance.
 static func builder() -> Builder:
 	return Builder.new()
-	
-## Sets the condition name associated with a given component.
+
+
+## Sets the condition associated with a given component.
 ## [br]
 ## [kbd]component_index[/kbd] is the index of the component based on the order added.
 ## [br]
-## [kbd]condition[/kbd] is the name of the condition.
-func set_condition_name(component_index: int, condition: StringName) -> void:
+## [kbd]condition[/kbd] is a function of type func(device: int) -> bool.
+func set_condition(component_index: int, condition: Callable) -> void:
 	if component_index == 0:
-		push_warning("The first component is treated as the default input. Condition will be ignored")
-		return
-
-	if component_index >= 1 and component_index < _components.size():
-		_conditions_by_component[component_index] = condition
+		push_warning(
+			"The first component is treated as the default input. Condition will be ignored"
+		)
+	elif component_index >= 1 and component_index < _components.size():
+		_conditions[component_index - 1] = condition
 	else:
 		push_warning("Failed to set condition on input. Given index out of range")
-		
 
-func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
+
+func add_component(component: FrayCompositeInput) -> void:
+	super(component)
+
+	if get_component_count() > 1:
+		_conditions.append(Callable())
+
+
+func _is_pressed_impl(device: int) -> bool:
 	if _components.is_empty():
 		push_warning("Conditional input has no components")
 		return false
 
-	var comp: Resource = _components[0]
-
-	for component_index in _conditions_by_component:
-		var component: Resource = _components[component_index]
-		var condition: StringName = _conditions_by_component[component_index]
-
-		if input_interface.is_condition_true(condition, device):
-			comp = component
-			break
-
-	return comp.is_pressed(device, input_interface)
+	return _get_active_component(device).is_pressed(device)
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+func _decompose_impl(device: int) -> Array[StringName]:
 	# Returns the first component with a true condition. Defaults to component at index 0
 
 	if _components.is_empty():
 		return []
 
-	var component: Resource = _components[0]
-	for component_index in _conditions_by_component:
-		var comp: Resource = _components[component_index]
-		var condition: StringName = _conditions_by_component[component_index]
+	return _get_active_component(device).decompose(device)
 
-		if input_interface.is_condition_true(condition, device):
-			component = comp
+
+func _get_active_component(device: int) -> FrayCompositeInput:
+	var comp: FrayCompositeInput = _components[0]
+
+	for i in len(_conditions):
+		var condition := _conditions[i]
+
+		if condition.is_null():
+			push_error(
+				"Failed to check condition for component at index %d. Condition not set." % [i + 1]
+			)
+			return comp
+
+		if _conditions[i].call(device):
+			comp = _components[i + 1]
 			break
-	return component.decompose(device, input_interface)
+	return comp
 
 
 class Builder:
 	extends RefCounted
 
 	var _composite_input: FrayConditionalInput = FrayConditionalInput.new()
-	var _conditions: PackedStringArray
 
 	## Builds the composite input
 	## [br]
@@ -86,16 +92,26 @@ class Builder:
 	## Adds a composite input as a component of this conditional input
 	## [br]
 	## Returns a reference to this ComponentBuilder
-	func add_component(condition: StringName, composite_input: FrayCompositeInput) -> Builder:
-		_conditions.append(condition)
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
 		_composite_input.add_component(composite_input)
-		
-		var component_count := _composite_input.get_component_count() 
-		if component_count != 1:
-			_composite_input.set_condition_name(component_count - 1, _conditions[component_count - 1])
-		
-		return self 
-	
+		return self
+
+	## Sets the condition of the previously added component.
+	## Will do nothing for the first component added as this component is trated as default.
+	## [br]
+	## Returns a reference to this ComponentBuilder
+	func use_condition(condition: Callable) -> Builder:
+		var component_count := _composite_input.get_component_count()
+
+		if component_count == 0:
+			push_warning("No components have been added. Condition will be ignored.")
+		elif component_count == 1:
+			push_warning("The first component is treated as default. Condition will be ignored.")
+		else:
+			_composite_input.set_condition(component_count - 1, condition)
+
+		return self
+
 	## Sets whether the input will be virtual or not.
 	## If true, components that are still held when the composite is released
 	## will be treated as if they were just pressed again.

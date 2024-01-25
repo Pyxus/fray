@@ -10,12 +10,15 @@ extends FrayCompositeInput
 ## Name of the bind associated with this input
 var bind: StringName
 
-func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
-	return input_interface.get_bind_state(bind, device).is_pressed
+
+func _is_pressed_impl(device: int) -> bool:
+	return get_bind_state(bind, device).is_pressed
+
 
 ## Returns a builder instance.
 static func builder() -> Builder:
 	return Builder.new()
+
 
 ## Returns a simple input using the given [kbd]bind[/kbd].
 ## [br]
@@ -24,14 +27,14 @@ static func from_bind(bind: StringName) -> FraySimpleInput:
 	return builder().bind(bind).build()
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+func _decompose_impl(device: int) -> Array[StringName]:
 	return [bind]
 
 
 class Builder:
 	extends RefCounted
 	## [FraySimpleInput] builder.
-	
+
 	var _composite_input = FraySimpleInput.new()
 
 	## Builds the composite input.
@@ -46,7 +49,7 @@ class Builder:
 	func bind(bind_name: StringName) -> Builder:
 		_composite_input.bind = bind_name
 		return self
-	
+
 	## Sets whether the input will be virtual or not.
 	## If true, components that are still held when the composite is released
 	## will be treated as if they were just pressed again.

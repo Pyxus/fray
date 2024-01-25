@@ -7,56 +7,59 @@ extends FrayCompositeInput
 ## all components are pressed according to the mode.
 
 enum Mode {
-	SYNC, ## Components must all be pressed at the same time.
-	ASYNC, ## Components can be pressed at any time so long as they are all pressed.
-	ORDERED, ## Like asynchronous but the presses must occur in order.
+	SYNC,  ## Components must all be pressed at the same time.
+	ASYNC,  ## Components can be pressed at any time so long as they are all pressed.
+	ORDERED,  ## Like asynchronous but the presses must occur in order.
 }
 
 ## Determines press condition necessary to trigger combination
 var mode: Mode = Mode.SYNC
 
-func _is_pressed_impl(device: int, input_interface: FrayInputInterface) -> bool:
+
+func _is_pressed_impl(device: int) -> bool:
 	match mode:
-		Mode.SYNC: 
-			return _is_combination_quick_enough(device, input_interface)
-		Mode.ASYNC: 
-			return _is_all_components_pressed(device, input_interface)
-		Mode.ORDERED: 
-			return _is_combination_in_order(device, input_interface)
+		Mode.SYNC:
+			return _is_combination_quick_enough(device)
+		Mode.ASYNC:
+			return _is_all_components_pressed(device)
+		Mode.ORDERED:
+			return _is_combination_in_order(device)
 		_:
 			push_error("Failed to check combination. Unknown mode '%d'" % mode)
 
 	return false
 
 
-func _decompose_impl(device: int, input_interface: FrayInputInterface) -> Array[StringName]:
+func _decompose_impl(device: int) -> Array[StringName]:
 	# Returns all components decomposed and joined
 	var binds: Array[StringName]
 	for component in _components:
-		binds.append_array(component.decompose(device, input_interface))
+		binds.append_array(component.decompose(device))
 	return binds
+
 
 ## Returns a builder instance
 static func builder() -> Builder:
 	return Builder.new()
 
+
 # Returns: InputState[]
-func _get_decomposed_states(device: int, input_interface: FrayInputInterface) -> Array:
+func _get_decomposed_states(device: int) -> Array:
 	var decomposed_states := []
-	for bind in decompose(device, input_interface):
-		decomposed_states.append(input_interface.get_bind_state(bind, device))
+	for bind in decompose(device):
+		decomposed_states.append(get_bind_state(bind, device))
 	return decomposed_states
 
 
-func _is_all_components_pressed(device: int, input_interface: FrayInputInterface) -> bool:
+func _is_all_components_pressed(device: int) -> bool:
 	for component in _components:
-		if not component.is_pressed(device, input_interface):
+		if not component.is_pressed(device):
 			return false
 	return true
 
 
-func _is_combination_quick_enough(device: int, input_interface: FrayInputInterface, tolerance: float = 10) -> bool:
-	var decomposed_states := _get_decomposed_states(device, input_interface)
+func _is_combination_quick_enough(device: int, tolerance: float = 10) -> bool:
+	var decomposed_states := _get_decomposed_states(device)
 	var avg_difference := 0
 
 	for i in len(decomposed_states):
@@ -73,8 +76,8 @@ func _is_combination_quick_enough(device: int, input_interface: FrayInputInterfa
 	return avg_difference <= tolerance
 
 
-func _is_combination_in_order(device: int, input_interface: FrayInputInterface, tolerance: float = 10) -> bool:
-	var decomposed_states := _get_decomposed_states(device, input_interface)
+func _is_combination_in_order(device: int, tolerance: float = 10) -> bool:
+	var decomposed_states := _get_decomposed_states(device)
 
 	for i in len(decomposed_states):
 		if i > 0:
@@ -128,12 +131,12 @@ class Builder:
 	func mode_async() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ASYNC
 		return self
-		
+
 	## Sets the combination to sync mode
 	func mode_sync() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.SYNC
 		return self
-		
+
 	## Sets the combination to ordered mode
 	func mode_ordered() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ORDERED
