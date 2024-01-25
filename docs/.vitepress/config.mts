@@ -54,6 +54,37 @@ export default defineConfig({
           },
         ],
       },
+      {
+        text: "Input Module",
+        collapsed: false,
+        link: "/input/overview",
+        items: [
+          {
+            text: "Guide",
+            collapsed: false,
+            items: [
+              {
+                text: "Registering Inputs",
+                link: "/input/guide/registering-inputs",
+              },
+              {
+                text: "Detecting Inputs",
+                link: "/input/guide/detecting-inputs",
+              },
+              {
+                text: "Detecting Input Sequences",
+                link: "/input/guide/detecting-input-sequences",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: "Hit Module",
+        collapsed: false,
+        link: "/hit/overview",
+        items: [],
+      },
     ],
 
     socialLinks: [
