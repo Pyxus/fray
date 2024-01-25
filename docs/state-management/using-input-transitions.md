@@ -2,7 +2,7 @@
 
 ## What Is An Input Transition?
 
-Input transitions, distinct from [state machine transition inputs](/state-management/guide/controlling-state-transitions#define-accepted-input-custom-transitions), are `FrayStateMachineTransition` implementations used to describe transitions based on input from devices such as a controller. Fray offers two types of input transitions: `FrayInputTransitionPress` and `FrayInputTransitionSequence`.
+Input transitions, distinct from [state machine transition inputs](/state-management/controlling-state-transitions#define-accepted-input-custom-transitions), are `FrayStateMachineTransition` implementations used to describe transitions based on input from devices such as a controller. Fray offers two types of input transitions: `FrayInputTransitionPress` and `FrayInputTransitionSequence`.
 
 ## How Do Input Transitions Work?
 
