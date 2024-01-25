@@ -67,7 +67,7 @@ Notice `transition()` takes an optional 3rd argument which allows you to configu
 
 ## Conclusion
 
-In order to observe your newly created state machine first select the state machine node in the tree and then from the inspector set the `active` property to true. Additionally, set `advance_mode` to manual. At the moment the state machine has nothing to limit its transitions and allowing it to advance automatically will result in the state machine cycling to the next avaialble state every frame.
+In order to observe your newly created state machine first select the state machine node in the tree and then from the inspector set the `active` property to true. Additionally, set `advance_mode` to manual. At the moment the state machine has nothing to limit its transitions so allowing it to advance automatically will result in the state machine cycling to the next avaialble state every frame.
 
 [comment]: <Screenshot of properties in requested state>
 
@@ -76,13 +76,26 @@ Next in the root node of the scene you added the state machine to paste the foll
 ```gdscript
 var state_machine: FrayStateMachine = $StateMachine
 
+func _ready() -> void:
+    state_machine.state_changed.connect()
+
 func _process():
     if Input.is_action_just_pressed("ui_select"):
         state_machine.advance()
-        state_machine.get_root().print_adj()
 
+func _on_StateMachine_state_changed(from: StringName, to: StringName) -> void:
+    print("State transitioned from '%s' to '%s'" % [from, to])
 ```
 
-Now whenever you press space an adjacency list representing the 'state' of the state machine after each transition. The current state indicated by the 'c' will be changing with each press.
+Now whenever you press space the state will change and print a message informing that the current state has changed.
 
 [comment]: <Photo or gif of print>
+
+Alternatively the `print_adj()` method can be used to quickly print the state of a state machine for debug purposes.
+
+```gdscript
+func _process():
+    if Input.is_action_just_pressed("ui_select"):
+        state_machine.advance()
+        state_machine.print_adj()
+```
