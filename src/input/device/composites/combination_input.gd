@@ -111,6 +111,13 @@ class Builder:
 		_composite_input.add_component(composite_input)
 		return self
 
+	## Adds a simple input as a component of this combination
+	## [br]
+	## Returns a reference to this ComponentBuilder.
+	func add_component_simple(bind: StringName) -> Builder:
+		_composite_input.add_component(FraySimpleInput.from_bind(bind))
+		return self
+
 	## Sets whether the input will be virtual or not.
 	## If true, components that are still held when the composite is released
 	## will be treated as if they were just pressed again.
