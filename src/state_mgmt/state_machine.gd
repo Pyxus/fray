@@ -86,7 +86,7 @@ func advance(input: Dictionary = {}, args: Dictionary = {}) -> bool:
 
 
 ## Returns the first node of a given [kbd]type[/kbd] attached to this state machine. Types can either be scripts or native classes.
-func get_node_of_type(type: Variant) -> FrayStateMachineComponent:
+func get_node_of_type(type: Variant) -> Node:
 	for child in get_children():
 		if is_instance_of(child, type):
 			return child
