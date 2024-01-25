@@ -20,6 +20,12 @@ Fray is a modular Godot 4 addon designed to aid in the development of action-ori
 - Complex input detection ([directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs))
 - Hitbox management
 
+## 📚 Getting Started
+
+Fray comes with comprehensive documentation integrated with Godot 4's documentation comments. This means you can access explanations for classes and functions directly within the Godot editor.
+
+For additional guides and resources, check out the [official Fray wiki](https://65b28feccd16b7000800da28--sparkly-travesseiro-2bfdd2.netlify.app).
+
 ## 📦 Installation
 
 1. Clone or download a copy of this repository.
@@ -30,12 +36,6 @@ Alternatively if using git the project can be added as a sub module like so:
 `git submodule add https://github.com/Pyxus/fray.git ./addons/fray`
 
 If you would like to know more about installing plugins see the [Official Godot Docs](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html).
-
-## 📚 Getting Started with Fray
-
-Fray comes with comprehensive documentation integrated with Godot 4's documentation comments. This means you can access explanations for classes and functions directly within the Godot editor.
-
-For additional guides and resources, check out the [official Fray wiki](https://65b28feccd16b7000800da28--sparkly-travesseiro-2bfdd2.netlify.app).
 
 ## 📃 Credits
 
