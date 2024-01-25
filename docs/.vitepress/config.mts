@@ -16,10 +16,10 @@ export default defineConfig({
       text: "Edit this page on GitHub",
     },
     lastUpdated: {
-      text: "Updated at",
+      text: "Last updated",
       formatOptions: {
-        dateStyle: "full",
-        timeStyle: "medium",
+        dateStyle: "medium",
+        timeStyle: "short",
       },
     },
     sidebar: [
