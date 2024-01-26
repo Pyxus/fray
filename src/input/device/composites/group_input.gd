@@ -44,50 +44,33 @@ func _decompose_impl(device: int) -> Array[StringName]:
 
 
 class Builder:
-	extends RefCounted
+	extends FrayCompositeInput.Builder
 	## [FrayGroupInput] builder.
 
-	var _composite_input = FrayGroupInput.new()
-
-	## Builds the composite input.
+	func _init() -> void:
+		_composite_input = FrayGroupInput.new()
+	
+	## Builds the composite input
 	## [br]
-	## Returns a reference to the newly built CompositeInput.
+	## Returns a reference to the newly built composite input.
 	func build() -> FrayGroupInput:
 		return _composite_input
 
 	## Sets the minimum number of components that must be pressed.
 	## [br]
-	## Returns a reference to this ComponentBuilder.
+	## Returns a reference to this builder.
 	func min_pressed(value: int) -> Builder:
 		_composite_input.min_pressed = value
 		return self
 
-	## Adds a composite input as a component of this group.
-	## [br]
-	## Returns a reference to this ComponentBuilder.
 	func add_component(composite_input: FrayCompositeInput) -> Builder:
-		_composite_input.add_component(composite_input)
-		return self
-
-	## Adds a simple input as a component of this group
-	## [br]
-	## Returns a reference to this ComponentBuilder.
+		return super(composite_input)
+	
 	func add_component_simple(bind: StringName) -> Builder:
-		_composite_input.add_component(FraySimpleInput.from_bind(bind))
-		return self
+		return super(bind)
 
-	## Sets whether the input will be virtual or not.
-	## If true, components that are still held when the composite is released
-	## will be treated as if they were just pressed again.
-	## [br]
-	## Returns a reference to this ComponentBuilder
 	func is_virtual(value: bool = true) -> Builder:
-		_composite_input.is_virtual = value
-		return self
+		return super(value)
 
-	## Sets the composite input's process priority. Higher priority composites are processed first.
-	## [br]
-	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
-		_composite_input.priority = value
-		return self
+		return super(value)

@@ -4,7 +4,7 @@
 	<img src="assets/images/fray_banner.gif" alt="Fray Logo">
 </p>
 
-![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v4.0-blue) ![License](https://img.shields.io/badge/license-MIT-informational)
+![Fray status](https://img.shields.io/badge/status-alpha-red) ![Godot version](https://img.shields.io/badge/godot-v4.2+-blue) ![License](https://img.shields.io/badge/license-MIT-informational)
 
 ## 📖 About
 

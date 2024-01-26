@@ -79,34 +79,21 @@ func _get_active_component(device: int) -> FrayCompositeInput:
 
 
 class Builder:
-	extends RefCounted
+	extends FrayCompositeInput.Builder
 
-	var _composite_input: FrayConditionalInput = FrayConditionalInput.new()
-
+	func _init() -> void:
+		_composite_input = FrayConditionalInput.new()
+	
 	## Builds the composite input
 	## [br]
-	## Returns a reference to the newly built CompositeInput
-	func build() -> FrayCompositeInput:
+	## Returns a reference to the newly built conditional input.
+	func build() -> FrayConditionalInput:
 		return _composite_input
 
-	## Adds a composite input as a component of this conditional input
-	## [br]
-	## Returns a reference to this ComponentBuilder
-	func add_component(composite_input: FrayCompositeInput) -> Builder:
-		_composite_input.add_component(composite_input)
-		return self
-
-	## Adds a simple input as a component of this conditional input
-	## [br]
-	## Returns a reference to this ComponentBuilder.
-	func add_component_simple(bind: StringName) -> Builder:
-		_composite_input.add_component(FraySimpleInput.from_bind(bind))
-		return self
-
 	## Sets the condition of the previously added component.
-	## Will do nothing for the first component added as this component is trated as default.
+	## Will do nothing for the first component added as this component is treated as default.
 	## [br]
-	## Returns a reference to this ComponentBuilder
+	## Returns a reference to this builder.
 	func use_condition(condition: Callable) -> Builder:
 		var component_count := _composite_input.get_component_count()
 
@@ -118,19 +105,15 @@ class Builder:
 			_composite_input.set_condition(component_count - 1, condition)
 
 		return self
+	
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		return super(composite_input)
+	
+	func add_component_simple(bind: StringName) -> Builder:
+		return super(bind)
 
-	## Sets whether the input will be virtual or not.
-	## If true, components that are still held when the composite is released
-	## will be treated as if they were just pressed again.
-	## [br]
-	## Returns a reference to this ComponentBuilder
 	func is_virtual(value: bool = true) -> Builder:
-		_composite_input.is_virtual = value
-		return self
+		return super(value)
 
-	## Sets the composite input's process priority. Higher priority composites are processed first.
-	## [br]
-	## Returns a reference to this ComponentBuilder
 	func priority(value: int) -> Builder:
-		_composite_input.priority = value
-		return self
+		return super(value)

@@ -15,6 +15,9 @@ enum Mode {
 ## Determines press condition necessary to trigger combination
 var mode: Mode = Mode.SYNC
 
+## Returns a builder instance
+static func builder() -> Builder:
+	return Builder.new()
 
 func _is_pressed_impl(device: int) -> bool:
 	match mode:
@@ -36,11 +39,6 @@ func _decompose_impl(device: int) -> Array[StringName]:
 	for component in _components:
 		binds.append_array(component.decompose(device))
 	return binds
-
-
-## Returns a builder instance
-static func builder() -> Builder:
-	return Builder.new()
 
 
 # Returns: InputState[]
@@ -94,57 +92,46 @@ func _is_combination_in_order(device: int, tolerance: float = 10) -> bool:
 
 
 class Builder:
-	extends RefCounted
+	extends FrayCompositeInput.Builder
 
-	var _composite_input = FrayCombinationInput.new()
-
-	## Builds the composite input
+	func _init() -> void:
+		_composite_input = FrayCombinationInput.new()
+	
+	## Builds the composite input.
 	## [br]
-	## Returns a reference to the newly built CompositeInput
+	## Returns a reference to the newly built combination input.
 	func build() -> FrayCombinationInput:
 		return _composite_input
-
-	## Adds a composite input as a component of this combination
+	
+	## Sets the combination to async mode.
 	## [br]
-	## Returns a reference to this ComponentBuilder
-	func add_component(composite_input: FrayCompositeInput) -> Builder:
-		_composite_input.add_component(composite_input)
-		return self
-
-	## Adds a simple input as a component of this combination
-	## [br]
-	## Returns a reference to this ComponentBuilder.
-	func add_component_simple(bind: StringName) -> Builder:
-		_composite_input.add_component(FraySimpleInput.from_bind(bind))
-		return self
-
-	## Sets whether the input will be virtual or not.
-	## If true, components that are still held when the composite is released
-	## will be treated as if they were just pressed again.
-	## [br]
-	## Returns a reference to this ComponentBuilder
-	func is_virtual(value: bool = true) -> Builder:
-		_composite_input.is_virtual = value
-		return self
-
-	## Sets the composite input's process priority. Higher priority composites are processed first.
-	## [br]
-	## Returns a reference to this ComponentBuilder
-	func priority(value: int) -> Builder:
-		_composite_input.priority = value
-		return self
-
-	## Sets the combination to async mode
+	## Returns a reference to the newly built combination input.
 	func mode_async() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ASYNC
 		return self
 
-	## Sets the combination to sync mode
+	## Sets the combination to sync mode.
+	## [br]
+	## Returns a reference to the newly built combination input.
 	func mode_sync() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.SYNC
 		return self
 
-	## Sets the combination to ordered mode
+	## Sets the combination to ordered mode.
+	## [br]
+	## Returns a reference to the newly built combination input.
 	func mode_ordered() -> Builder:
 		_composite_input.mode = FrayCombinationInput.Mode.ORDERED
 		return self
+
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		return super(composite_input)
+	
+	func add_component_simple(bind: StringName) -> Builder:
+		return super(bind)
+
+	func is_virtual(value: bool = true) -> Builder:
+		return super(value)
+
+	func priority(value: int) -> Builder:
+		return super(value)

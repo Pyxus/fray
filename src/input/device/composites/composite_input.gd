@@ -22,6 +22,9 @@ var _components: Array[FrayCompositeInput]
 # Type: WeakRef<CompositeInput>
 var _root_wf: WeakRef
 
+## Returns a builder instance
+static func builder() -> Builder:
+	return Builder.new()
 
 ## get_bind_state is a FuncRef of the type (string) -> InputState
 func is_pressed(device: int) -> bool:
@@ -124,3 +127,45 @@ func _is_pressed_impl(device: int) -> bool:
 func _decompose_impl(device: int) -> Array[StringName]:
 	assert(false, "Method not implemented")
 	return []
+
+
+class Builder:
+	extends RefCounted
+
+	var _composite_input: FrayCompositeInput
+
+	## Builds the composite input.
+	## [br]
+	## Returns a reference to the newly built composite input.
+	func build() -> FrayCompositeInput:
+		return _composite_input
+
+	## Adds a composite input as a component of the composite being constructed.
+	## [br]
+	## Returns a reference to this builder.
+	func add_component(composite_input: FrayCompositeInput) -> Builder:
+		_composite_input.add_component(composite_input)
+		return self
+
+	## Adds a simple input as a component of the composite being constructed.
+	## [br]
+	## Returns a reference to this builder.
+	func add_component_simple(bind: StringName) -> Builder:
+		_composite_input.add_component(FraySimpleInput.from_bind(bind))
+		return self
+
+	## Sets whether the input will be virtual or not.
+	## If true, components that are still held when the composite is released
+	## will be treated as if they were just pressed again.
+	## [br]
+	## Returns a reference to this builder.
+	func is_virtual(value: bool = true) -> Builder:
+		_composite_input.is_virtual = value
+		return self
+
+	## Sets the composite input's process priority. Higher priority composites are processed first.
+	## [br]
+	## Returns a reference to this builder.
+	func priority(value: int) -> Builder:
+		_composite_input.priority = value
+		return self
