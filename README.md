@@ -24,7 +24,7 @@ Fray is a modular Godot 4 addon designed to aid in the development of action-ori
 
 Fray comes with comprehensive documentation integrated with Godot 4's documentation comments. This means you can access explanations for classes and functions directly within the Godot editor.
 
-For additional guides and resources, check out the [official Fray wiki](https://65b28feccd16b7000800da28--sparkly-travesseiro-2bfdd2.netlify.app).
+For additional guides and resources, check out the [official Fray wiki](https://fray.pyxus.dev).
 
 ## 📦 Installation
 
