@@ -5,7 +5,10 @@ layout: home
 hero:
   name: "Fray"
   text: "Documentation"
-  tagline: 🐈‍⬛ A modular combat framework for Godot 4
+  tagline: 🐱‍👤 A modular combat framework for Godot 4.2+
+  image: 
+    light: /assets/icons/fray-logo-light.svg
+    dark: /assets/icons/fray-logo-dark.svg
   actions:
     - theme: brand
       text: Get Started

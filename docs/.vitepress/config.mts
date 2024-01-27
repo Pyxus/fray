@@ -6,7 +6,10 @@ export default defineConfig({
   description: "Modular combat framework for Godot 4",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    logo: "/public/assets/icons/fray-logo-2.png",
+    logo: {
+      dark: "/assets/icons/fray-logo-dark.svg", 
+      light: "/assets/icons/fray-logo-light.svg"
+    },
     search: {
       provider: "local",
     },
