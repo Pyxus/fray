@@ -5,6 +5,10 @@ outline: [2, 6]
 
 # Installation
 
+## GitHub Release (Recommended, Stable)
+
+WIP
+
 ## GitHub Branch (Latest, Unstable)
 
 1. Downloaded the [latest main branch](https://github.com/Pyxus/fray/archive/refs/heads/main.zip)
