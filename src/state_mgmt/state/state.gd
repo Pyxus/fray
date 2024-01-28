@@ -44,7 +44,7 @@ func get_node_of_type(type: Variant) -> Node:
 
 ## Returns all nodes of a given [kbd]type[/kbd] attached to this state machine.
 func get_nodes_of_type(type: Variant) -> Array[Node]:
-	return get_root().get_node_of_type(type)
+	return get_root().get_nodes_of_type(type)
 
 
 ## Process child states then this state.
