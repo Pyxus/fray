@@ -5,7 +5,7 @@ extends FrayAnimatorTracker
 
 @export_node_path("AnimatedSprite3D") var anim_sprite_path: NodePath
 
-@export var _anim_sprite: AnimatedSprite3D = null
+var _anim_sprite: AnimatedSprite3D = null
 
 var _prev_frame: int = -1
 
