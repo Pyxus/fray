@@ -17,10 +17,16 @@ var is_virtual: bool:
 ## The composite input's priority. Higher priority composites are processed first.
 var priority: int
 
-var _components: Array[FrayCompositeInput]
-
 # Type: WeakRef<CompositeInput>
 var _root_wf: WeakRef
+var _components: Array[FrayCompositeInput]
+
+var _fn_get_bind_state: Callable:
+	set(value): 
+		_fn_get_bind_state = value
+		
+		for component in _components:
+			component._fn_get_bind_state = value
 
 ## Returns a builder instance
 static func builder() -> Builder:
@@ -114,8 +120,11 @@ func get_time_pressed(device: int) -> int:
 
 ## Returns the state of a [kbd]bind[/kbd] on a given [kbd]device[/kbd]
 func get_bind_state(bind: StringName, device: int) -> FrayInputState:
-	return FrayInput._get_bind_state(bind, device)
+	if _fn_get_bind_state.is_null():
+		push_error("Unable to get bind state. Fray plugin may not have been enabled or composite instance is being used outside of input map.")
+		return null
 
+	return _fn_get_bind_state.call(bind, device)
 
 ## Abstract method used to define press check procedure.
 func _is_pressed_impl(device: int) -> bool:

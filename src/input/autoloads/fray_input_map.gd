@@ -8,11 +8,11 @@ extends Node
 
 # Type: Dictionary<StringName, InputBind>
 var _input_bind_by_name: Dictionary
-
 # Type: Dictionary<StringName, CompositeInput>
 var _composite_input_by_name: Dictionary
-
 var _composites_sorted_by_priority: Array[StringName]
+
+@onready var _fray_input: _FrayInput = get_node("../FrayInput")
 
 ## Adds a composite input to the input map with a given [kbd]name[/kbd].[br]
 ## 
@@ -32,6 +32,7 @@ func add_composite_input(name: StringName, composite_input: FrayCompositeInput) 
 	if _err_input_already_exists(name, "Failed to add composite input."):
 		return
 	_composite_input_by_name[name] = composite_input
+	composite_input._fn_get_bind_state = _fray_input._get_bind_state
 	_composites_sorted_by_priority.append(name)
 	_composites_sorted_by_priority.sort_custom(
 		func(in1, in2) -> bool:
