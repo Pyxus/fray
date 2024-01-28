@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _get_configuration_warnings() -> PackedStringArray:
-	var warnings := super()
+	var warnings: PackedStringArray = []
 
 	if tracker:
 		warnings += tracker._get_configuration_warnings_impl()
