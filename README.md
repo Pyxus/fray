@@ -12,10 +12,6 @@ Fray is a modular Godot 4 addon designed to aid in the development of action-ori
 
 ## ⚠️ IMPORTANT
 
-Fray is currently in an alpha state. What does this mean? It has not been tested rigorously enough for me to be comfortable recommending it for use in a serious project. Additionally, it is susceptible to refactors, meaning the API is subject to change. However, a significant portion of Fray is functional, with any remaining bugs likely being simple oversights rather than major design flaws. If these issues do not concern you, and/or you are interested in testing the framework, please feel free to explore!
-
-## ⚠️ IMPORTANT
-
 **Fray is currently in an alpha state.**
 
 What does this mean?
