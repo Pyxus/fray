@@ -16,9 +16,35 @@ Fray is still in an alpha state. What do I mean by this mean? It has not been te
 
 ## ✨ Core Features
 
-- Extendable hierarchical state machine
-- Complex input detection ([directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs))
-- Hitbox management
+### Resource-Based Hierarchical State Machine
+
+- Build state machines declaratively in code using the included builder class.
+
+- Control state transitions using callable transition prerequisites and advance conditions.
+
+- Extend states and transitions to further control state flow and/or encapsulate game behavior within different states.
+
+
+[comment]: <Make a new animation which show cases a more fighting-game relevant animation AND sub states. Maybe on ground and in air>
+
+### Composite Input Detection 
+
+- Declaratively describe the many composite inputs featured in action / fighting games ([directional inputs](https://mugen.fandom.com/wiki/Command_input#Directional_inputs), [motion inputs](https://mugen.fandom.com/wiki/Command_input#Motion_input), [charged inputs](https://clips.twitch.tv/FuriousObservantOrcaGrammarKing-c1wo4zhroMVZ9I7y), and [sequence inputs](https://mugen.fandom.com/wiki/Command_input#Sequence_inputs)) using component based approach.
+
+- Check defined inputs anywhere using included input singleton.
+
+[comment]: <Make animation which shows code on left, controller on the bottom highlighting the combined inputs, and example of executing input in game on right.>
+
+
+### Hitbox management
+
+- Define hitboxes using template class with extendable attributes resource.
+
+- Organize hitboxes using hit states and hit state managers. 
+
+- Key active hitboxes in animation player using a single property for easier timeline management.
+
+[comment]: <Show gif of hitbox organization>
 
 ## 📚 Getting Started
 
