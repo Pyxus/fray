@@ -66,9 +66,21 @@ For additional guides and resources, check out the [official Fray wiki](https://
 
 ## 📦 Installation
 
-1. Clone or download a copy of this repository.
-2. Copy the contents of the repo into `res://addons/fray` directory.
-3. Enable `Fray - Combat Framework` in your project plugins.
+### GitHub Release (Recommended, Stable)
+
+Coming soon...
+
+### Asset Library (Recommended, Stable)
+
+Coming soon...
+
+### GitHub Branch (Latest, Unstable, Godot 4.2+)
+
+1. Downloaded the [latest main branch](https://github.com/Pyxus/fray/archive/refs/heads/main.zip)
+2. Extract the zip file and move its contents to `addons/fray`.
+3. Enable the addon inside `Project/Project Settings/Plugins`
+
+---
 
 If you would like to know more about installing plugins see the [Official Godot Docs](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html).
 
