@@ -6,7 +6,17 @@ outline: [2, 6]
 # Installation
 
 ::: warning
-Fray is still in an alpha state. What do I mean by this mean? It has not been tested rigorously enough for me to be comfortable recommending it for use in a serious project. Additionally, it is still susceptible to refactors meaning the API may be subject to change. However, much of Fray is functional with any remaining bugs likely being simple to fix oversights rather than major design flaws. So if these issues do not concern you, and/or you are interested in testing the framework then please jump right in!
+**Fray is currently in an alpha state.**
+
+What does this mean?
+
+- It has not been tested rigorously enough for me to be comfortable recommending it for use in a serious project.
+
+- The documentation is incomplete and there is a lack of good examples.
+
+- Lastly, it is still susceptible to refactors, meaning the API is subject to change.
+
+That being said, a significant portion of Fray is functional, with any remaining bugs likely being simple oversights rather than major design flaws. If these issues do not concern you, and/or you are interested in testing the framework, please feel free to explore!
 :::
 
 
