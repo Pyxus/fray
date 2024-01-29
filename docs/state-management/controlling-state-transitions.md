@@ -13,14 +13,14 @@ When visualizing the state machine as a graph, a transition represents the conne
 
 ## When Do Transitions Occur?
 
-Transitions can only occur under the following conditions:
+Transitions will only occur when the following conditions are all met:
 
 1. All transition prerequisites are true.
 2. Auto advance is disabled, or if it is enabled, all advance conditions are true.
 3. The transition accepts the given input.
-4. And the transition switch mode is SwitchMode.Immediate, or the switch mode is SwitchMode.AtEnd and the current state is done processing.
+4. And the transition's switch mode is `SwitchMode.Immediate`, or the switch mode is `SwitchMode.AtEnd` and the current state is done processing.
 
-Given these conditions, there are four ways to control the flow from one state to another.
+Given this, there are four ways to control the flow from one state to another.
 
 ## Defining Prerequisite and Advance Conditions
 
@@ -30,7 +30,7 @@ In Fray, a condition is a parameterless function that returns a boolean mapped t
 
 ### How Are Conditions Used?
 
-To utilize conditions, they must first be registered within the state machine. This can be accomplished using the builder's `register_conditions()` method. Once registered, conditions can be accessed using the string name assigned to them.
+To utilize conditions, they must first be registered within the state machine. This can be accomplished using the builder's `register_conditions()` method. Once registered, conditions can be referenced using the string name assigned to them.
 
 ```gdscript
 state_machine.initialize({},FrayCompositeState.builder()
@@ -104,7 +104,7 @@ In this example, the transition from "eating" to "idle" occurs when the inverse 
 Input can be thought of as a transition-specific prerequisite.
 :::
 
-Input is an optional dictionary provided to the `FrayCompoundState`'s `advance()` method. The base `FrayStateMachineTransition` class accepts any input by default. Input is only relevant when attempting to manually advance the state machine along a custom transition.
+Input is an optional dictionary provided to the `FrayCompoundState`'s `advance()` method. The base `FrayStateMachineTransition` class accepts any input by default, therefore input is only relevant when attempting to manually advance the state machine along a derived transition.
 
 To define the input that a transition accepts, first, extend `FrayStateMachineTransition` and override `_accepts_impl()` to return true when the desired input is supplied. Below is a transition that can only occur when an `is_jumping` input is supplied to the system.
 

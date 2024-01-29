@@ -7,19 +7,18 @@ outline: [2, 6]
 
 ## What is a Hierarchical State Machine?
 
-A state machine is a model that represents an entity's various states and the transitions between them in a finite and structured way. You can visualize a state machine as a graph where each point is a state and the connecting lines are transitions. To be hierarchical means that within each state there can exist entire state machines, which is useful when modeling more complex behaviors.
+A state machine is a model that represents an entity's various states and the transitions between them in a finite and structured way. They can be visualized as a graph where each point is a state and the connecting lines are transitions. To be hierarchical means that within each state there can exist entire state machines, which is useful when modeling more complex behaviors.
 
 ## 1. Add State Machine To Scene
 
-Before you can begin building your state machine you will need to add a `FrayStateMachine` node to your scene. For this guide the node will be named 'StateMachine'
+Before you can begin building a state machine first add a `FrayStateMachine` node to the scene. For this guide the node will be named 'FrayStateMachine'.
 
-[comment]: <Show screenshot / gif of adding state machine to tree>
+![](/assets/guides/add-state-machine-to-scene.png)
+![](/assets/guides/state-machine-in-scene.png)
 
 ## 2. Build State Machine Root
 
 All state machines require a `FrayCompoundState` root in order to function. Compound states are responsible for describing the set of states and transitions present within the state machine.
-
-[comment]: <Show visual aid of state machine containing root which contains the states and transitions>
 
 The compound state can be configured directly through methods such as `add_state()` and `add_transition()`. However, it is recommended to construct states using the included `FrayCompoundState.Builder`class. An instance of the class can be obtained through the static `FrayCompoundState.builder()` method.
 
@@ -33,12 +32,10 @@ root.add_transition("a", "b", FrayTransition.new())
 root.add_transition("b", "c", FrayTransition.new())
 root.add_transition("c", "a", FrayTransition.new())
 root.start_state = "a"
-root.end_state = "c"
 
 # Builder Configuration
 var root := (FrayCompoundState.builder()
     .start_at("a")
-    .end_at("c")
     .transition("a", "b")
     .transition("b", "c")
     .transition("c", "a")
@@ -46,9 +43,9 @@ var root := (FrayCompoundState.builder()
 )
 ```
 
-[comment]: <Show visualization of this state machine>
+![](/assets/guides/building-state-machine-root.webp)
 
-With the exception of `build()`, all builder methods return an instance of the builder, allowing for chain method calls. Additionally, the builder will create a state instance whenever a state is mentioned, meaning it is not required to add a state before using it in a transition. However, the builder's `add_state()` is required if you wish to add a custom state.
+With the exception of `build()`, all builder methods return an instance of the builder, allowing for chain method calls. Additionally, the builder will create a state instance whenever a state is mentioned, meaning it is not required to add a state before using it. However, the builder's `add_state()` method is required when adding custom states.
 
 ## 3. Initialize State Machine
 
@@ -63,33 +60,33 @@ state_machine.initialize({}, FrayCompoundState.builder()
 )
 ```
 
-Notice `transition()` takes an optional 3rd argument which allows you to configure properties belonging to `FrayStateMachineTransition`. For this example auto advance is enabled as a simple way to see the state machine in action.
+Notice `transition()` takes an optional 3rd argument which is a dictionary that allows properties belonging to `FrayStateMachineTransition`. For this example auto advance is enabled as a simple way to see the state machine in action.
 
-## Conclusion
+## 4. Observing State Transitions
 
-In order to observe your newly created state machine first select the state machine node in the tree and then from the inspector set the `active` property to true. Additionally, set `advance_mode` to manual. At the moment the state machine has nothing to limit its transitions so allowing it to advance automatically will result in the state machine cycling to the next avaialble state every frame.
-
-[comment]: <Screenshot of properties in requested state>
-
-Next in the root node of the scene you added the state machine to paste the following code:
+Now that the state machine has been initialized state transitions can be observed using the `state_changed` signal on the state machine. 
 
 ```gdscript
-var state_machine: FrayStateMachine = $StateMachine
-
 func _ready() -> void:
     state_machine.state_changed.connect(_on_StateMachine_state_changed)
-
-func _process(delta: float):
-    if Input.is_action_just_pressed("ui_select"):
-        state_machine.advance()
 
 func _on_StateMachine_state_changed(from: StringName, to: StringName) -> void:
     print("State transitioned from '%s' to '%s'" % [from, to])
 ```
 
-Now whenever you press space the state will change and print a message informing that the current state has changed.
+Before you can see the newly created state machine in action first select the state machine node in the tree and then from the inspector set the `active` property to true. Additionally, set `advance_mode` to manual. At the moment the state machine has nothing to limit its transitions so allowing it to advance automatically will result in the state machine cycling to the next avaialble state every frame.
 
-[comment]: <Photo or gif of print>
+![](/assets/guides/inspector-state-machine.png)
+
+Lastly since the state machine is set to manual mode, call the state machine's `advance` method inside of the `_process()` whenever `ui_select` is just pressed.
+
+```gdscript
+func _process(delta: float):
+    if Input.is_action_just_pressed("ui_select"):
+        state_machine.advance()
+```
+
+Now whenever space is pressed the state will change and print a message informing that the current state has changed.
 
 Alternatively the `print_adj()` method can be used to quickly print the state of a state machine for debug purposes.
 
@@ -98,4 +95,30 @@ func _process():
     if Input.is_action_just_pressed("ui_select"):
         state_machine.advance()
         state_machine.get_root().print_adj()
+```
+
+## Conclusion
+
+You should now have a script resembling the one below. This script assumes that the state machine is a direct child of the attached node.
+
+```gdscript
+extends Node
+
+@onready var state_machine: FrayStateMachine = $FrayStateMachine
+
+func _ready() -> void:
+    state_machine.state_changed.connect(_on_StateMachine_state_changed)
+    state_machine.initialize({}, FrayCompoundState.builder()
+        .transition("a", "b", {auto_advance=true})
+        .transition("b", "c", {auto_advance=true})
+        .transition("c", "a", {auto_advance=true})
+        .build()
+    )
+
+func _process(delta: float):
+    if Input.is_action_just_pressed("ui_select"):
+        state_machine.advance()
+
+func _on_StateMachine_state_changed(from: StringName, to: StringName) -> void:
+    print("State transitioned from '%s' to '%s'" % [from, to])
 ```

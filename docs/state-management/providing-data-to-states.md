@@ -37,7 +37,7 @@ func _ready(context: Dictionary) -> void:
     anim_player = get_node_of_type(AnimationPlayer)
 ```
 
-This allows states to interact with and observe nodes within the scene providing the ability to control the game's behavior during different states.
+This allows states to interact with and observe nodes within the scene providing the ability to encapsulate control of the game's behavior within different states.
 
 ## Object Constructor
 
