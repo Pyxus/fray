@@ -77,9 +77,9 @@ Next in the root node of the scene you added the state machine to paste the foll
 var state_machine: FrayStateMachine = $StateMachine
 
 func _ready() -> void:
-    state_machine.state_changed.connect()
+    state_machine.state_changed.connect(_on_StateMachine_state_changed)
 
-func _process():
+func _process(delta: float):
     if Input.is_action_just_pressed("ui_select"):
         state_machine.advance()
 
@@ -97,5 +97,5 @@ Alternatively the `print_adj()` method can be used to quickly print the state of
 func _process():
     if Input.is_action_just_pressed("ui_select"):
         state_machine.advance()
-        state_machine.print_adj()
+        state_machine.get_root().print_adj()
 ```
