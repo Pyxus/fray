@@ -24,7 +24,7 @@ The compound state can be configured directly through methods such as `add_state
 
 ```gdscript
 # Explicit Configuration
-var root := FrayCompoundstate.new()
+var root := FrayCompoundState.new()
 root.add_state("a", FrayState.new())
 root.add_state("b", FrayState.new())
 root.add_state("c", FrayState.new())
